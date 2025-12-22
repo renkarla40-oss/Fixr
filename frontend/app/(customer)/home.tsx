@@ -16,36 +16,26 @@ const categories = [
     id: 'electrical',
     name: 'Electrical',
     icon: 'flash' as const,
-    color: '#FFB020',
-    bgColor: '#FFF8E1',
   },
   {
     id: 'plumbing',
     name: 'Plumbing',
     icon: 'water' as const,
-    color: '#2196F3',
-    bgColor: '#E3F2FD',
   },
   {
     id: 'ac',
     name: 'AC Repair',
     icon: 'snow' as const,
-    color: '#00BCD4',
-    bgColor: '#E0F7FA',
   },
   {
     id: 'cleaning',
     name: 'Cleaning',
     icon: 'sparkles' as const,
-    color: '#9C27B0',
-    bgColor: '#F3E5F5',
   },
   {
     id: 'handyman',
     name: 'Handyman',
     icon: 'hammer' as const,
-    color: '#FF5722',
-    bgColor: '#FBE9E7',
   },
 ];
 
@@ -85,18 +75,12 @@ export default function CustomerHomeScreen() {
                 onPress={() => handleCategoryPress(category.id, category.name)}
                 activeOpacity={0.7}
               >
-                <View
-                  style={[
-                    styles.categoryIconContainer,
-                    { backgroundColor: category.bgColor },
-                  ]}
-                >
-                  <Ionicons
-                    name={category.icon}
-                    size={32}
-                    color={category.color}
-                  />
-                </View>
+                <Ionicons
+                  name={category.icon}
+                  size={32}
+                  color="#E53935"
+                  style={styles.categoryIcon}
+                />
                 <Text style={styles.categoryName}>{category.name}</Text>
               </TouchableOpacity>
             ))}
@@ -153,18 +137,15 @@ const styles = StyleSheet.create({
   categoryCard: {
     width: '47%',
     backgroundColor: '#F8F9FA',
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 12,
+    padding: 24,
     alignItems: 'center',
-    minHeight: 140,
+    minHeight: 120,
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
   },
-  categoryIconContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
+  categoryIcon: {
     marginBottom: 12,
   },
   categoryName: {

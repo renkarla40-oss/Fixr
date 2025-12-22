@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,14 +6,16 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
 
 export default function ProfileScreen() {
-  const { user, logout } = useAuth();
+  const { user, logout, switchRole } = useAuth();
   const router = useRouter();
+  const [switching, setSwitching] = useState(false);
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -29,6 +31,26 @@ export default function ProfileScreen() {
     ]);
   };
 
+  const handleSwitchToProvider = async () => {
+    if (!user) return;
+
+    setSwitching(true);
+    try {
+      if (user.isProviderEnabled) {
+        // Provider setup already complete, just switch role
+        await switchRole('provider');
+        router.replace('/(provider)/dashboard');
+      } else {
+        // Need to complete provider setup first
+        router.push('/provider-setup');
+      }
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to switch to provider mode');
+    } finally {
+      setSwitching(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -39,11 +61,14 @@ export default function ProfileScreen() {
         <View style={styles.content}>
           <View style={styles.profileSection}>
             <View style={styles.avatarContainer}>
-              <Ionicons name="person" size={48} color="#4A90E2" />
+              <Ionicons name="person" size={48} color="#666" />
             </View>
             <Text style={styles.name}>{user?.name}</Text>
             <Text style={styles.email}>{user?.email}</Text>
             <Text style={styles.phone}>{user?.phone}</Text>
+            <View style={styles.roleBadge}>
+              <Text style={styles.roleText}>Customer</Text>
+            </View>
           </View>
 
           <View style={styles.section}>
@@ -57,12 +82,23 @@ export default function ProfileScreen() {
               <Ionicons name="chevron-forward" size={24} color="#999" />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuItem} activeOpacity={0.7}>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={handleSwitchToProvider}
+              disabled={switching}
+              activeOpacity={0.7}
+            >
               <View style={styles.menuItemLeft}>
-                <Ionicons name="swap-horizontal-outline" size={24} color="#666" />
-                <Text style={styles.menuItemText}>Switch to Provider</Text>
+                <Ionicons name="swap-horizontal-outline" size={24} color="#E53935" />
+                <Text style={[styles.menuItemText, styles.switchText]}>
+                  Switch to Provider
+                </Text>
               </View>
-              <Ionicons name="chevron-forward" size={24} color="#999" />
+              {switching ? (
+                <ActivityIndicator size="small" color="#E53935" />
+              ) : (
+                <Ionicons name="chevron-forward" size={24} color="#999" />
+              )}
             </TouchableOpacity>
           </View>
 
@@ -72,7 +108,7 @@ export default function ProfileScreen() {
               onPress={handleLogout}
               activeOpacity={0.7}
             >
-              <Ionicons name="log-out-outline" size={24} color="#FF3B30" />
+              <Ionicons name="log-out-outline" size={24} color="#E53935" />
               <Text style={styles.logoutText}>Logout</Text>
             </TouchableOpacity>
           </View>
@@ -116,7 +152,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#F0F7FF',
+    backgroundColor: '#F5F5F5',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -135,6 +171,20 @@ const styles = StyleSheet.create({
   phone: {
     fontSize: 16,
     color: '#666',
+    marginBottom: 12,
+  },
+  roleBadge: {
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  roleText: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '600',
   },
   section: {
     paddingHorizontal: 24,
@@ -163,6 +213,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#1A1A1A',
   },
+  switchText: {
+    color: '#E53935',
+    fontWeight: '600',
+  },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -172,10 +226,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF5F5',
     borderRadius: 12,
     marginTop: 8,
+    borderWidth: 1,
+    borderColor: '#FFCDD2',
   },
   logoutText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FF3B30',
+    color: '#E53935',
   },
 });

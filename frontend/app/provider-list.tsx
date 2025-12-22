@@ -75,15 +75,15 @@ export default function ProviderListScreen() {
 
         {loading ? (
           <View style={styles.centerContent}>
-            <ActivityIndicator size="large" color="#4A90E2" />
+            <ActivityIndicator size="large" color="#E53935" />
           </View>
         ) : providers.length === 0 ? (
           <View style={styles.centerContent}>
             <Ionicons name="search" size={64} color="#CCC" />
-            <Text style={styles.emptyTitle}>No Providers Found</Text>
+            <Text style={styles.emptyTitle}>No Providers Available</Text>
             <Text style={styles.emptySubtitle}>
-              We don't have any {categoryName.toLowerCase()} providers yet.{"\n"}
-              Check back soon!
+              We're currently onboarding {categoryName.toLowerCase()} providers in your area.
+              {"\n\n"}Check back soon or explore other services.
             </Text>
           </View>
         ) : (
@@ -101,28 +101,36 @@ export default function ProviderListScreen() {
               >
                 <View style={styles.providerHeader}>
                   <View style={styles.avatarContainer}>
-                    <Ionicons name="person" size={28} color="#4A90E2" />
+                    <Ionicons name="person" size={24} color="#666" />
                   </View>
                   <View style={styles.providerInfo}>
                     <View style={styles.nameRow}>
                       <Text style={styles.providerName}>{provider.name}</Text>
-                      {provider.verificationStatus === 'verified' && (
-                        <Ionicons
-                          name="checkmark-circle"
-                          size={20}
-                          color="#4CAF50"
-                        />
-                      )}
+                      <View
+                        style={[
+                          styles.statusBadge,
+                          provider.verificationStatus === 'verified'
+                            ? styles.statusVerified
+                            : styles.statusPending,
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.statusText,
+                            provider.verificationStatus === 'verified'
+                              ? styles.statusTextVerified
+                              : styles.statusTextPending,
+                          ]}
+                        >
+                          {provider.verificationStatus === 'verified'
+                            ? 'Verified'
+                            : 'Pending'}
+                        </Text>
+                      </View>
                     </View>
-                    <View style={styles.servicesContainer}>
-                      {provider.services.slice(0, 3).map((service, index) => (
-                        <View key={index} style={styles.serviceBadge}>
-                          <Text style={styles.serviceBadgeText}>
-                            {service.charAt(0).toUpperCase() + service.slice(1)}
-                          </Text>
-                        </View>
-                      ))}
-                    </View>
+                    <Text style={styles.categoryText}>
+                      {categoryName}
+                    </Text>
                   </View>
                 </View>
                 {provider.bio && (
@@ -132,7 +140,7 @@ export default function ProviderListScreen() {
                 )}
                 <View style={styles.cardFooter}>
                   <Text style={styles.viewDetailsText}>View Details</Text>
-                  <Ionicons name="chevron-forward" size={20} color="#4A90E2" />
+                  <Ionicons name="chevron-forward" size={20} color="#E53935" />
                 </View>
               </TouchableOpacity>
             ))}
@@ -184,6 +192,7 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
     marginTop: 24,
     marginBottom: 8,
+    textAlign: 'center',
   },
   emptySubtitle: {
     fontSize: 16,
@@ -200,7 +209,7 @@ const styles = StyleSheet.create({
   },
   providerCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    borderRadius: 12,
     padding: 16,
     borderWidth: 1,
     borderColor: '#E0E0E0',
@@ -210,10 +219,10 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   avatarContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#F0F7FF',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#F5F5F5',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -225,29 +234,38 @@ const styles = StyleSheet.create({
   nameRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    marginBottom: 8,
+    gap: 8,
+    marginBottom: 4,
   },
   providerName: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#1A1A1A',
   },
-  servicesContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
+  statusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
   },
-  serviceBadge: {
-    backgroundColor: '#F0F7FF',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+  statusVerified: {
+    backgroundColor: '#E8F5E9',
   },
-  serviceBadgeText: {
-    fontSize: 12,
-    color: '#4A90E2',
+  statusPending: {
+    backgroundColor: '#FFF3E0',
+  },
+  statusText: {
+    fontSize: 11,
     fontWeight: '600',
+  },
+  statusTextVerified: {
+    color: '#2E7D32',
+  },
+  statusTextPending: {
+    color: '#F57C00',
+  },
+  categoryText: {
+    fontSize: 14,
+    color: '#666',
   },
   providerBio: {
     fontSize: 14,
@@ -263,7 +281,7 @@ const styles = StyleSheet.create({
   },
   viewDetailsText: {
     fontSize: 14,
-    color: '#4A90E2',
+    color: '#E53935',
     fontWeight: '600',
   },
 });

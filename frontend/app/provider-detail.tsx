@@ -56,7 +56,6 @@ export default function ProviderDetailScreen() {
   };
 
   const handleRequestService = () => {
-    // Placeholder for now
     router.push({
       pathname: '/request-service',
       params: { providerId, category },
@@ -78,7 +77,7 @@ export default function ProviderDetailScreen() {
             <View style={styles.backButton} />
           </View>
           <View style={styles.centerContent}>
-            <ActivityIndicator size="large" color="#4A90E2" />
+            <ActivityIndicator size="large" color="#E53935" />
           </View>
         </View>
       </SafeAreaView>
@@ -128,25 +127,45 @@ export default function ProviderDetailScreen() {
         >
           <View style={styles.profileSection}>
             <View style={styles.avatarLarge}>
-              <Ionicons name="person" size={64} color="#4A90E2" />
+              <Ionicons name="person" size={64} color="#666" />
             </View>
             <View style={styles.nameContainer}>
               <Text style={styles.providerName}>{provider.name}</Text>
-              {provider.verificationStatus === 'verified' && (
-                <View style={styles.verifiedBadge}>
-                  <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-                  <Text style={styles.verifiedText}>Verified</Text>
-                </View>
-              )}
+              <View
+                style={[
+                  styles.verificationBadge,
+                  provider.verificationStatus === 'verified'
+                    ? styles.verifiedBadge
+                    : styles.pendingBadge,
+                ]}
+              >
+                <Ionicons
+                  name={
+                    provider.verificationStatus === 'verified'
+                      ? 'checkmark-circle'
+                      : 'time'
+                  }
+                  size={16}
+                  color={
+                    provider.verificationStatus === 'verified'
+                      ? '#2E7D32'
+                      : '#F57C00'
+                  }
+                />
+                <Text
+                  style={[
+                    styles.verificationText,
+                    provider.verificationStatus === 'verified'
+                      ? styles.verifiedText
+                      : styles.pendingText,
+                  ]}
+                >
+                  {provider.verificationStatus === 'verified'
+                    ? 'Verified'
+                    : 'Pending Verification'}
+                </Text>
+              </View>
             </View>
-          </View>
-
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Ionicons name="call" size={20} color="#666" />
-              <Text style={styles.sectionTitle}>Contact</Text>
-            </View>
-            <Text style={styles.contactText}>{provider.phone}</Text>
           </View>
 
           <View style={styles.section}>
@@ -245,7 +264,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#F0F7FF',
+    backgroundColor: '#F5F5F5',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -259,19 +278,29 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1A1A1A',
   },
-  verifiedBadge: {
+  verificationBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#F0FDF4',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
   },
-  verifiedText: {
+  verifiedBadge: {
+    backgroundColor: '#E8F5E9',
+  },
+  pendingBadge: {
+    backgroundColor: '#FFF3E0',
+  },
+  verificationText: {
     fontSize: 14,
-    color: '#4CAF50',
     fontWeight: '600',
+  },
+  verifiedText: {
+    color: '#2E7D32',
+  },
+  pendingText: {
+    color: '#F57C00',
   },
   section: {
     paddingVertical: 24,
@@ -289,26 +318,23 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1A1A1A',
   },
-  contactText: {
-    fontSize: 16,
-    color: '#4A90E2',
-    fontWeight: '600',
-  },
   servicesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
   },
   serviceChip: {
-    backgroundColor: '#F0F7FF',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
   },
   serviceChipText: {
     fontSize: 14,
-    color: '#4A90E2',
-    fontWeight: '600',
+    color: '#666',
+    fontWeight: '500',
   },
   bioText: {
     fontSize: 16,
@@ -326,7 +352,7 @@ const styles = StyleSheet.create({
     borderTopColor: '#E0E0E0',
   },
   requestButton: {
-    backgroundColor: '#4A90E2',
+    backgroundColor: '#E53935',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
