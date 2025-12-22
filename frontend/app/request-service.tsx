@@ -42,43 +42,49 @@ export default function RequestServiceScreen() {
     handyman: 'Handyman',
   };
 
+  const formatTime12Hour = (date: Date) => {
+    let hours = date.getHours();
+    const minutes = date.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // 0 should be 12
+    const minutesStr = minutes < 10 ? '0' + minutes : minutes;
+    return `${hours}:${minutesStr} ${ampm}`;
+  };
+
+  const onTimeChange = (event: any, selectedDate?: Date) => {
+    setShowTimePicker(Platform.OS === 'ios'); // Keep open on iOS
+    if (selectedDate) {
+      setSelectedTime(selectedDate);
+      setTimeError('');
+    }
+  };
+
   const handleSubmit = async () => {
+    // Validation
     if (!description.trim()) {
       Alert.alert('Required Field', 'Please provide a description of the service needed.');
       return;
     }
 
+    if (!selectedTime) {
+      setTimeError('Please select a preferred time');
+      Alert.alert('Required Field', 'Please select a preferred time for the service.');
+      return;
+    }
+
     setLoading(true);
     try {
-      // Combine date and time if provided
-      let preferredDateTime = null;
-      if (preferredDate || preferredTime) {
-        // Use provided date or default to today
-        const dateStr = preferredDate || new Date().toISOString().split('T')[0];
-        // Use provided time or default to 09:00
-        let timeStr = preferredTime || '09:00';
-        
-        // Ensure time is in HH:MM format (remove any extra characters)
-        timeStr = timeStr.replace(/[^0-9:]/g, '').substring(0, 5);
-        
-        // Validate time format
-        const timeParts = timeStr.split(':');
-        if (timeParts.length === 2) {
-          const hours = parseInt(timeParts[0]) || 0;
-          const minutes = parseInt(timeParts[1]) || 0;
-          // Ensure valid 24-hour format
-          if (hours >= 0 && hours < 24 && minutes >= 0 && minutes < 60) {
-            timeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-          } else {
-            timeStr = '09:00';
-          }
-        } else {
-          timeStr = '09:00';
-        }
-        
-        // Combine in ISO format
-        preferredDateTime = `${dateStr}T${timeStr}:00.000Z`;
-      }
+      // Use provided date or default to today
+      const dateStr = preferredDate || new Date().toISOString().split('T')[0];
+      
+      // Convert selected time to 24-hour format
+      const hours = selectedTime.getHours().toString().padStart(2, '0');
+      const minutes = selectedTime.getMinutes().toString().padStart(2, '0');
+      const timeStr = `${hours}:${minutes}`;
+      
+      // Combine in ISO format
+      const preferredDateTime = `${dateStr}T${timeStr}:00.000Z`;
 
       await axios.post(
         `${BACKEND_URL}/api/service-requests?provider_id=${providerId}`,
