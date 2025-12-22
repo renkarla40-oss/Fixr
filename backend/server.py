@@ -270,7 +270,7 @@ async def get_provider(provider_id: str, current_user: User = Depends(get_curren
 @api_router.post("/service-requests", response_model=ServiceRequestResponse)
 async def create_service_request(
     request_data: ServiceRequest,
-    provider_id: str,
+    provider_id: str = Query(...),
     current_user: User = Depends(get_current_user)
 ):
     # Get provider info
