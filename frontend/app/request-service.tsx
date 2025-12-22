@@ -50,9 +50,12 @@ export default function RequestServiceScreen() {
       // Combine date and time if provided
       let preferredDateTime = null;
       if (preferredDate || preferredTime) {
+        // Use provided date or default to today
         const dateStr = preferredDate || new Date().toISOString().split('T')[0];
+        // Use provided time or default to 09:00
         const timeStr = preferredTime || '09:00';
-        preferredDateTime = `${dateStr}T${timeStr}:00`;
+        // Combine in ISO format
+        preferredDateTime = `${dateStr}T${timeStr}:00.000Z`;
       }
 
       await axios.post(
