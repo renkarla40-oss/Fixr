@@ -53,7 +53,26 @@ export default function RequestServiceScreen() {
         // Use provided date or default to today
         const dateStr = preferredDate || new Date().toISOString().split('T')[0];
         // Use provided time or default to 09:00
-        const timeStr = preferredTime || '09:00';
+        let timeStr = preferredTime || '09:00';
+        
+        // Ensure time is in HH:MM format (remove any extra characters)
+        timeStr = timeStr.replace(/[^0-9:]/g, '').substring(0, 5);
+        
+        // Validate time format
+        const timeParts = timeStr.split(':');
+        if (timeParts.length === 2) {
+          const hours = parseInt(timeParts[0]) || 0;
+          const minutes = parseInt(timeParts[1]) || 0;
+          // Ensure valid 24-hour format
+          if (hours >= 0 && hours < 24 && minutes >= 0 && minutes < 60) {
+            timeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+          } else {
+            timeStr = '09:00';
+          }
+        } else {
+          timeStr = '09:00';
+        }
+        
         // Combine in ISO format
         preferredDateTime = `${dateStr}T${timeStr}:00.000Z`;
       }
