@@ -178,15 +178,29 @@ export default function RequestServiceScreen() {
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Preferred Date (Optional)</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="YYYY-MM-DD (e.g., 2024-12-25)"
-                value={preferredDate}
-                onChangeText={setPreferredDate}
-                placeholderTextColor="#999"
-              />
+              <Text style={styles.label}>Preferred Date</Text>
+              <TouchableOpacity
+                style={styles.timePickerButton}
+                onPress={() => setShowDatePicker(true)}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="calendar-outline" size={20} color="#666" style={styles.inputIcon} />
+                <Text style={styles.timePickerTextSelected}>
+                  {formatDate(selectedDate)}
+                </Text>
+                <Ionicons name="chevron-forward" size={20} color="#999" />
+              </TouchableOpacity>
             </View>
+
+            {showDatePicker && (
+              <DateTimePicker
+                value={selectedDate}
+                mode="date"
+                display="default"
+                onChange={onDateChange}
+                minimumDate={new Date()}
+              />
+            )}
 
             <View style={styles.inputGroup}>
               <Text style={styles.label}>
