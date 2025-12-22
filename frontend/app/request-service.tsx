@@ -174,15 +174,34 @@ export default function RequestServiceScreen() {
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Preferred Time (Optional)</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="HH:MM (e.g., 14:30)"
-                value={preferredTime}
-                onChangeText={setPreferredTime}
-                placeholderTextColor="#999"
-              />
+              <Text style={styles.label}>
+                Preferred Time <Text style={styles.required}>*</Text>
+              </Text>
+              <TouchableOpacity
+                style={[styles.timePickerButton, timeError ? styles.timePickerError : null]}
+                onPress={() => setShowTimePicker(true)}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="time-outline" size={20} color="#666" style={styles.inputIcon} />
+                <Text style={selectedTime ? styles.timePickerTextSelected : styles.timePickerText}>
+                  {selectedTime ? formatTime12Hour(selectedTime) : 'Select time'}
+                </Text>
+                <Ionicons name="chevron-forward" size={20} color="#999" />
+              </TouchableOpacity>
+              {timeError ? (
+                <Text style={styles.errorText}>{timeError}</Text>
+              ) : null}
             </View>
+
+            {showTimePicker && (
+              <DateTimePicker
+                value={selectedTime || new Date()}
+                mode="time"
+                is24Hour={false}
+                display="default"
+                onChange={onTimeChange}
+              />
+            )}
 
             <Text style={styles.note}>
               Note: The provider will review your request and respond accordingly.
