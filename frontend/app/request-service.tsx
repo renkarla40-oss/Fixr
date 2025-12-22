@@ -53,10 +53,24 @@ export default function RequestServiceScreen() {
     return `${hours}:${minutesStr} ${ampm}`;
   };
 
-  const onTimeChange = (event: any, selectedDate?: Date) => {
-    setShowTimePicker(Platform.OS === 'ios'); // Keep open on iOS
+  const formatDate = (date: Date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const onDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(Platform.OS === 'ios');
     if (selectedDate) {
-      setSelectedTime(selectedDate);
+      setSelectedDate(selectedDate);
+    }
+  };
+
+  const onTimeChange = (event: any, selectedTime?: Date) => {
+    setShowTimePicker(Platform.OS === 'ios'); // Keep open on iOS
+    if (selectedTime) {
+      setSelectedTime(selectedTime);
       setTimeError('');
     }
   };
@@ -76,8 +90,8 @@ export default function RequestServiceScreen() {
 
     setLoading(true);
     try {
-      // Use provided date or default to today
-      const dateStr = preferredDate || new Date().toISOString().split('T')[0];
+      // Format date properly
+      const dateStr = formatDate(selectedDate);
       
       // Convert selected time to 24-hour format
       const hours = selectedTime.getHours().toString().padStart(2, '0');
