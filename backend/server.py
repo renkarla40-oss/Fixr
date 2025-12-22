@@ -273,28 +273,35 @@ async def create_service_request(
     provider_id: str = Query(...),
     current_user: User = Depends(get_current_user)
 ):
-    # Get provider info
-    provider = await db.providers.find_one({"_id": ObjectId(provider_id)})
-    if not provider:
-        raise HTTPException(status_code=404, detail="Provider not found")
-    
-    request_dict = {
-        "customerId": current_user.id,
-        "providerId": provider_id,
-        "service": request_data.service,
-        "description": request_data.description,
-        "preferredDateTime": request_data.preferredDateTime,
-        "status": "pending",
-        "customerName": current_user.name,
-        "customerPhone": current_user.phone,
-        "providerName": provider["name"],
-        "createdAt": datetime.utcnow(),
-    }
-    
-    result = await db.service_requests.insert_one(request_dict)
-    request_dict["_id"] = str(result.inserted_id)
-    
-    return ServiceRequestResponse(**request_dict)
+    try:
+        logger.info(f"Creating service request: {request_data.model_dump()}")
+        logger.info(f"Provider ID: {provider_id}")
+        
+        # Get provider info
+        provider = await db.providers.find_one({"_id": ObjectId(provider_id)})
+        if not provider:
+            raise HTTPException(status_code=404, detail="Provider not found")
+        
+        request_dict = {
+            "customerId": current_user.id,
+            "providerId": provider_id,
+            "service": request_data.service,
+            "description": request_data.description,
+            "preferredDateTime": request_data.preferredDateTime,
+            "status": "pending",
+            "customerName": current_user.name,
+            "customerPhone": current_user.phone,
+            "providerName": provider["name"],
+            "createdAt": datetime.utcnow(),
+        }
+        
+        result = await db.service_requests.insert_one(request_dict)
+        request_dict["_id"] = str(result.inserted_id)
+        
+        return ServiceRequestResponse(**request_dict)
+    except Exception as e:
+        logger.error(f"Error creating service request: {str(e)}")
+        raise
 
 @api_router.get("/service-requests", response_model=List[ServiceRequestResponse])
 async def get_service_requests(current_user: User = Depends(get_current_user)):
