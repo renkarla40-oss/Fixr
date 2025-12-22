@@ -32,7 +32,8 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await login(email, password);
-      // Navigation handled by AuthContext
+      // Navigate to customer home (default for MVP)
+      router.replace('/(customer)/home');
     } catch (error: any) {
       Alert.alert('Login Failed', error.message);
     } finally {
