@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -28,7 +29,9 @@ export default function RequestServiceScreen() {
 
   const [description, setDescription] = useState('');
   const [preferredDate, setPreferredDate] = useState('');
-  const [preferredTime, setPreferredTime] = useState('');
+  const [selectedTime, setSelectedTime] = useState<Date | null>(null);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [timeError, setTimeError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const categoryNames: { [key: string]: string } = {
