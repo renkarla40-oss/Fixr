@@ -304,6 +304,36 @@ const styles = StyleSheet.create({
     minHeight: 120,
     paddingTop: 16,
   },
+  timePickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    minHeight: 56,
+  },
+  timePickerError: {
+    borderColor: '#E53935',
+  },
+  timePickerText: {
+    flex: 1,
+    fontSize: 16,
+    color: '#999',
+  },
+  timePickerTextSelected: {
+    flex: 1,
+    fontSize: 16,
+    color: '#1A1A1A',
+    fontWeight: '500',
+  },
+  errorText: {
+    fontSize: 14,
+    color: '#E53935',
+    marginTop: 4,
+  },
   note: {
     fontSize: 14,
     color: '#666',
