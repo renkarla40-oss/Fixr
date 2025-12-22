@@ -28,8 +28,9 @@ export default function RequestServiceScreen() {
   const category = params.category as string;
 
   const [description, setDescription] = useState('');
-  const [preferredDate, setPreferredDate] = useState('');
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<Date | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [timeError, setTimeError] = useState('');
   const [loading, setLoading] = useState(false);
