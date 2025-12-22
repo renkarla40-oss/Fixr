@@ -1,0 +1,303 @@
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import axios from 'axios';
+import { useAuth } from '../contexts/AuthContext';
+
+const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+
+const serviceOptions = [
+  { id: 'electrical', name: 'Electrical', icon: 'flash' },
+  { id: 'plumbing', name: 'Plumbing', icon: 'water' },
+  { id: 'ac', name: 'AC Repair', icon: 'snow' },
+  { id: 'cleaning', name: 'Cleaning', icon: 'sparkles' },
+  { id: 'handyman', name: 'Handyman', icon: 'hammer' },
+];
+
+export default function ProviderSetupScreen() {
+  const router = useRouter();
+  const { token, refreshUser } = useAuth();
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [bio, setBio] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const toggleService = (serviceId: string) => {
+    if (selectedServices.includes(serviceId)) {
+      setSelectedServices(selectedServices.filter((s) => s !== serviceId));
+    } else {
+      setSelectedServices([...selectedServices, serviceId]);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (selectedServices.length === 0) {
+      Alert.alert('Required', 'Please select at least one service you offer');
+      return;
+    }
+
+    if (!bio.trim()) {
+      Alert.alert('Required', 'Please provide a brief description about your services');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await axios.post(
+        `${BACKEND_URL}/api/users/provider-setup`,
+        {
+          services: selectedServices,
+          bio: bio.trim(),
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      await refreshUser();
+      router.replace('/(provider)/dashboard');
+    } catch (error: any) {
+      console.error('Error setting up provider:', error);
+      Alert.alert(
+        'Setup Failed',
+        error.response?.data?.detail || 'Failed to complete provider setup. Please try again.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+      >
+        <ScrollView
+          style={styles.content}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.header}>
+            <Ionicons name="construct" size={48} color="#E53935" />
+            <Text style={styles.title}>Provider Setup</Text>
+            <Text style={styles.subtitle}>
+              Complete your profile to start receiving service requests
+            </Text>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.label}>
+              Services You Offer <Text style={styles.required}>*</Text>
+            </Text>
+            <Text style={styles.hint}>Select all that apply</Text>
+            <View style={styles.servicesGrid}>
+              {serviceOptions.map((service) => {
+                const isSelected = selectedServices.includes(service.id);
+                return (
+                  <TouchableOpacity
+                    key={service.id}
+                    style={[
+                      styles.serviceCard,
+                      isSelected && styles.serviceCardSelected,
+                    ]}
+                    onPress={() => toggleService(service.id)}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons
+                      name={service.icon as any}
+                      size={28}
+                      color={isSelected ? '#E53935' : '#666'}
+                      style={styles.serviceIcon}
+                    />
+                    <Text
+                      style={[
+                        styles.serviceName,
+                        isSelected && styles.serviceNameSelected,
+                      ]}
+                    >
+                      {service.name}
+                    </Text>
+                    {isSelected && (
+                      <View style={styles.checkmark}>
+                        <Ionicons name="checkmark-circle" size={24} color="#E53935" />
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.label}>
+              About Your Services <Text style={styles.required}>*</Text>
+            </Text>
+            <TextInput
+              style={styles.textArea}
+              placeholder="Describe your experience, qualifications, and the services you provide..."
+              value={bio}
+              onChangeText={setBio}
+              multiline
+              numberOfLines={6}
+              textAlignVertical="top"
+              placeholderTextColor="#999"
+            />
+          </View>
+        </ScrollView>
+
+        <View style={styles.footer}>
+          <TouchableOpacity
+            style={[styles.submitButton, loading && styles.submitButtonDisabled]}
+            onPress={handleSubmit}
+            disabled={loading}
+            activeOpacity={0.8}
+          >
+            {loading ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={styles.submitButtonText}>Complete Setup</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  content: {
+    flex: 1,
+  },
+  contentContainer: {
+    padding: 24,
+    paddingBottom: 120,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
+  section: {
+    marginBottom: 32,
+  },
+  label: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+    marginBottom: 4,
+  },
+  required: {
+    color: '#E53935',
+  },
+  hint: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 16,
+  },
+  servicesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  serviceCard: {
+    width: '48%',
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    minHeight: 110,
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  serviceCardSelected: {
+    backgroundColor: '#FFF5F5',
+    borderColor: '#E53935',
+  },
+  serviceIcon: {
+    marginBottom: 8,
+  },
+  serviceName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+    textAlign: 'center',
+  },
+  serviceNameSelected: {
+    color: '#E53935',
+  },
+  checkmark: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+  },
+  textArea: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    padding: 16,
+    fontSize: 16,
+    color: '#1A1A1A',
+    minHeight: 150,
+    textAlignVertical: 'top',
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 24,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+  },
+  submitButton: {
+    backgroundColor: '#E53935',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    minHeight: 56,
+    justifyContent: 'center',
+  },
+  submitButtonDisabled: {
+    backgroundColor: '#CCC',
+  },
+  submitButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '600',
+  },
+});
