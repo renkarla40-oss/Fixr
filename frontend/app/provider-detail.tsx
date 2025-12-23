@@ -427,4 +427,16 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
   },
+  reportButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 16,
+    marginTop: 16,
+  },
+  reportButtonText: {
+    fontSize: 14,
+    color: '#999',
+  },
 });
