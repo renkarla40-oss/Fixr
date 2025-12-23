@@ -79,12 +79,22 @@ export default function ProviderListScreen() {
           </View>
         ) : providers.length === 0 ? (
           <View style={styles.centerContent}>
-            <Ionicons name="search" size={64} color="#CCC" />
-            <Text style={styles.emptyTitle}>No Providers Available</Text>
+            <View style={styles.emptyIconContainer}>
+              <Ionicons name="people-outline" size={48} color="#E53935" />
+            </View>
+            <Text style={styles.emptyTitle}>No {categoryName} Providers Yet</Text>
             <Text style={styles.emptySubtitle}>
-              We're currently onboarding {categoryName.toLowerCase()} providers in your area.
-              {"\n\n"}Check back soon or explore other services.
+              We're actively onboarding verified {categoryName.toLowerCase()} professionals in your area.
             </Text>
+            <Text style={styles.emptyHint}>
+              Check back soon or try another service category.
+            </Text>
+            <TouchableOpacity
+              style={styles.backToServicesButton}
+              onPress={() => router.back()}
+            >
+              <Text style={styles.backToServicesText}>Browse Other Services</Text>
+            </TouchableOpacity>
           </View>
         ) : (
           <ScrollView
