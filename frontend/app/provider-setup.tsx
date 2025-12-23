@@ -156,9 +156,7 @@ export default function ProviderSetupScreen() {
               placeholderTextColor="#999"
             />
           </View>
-        </ScrollView>
 
-        <View style={styles.footer}>
           <TouchableOpacity
             style={[styles.submitButton, loading && styles.submitButtonDisabled]}
             onPress={handleSubmit}
@@ -171,7 +169,7 @@ export default function ProviderSetupScreen() {
               <Text style={styles.submitButtonText}>Complete Setup</Text>
             )}
           </TouchableOpacity>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
