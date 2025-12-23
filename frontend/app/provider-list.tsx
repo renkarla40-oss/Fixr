@@ -265,7 +265,6 @@ const styles = StyleSheet.create({
   nameRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
     marginBottom: 4,
   },
   providerName: {
@@ -273,30 +272,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1A1A1A',
   },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  statusVerified: {
-    backgroundColor: '#E8F5E9',
-  },
-  statusPending: {
-    backgroundColor: '#FFF3E0',
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   statusText: {
-    fontSize: 11,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: '500',
   },
   statusTextVerified: {
     color: '#2E7D32',
   },
   statusTextPending: {
     color: '#F57C00',
-  },
-  categoryText: {
-    fontSize: 14,
-    color: '#666',
   },
   providerBio: {
     fontSize: 14,
