@@ -166,7 +166,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user, 
         token, 
         loading, 
-        betaNoticeSeen,
+        shouldShowBetaNotice,
         login, 
         signup, 
         logout, 
