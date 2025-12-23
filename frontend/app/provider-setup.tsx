@@ -272,18 +272,6 @@ const styles = StyleSheet.create({
     minHeight: 150,
     textAlignVertical: 'top',
   },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 24,
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
-    zIndex: 10,
-    elevation: 10,
-  },
   submitButton: {
     backgroundColor: '#E53935',
     paddingVertical: 16,
@@ -291,6 +279,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     minHeight: 56,
     justifyContent: 'center',
+    marginTop: 32,
+    marginBottom: 32,
   },
   submitButtonDisabled: {
     backgroundColor: '#CCC',
