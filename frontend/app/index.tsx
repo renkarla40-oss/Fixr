@@ -17,7 +17,7 @@ export default function SplashScreen() {
 
   return (
     <View style={styles.container}>
-      <Ionicons name="construct" size={100} color="#4A90E2" />
+      <Ionicons name="construct" size={100} color="#E53935" />
     </View>
   );
 }
