@@ -365,6 +365,10 @@ class FeedbackRequest(BaseModel):
     providerId: Optional[str] = None
     providerName: Optional[str] = None
 
+class WaitlistRequest(BaseModel):
+    email: EmailStr
+    name: Optional[str] = None
+
 class FeedbackResponse(BaseModel):
     id: str = Field(alias="_id")
     userId: str
@@ -406,6 +410,25 @@ async def submit_feedback(
     logger.info(f"Feedback submitted: type={feedback_data.type}, subject={feedback_data.subject}")
     
     return FeedbackResponse(**feedback_dict)
+
+# Waitlist endpoint (no auth required)
+@api_router.post("/waitlist")
+async def join_waitlist(waitlist_data: WaitlistRequest):
+    # Check if email already on waitlist
+    existing = await db.waitlist.find_one({"email": waitlist_data.email})
+    if existing:
+        return {"message": "You're already on the waitlist!", "status": "existing"}
+    
+    waitlist_entry = {
+        "email": waitlist_data.email,
+        "name": waitlist_data.name,
+        "createdAt": datetime.utcnow(),
+    }
+    
+    await db.waitlist.insert_one(waitlist_entry)
+    logger.info(f"New waitlist signup: {waitlist_data.email}")
+    
+    return {"message": "You've been added to the waitlist!", "status": "success"}
 
 @api_router.get("/service-requests", response_model=List[ServiceRequestResponse])
 async def get_service_requests(current_user: User = Depends(get_current_user)):
