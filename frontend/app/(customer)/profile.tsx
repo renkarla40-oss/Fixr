@@ -103,6 +103,62 @@ export default function ProfileScreen() {
           </View>
 
           <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Help & Support</Text>
+            
+            <TouchableOpacity 
+              style={styles.menuItem} 
+              onPress={() => router.push('/support')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.menuItemLeft}>
+                <Ionicons name="headset-outline" size={24} color="#666" />
+                <Text style={styles.menuItemText}>Support</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color="#999" />
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.menuItem} 
+              onPress={() => router.push('/feedback')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.menuItemLeft}>
+                <Ionicons name="chatbubble-outline" size={24} color="#666" />
+                <Text style={styles.menuItemText}>Send Feedback</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color="#999" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Legal</Text>
+            
+            <TouchableOpacity 
+              style={styles.menuItem} 
+              onPress={() => router.push('/terms')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.menuItemLeft}>
+                <Ionicons name="document-text-outline" size={24} color="#666" />
+                <Text style={styles.menuItemText}>Terms of Service</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color="#999" />
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.menuItem} 
+              onPress={() => router.push('/privacy')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.menuItemLeft}>
+                <Ionicons name="shield-outline" size={24} color="#666" />
+                <Text style={styles.menuItemText}>Privacy Policy</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color="#999" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.section}>
             <TouchableOpacity
               style={styles.logoutButton}
               onPress={handleLogout}
