@@ -6,7 +6,7 @@ export default function CustomerLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#4A90E2',
+        tabBarActiveTintColor: '#E53935',
         tabBarInactiveTintColor: '#999',
         tabBarStyle: {
           backgroundColor: '#FFFFFF',
