@@ -7,20 +7,16 @@ import BetaNoticeModal from '../components/BetaNoticeModal';
 
 export default function WelcomeScreen() {
   const router = useRouter();
-  const { user, loading, betaNoticeSeen, markBetaNoticeSeen } = useAuth();
-  const [showBetaNotice, setShowBetaNotice] = useState(false);
+  const { user, loading, shouldShowBetaNotice, markBetaNoticeSeen } = useAuth();
 
   useEffect(() => {
     if (!loading && user) {
-      // Show beta notice if user is logged in and hasn't seen it
-      if (!betaNoticeSeen) {
-        setShowBetaNotice(true);
-      } else {
-        // Navigate to appropriate screen
+      // Navigate to appropriate screen if user is logged in and has seen beta notice
+      if (!shouldShowBetaNotice) {
         navigateToHome();
       }
     }
-  }, [user, loading, betaNoticeSeen]);
+  }, [user, loading, shouldShowBetaNotice]);
 
   const navigateToHome = () => {
     if (!user) return;
@@ -35,7 +31,6 @@ export default function WelcomeScreen() {
   };
 
   const handleBetaNoticeContinue = async () => {
-    setShowBetaNotice(false);
     await markBetaNoticeSeen();
     navigateToHome();
   };
