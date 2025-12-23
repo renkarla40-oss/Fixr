@@ -11,6 +11,12 @@ export default function WelcomeScreen() {
 
   useEffect(() => {
     if (!loading && user) {
+      // Check if user has beta access
+      if (!user.isBetaUser) {
+        router.replace('/beta-gate');
+        return;
+      }
+      
       // Navigate to appropriate screen if user is logged in and has seen beta notice
       if (!shouldShowBetaNotice) {
         navigateToHome();
