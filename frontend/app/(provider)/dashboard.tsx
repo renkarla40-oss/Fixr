@@ -110,7 +110,7 @@ export default function ProviderDashboardScreen() {
     return (
       <SafeAreaView style={styles.safeArea}>
         <BetaNoticeModal 
-          visible={showBetaNotice} 
+          visible={shouldShowBetaNotice} 
           onClose={handleBetaNoticeContinue}
         />
         <View style={styles.container}>
@@ -138,7 +138,7 @@ export default function ProviderDashboardScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <BetaNoticeModal 
-        visible={showBetaNotice} 
+        visible={shouldShowBetaNotice} 
         onClose={handleBetaNoticeContinue}
       />
       <View style={styles.container}>
