@@ -131,7 +131,7 @@ export default function ProviderSetupScreen() {
                       {service.name}
                     </Text>
                     {isSelected && (
-                      <View style={styles.checkmark}>
+                      <View style={styles.checkmark} pointerEvents="none">
                         <Ionicons name="checkmark-circle" size={24} color="#E53935" />
                       </View>
                     )}
