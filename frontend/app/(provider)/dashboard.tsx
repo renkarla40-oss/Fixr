@@ -116,6 +116,10 @@ export default function ProviderDashboardScreen() {
   if (requests.length === 0) {
     return (
       <SafeAreaView style={styles.safeArea}>
+        <BetaNoticeModal 
+          visible={showBetaNotice} 
+          onClose={handleBetaNoticeContinue}
+        />
         <View style={styles.container}>
           <View style={styles.header}>
             <Text style={styles.title}>Incoming Requests</Text>
@@ -140,6 +144,10 @@ export default function ProviderDashboardScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <BetaNoticeModal 
+        visible={showBetaNotice} 
+        onClose={handleBetaNoticeContinue}
+      />
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>Incoming Requests</Text>
