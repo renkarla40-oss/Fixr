@@ -32,7 +32,7 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await login(email, password);
-      // Note: Navigation happens in useEffect based on user role
+      // Navigation will happen in useEffect when user state updates
     } catch (error: any) {
       Alert.alert('Login Failed', error.message);
       setLoading(false);
@@ -41,7 +41,7 @@ export default function LoginScreen() {
 
   // Handle navigation after successful login
   useEffect(() => {
-    if (user && !loading) {
+    if (user) {
       if (user.currentRole === 'provider' && user.isProviderEnabled) {
         router.replace('/(provider)/dashboard');
       } else if (user.currentRole === 'provider' && !user.isProviderEnabled) {
