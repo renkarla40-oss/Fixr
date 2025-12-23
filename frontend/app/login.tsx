@@ -32,14 +32,25 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await login(email, password);
-      // Navigate to customer home (default for MVP)
-      router.replace('/(customer)/home');
+      // Note: Navigation happens in useEffect based on user role
     } catch (error: any) {
       Alert.alert('Login Failed', error.message);
-    } finally {
       setLoading(false);
     }
   };
+
+  // Handle navigation after successful login
+  useEffect(() => {
+    if (user && !loading) {
+      if (user.currentRole === 'provider' && user.isProviderEnabled) {
+        router.replace('/(provider)/dashboard');
+      } else if (user.currentRole === 'provider' && !user.isProviderEnabled) {
+        router.replace('/provider-setup');
+      } else {
+        router.replace('/(customer)/home');
+      }
+    }
+  }, [user]);
 
   return (
     <KeyboardAvoidingView
