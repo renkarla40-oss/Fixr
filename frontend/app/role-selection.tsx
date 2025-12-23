@@ -140,8 +140,8 @@ const styles = StyleSheet.create({
     minHeight: 200,
   },
   roleCardSelected: {
-    backgroundColor: '#F0F7FF',
-    borderColor: '#4A90E2',
+    backgroundColor: '#FFF5F5',
+    borderColor: '#E53935',
   },
   cardIcon: {
     marginBottom: 16,
