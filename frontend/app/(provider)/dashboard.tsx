@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
+import BetaNoticeModal from '../../components/BetaNoticeModal';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -28,15 +29,26 @@ interface ServiceRequest {
 }
 
 export default function ProviderDashboardScreen() {
-  const { token } = useAuth();
+  const { token, betaNoticeSeen, markBetaNoticeSeen } = useAuth();
   const router = useRouter();
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [showBetaNotice, setShowBetaNotice] = useState(false);
 
   useEffect(() => {
     fetchRequests();
-  }, []);
+    
+    // Check if user needs to see beta notice
+    if (!betaNoticeSeen) {
+      setShowBetaNotice(true);
+    }
+  }, [betaNoticeSeen]);
+
+  const handleBetaNoticeContinue = async () => {
+    setShowBetaNotice(false);
+    await markBetaNoticeSeen();
+  };
 
   const fetchRequests = async () => {
     try {
