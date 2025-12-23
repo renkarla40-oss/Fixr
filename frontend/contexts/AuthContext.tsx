@@ -13,6 +13,7 @@ interface User {
   phone: string;
   currentRole: 'customer' | 'provider';
   isProviderEnabled: boolean;
+  isBetaUser: boolean;
 }
 
 interface AuthContextType {
@@ -36,8 +37,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const [betaNoticeSeenByUser, setBetaNoticeSeenByUser] = useState<boolean | null>(null);
 
-  // Computed property: show beta notice only when user exists AND hasn't seen it
-  const shouldShowBetaNotice = user !== null && betaNoticeSeenByUser === false;
+  // Computed property: show beta notice only when user is a beta user AND hasn't seen it
+  const shouldShowBetaNotice = user !== null && user.isBetaUser && betaNoticeSeenByUser === false;
 
   useEffect(() => {
     loadStoredAuth();
