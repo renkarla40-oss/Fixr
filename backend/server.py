@@ -234,6 +234,35 @@ async def switch_role(role_data: RoleUpdate, current_user: User = Depends(get_cu
     updated_user["_id"] = str(updated_user["_id"])
     return User(**updated_user)
 
+@api_router.patch("/users/profile")
+async def update_user_profile(
+    profile_update: ProfileUpdate,
+    current_user: User = Depends(get_current_user)
+):
+    # Update user document
+    result = await db.users.update_one(
+        {"_id": ObjectId(current_user.id)},
+        {"$set": {
+            "name": profile_update.name,
+            "phone": profile_update.phone,
+            "updatedAt": datetime.utcnow()
+        }}
+    )
+    
+    # Also update provider document if it exists
+    await db.providers.update_one(
+        {"userId": current_user.id},
+        {"$set": {
+            "name": profile_update.name,
+            "phone": profile_update.phone
+        }}
+    )
+    
+    updated_user = await db.users.find_one({"_id": ObjectId(current_user.id)})
+    updated_user["_id"] = str(updated_user["_id"])
+    
+    return updated_user
+
 @api_router.post("/users/provider-setup", response_model=User)
 async def setup_provider(setup_data: ProviderSetup, current_user: User = Depends(get_current_user)):
     # Create or update provider profile
