@@ -29,24 +29,17 @@ interface ServiceRequest {
 }
 
 export default function ProviderDashboardScreen() {
-  const { token, betaNoticeSeen, markBetaNoticeSeen } = useAuth();
+  const { token, shouldShowBetaNotice, markBetaNoticeSeen } = useAuth();
   const router = useRouter();
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [showBetaNotice, setShowBetaNotice] = useState(false);
 
   useEffect(() => {
     fetchRequests();
-    
-    // Check if user needs to see beta notice
-    if (!betaNoticeSeen) {
-      setShowBetaNotice(true);
-    }
-  }, [betaNoticeSeen]);
+  }, []);
 
   const handleBetaNoticeContinue = async () => {
-    setShowBetaNotice(false);
     await markBetaNoticeSeen();
   };
 
