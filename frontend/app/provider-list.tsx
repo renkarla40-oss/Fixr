@@ -116,31 +116,26 @@ export default function ProviderListScreen() {
                   <View style={styles.providerInfo}>
                     <View style={styles.nameRow}>
                       <Text style={styles.providerName}>{provider.name}</Text>
-                      <View
+                    </View>
+                    <View style={styles.statusRow}>
+                      <Ionicons 
+                        name={provider.verificationStatus === 'verified' ? 'checkmark-circle' : 'time-outline'} 
+                        size={14} 
+                        color={provider.verificationStatus === 'verified' ? '#2E7D32' : '#F57C00'} 
+                      />
+                      <Text
                         style={[
-                          styles.statusBadge,
+                          styles.statusText,
                           provider.verificationStatus === 'verified'
-                            ? styles.statusVerified
-                            : styles.statusPending,
+                            ? styles.statusTextVerified
+                            : styles.statusTextPending,
                         ]}
                       >
-                        <Text
-                          style={[
-                            styles.statusText,
-                            provider.verificationStatus === 'verified'
-                              ? styles.statusTextVerified
-                              : styles.statusTextPending,
-                          ]}
-                        >
-                          {provider.verificationStatus === 'verified'
-                            ? 'Verified'
-                            : 'Pending'}
-                        </Text>
-                      </View>
+                        {provider.verificationStatus === 'verified'
+                          ? 'Verified Provider'
+                          : 'Verification Pending'}
+                      </Text>
                     </View>
-                    <Text style={styles.categoryText}>
-                      {categoryName}
-                    </Text>
                   </View>
                 </View>
                 {provider.bio && (
