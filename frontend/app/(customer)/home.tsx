@@ -42,18 +42,9 @@ const categories = [
 
 export default function CustomerHomeScreen() {
   const router = useRouter();
-  const { user, betaNoticeSeen, markBetaNoticeSeen } = useAuth();
-  const [showBetaNotice, setShowBetaNotice] = useState(false);
-
-  useEffect(() => {
-    // Check if user needs to see beta notice
-    if (!betaNoticeSeen) {
-      setShowBetaNotice(true);
-    }
-  }, [betaNoticeSeen]);
+  const { user, shouldShowBetaNotice, markBetaNoticeSeen } = useAuth();
 
   const handleBetaNoticeContinue = async () => {
-    setShowBetaNotice(false);
     await markBetaNoticeSeen();
   };
 
@@ -67,7 +58,7 @@ export default function CustomerHomeScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <BetaNoticeModal 
-        visible={showBetaNotice} 
+        visible={shouldShowBetaNotice} 
         onClose={handleBetaNoticeContinue}
       />
       
