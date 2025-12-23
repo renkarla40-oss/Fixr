@@ -43,19 +43,26 @@ export default function ProviderSetupScreen() {
   };
 
   const handleSubmit = async () => {
+    console.log('=== SUBMIT BUTTON PRESSED ===');
+    console.log('Selected services:', selectedServices);
+    console.log('Bio length:', bio.length);
+    
     if (selectedServices.length === 0) {
+      console.log('No services selected');
       Alert.alert('Required', 'Please select at least one service you offer');
       return;
     }
 
     if (!bio.trim()) {
+      console.log('No bio provided');
       Alert.alert('Required', 'Please provide a brief description about your services');
       return;
     }
 
+    console.log('Starting provider setup API call...');
     setLoading(true);
     try {
-      await axios.post(
+      const response = await axios.post(
         `${BACKEND_URL}/api/users/provider-setup`,
         {
           services: selectedServices,
@@ -65,6 +72,7 @@ export default function ProviderSetupScreen() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+      console.log('Provider setup successful:', response.data);
 
       await refreshUser();
       router.replace('/(provider)/dashboard');
