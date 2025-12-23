@@ -19,7 +19,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
-  betaNoticeSeen: boolean;
+  shouldShowBetaNotice: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, name: string, phone: string, role: 'customer' | 'provider') => Promise<void>;
   logout: () => Promise<void>;
@@ -34,7 +34,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [betaNoticeSeen, setBetaNoticeSeen] = useState(false);
+  const [betaNoticeSeenByUser, setBetaNoticeSeenByUser] = useState<boolean | null>(null);
+
+  // Computed property: show beta notice only when user exists AND hasn't seen it
+  const shouldShowBetaNotice = user !== null && betaNoticeSeenByUser === false;
 
   useEffect(() => {
     loadStoredAuth();
@@ -43,13 +46,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loadStoredAuth = async () => {
     try {
       const storedToken = await AsyncStorage.getItem('authToken');
-      const betaNoticeFlag = await AsyncStorage.getItem(BETA_NOTICE_KEY);
-      
-      setBetaNoticeSeen(betaNoticeFlag === 'true');
       
       if (storedToken) {
         setToken(storedToken);
-        await fetchUser(storedToken);
+        await fetchUserAndCheckBeta(storedToken);
       }
     } catch (error) {
       console.error('Error loading auth:', error);
@@ -58,12 +58,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const fetchUser = async (authToken: string) => {
+  const fetchUserAndCheckBeta = async (authToken: string) => {
     try {
       const response = await axios.get(`${BACKEND_URL}/api/auth/me`, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
-      setUser(response.data);
+      const userData = response.data;
+      setUser(userData);
+      
+      // Check user-specific beta notice flag
+      const userBetaKey = `${BETA_NOTICE_KEY}_${userData._id}`;
+      const hasSeenNotice = await AsyncStorage.getItem(userBetaKey);
+      setBetaNoticeSeenByUser(hasSeenNotice === 'true');
     } catch (error) {
       console.error('Error fetching user:', error);
       await logout();
@@ -77,14 +83,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         password,
       });
       const { token: newToken, user: userData } = response.data;
+      
+      await AsyncStorage.setItem('authToken', newToken);
       setToken(newToken);
       setUser(userData);
-      await AsyncStorage.setItem('authToken', newToken);
       
-      // Check if this user has seen the beta notice
+      // Check if this specific user has seen the beta notice
       const userBetaKey = `${BETA_NOTICE_KEY}_${userData._id}`;
       const hasSeenNotice = await AsyncStorage.getItem(userBetaKey);
-      setBetaNoticeSeen(hasSeenNotice === 'true');
+      setBetaNoticeSeenByUser(hasSeenNotice === 'true');
     } catch (error: any) {
       throw new Error(error.response?.data?.detail || 'Login failed');
     }
@@ -106,12 +113,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         currentRole: role,
       });
       const { token: newToken, user: userData } = response.data;
+      
+      await AsyncStorage.setItem('authToken', newToken);
       setToken(newToken);
       setUser(userData);
-      await AsyncStorage.setItem('authToken', newToken);
       
-      // New user hasn't seen beta notice
-      setBetaNoticeSeen(false);
+      // New user has NOT seen beta notice
+      setBetaNoticeSeenByUser(false);
     } catch (error: any) {
       throw new Error(error.response?.data?.detail || 'Signup failed');
     }
@@ -120,7 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     setUser(null);
     setToken(null);
-    setBetaNoticeSeen(false);
+    setBetaNoticeSeenByUser(null);
     await AsyncStorage.removeItem('authToken');
   };
 
@@ -140,7 +148,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshUser = async () => {
     if (token) {
-      await fetchUser(token);
+      await fetchUserAndCheckBeta(token);
     }
   };
 
@@ -148,8 +156,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (user) {
       const userBetaKey = `${BETA_NOTICE_KEY}_${user._id}`;
       await AsyncStorage.setItem(userBetaKey, 'true');
-      await AsyncStorage.setItem(BETA_NOTICE_KEY, 'true');
-      setBetaNoticeSeen(true);
+      setBetaNoticeSeenByUser(true);
     }
   };
 
