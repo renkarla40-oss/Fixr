@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
+import BetaNoticeModal from '../../components/BetaNoticeModal';
 
 const categories = [
   {
@@ -41,7 +42,20 @@ const categories = [
 
 export default function CustomerHomeScreen() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, betaNoticeSeen, markBetaNoticeSeen } = useAuth();
+  const [showBetaNotice, setShowBetaNotice] = useState(false);
+
+  useEffect(() => {
+    // Check if user needs to see beta notice
+    if (!betaNoticeSeen) {
+      setShowBetaNotice(true);
+    }
+  }, [betaNoticeSeen]);
+
+  const handleBetaNoticeContinue = async () => {
+    setShowBetaNotice(false);
+    await markBetaNoticeSeen();
+  };
 
   const handleCategoryPress = (categoryId: string, categoryName: string) => {
     router.push({
@@ -52,6 +66,11 @@ export default function CustomerHomeScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <BetaNoticeModal 
+        visible={showBetaNotice} 
+        onClose={handleBetaNoticeContinue}
+      />
+      
       <View style={styles.container}>
         <View style={styles.header}>
           <View>
