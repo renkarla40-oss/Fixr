@@ -283,6 +283,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
+    zIndex: 10,
+    elevation: 10,
   },
   submitButton: {
     backgroundColor: '#E53935',
