@@ -196,12 +196,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 48,
   },
+  emptyIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#FFF5F5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
   emptyTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#1A1A1A',
-    marginTop: 24,
-    marginBottom: 8,
+    marginBottom: 12,
     textAlign: 'center',
   },
   emptySubtitle: {
@@ -209,6 +217,24 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     lineHeight: 24,
+    marginBottom: 8,
+  },
+  emptyHint: {
+    fontSize: 14,
+    color: '#999',
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  backToServicesButton: {
+    backgroundColor: '#E53935',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  backToServicesText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
   content: {
     flex: 1,
