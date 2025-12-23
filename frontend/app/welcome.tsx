@@ -46,7 +46,7 @@ export default function WelcomeScreen() {
   return (
     <View style={styles.container}>
       <BetaNoticeModal 
-        visible={showBetaNotice} 
+        visible={shouldShowBetaNotice} 
         onClose={handleBetaNoticeContinue}
       />
       
