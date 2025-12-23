@@ -86,6 +86,10 @@ class LoginRequest(BaseModel):
 class RoleUpdate(BaseModel):
     currentRole: str
 
+class ProfileUpdate(BaseModel):
+    name: str
+    phone: str
+
 class ProviderProfile(BaseModel):
     services: List[str] = []
     bio: str = ""
