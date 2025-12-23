@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   primaryButton: {
-    backgroundColor: '#4A90E2',
+    backgroundColor: '#E53935',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   secondaryButtonText: {
-    color: '#4A90E2',
+    color: '#E53935',
     fontSize: 16,
     fontWeight: '500',
   },
