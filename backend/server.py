@@ -323,6 +323,56 @@ async def create_service_request(
         logger.error(f"Error creating service request: {str(e)}")
         raise
 
+# Support & Feedback Models
+class FeedbackRequest(BaseModel):
+    type: str  # "feedback", "support", "report"
+    subject: str
+    message: str
+    providerId: Optional[str] = None
+    providerName: Optional[str] = None
+
+class FeedbackResponse(BaseModel):
+    id: str = Field(alias="_id")
+    userId: str
+    userName: str
+    userEmail: str
+    type: str
+    subject: str
+    message: str
+    providerId: Optional[str] = None
+    providerName: Optional[str] = None
+    status: str
+    createdAt: datetime
+    
+    class Config:
+        populate_by_name = True
+
+# Support & Feedback Routes
+@api_router.post("/feedback", response_model=FeedbackResponse)
+async def submit_feedback(
+    feedback_data: FeedbackRequest,
+    current_user: User = Depends(get_current_user)
+):
+    feedback_dict = {
+        "userId": current_user.id,
+        "userName": current_user.name,
+        "userEmail": current_user.email,
+        "type": feedback_data.type,
+        "subject": feedback_data.subject,
+        "message": feedback_data.message,
+        "providerId": feedback_data.providerId,
+        "providerName": feedback_data.providerName,
+        "status": "pending",
+        "createdAt": datetime.utcnow(),
+    }
+    
+    result = await db.feedback.insert_one(feedback_dict)
+    feedback_dict["_id"] = str(result.inserted_id)
+    
+    logger.info(f"Feedback submitted: type={feedback_data.type}, subject={feedback_data.subject}")
+    
+    return FeedbackResponse(**feedback_dict)
+
 @api_router.get("/service-requests", response_model=List[ServiceRequestResponse])
 async def get_service_requests(current_user: User = Depends(get_current_user)):
     # Filter by role
