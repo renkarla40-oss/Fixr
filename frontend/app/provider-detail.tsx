@@ -7,6 +7,7 @@ import {
   ScrollView,
   SafeAreaView,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -33,6 +34,7 @@ export default function ProviderDetailScreen() {
 
   const [provider, setProvider] = useState<Provider | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reporting, setReporting] = useState(false);
 
   useEffect(() => {
     fetchProvider();
@@ -60,6 +62,55 @@ export default function ProviderDetailScreen() {
       pathname: '/request-service',
       params: { providerId, category },
     });
+  };
+
+  const handleReportProvider = () => {
+    if (!provider) return;
+    
+    Alert.alert(
+      'Report Provider',
+      `Are you sure you want to report ${provider.name}? This will be reviewed by our support team.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Report',
+          style: 'destructive',
+          onPress: submitReport,
+        },
+      ]
+    );
+  };
+
+  const submitReport = async () => {
+    if (!provider) return;
+    
+    setReporting(true);
+    try {
+      await axios.post(
+        `${BACKEND_URL}/api/feedback`,
+        {
+          type: 'report',
+          subject: 'Provider Report',
+          message: `User reported provider: ${provider.name}`,
+          providerId: provider._id,
+          providerName: provider.name,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      
+      Alert.alert(
+        'Report Submitted',
+        'Thank you for your report. Our team will review it and take appropriate action.',
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      console.error('Error submitting report:', error);
+      Alert.alert('Error', 'Failed to submit report. Please try again.');
+    } finally {
+      setReporting(false);
+    }
   };
 
   if (loading) {
