@@ -1,25 +1,44 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
+import BetaNoticeModal from '../components/BetaNoticeModal';
 
 export default function WelcomeScreen() {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { user, loading, betaNoticeSeen, markBetaNoticeSeen } = useAuth();
+  const [showBetaNotice, setShowBetaNotice] = useState(false);
 
   useEffect(() => {
     if (!loading && user) {
-      // User is logged in, navigate to appropriate screen
-      if (user.currentRole === 'customer') {
-        router.replace('/(customer)/home');
-      } else if (user.currentRole === 'provider' && user.isProviderEnabled) {
-        router.replace('/(provider)/dashboard');
-      } else if (user.currentRole === 'provider' && !user.isProviderEnabled) {
-        router.replace('/provider-setup');
+      // Show beta notice if user is logged in and hasn't seen it
+      if (!betaNoticeSeen) {
+        setShowBetaNotice(true);
+      } else {
+        // Navigate to appropriate screen
+        navigateToHome();
       }
     }
-  }, [user, loading]);
+  }, [user, loading, betaNoticeSeen]);
+
+  const navigateToHome = () => {
+    if (!user) return;
+    
+    if (user.currentRole === 'customer') {
+      router.replace('/(customer)/home');
+    } else if (user.currentRole === 'provider' && user.isProviderEnabled) {
+      router.replace('/(provider)/dashboard');
+    } else if (user.currentRole === 'provider' && !user.isProviderEnabled) {
+      router.replace('/provider-setup');
+    }
+  };
+
+  const handleBetaNoticeContinue = async () => {
+    setShowBetaNotice(false);
+    await markBetaNoticeSeen();
+    navigateToHome();
+  };
 
   if (loading) {
     return (
@@ -31,9 +50,14 @@ export default function WelcomeScreen() {
 
   return (
     <View style={styles.container}>
+      <BetaNoticeModal 
+        visible={showBetaNotice} 
+        onClose={handleBetaNoticeContinue}
+      />
+      
       <View style={styles.content}>
         <View style={styles.iconContainer}>
-          <Ionicons name="construct" size={80} color="#4A90E2" />
+          <Ionicons name="construct" size={80} color="#E53935" />
         </View>
         
         <Text style={styles.title}>Welcome to Fixr</Text>
@@ -43,15 +67,15 @@ export default function WelcomeScreen() {
 
         <View style={styles.features}>
           <View style={styles.feature}>
-            <Ionicons name="flash" size={24} color="#4A90E2" />
+            <Ionicons name="flash" size={24} color="#E53935" />
             <Text style={styles.featureText}>Quick & Easy</Text>
           </View>
           <View style={styles.feature}>
-            <Ionicons name="shield-checkmark" size={24} color="#4A90E2" />
+            <Ionicons name="shield-checkmark" size={24} color="#E53935" />
             <Text style={styles.featureText}>Verified Providers</Text>
           </View>
           <View style={styles.feature}>
-            <Ionicons name="people" size={24} color="#4A90E2" />
+            <Ionicons name="people" size={24} color="#E53935" />
             <Text style={styles.featureText}>Local Services</Text>
           </View>
         </View>
