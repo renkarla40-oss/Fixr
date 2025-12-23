@@ -244,6 +244,18 @@ export default function ProviderDetailScreen() {
               <Text style={styles.bioText}>{provider.bio}</Text>
             </View>
           )}
+
+          <TouchableOpacity
+            style={styles.reportButton}
+            onPress={handleReportProvider}
+            disabled={reporting}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="flag-outline" size={18} color="#999" />
+            <Text style={styles.reportButtonText}>
+              {reporting ? 'Submitting...' : 'Report this provider'}
+            </Text>
+          </TouchableOpacity>
         </ScrollView>
 
         <View style={styles.footer}>
