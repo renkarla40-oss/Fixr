@@ -42,6 +42,12 @@ export default function LoginScreen() {
   // Handle navigation after successful login
   useEffect(() => {
     if (user) {
+      // Check if user has beta access
+      if (!user.isBetaUser) {
+        router.replace('/beta-gate');
+        return;
+      }
+      
       if (user.currentRole === 'provider' && user.isProviderEnabled) {
         router.replace('/(provider)/dashboard');
       } else if (user.currentRole === 'provider' && !user.isProviderEnabled) {
