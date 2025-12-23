@@ -66,6 +66,7 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: str = Field(alias="_id")
     isProviderEnabled: bool = False
+    isBetaUser: bool = False
     createdAt: datetime = Field(default_factory=datetime.utcnow)
     updatedAt: datetime = Field(default_factory=datetime.utcnow)
     
