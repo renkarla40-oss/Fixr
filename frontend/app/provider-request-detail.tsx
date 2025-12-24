@@ -219,10 +219,17 @@ export default function ProviderRequestDetailScreen() {
           contentContainerStyle={styles.contentContainer}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.urgentBanner}>
-            <Ionicons name="alert-circle" size={20} color="#E53935" />
-            <Text style={styles.urgentText}>New Service Request</Text>
-          </View>
+          {request.isGeneralRequest ? (
+            <View style={styles.generalBanner}>
+              <Ionicons name="people" size={20} color="#7C4DFF" />
+              <Text style={styles.generalBannerText}>General Request - Open to All Providers</Text>
+            </View>
+          ) : (
+            <View style={styles.urgentBanner}>
+              <Ionicons name="alert-circle" size={20} color="#E53935" />
+              <Text style={styles.urgentText}>New Service Request</Text>
+            </View>
+          )}
 
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
