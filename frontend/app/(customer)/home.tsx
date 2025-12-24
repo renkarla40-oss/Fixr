@@ -38,6 +38,12 @@ const categories = [
     name: 'Handyman',
     icon: 'hammer' as const,
   },
+  {
+    id: 'other',
+    name: 'Other Services (Beta)',
+    icon: 'ellipsis-horizontal-circle' as const,
+    isBeta: true,
+  },
 ];
 
 export default function CustomerHomeScreen() {
