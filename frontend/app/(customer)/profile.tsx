@@ -58,7 +58,11 @@ export default function ProfileScreen() {
           <Text style={styles.title}>Profile</Text>
         </View>
 
-        <View style={styles.content}>
+        <ScrollView 
+          style={styles.content}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.profileSection}>
             <View style={styles.avatarContainer}>
               <Ionicons name="person" size={48} color="#666" />
