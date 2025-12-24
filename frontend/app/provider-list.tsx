@@ -247,6 +247,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  submitRequestButton: {
+    backgroundColor: '#E53935',
+    paddingHorizontal: 32,
+    paddingVertical: 16,
+    borderRadius: 12,
+    marginTop: 16,
+  },
+  submitRequestText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
   content: {
     flex: 1,
   },
