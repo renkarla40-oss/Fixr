@@ -109,14 +109,15 @@ class ServiceRequest(BaseModel):
 class ServiceRequestResponse(BaseModel):
     id: str = Field(alias="_id")
     customerId: str
-    providerId: str
+    providerId: Optional[str] = None  # Can be None for general requests
     service: str
     description: str
     preferredDateTime: Optional[datetime] = None
     status: str = "pending"
     customerName: str
     customerPhone: str
-    providerName: str
+    providerName: Optional[str] = None  # Can be None for general requests
+    isGeneralRequest: bool = False  # Flag for "Other Services" requests
     createdAt: datetime
     
     class Config:
