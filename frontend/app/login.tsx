@@ -23,18 +23,42 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+    // Form validation with user-friendly messages
+    if (!email.trim()) {
+      Alert.alert('Email Required', 'Please enter your email address to sign in.');
+      return;
+    }
+    
+    if (!validateEmail(email.trim())) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address (e.g., name@example.com).');
+      return;
+    }
+    
+    if (!password) {
+      Alert.alert('Password Required', 'Please enter your password to sign in.');
       return;
     }
 
     setLoading(true);
     try {
-      await login(email, password);
+      await login(email.trim(), password);
       // Navigation will happen in useEffect when user state updates
     } catch (error: any) {
-      Alert.alert('Login Failed', error.message);
+      // User-friendly error messages
+      const errorMessage = error.message?.toLowerCase() || '';
+      if (errorMessage.includes('invalid') || errorMessage.includes('incorrect') || errorMessage.includes('not found')) {
+        Alert.alert('Sign In Failed', 'The email or password you entered is incorrect. Please try again.');
+      } else if (errorMessage.includes('network') || errorMessage.includes('connection')) {
+        Alert.alert('Connection Error', 'Unable to connect to the server. Please check your internet connection and try again.');
+      } else {
+        Alert.alert('Sign In Failed', 'Something went wrong. Please try again later.');
+      }
       setLoading(false);
     }
   };
