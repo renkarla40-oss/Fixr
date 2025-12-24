@@ -169,6 +169,10 @@ export default function ProviderProfileScreen() {
               <Text style={styles.logoutText}>Logout</Text>
             </TouchableOpacity>
           </View>
+
+          <View style={styles.versionSection}>
+            <Text style={styles.versionText}>Fixr v1.0.0-beta</Text>
+          </View>
         </ScrollView>
       </View>
     </SafeAreaView>
