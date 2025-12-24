@@ -298,4 +298,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#E53935',
   },
+  versionSection: {
+    alignItems: 'center',
+    paddingVertical: 24,
+    paddingBottom: 40,
+  },
+  versionText: {
+    fontSize: 14,
+    color: '#999',
+  },
 });
