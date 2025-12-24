@@ -27,8 +27,13 @@ export default function ProviderListScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { token } = useAuth();
+  
+  // Extract params with clear variable names
   const categoryId = params.category as string;
   const categoryName = params.categoryName as string;
+  
+  // Check if this is the "Other Services (Beta)" category
+  const isOtherCategory = categoryId === 'other';
 
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,6 +64,15 @@ export default function ProviderListScreen() {
     });
   };
 
+  const handleSubmitGeneralRequest = () => {
+    router.push({
+      pathname: '/request-service',
+      params: { providerId: 'general', category: 'other' },
+    });
+  };
+
+  const displayName = categoryName || 'Services';
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -69,7 +83,7 @@ export default function ProviderListScreen() {
           >
             <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
           </TouchableOpacity>
-          <Text style={styles.title}>{categoryName || 'Services'}</Text>
+          <Text style={styles.title}>{displayName}</Text>
           <View style={styles.backButton} />
         </View>
 
@@ -82,19 +96,18 @@ export default function ProviderListScreen() {
             <View style={styles.emptyIconContainer}>
               <Ionicons name="people-outline" size={48} color="#E53935" />
             </View>
-            <Text style={styles.emptyTitle}>No {categoryName || 'Service'} Providers Yet</Text>
+            <Text style={styles.emptyTitle}>
+              No {displayName} Providers Yet
+            </Text>
             <Text style={styles.emptySubtitle}>
-              {categoryId === 'other' 
+              {isOtherCategory 
                 ? "This is a beta category. You can still submit a request and we'll try to match you with an available provider."
                 : `We're actively onboarding verified ${(categoryName || 'service').toLowerCase()} professionals in your area.`}
             </Text>
-            {categoryId === 'other' ? (
+            {isOtherCategory ? (
               <TouchableOpacity
                 style={styles.submitRequestButton}
-                onPress={() => router.push({
-                  pathname: '/request-service',
-                  params: { providerId: 'general', category: 'other' },
-                })}
+                onPress={handleSubmitGeneralRequest}
               >
                 <Text style={styles.submitRequestText}>Submit a General Request</Text>
               </TouchableOpacity>
