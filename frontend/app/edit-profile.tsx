@@ -74,11 +74,17 @@ export default function EditProfileScreen() {
           <TouchableOpacity
             onPress={() => router.back()}
             style={styles.backButton}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+            <Ionicons name="arrow-back" size={28} color="#1A1A1A" />
           </TouchableOpacity>
           <Text style={styles.title}>Edit Profile</Text>
-          <View style={styles.backButton} />
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.cancelButton}
+          >
+            <Text style={styles.cancelText}>Cancel</Text>
+          </TouchableOpacity>
         </View>
 
         <ScrollView
