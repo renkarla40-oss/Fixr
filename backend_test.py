@@ -190,6 +190,24 @@ class FixrAPITester:
             if "token" in data:
                 self.provider_token = data["token"]
                 user_info = data.get("user", {})
+                
+                # Switch to provider role if not already
+                if user_info.get("currentRole") != "provider":
+                    print("   Switching to provider role...")
+                    role_response = self.make_request(
+                        "PATCH",
+                        "/users/role",
+                        headers={"Authorization": f"Bearer {self.provider_token}"},
+                        json_data={"currentRole": "provider"}
+                    )
+                    
+                    if role_response and role_response.status_code == 200:
+                        user_info = role_response.json()
+                        print(f"   Successfully switched to provider role")
+                    else:
+                        self.log_test("Provider Login", False, "Failed to switch to provider role")
+                        return False
+                
                 self.log_test(
                     "Provider Login", 
                     True, 
