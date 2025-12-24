@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../contexts/AuthContext';
 import BetaNoticeModal from '../components/BetaNoticeModal';
 
@@ -43,26 +44,40 @@ export default function WelcomeScreen() {
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <LinearGradient
+        colors={['#EAF4FF', '#FFFFFF']}
+        style={styles.container}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+      >
         <Text style={styles.loadingText}>Loading...</Text>
-      </View>
+      </LinearGradient>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={['#EAF4FF', '#FFFFFF']}
+      style={styles.container}
+      start={{ x: 0.5, y: 0 }}
+      end={{ x: 0.5, y: 1 }}
+    >
       <BetaNoticeModal 
         visible={shouldShowBetaNotice} 
         onClose={handleBetaNoticeContinue}
       />
       
       <View style={styles.content}>
-        <View style={styles.logoContainer}>
-          <Image 
-            source={require('../assets/images/fixr-logo.png')} 
-            style={styles.logo}
-            resizeMode="contain"
-          />
+        <View style={styles.logoWrapper}>
+          {/* Subtle radial glow effect */}
+          <View style={styles.logoGlow} />
+          <View style={styles.logoContainer}>
+            <Image 
+              source={require('../assets/images/fixr-logo.png')} 
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
         </View>
         
         <Text style={styles.subtitle}>
@@ -102,14 +117,13 @@ export default function WelcomeScreen() {
           <Text style={styles.secondaryButtonText}>I already have an account</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
     paddingHorizontal: 24,
   },
   loadingText: {
@@ -123,8 +137,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: -40,
   },
-  logoContainer: {
+  logoWrapper: {
     marginBottom: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoGlow: {
+    position: 'absolute',
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: '#EAF4FF',
+    opacity: 0.6,
+  },
+  logoContainer: {
     width: 100,
     height: 100,
     backgroundColor: '#000000',
