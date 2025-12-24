@@ -1,40 +1,94 @@
-diff --git a/backend/server.py b/backend/server.py
-index d995e01..deaf877 100644
---- a/backend/server.py
-+++ b/backend/server.py
-@@ -234,6 +234,35 @@ async def switch_role(role_data: RoleUpdate, current_user: User = Depends(get_cu
-     updated_user["_id"] = str(updated_user["_id"])
-     return User(**updated_user)
+diff --git a/frontend/app/index.tsx b/frontend/app/index.tsx
+index aa4a44e..3e1b346 100644
+--- a/frontend/app/index.tsx
++++ b/frontend/app/index.tsx
+@@ -1,23 +1,25 @@
+ import React, { useEffect } from 'react';
+-import { View, StyleSheet } from 'react-native';
++import { View, StyleSheet, Image } from 'react-native';
+ import { useRouter } from 'expo-router';
+-import { Ionicons } from '@expo/vector-icons';
  
-+@api_router.patch("/users/profile")
-+async def update_user_profile(
-+    profile_update: ProfileUpdate,
-+    current_user: User = Depends(get_current_user)
-+):
-+    # Update user document
-+    result = await db.users.update_one(
-+        {"_id": ObjectId(current_user.id)},
-+        {"$set": {
-+            "name": profile_update.name,
-+            "phone": profile_update.phone,
-+            "updatedAt": datetime.utcnow()
-+        }}
-+    )
-+    
-+    # Also update provider document if it exists
-+    await db.providers.update_one(
-+        {"userId": current_user.id},
-+        {"$set": {
-+            "name": profile_update.name,
-+            "phone": profile_update.phone
-+        }}
-+    )
-+    
-+    updated_user = await db.users.find_one({"_id": ObjectId(current_user.id)})
-+    updated_user["_id"] = str(updated_user["_id"])
-+    
-+    return updated_user
-+
- @api_router.post("/users/provider-setup", response_model=User)
- async def setup_provider(setup_data: ProviderSetup, current_user: User = Depends(get_current_user)):
-     # Create or update provider profile
+ export default function SplashScreen() {
+   const router = useRouter();
+ 
+   useEffect(() => {
+-    // Navigate to welcome after 1.5 seconds
+     const timer = setTimeout(() => {
+       router.replace('/welcome');
+-    }, 1500);
++    }, 2000);
+ 
+     return () => clearTimeout(timer);
+   }, []);
+ 
+   return (
+     <View style={styles.container}>
+-      <Ionicons name="construct" size={100} color="#E53935" />
++      <Image 
++        source={require('../assets/images/fixr-logo.png')} 
++        style={styles.logo}
++        resizeMode="contain"
++      />
+     </View>
+   );
+ }
+@@ -25,8 +27,12 @@ export default function SplashScreen() {
+ const styles = StyleSheet.create({
+   container: {
+     flex: 1,
+-    backgroundColor: '#FFFFFF',
++    backgroundColor: '#000000',
+     alignItems: 'center',
+     justifyContent: 'center',
+   },
++  logo: {
++    width: 200,
++    height: 100,
++  },
+ });
+diff --git a/model.patch b/model.patch
+index 131e62f..e69de29 100644
+--- a/model.patch
++++ b/model.patch
+@@ -1,40 +0,0 @@
+-diff --git a/backend/server.py b/backend/server.py
+-index d995e01..deaf877 100644
+---- a/backend/server.py
+-+++ b/backend/server.py
+-@@ -234,6 +234,35 @@ async def switch_role(role_data: RoleUpdate, current_user: User = Depends(get_cu
+-     updated_user["_id"] = str(updated_user["_id"])
+-     return User(**updated_user)
+- 
+-+@api_router.patch("/users/profile")
+-+async def update_user_profile(
+-+    profile_update: ProfileUpdate,
+-+    current_user: User = Depends(get_current_user)
+-+):
+-+    # Update user document
+-+    result = await db.users.update_one(
+-+        {"_id": ObjectId(current_user.id)},
+-+        {"$set": {
+-+            "name": profile_update.name,
+-+            "phone": profile_update.phone,
+-+            "updatedAt": datetime.utcnow()
+-+        }}
+-+    )
+-+    
+-+    # Also update provider document if it exists
+-+    await db.providers.update_one(
+-+        {"userId": current_user.id},
+-+        {"$set": {
+-+            "name": profile_update.name,
+-+            "phone": profile_update.phone
+-+        }}
+-+    )
+-+    
+-+    updated_user = await db.users.find_one({"_id": ObjectId(current_user.id)})
+-+    updated_user["_id"] = str(updated_user["_id"])
+-+    
+-+    return updated_user
+-+
+- @api_router.post("/users/provider-setup", response_model=User)
+- async def setup_provider(setup_data: ProviderSetup, current_user: User = Depends(get_current_user)):
+-     # Create or update provider profile
