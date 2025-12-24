@@ -101,3 +101,119 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: |
+  Build a launch-ready mobile app called Fixr. The app is for home services (electrical, plumbing, etc).
+  Current task: Implement "Other Services (Beta)" category that allows customers to submit general requests 
+  without selecting a specific provider. These requests should be visible to ALL providers who have completed setup.
+
+backend:
+  - task: "Create general service request (no specific provider)"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Modified /api/service-requests POST endpoint to accept provider_id=general for creating general requests with isGeneralRequest=true flag"
+  
+  - task: "Provider dashboard shows general requests"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Modified /api/service-requests GET endpoint to include general requests (isGeneralRequest=true) for all providers with completed setup"
+
+frontend:
+  - task: "Other Services (Beta) category on home screen"
+    implemented: true
+    working: "NA"
+    file: "(customer)/home.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Category already existed from previous session"
+
+  - task: "Provider list shows Submit General Request button for Other Services"
+    implemented: true
+    working: "NA"
+    file: "provider-list.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Fixed categoryId reference, updated button text and navigation params"
+
+  - task: "Request service form shows beta helper text"
+    implemented: true
+    working: "NA"
+    file: "request-service.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added beta notice box with specific helper text for general requests, modified API call to use provider_id=general"
+
+  - task: "Provider dashboard displays general requests distinctly"
+    implemented: true
+    working: "NA"
+    file: "(provider)/dashboard.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added GENERAL badge with purple styling for general requests to distinguish from regular NEW requests"
+
+  - task: "Provider request detail shows general request indicator"
+    implemented: true
+    working: "NA"
+    file: "provider-request-detail.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added purple banner for general requests indicating 'Open to All Providers'"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Create general service request (no specific provider)"
+    - "Provider dashboard shows general requests"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: |
+      Implemented "Other Services (Beta)" feature. Please test:
+      1. POST /api/service-requests with provider_id=general should create a request with isGeneralRequest=true
+      2. GET /api/service-requests as a provider should return both specific and general requests
+      
+      Test credentials:
+      - Customer: customer@test.com / password123
+      - Provider: provider@test.com / password123
