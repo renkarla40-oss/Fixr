@@ -26,6 +26,7 @@ interface ServiceRequest {
   status: string;
   createdAt: string;
   preferredDateTime?: string;
+  isGeneralRequest?: boolean;
 }
 
 export default function ProviderDashboardScreen() {
