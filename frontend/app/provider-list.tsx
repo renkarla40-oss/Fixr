@@ -84,17 +84,33 @@ export default function ProviderListScreen() {
             </View>
             <Text style={styles.emptyTitle}>No {categoryName} Providers Yet</Text>
             <Text style={styles.emptySubtitle}>
-              We're actively onboarding verified {categoryName.toLowerCase()} professionals in your area.
+              {category === 'other' 
+                ? "This is a beta category. You can still submit a request and we'll try to match you with an available provider."
+                : `We're actively onboarding verified ${categoryName.toLowerCase()} professionals in your area.`}
             </Text>
-            <Text style={styles.emptyHint}>
-              Check back soon or try another service category.
-            </Text>
-            <TouchableOpacity
-              style={styles.backToServicesButton}
-              onPress={() => router.back()}
-            >
-              <Text style={styles.backToServicesText}>Browse Other Services</Text>
-            </TouchableOpacity>
+            {category === 'other' ? (
+              <TouchableOpacity
+                style={styles.submitRequestButton}
+                onPress={() => router.push({
+                  pathname: '/request-service',
+                  params: { providerId: 'any', category: 'other' },
+                })}
+              >
+                <Text style={styles.submitRequestText}>Submit a Request Anyway</Text>
+              </TouchableOpacity>
+            ) : (
+              <>
+                <Text style={styles.emptyHint}>
+                  Check back soon or try another service category.
+                </Text>
+                <TouchableOpacity
+                  style={styles.backToServicesButton}
+                  onPress={() => router.back()}
+                >
+                  <Text style={styles.backToServicesText}>Browse Other Services</Text>
+                </TouchableOpacity>
+              </>
+            )}
           </View>
         ) : (
           <ScrollView
