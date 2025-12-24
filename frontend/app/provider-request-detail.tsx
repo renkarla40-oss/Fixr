@@ -383,6 +383,22 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#E53935',
   },
+  generalBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#EDE7F6',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#D1C4E9',
+    marginBottom: 24,
+  },
+  generalBannerText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#7C4DFF',
+  },
   section: {
     paddingVertical: 20,
     borderBottomWidth: 1,
