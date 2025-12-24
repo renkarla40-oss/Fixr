@@ -125,13 +125,17 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     marginBottom: 32,
-    padding: 16,
+    width: 100,
+    height: 100,
     backgroundColor: '#000000',
-    borderRadius: 16,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
   logo: {
-    width: 180,
-    height: 80,
+    width: 70,
+    height: 70,
   },
   subtitle: {
     fontSize: 16,
