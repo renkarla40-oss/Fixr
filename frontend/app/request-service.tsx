@@ -27,6 +27,9 @@ export default function RequestServiceScreen() {
   const providerId = params.providerId as string;
   const category = params.category as string;
 
+  // Check if this is a general request (no specific provider)
+  const isGeneralRequest = providerId === 'general' || category === 'other';
+
   const [description, setDescription] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<Date | null>(null);
@@ -41,6 +44,7 @@ export default function RequestServiceScreen() {
     ac: 'AC Repair',
     cleaning: 'Cleaning',
     handyman: 'Handyman',
+    other: 'Other Services (Beta)',
   };
 
   const formatTime12Hour = (date: Date) => {
