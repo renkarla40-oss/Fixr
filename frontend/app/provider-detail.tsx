@@ -405,11 +405,8 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   footer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
     padding: 24,
+    paddingBottom: 40,
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
