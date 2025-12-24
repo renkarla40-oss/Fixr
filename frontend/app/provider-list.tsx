@@ -82,7 +82,7 @@ export default function ProviderListScreen() {
             <View style={styles.emptyIconContainer}>
               <Ionicons name="people-outline" size={48} color="#E53935" />
             </View>
-            <Text style={styles.emptyTitle}>No {categoryName} Providers Yet</Text>
+            <Text style={styles.emptyTitle}>No {categoryName || 'Service'} Providers Yet</Text>
             <Text style={styles.emptySubtitle}>
               {categoryId === 'other' 
                 ? "This is a beta category. You can still submit a request and we'll try to match you with an available provider."
