@@ -6,6 +6,74 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../contexts/AuthContext';
 import BetaNoticeModal from '../components/BetaNoticeModal';
 
+// Subtle service icons graphic component
+const ServiceGraphic = () => (
+  <View style={graphicStyles.container}>
+    <View style={graphicStyles.iconRow}>
+      <View style={[graphicStyles.iconCircle, graphicStyles.iconLeft]}>
+        <Ionicons name="construct-outline" size={18} color="#E5393550" />
+      </View>
+      <View style={[graphicStyles.iconCircle, graphicStyles.iconCenter]}>
+        <Ionicons name="home-outline" size={20} color="#E5393570" />
+      </View>
+      <View style={[graphicStyles.iconCircle, graphicStyles.iconRight]}>
+        <Ionicons name="build-outline" size={18} color="#E5393550" />
+      </View>
+    </View>
+    {/* Subtle connecting line */}
+    <View style={graphicStyles.connectingLine} />
+  </View>
+);
+
+const graphicStyles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    marginBottom: 16,
+    height: 60,
+    justifyContent: 'center',
+  },
+  iconRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#FFF5F5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E5393520',
+  },
+  iconLeft: {
+    marginRight: -8,
+    zIndex: 1,
+  },
+  iconCenter: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    zIndex: 2,
+    backgroundColor: '#FFEBEE',
+    borderColor: '#E5393530',
+  },
+  iconRight: {
+    marginLeft: -8,
+    zIndex: 1,
+  },
+  connectingLine: {
+    position: 'absolute',
+    width: 100,
+    height: 2,
+    backgroundColor: '#E5393515',
+    borderRadius: 1,
+    top: '50%',
+    zIndex: 0,
+  },
+});
+
 export default function WelcomeScreen() {
   const router = useRouter();
   const { user, loading, shouldShowBetaNotice, markBetaNoticeSeen } = useAuth();
