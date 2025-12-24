@@ -105,8 +105,13 @@ export default function RequestServiceScreen() {
       // Combine in ISO format
       const preferredDateTime = `${dateStr}T${timeStr}:00.000Z`;
 
+      // Build API URL - for general requests, use 'general' as provider_id
+      const apiUrl = isGeneralRequest 
+        ? `${BACKEND_URL}/api/service-requests?provider_id=general`
+        : `${BACKEND_URL}/api/service-requests?provider_id=${providerId}`;
+
       await axios.post(
-        `${BACKEND_URL}/api/service-requests?provider_id=${providerId}`,
+        apiUrl,
         {
           service: category,
           description: description.trim(),
