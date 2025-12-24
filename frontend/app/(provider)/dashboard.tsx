@@ -80,6 +80,7 @@ export default function ProviderDashboardScreen() {
     ac: 'AC Repair',
     cleaning: 'Cleaning',
     handyman: 'Handyman',
+    other: 'Other Services (Beta)',
   };
 
   const formatDate = (dateString: string) => {
