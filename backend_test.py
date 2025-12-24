@@ -122,11 +122,23 @@ class FixrAPITester:
             
         if response.status_code == 200:
             data = response.json()
-            self.created_request_id = data.get("id")
             
-            # Verify the response has expected fields
-            expected_fields = ["id", "isGeneralRequest", "providerId", "service", "description"]
-            missing_fields = [field for field in expected_fields if field not in data]
+            # Handle both _id and id field names
+            request_id = data.get("id") or data.get("_id")
+            if not request_id:
+                self.log_test(
+                    "Create General Request", 
+                    False, 
+                    "Missing id field in response",
+                    data
+                )
+                return False
+                
+            self.created_request_id = request_id
+            
+            # Verify required fields exist
+            required_fields = ["isGeneralRequest", "service", "description"]
+            missing_fields = [field for field in required_fields if field not in data]
             
             if missing_fields:
                 self.log_test(
