@@ -86,7 +86,7 @@ export default function ProviderListScreen() {
             <Text style={styles.emptySubtitle}>
               {categoryId === 'other' 
                 ? "This is a beta category. You can still submit a request and we'll try to match you with an available provider."
-                : `We're actively onboarding verified ${categoryName.toLowerCase()} professionals in your area.`}
+                : `We're actively onboarding verified ${(categoryName || 'service').toLowerCase()} professionals in your area.`}
             </Text>
             {categoryId === 'other' ? (
               <TouchableOpacity
