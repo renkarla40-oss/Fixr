@@ -322,6 +322,22 @@ const styles = StyleSheet.create({
     color: '#F57C00',
     fontWeight: 'bold',
   },
+  generalRequestCard: {
+    borderColor: '#7C4DFF',
+    borderWidth: 1.5,
+    backgroundColor: '#FAFAFE',
+  },
+  generalBadge: {
+    backgroundColor: '#EDE7F6',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  generalBadgeText: {
+    fontSize: 11,
+    color: '#7C4DFF',
+    fontWeight: 'bold',
+  },
   customerName: {
     fontSize: 18,
     fontWeight: 'bold',
