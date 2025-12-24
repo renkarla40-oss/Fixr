@@ -123,15 +123,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: -40,
   },
-  iconContainer: {
+  logoContainer: {
     marginBottom: 32,
+    padding: 16,
+    backgroundColor: '#000000',
+    borderRadius: 16,
   },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
-    marginBottom: 16,
-    textAlign: 'center',
+  logo: {
+    width: 180,
+    height: 80,
   },
   subtitle: {
     fontSize: 16,
