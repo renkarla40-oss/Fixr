@@ -99,7 +99,7 @@ export default function ProviderListScreen() {
                 <Text style={styles.submitRequestText}>Submit a General Request</Text>
               </TouchableOpacity>
             ) : (
-              <>
+              <View>
                 <Text style={styles.emptyHint}>
                   Check back soon or try another service category.
                 </Text>
@@ -109,7 +109,7 @@ export default function ProviderListScreen() {
                 >
                   <Text style={styles.backToServicesText}>Browse Other Services</Text>
                 </TouchableOpacity>
-              </>
+              </View>
             )}
           </View>
         ) : (
