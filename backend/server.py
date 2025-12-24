@@ -461,12 +461,22 @@ async def get_service_requests(current_user: User = Depends(get_current_user)):
         provider = await db.providers.find_one({"userId": current_user.id})
         if not provider:
             return []
-        query = {"providerId": str(provider["_id"])}
+        
+        # Providers see their specific requests AND all general "other services" requests
+        query = {
+            "$or": [
+                {"providerId": str(provider["_id"])},  # Requests specifically for this provider
+                {"isGeneralRequest": True}  # General requests visible to all providers
+            ]
+        }
     
     requests = await db.service_requests.find(query).sort("createdAt", -1).to_list(100)
     result = []
     for req in requests:
         req["_id"] = str(req["_id"])
+        # Ensure isGeneralRequest field exists for backward compatibility
+        if "isGeneralRequest" not in req:
+            req["isGeneralRequest"] = False
         result.append(ServiceRequestResponse(**req))
     return result
 
