@@ -28,20 +28,62 @@ export default function SignupScreen() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePhone = (phone: string) => {
+    // Allow digits, spaces, dashes, parentheses, and plus sign
+    const phoneRegex = /^[\d\s\-()+ ]{7,}$/;
+    return phoneRegex.test(phone);
+  };
+
   const handleSignup = async () => {
-    if (!name || !phone || !email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+    // Form validation with user-friendly messages
+    if (!name.trim()) {
+      Alert.alert('Name Required', 'Please enter your full name.');
+      return;
+    }
+
+    if (name.trim().length < 2) {
+      Alert.alert('Invalid Name', 'Please enter a valid name (at least 2 characters).');
+      return;
+    }
+
+    if (!phone.trim()) {
+      Alert.alert('Phone Required', 'Please enter your phone number so providers can contact you.');
+      return;
+    }
+
+    if (!validatePhone(phone.trim())) {
+      Alert.alert('Invalid Phone', 'Please enter a valid phone number.');
+      return;
+    }
+
+    if (!email.trim()) {
+      Alert.alert('Email Required', 'Please enter your email address.');
+      return;
+    }
+
+    if (!validateEmail(email.trim())) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address (e.g., name@example.com).');
+      return;
+    }
+
+    if (!password) {
+      Alert.alert('Password Required', 'Please create a password for your account.');
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters');
+      Alert.alert('Password Too Short', 'Your password must be at least 6 characters long.');
       return;
     }
 
     setLoading(true);
     try {
-      await signup(email, password, name, phone, role);
+      await signup(email.trim(), password, name.trim(), phone.trim(), role);
       // Navigate based on role
       if (role === 'customer') {
         router.replace('/customer-onboarding');
@@ -49,7 +91,15 @@ export default function SignupScreen() {
         router.replace('/provider-setup');
       }
     } catch (error: any) {
-      Alert.alert('Signup Failed', error.message);
+      // User-friendly error messages
+      const errorMessage = error.message?.toLowerCase() || '';
+      if (errorMessage.includes('already') || errorMessage.includes('exists') || errorMessage.includes('registered')) {
+        Alert.alert('Email Already Registered', 'An account with this email already exists. Please sign in instead.');
+      } else if (errorMessage.includes('network') || errorMessage.includes('connection')) {
+        Alert.alert('Connection Error', 'Unable to connect to the server. Please check your internet connection and try again.');
+      } else {
+        Alert.alert('Sign Up Failed', 'Something went wrong. Please try again later.');
+      }
     } finally {
       setLoading(false);
     }
