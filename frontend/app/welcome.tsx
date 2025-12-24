@@ -56,11 +56,14 @@ export default function WelcomeScreen() {
       />
       
       <View style={styles.content}>
-        <View style={styles.iconContainer}>
-          <Ionicons name="construct" size={80} color="#E53935" />
+        <View style={styles.logoContainer}>
+          <Image 
+            source={require('../assets/images/fixr-logo.png')} 
+            style={styles.logo}
+            resizeMode="contain"
+          />
         </View>
         
-        <Text style={styles.title}>Welcome to Fixr</Text>
         <Text style={styles.subtitle}>
           Connect with trusted service providers{"\n"}or offer your services to customers
         </Text>
