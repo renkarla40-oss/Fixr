@@ -1,82 +1,19 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ImageBackground, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../contexts/AuthContext';
 import BetaNoticeModal from '../components/BetaNoticeModal';
 
-// Subtle service icons graphic component
-const ServiceGraphic = () => (
-  <View style={graphicStyles.container}>
-    <View style={graphicStyles.iconRow}>
-      <View style={[graphicStyles.iconCircle, graphicStyles.iconLeft]}>
-        <Ionicons name="construct-outline" size={18} color="#E5393550" />
-      </View>
-      <View style={[graphicStyles.iconCircle, graphicStyles.iconCenter]}>
-        <Ionicons name="home-outline" size={20} color="#E5393570" />
-      </View>
-      <View style={[graphicStyles.iconCircle, graphicStyles.iconRight]}>
-        <Ionicons name="build-outline" size={18} color="#E5393550" />
-      </View>
-    </View>
-    {/* Subtle connecting line */}
-    <View style={graphicStyles.connectingLine} />
-  </View>
-);
+const { width, height } = Dimensions.get('window');
 
-const graphicStyles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    marginBottom: 16,
-    height: 60,
-    justifyContent: 'center',
-  },
-  iconRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#FFF5F5',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#E5393520',
-  },
-  iconLeft: {
-    marginRight: -8,
-    zIndex: 1,
-  },
-  iconCenter: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    zIndex: 2,
-    backgroundColor: '#FFEBEE',
-    borderColor: '#E5393530',
-  },
-  iconRight: {
-    marginLeft: -8,
-    zIndex: 1,
-  },
-  connectingLine: {
-    position: 'absolute',
-    width: 100,
-    height: 2,
-    backgroundColor: '#E5393515',
-    borderRadius: 1,
-    top: '50%',
-    zIndex: 0,
-  },
-});
+// Hero background image URL
+const HERO_IMAGE_URL = 'https://images.pexels.com/photos/16552856/pexels-photo-16552856.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2';
 
 export default function WelcomeScreen() {
   const router = useRouter();
   const { user, loading, shouldShowBetaNotice, markBetaNoticeSeen } = useAuth();
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     if (!loading && user) {
@@ -112,167 +49,148 @@ export default function WelcomeScreen() {
 
   if (loading) {
     return (
-      <LinearGradient
-        colors={['#EAF4FF', '#FFFFFF']}
-        style={styles.container}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-      >
+      <View style={styles.loadingContainer}>
         <Text style={styles.loadingText}>Loading...</Text>
-      </LinearGradient>
+      </View>
     );
   }
 
   return (
-    <LinearGradient
-      colors={['#EAF4FF', '#FFFFFF']}
-      style={styles.container}
-      start={{ x: 0.5, y: 0 }}
-      end={{ x: 0.5, y: 1 }}
-    >
+    <View style={styles.container}>
       <BetaNoticeModal 
         visible={shouldShowBetaNotice} 
         onClose={handleBetaNoticeContinue}
       />
       
-      <View style={styles.content}>
-        <View style={styles.logoWrapper}>
-          {/* Subtle radial glow effect */}
-          <View style={styles.logoGlow} />
-          <View style={styles.logoContainer}>
-            <Image 
-              source={require('../assets/images/fixr-logo.png')} 
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
-        </View>
-
-        {/* Subtle service graphic */}
-        <ServiceGraphic />
-        
-        {/* Main tagline */}
-        <Text style={styles.tagline}>Where Trinis Get Things Done</Text>
-        
-        <Text style={styles.subtitle}>
-          Connect with trusted service providers{"\n"}or offer your services to customers
-        </Text>
-
-        <View style={styles.features}>
-          <View style={styles.feature}>
-            <Ionicons name="flash" size={24} color="#E53935" />
-            <Text style={styles.featureText}>Quick & Easy</Text>
-          </View>
-          <View style={styles.feature}>
-            <Ionicons name="shield-checkmark" size={24} color="#E53935" />
-            <Text style={styles.featureText}>Verified Providers</Text>
-          </View>
-          <View style={styles.feature}>
-            <Ionicons name="people" size={24} color="#E53935" />
-            <Text style={styles.featureText}>Local Services</Text>
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={() => router.push('/role-selection')}
-          activeOpacity={0.8}
+      {/* Hero Background Image */}
+      <ImageBackground
+        source={{ uri: HERO_IMAGE_URL }}
+        style={styles.heroBackground}
+        resizeMode="cover"
+        onLoad={() => setImageLoaded(true)}
+      >
+        {/* Dark gradient overlay for text readability */}
+        <LinearGradient
+          colors={['rgba(0,0,0,0.3)', 'rgba(0,0,0,0.5)', 'rgba(0,0,0,0.85)']}
+          style={styles.overlay}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
         >
-          <Text style={styles.primaryButtonText}>Get Started</Text>
-        </TouchableOpacity>
+          {/* Logo at top */}
+          <View style={styles.logoSection}>
+            <View style={styles.logoContainer}>
+              <Image 
+                source={require('../assets/images/fixr-logo.png')} 
+                style={styles.logo}
+                resizeMode="contain"
+              />
+            </View>
+          </View>
 
-        <TouchableOpacity
-          style={styles.secondaryButton}
-          onPress={() => router.push('/login')}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.secondaryButtonText}>I already have an account</Text>
-        </TouchableOpacity>
-      </View>
-    </LinearGradient>
+          {/* Content Section */}
+          <View style={styles.contentSection}>
+            {/* Main tagline */}
+            <Text style={styles.tagline}>Where Trinis{'\n'}Get Things Done</Text>
+            
+            <Text style={styles.subtitle}>
+              Connect with trusted service providers or offer your skills to customers in your area
+            </Text>
+          </View>
+
+          {/* CTA Buttons */}
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={() => router.push('/role-selection')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.primaryButtonText}>Get Started</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={() => router.push('/login')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.secondaryButtonText}>I already have an account</Text>
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
+      </ImageBackground>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 24,
+    backgroundColor: '#1A1A1A',
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: '#1A1A1A',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   loadingText: {
     fontSize: 18,
-    color: '#666',
+    color: '#FFFFFF',
     textAlign: 'center',
   },
-  content: {
+  heroBackground: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: -40,
+    width: '100%',
+    height: '100%',
   },
-  logoWrapper: {
-    marginBottom: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
+  overlay: {
+    flex: 1,
+    paddingHorizontal: 24,
+    justifyContent: 'space-between',
   },
-  logoGlow: {
-    position: 'absolute',
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: '#EAF4FF',
-    opacity: 0.6,
+  logoSection: {
+    alignItems: 'center',
+    paddingTop: 60,
   },
   logoContainer: {
-    width: 100,
-    height: 100,
+    width: 80,
+    height: 80,
     backgroundColor: '#000000',
-    borderRadius: 50,
+    borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
   logo: {
-    width: 70,
-    height: 70,
+    width: 55,
+    height: 55,
+  },
+  contentSection: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    paddingBottom: 32,
   },
   tagline: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#1A1A1A',
-    textAlign: 'center',
-    marginBottom: 12,
-    letterSpacing: 0.3,
+    fontSize: 36,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    marginBottom: 16,
+    lineHeight: 44,
+    letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
+    color: 'rgba(255,255,255,0.85)',
     lineHeight: 24,
-    marginBottom: 48,
-  },
-  features: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-  },
-  feature: {
-    alignItems: 'center',
-    gap: 8,
-  },
-  featureText: {
-    fontSize: 12,
-    color: '#666',
-    textAlign: 'center',
   },
   buttonContainer: {
     paddingBottom: 48,
-    gap: 16,
+    gap: 12,
   },
   primaryButton: {
     backgroundColor: '#E53935',
-    paddingVertical: 16,
+    paddingVertical: 18,
     borderRadius: 12,
     alignItems: 'center',
     minHeight: 56,
@@ -284,15 +202,17 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   secondaryButton: {
-    backgroundColor: 'transparent',
+    backgroundColor: 'rgba(255,255,255,0.15)',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
     minHeight: 56,
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
   },
   secondaryButtonText: {
-    color: '#E53935',
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '500',
   },
