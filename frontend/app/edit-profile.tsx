@@ -177,6 +177,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  cancelButton: {
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+  },
+  cancelText: {
+    fontSize: 16,
+    color: '#E53935',
+    fontWeight: '600',
+  },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
