@@ -110,27 +110,33 @@ user_problem_statement: |
 backend:
   - task: "Create general service request (no specific provider)"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Modified /api/service-requests POST endpoint to accept provider_id=general for creating general requests with isGeneralRequest=true flag"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Successfully creates general requests with provider_id=general. Response includes isGeneralRequest=true and providerId=null as expected. Fixed minor logger initialization issue."
   
   - task: "Provider dashboard shows general requests"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Modified /api/service-requests GET endpoint to include general requests (isGeneralRequest=true) for all providers with completed setup"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Providers can see general requests in their dashboard. GET /api/service-requests returns both specific and general requests when user is in provider role. Provider can successfully accept general requests."
 
 frontend:
   - task: "Other Services (Beta) category on home screen"
