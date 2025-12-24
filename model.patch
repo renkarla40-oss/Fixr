@@ -1,94 +1,205 @@
-diff --git a/frontend/app/index.tsx b/frontend/app/index.tsx
-index aa4a44e..3e1b346 100644
---- a/frontend/app/index.tsx
-+++ b/frontend/app/index.tsx
-@@ -1,23 +1,25 @@
- import React, { useEffect } from 'react';
--import { View, StyleSheet } from 'react-native';
-+import { View, StyleSheet, Image } from 'react-native';
- import { useRouter } from 'expo-router';
--import { Ionicons } from '@expo/vector-icons';
+diff --git a/backend/server.py b/backend/server.py
+index 1c79c23..bc9759d 100644
+--- a/backend/server.py
++++ b/backend/server.py
+@@ -18,6 +18,13 @@ from dotenv import load_dotenv
+ ROOT_DIR = Path(__file__).parent
+ load_dotenv(ROOT_DIR / '.env')
  
- export default function SplashScreen() {
-   const router = useRouter();
++# Setup logging
++logging.basicConfig(
++    level=logging.INFO,
++    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
++)
++logger = logging.getLogger(__name__)
++
+ # MongoDB connection
+ mongo_url = os.environ['MONGO_URL']
+ client = AsyncIOMotorClient(mongo_url)
+@@ -519,12 +526,6 @@ app.add_middleware(
+     allow_headers=["*"],
+ )
  
-   useEffect(() => {
--    // Navigate to welcome after 1.5 seconds
-     const timer = setTimeout(() => {
-       router.replace('/welcome');
--    }, 1500);
-+    }, 2000);
- 
-     return () => clearTimeout(timer);
-   }, []);
- 
-   return (
-     <View style={styles.container}>
--      <Ionicons name="construct" size={100} color="#E53935" />
-+      <Image 
-+        source={require('../assets/images/fixr-logo.png')} 
-+        style={styles.logo}
-+        resizeMode="contain"
-+      />
-     </View>
-   );
- }
-@@ -25,8 +27,12 @@ export default function SplashScreen() {
- const styles = StyleSheet.create({
-   container: {
-     flex: 1,
--    backgroundColor: '#FFFFFF',
-+    backgroundColor: '#000000',
-     alignItems: 'center',
-     justifyContent: 'center',
-   },
-+  logo: {
-+    width: 200,
-+    height: 100,
-+  },
- });
+-logging.basicConfig(
+-    level=logging.INFO,
+-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+-)
+-logger = logging.getLogger(__name__)
+-
+ @app.on_event("shutdown")
+ async def shutdown_db_client():
+     client.close()
 diff --git a/model.patch b/model.patch
-index 131e62f..e69de29 100644
+index ef31bd8..e69de29 100644
 --- a/model.patch
 +++ b/model.patch
-@@ -1,40 +0,0 @@
--diff --git a/backend/server.py b/backend/server.py
--index d995e01..deaf877 100644
----- a/backend/server.py
--+++ b/backend/server.py
--@@ -234,6 +234,35 @@ async def switch_role(role_data: RoleUpdate, current_user: User = Depends(get_cu
--     updated_user["_id"] = str(updated_user["_id"])
--     return User(**updated_user)
+@@ -1,94 +0,0 @@
+-diff --git a/frontend/app/index.tsx b/frontend/app/index.tsx
+-index aa4a44e..3e1b346 100644
+---- a/frontend/app/index.tsx
+-+++ b/frontend/app/index.tsx
+-@@ -1,23 +1,25 @@
+- import React, { useEffect } from 'react';
+--import { View, StyleSheet } from 'react-native';
+-+import { View, StyleSheet, Image } from 'react-native';
+- import { useRouter } from 'expo-router';
+--import { Ionicons } from '@expo/vector-icons';
 - 
--+@api_router.patch("/users/profile")
--+async def update_user_profile(
--+    profile_update: ProfileUpdate,
--+    current_user: User = Depends(get_current_user)
--+):
--+    # Update user document
--+    result = await db.users.update_one(
--+        {"_id": ObjectId(current_user.id)},
--+        {"$set": {
--+            "name": profile_update.name,
--+            "phone": profile_update.phone,
--+            "updatedAt": datetime.utcnow()
--+        }}
--+    )
--+    
--+    # Also update provider document if it exists
--+    await db.providers.update_one(
--+        {"userId": current_user.id},
--+        {"$set": {
--+            "name": profile_update.name,
--+            "phone": profile_update.phone
--+        }}
--+    )
--+    
--+    updated_user = await db.users.find_one({"_id": ObjectId(current_user.id)})
--+    updated_user["_id"] = str(updated_user["_id"])
--+    
--+    return updated_user
--+
-- @api_router.post("/users/provider-setup", response_model=User)
-- async def setup_provider(setup_data: ProviderSetup, current_user: User = Depends(get_current_user)):
--     # Create or update provider profile
+- export default function SplashScreen() {
+-   const router = useRouter();
+- 
+-   useEffect(() => {
+--    // Navigate to welcome after 1.5 seconds
+-     const timer = setTimeout(() => {
+-       router.replace('/welcome');
+--    }, 1500);
+-+    }, 2000);
+- 
+-     return () => clearTimeout(timer);
+-   }, []);
+- 
+-   return (
+-     <View style={styles.container}>
+--      <Ionicons name="construct" size={100} color="#E53935" />
+-+      <Image 
+-+        source={require('../assets/images/fixr-logo.png')} 
+-+        style={styles.logo}
+-+        resizeMode="contain"
+-+      />
+-     </View>
+-   );
+- }
+-@@ -25,8 +27,12 @@ export default function SplashScreen() {
+- const styles = StyleSheet.create({
+-   container: {
+-     flex: 1,
+--    backgroundColor: '#FFFFFF',
+-+    backgroundColor: '#000000',
+-     alignItems: 'center',
+-     justifyContent: 'center',
+-   },
+-+  logo: {
+-+    width: 200,
+-+    height: 100,
+-+  },
+- });
+-diff --git a/model.patch b/model.patch
+-index 131e62f..e69de29 100644
+---- a/model.patch
+-+++ b/model.patch
+-@@ -1,40 +0,0 @@
+--diff --git a/backend/server.py b/backend/server.py
+--index d995e01..deaf877 100644
+----- a/backend/server.py
+--+++ b/backend/server.py
+--@@ -234,6 +234,35 @@ async def switch_role(role_data: RoleUpdate, current_user: User = Depends(get_cu
+--     updated_user["_id"] = str(updated_user["_id"])
+--     return User(**updated_user)
+-- 
+--+@api_router.patch("/users/profile")
+--+async def update_user_profile(
+--+    profile_update: ProfileUpdate,
+--+    current_user: User = Depends(get_current_user)
+--+):
+--+    # Update user document
+--+    result = await db.users.update_one(
+--+        {"_id": ObjectId(current_user.id)},
+--+        {"$set": {
+--+            "name": profile_update.name,
+--+            "phone": profile_update.phone,
+--+            "updatedAt": datetime.utcnow()
+--+        }}
+--+    )
+--+    
+--+    # Also update provider document if it exists
+--+    await db.providers.update_one(
+--+        {"userId": current_user.id},
+--+        {"$set": {
+--+            "name": profile_update.name,
+--+            "phone": profile_update.phone
+--+        }}
+--+    )
+--+    
+--+    updated_user = await db.users.find_one({"_id": ObjectId(current_user.id)})
+--+    updated_user["_id"] = str(updated_user["_id"])
+--+    
+--+    return updated_user
+--+
+-- @api_router.post("/users/provider-setup", response_model=User)
+-- async def setup_provider(setup_data: ProviderSetup, current_user: User = Depends(get_current_user)):
+--     # Create or update provider profile
+diff --git a/test_result.md b/test_result.md
+index 3655ac4..a5b95f2 100644
+--- a/test_result.md
++++ b/test_result.md
+@@ -110,27 +110,33 @@ user_problem_statement: |
+ backend:
+   - task: "Create general service request (no specific provider)"
+     implemented: true
+-    working: "NA"
++    working: true
+     file: "server.py"
+     stuck_count: 0
+     priority: "high"
+-    needs_retesting: true
++    needs_retesting: false
+     status_history:
+       - working: "NA"
+         agent: "main"
+         comment: "Modified /api/service-requests POST endpoint to accept provider_id=general for creating general requests with isGeneralRequest=true flag"
++      - working: true
++        agent: "testing"
++        comment: "✅ TESTED: Successfully creates general requests with provider_id=general. Response includes isGeneralRequest=true and providerId=null as expected. Fixed minor logger initialization issue."
+   
+   - task: "Provider dashboard shows general requests"
+     implemented: true
+-    working: "NA"
++    working: true
+     file: "server.py"
+     stuck_count: 0
+     priority: "high"
+-    needs_retesting: true
++    needs_retesting: false
+     status_history:
+       - working: "NA"
+         agent: "main"
+         comment: "Modified /api/service-requests GET endpoint to include general requests (isGeneralRequest=true) for all providers with completed setup"
++      - working: true
++        agent: "testing"
++        comment: "✅ TESTED: Providers can see general requests in their dashboard. GET /api/service-requests returns both specific and general requests when user is in provider role. Provider can successfully accept general requests."
+ 
+ frontend:
+   - task: "Other Services (Beta) category on home screen"
+@@ -200,9 +206,7 @@ metadata:
+   run_ui: false
+ 
+ test_plan:
+-  current_focus:
+-    - "Create general service request (no specific provider)"
+-    - "Provider dashboard shows general requests"
++  current_focus: []
+   stuck_tasks: []
+   test_all: false
+   test_priority: "high_first"
+@@ -216,4 +220,18 @@ agent_communication:
+       
+       Test credentials:
+       - Customer: customer@test.com / password123
+-      - Provider: provider@test.com / password123
+\ No newline at end of file
++      - Provider: provider@test.com / password123
++  - agent: "testing"
++    message: |
++      ✅ BACKEND TESTING COMPLETE - All tests passed!
++      
++      Tested and verified:
++      1. Customer login works correctly
++      2. General service request creation (provider_id=general) works - creates requests with isGeneralRequest=true and providerId=null
++      3. Provider login and role switching works correctly  
++      4. Providers can see general requests in their dashboard along with specific requests
++      5. Providers can successfully accept general requests
++      
++      Fixed minor issue: Logger initialization was moved to top of server.py file.
++      
++      All backend APIs for "Other Services (Beta)" feature are working correctly.
+\ No newline at end of file
