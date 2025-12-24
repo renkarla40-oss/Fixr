@@ -165,13 +165,25 @@ export default function RequestServiceScreen() {
               </View>
             </View>
 
+            {isGeneralRequest && (
+              <View style={styles.betaNotice}>
+                <Ionicons name="information-circle" size={20} color="#F57C00" />
+                <Text style={styles.betaNoticeText}>
+                  Use this option if your service doesn't fit the listed categories. Availability may be limited during beta.
+                </Text>
+              </View>
+            )}
+
             <View style={styles.inputGroup}>
               <Text style={styles.label}>
                 Description <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
                 style={[styles.input, styles.textArea]}
-                placeholder="Describe the service you need (e.g., fix leaking faucet, install new outlet)"
+                placeholder={isGeneralRequest 
+                  ? "Describe the service you need in detail (e.g., furniture assembly, garden work, moving help)"
+                  : "Describe the service you need (e.g., fix leaking faucet, install new outlet)"
+                }
                 value={description}
                 onChangeText={setDescription}
                 multiline
