@@ -1,23 +1,25 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 
 export default function SplashScreen() {
   const router = useRouter();
 
   useEffect(() => {
-    // Navigate to welcome after 1.5 seconds
     const timer = setTimeout(() => {
       router.replace('/welcome');
-    }, 1500);
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, []);
 
   return (
     <View style={styles.container}>
-      <Ionicons name="construct" size={100} color="#E53935" />
+      <Image 
+        source={require('../assets/images/fixr-logo.png')} 
+        style={styles.logo}
+        resizeMode="contain"
+      />
     </View>
   );
 }
@@ -25,8 +27,12 @@ export default function SplashScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  logo: {
+    width: 200,
+    height: 100,
   },
 });
