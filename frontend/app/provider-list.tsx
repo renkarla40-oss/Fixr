@@ -84,19 +84,19 @@ export default function ProviderListScreen() {
             </View>
             <Text style={styles.emptyTitle}>No {categoryName} Providers Yet</Text>
             <Text style={styles.emptySubtitle}>
-              {category === 'other' 
+              {categoryId === 'other' 
                 ? "This is a beta category. You can still submit a request and we'll try to match you with an available provider."
                 : `We're actively onboarding verified ${categoryName.toLowerCase()} professionals in your area.`}
             </Text>
-            {category === 'other' ? (
+            {categoryId === 'other' ? (
               <TouchableOpacity
                 style={styles.submitRequestButton}
                 onPress={() => router.push({
                   pathname: '/request-service',
-                  params: { providerId: 'any', category: 'other' },
+                  params: { providerId: 'general', category: 'other' },
                 })}
               >
-                <Text style={styles.submitRequestText}>Submit a Request Anyway</Text>
+                <Text style={styles.submitRequestText}>Submit a General Request</Text>
               </TouchableOpacity>
             ) : (
               <>
