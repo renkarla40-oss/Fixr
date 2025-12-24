@@ -207,6 +207,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
+  contentContainer: {
+    paddingBottom: 20,
+  },
   profileSection: {
     alignItems: 'center',
     paddingVertical: 32,
