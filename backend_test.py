@@ -264,7 +264,7 @@ class FixrAPITester:
             our_request = None
             
             if self.created_request_id:
-                our_request = next((req for req in data if req.get("id") == self.created_request_id), None)
+                our_request = next((req for req in data if (req.get("id") or req.get("_id")) == self.created_request_id), None)
                 
             if not general_requests:
                 self.log_test(
