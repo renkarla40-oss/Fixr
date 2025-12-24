@@ -147,6 +147,12 @@ export default function WelcomeScreen() {
             />
           </View>
         </View>
+
+        {/* Subtle service graphic */}
+        <ServiceGraphic />
+        
+        {/* Main tagline */}
+        <Text style={styles.tagline}>Where Trinis Get Things Done</Text>
         
         <Text style={styles.subtitle}>
           Connect with trusted service providers{"\n"}or offer your services to customers
