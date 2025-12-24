@@ -390,6 +390,22 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     marginTop: 8,
   },
+  betaNotice: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: '#FFF8E1',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#FFE082',
+    gap: 12,
+  },
+  betaNoticeText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#E65100',
+    lineHeight: 20,
+  },
   footer: {
     position: 'absolute',
     bottom: 0,
