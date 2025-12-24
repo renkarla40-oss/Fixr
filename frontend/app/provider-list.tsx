@@ -69,7 +69,7 @@ export default function ProviderListScreen() {
           >
             <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
           </TouchableOpacity>
-          <Text style={styles.title}>{categoryName}</Text>
+          <Text style={styles.title}>{categoryName || 'Services'}</Text>
           <View style={styles.backButton} />
         </View>
 
