@@ -237,6 +237,14 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
   },
+  tagline: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    textAlign: 'center',
+    marginBottom: 12,
+    letterSpacing: 0.3,
+  },
   subtitle: {
     fontSize: 16,
     color: '#666',
