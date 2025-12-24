@@ -165,7 +165,7 @@ export default function ProviderDashboardScreen() {
           {requests.map((request) => (
             <TouchableOpacity
               key={request._id}
-              style={styles.requestCard}
+              style={[styles.requestCard, request.isGeneralRequest && styles.generalRequestCard]}
               onPress={() => handleRequestPress(request._id)}
               activeOpacity={0.7}
             >
@@ -176,9 +176,15 @@ export default function ProviderDashboardScreen() {
                     {categoryNames[request.service] || request.service}
                   </Text>
                 </View>
-                <View style={styles.newBadge}>
-                  <Text style={styles.newBadgeText}>NEW</Text>
-                </View>
+                {request.isGeneralRequest ? (
+                  <View style={styles.generalBadge}>
+                    <Text style={styles.generalBadgeText}>GENERAL</Text>
+                  </View>
+                ) : (
+                  <View style={styles.newBadge}>
+                    <Text style={styles.newBadgeText}>NEW</Text>
+                  </View>
+                )}
               </View>
 
               <Text style={styles.customerName}>{request.customerName}</Text>
