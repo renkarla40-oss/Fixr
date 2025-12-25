@@ -1,55 +1,48 @@
-import React, { useEffect } from 'react';
-import { View, StyleSheet, Image } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, Image, Animated, Easing } from 'react-native';
 import { useRouter } from 'expo-router';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  Easing,
-} from 'react-native-reanimated';
 
 export default function SplashScreen() {
   const router = useRouter();
-  const scale = useSharedValue(0.85);
-  const opacity = useSharedValue(0.3);
+  const scaleAnim = useRef(new Animated.Value(0.85)).current;
+  const opacityAnim = useRef(new Animated.Value(0.4)).current;
 
   useEffect(() => {
-    // Start the breathing animation with a slight delay for visibility
-    const animationDelay = setTimeout(() => {
-      // Animate scale from 0.85 to 1.08
-      scale.value = withTiming(1.08, {
+    // Run both animations in parallel
+    Animated.parallel([
+      Animated.timing(scaleAnim, {
+        toValue: 1.05,
         duration: 1200,
-        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-      });
-      
-      // Animate opacity from 0.3 to 1
-      opacity.value = withTiming(1, {
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacityAnim, {
+        toValue: 1,
         duration: 800,
         easing: Easing.out(Easing.ease),
-      });
-    }, 100);
+        useNativeDriver: true,
+      }),
+    ]).start();
 
     // Navigate after animation completes
-    const navigationTimer = setTimeout(() => {
+    const timer = setTimeout(() => {
       router.replace('/welcome');
     }, 1800);
 
-    return () => {
-      clearTimeout(animationDelay);
-      clearTimeout(navigationTimer);
-    };
+    return () => clearTimeout(timer);
   }, []);
-
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-      opacity: opacity.value,
-    };
-  });
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.logoWrapper, animatedStyle]}>
+      <Animated.View
+        style={[
+          styles.logoWrapper,
+          {
+            transform: [{ scale: scaleAnim }],
+            opacity: opacityAnim,
+          },
+        ]}
+      >
         <Image 
           source={require('../assets/images/fixr-logo.png')} 
           style={styles.logo}
