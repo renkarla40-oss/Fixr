@@ -6,8 +6,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
+  Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+
+const BETA_EMAIL = 'fixr.beta@gmail.com';
 
 interface BetaNoticeModalProps {
   visible: boolean;
@@ -15,6 +18,10 @@ interface BetaNoticeModalProps {
 }
 
 export default function BetaNoticeModal({ visible, onClose }: BetaNoticeModalProps) {
+  const handleContactPress = () => {
+    Linking.openURL(`mailto:${BETA_EMAIL}?subject=Fixr Beta Feedback`);
+  };
+
   return (
     <Modal
       visible={visible}
@@ -33,6 +40,15 @@ export default function BetaNoticeModal({ visible, onClose }: BetaNoticeModalPro
           <Text style={styles.body}>
             Fixr is currently in beta. Some features may change as we improve the platform. Thanks for your feedback.
           </Text>
+
+          <TouchableOpacity
+            style={styles.contactButton}
+            onPress={handleContactPress}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="mail-outline" size={18} color="#E53935" />
+            <Text style={styles.contactButtonText}>Contact Fixr (Beta)</Text>
+          </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.button}
