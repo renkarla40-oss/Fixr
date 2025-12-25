@@ -19,6 +19,7 @@ import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+const BETA_EMAIL = 'fixr.beta@gmail.com';
 
 export default function SupportScreen() {
   const router = useRouter();
