@@ -4,21 +4,23 @@ import { useRouter } from 'expo-router';
 
 export default function SplashScreen() {
   const router = useRouter();
-  const scaleAnim = useRef(new Animated.Value(0.85)).current;
-  const opacityAnim = useRef(new Animated.Value(0.4)).current;
+  const scaleAnim = useRef(new Animated.Value(0.5)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Run both animations in parallel
+    // Run both animations in parallel - logo zooms forward towards the screen
     Animated.parallel([
+      // Scale from small to large - creates "coming at you" effect
       Animated.timing(scaleAnim, {
-        toValue: 1.05,
-        duration: 1200,
-        easing: Easing.out(Easing.ease),
+        toValue: 1.4,
+        duration: 1400,
+        easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }),
+      // Fade in quickly at the start
       Animated.timing(opacityAnim, {
         toValue: 1,
-        duration: 800,
+        duration: 400,
         easing: Easing.out(Easing.ease),
         useNativeDriver: true,
       }),
@@ -27,7 +29,7 @@ export default function SplashScreen() {
     // Navigate after animation completes
     const timer = setTimeout(() => {
       router.replace('/welcome');
-    }, 1800);
+    }, 1600);
 
     return () => clearTimeout(timer);
   }, []);
