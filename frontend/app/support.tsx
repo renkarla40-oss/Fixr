@@ -100,7 +100,7 @@ export default function SupportScreen() {
 
           <TouchableOpacity style={styles.emailButton} onPress={handleEmailPress}>
             <Ionicons name="mail-outline" size={20} color="#E53935" />
-            <Text style={styles.emailButtonText}>support@fixr.app</Text>
+            <Text style={styles.emailButtonText}>Contact Fixr (Beta)</Text>
           </TouchableOpacity>
 
           <View style={styles.divider}>
