@@ -8,10 +8,13 @@ import {
   Alert,
   ActivityIndicator,
   ScrollView,
+  Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
+
+const BETA_EMAIL = 'fixr.beta@gmail.com';
 
 export default function ProfileScreen() {
   const { user, logout, switchRole } = useAuth();
