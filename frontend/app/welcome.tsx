@@ -3,11 +3,34 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, ImageBackground } from
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import Svg, { Path, G } from 'react-native-svg';
 import { useAuth } from '../contexts/AuthContext';
 import BetaNoticeModal from '../components/BetaNoticeModal';
 
 // Uploaded electrician background image
 const HERO_IMAGE_URL = 'https://customer-assets.emergentagent.com/job_9839009c-27a4-4199-a2fc-d4475a74b912/artifacts/v3tftjv7_Electrician.png';
+
+// Official Google "G" logo component with brand colors
+const GoogleIcon = ({ size = 24 }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Path
+      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+      fill="#4285F4"
+    />
+    <Path
+      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+      fill="#34A853"
+    />
+    <Path
+      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+      fill="#FBBC05"
+    />
+    <Path
+      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+      fill="#EA4335"
+    />
+  </Svg>
+);
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -74,12 +97,12 @@ export default function WelcomeScreen() {
         resizeMode="cover"
       >
         <LinearGradient
-          colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.85)']}
+          colors={['rgba(255,255,255,0.15)', 'rgba(255,255,255,0.4)', 'rgba(255,255,255,0.92)']}
           style={styles.overlay}
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
         >
-          {/* Logo at top */}
+          {/* Logo at top - enlarged and anchored */}
           <View style={styles.logoSection}>
             <View style={styles.logoContainer}>
               <Image 
@@ -120,11 +143,13 @@ export default function WelcomeScreen() {
             <View style={styles.socialSection}>
               <Text style={styles.socialText}>Or sign up with</Text>
               <View style={styles.socialIcons}>
+                {/* Apple icon - solid black per brand standards */}
                 <TouchableOpacity style={styles.socialIconButton} activeOpacity={0.7}>
-                  <Ionicons name="logo-apple" size={24} color="#FFFFFF" />
+                  <Ionicons name="logo-apple" size={26} color="#000000" />
                 </TouchableOpacity>
+                {/* Google icon - official multi-color logo */}
                 <TouchableOpacity style={styles.socialIconButton} activeOpacity={0.7}>
-                  <Ionicons name="logo-google" size={24} color="#FFFFFF" />
+                  <GoogleIcon size={24} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -145,17 +170,17 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
   },
   loadingText: {
     fontSize: 18,
-    color: '#FFFFFF',
+    color: '#1A1A1A',
   },
   heroBackground: {
     flex: 1,
@@ -169,20 +194,20 @@ const styles = StyleSheet.create({
   },
   logoSection: {
     alignItems: 'center',
-    paddingTop: 60,
+    paddingTop: 56,
   },
   logoContainer: {
-    width: 72,
-    height: 72,
+    width: 88,
+    height: 88,
     backgroundColor: '#000000',
-    borderRadius: 36,
+    borderRadius: 44,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
   logo: {
-    width: 50,
-    height: 50,
+    width: 62,
+    height: 62,
   },
   contentSection: {
     flex: 1,
@@ -192,14 +217,14 @@ const styles = StyleSheet.create({
   tagline: {
     fontSize: 34,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#000000',
     marginBottom: 12,
     lineHeight: 42,
     letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 16,
-    color: 'rgba(255,255,255,0.85)',
+    color: 'rgba(0,0,0,0.7)',
     lineHeight: 24,
   },
   authSection: {
@@ -218,16 +243,16 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   secondaryButton: {
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: 'rgba(0,0,0,0.08)',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderColor: 'rgba(0,0,0,0.15)',
     marginBottom: 24,
   },
   secondaryButtonText: {
-    color: '#FFFFFF',
+    color: '#1A1A1A',
     fontSize: 16,
     fontWeight: '500',
   },
@@ -236,7 +261,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   socialText: {
-    color: 'rgba(255,255,255,0.6)',
+    color: 'rgba(0,0,0,0.5)',
     fontSize: 14,
     marginBottom: 16,
   },
@@ -245,22 +270,22 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   socialIconButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
+    borderColor: 'rgba(0,0,0,0.12)',
   },
   signInText: {
-    color: 'rgba(255,255,255,0.7)',
+    color: 'rgba(0,0,0,0.6)',
     fontSize: 14,
     textAlign: 'center',
   },
   signInLink: {
-    color: '#FFFFFF',
+    color: '#000000',
     fontWeight: '600',
   },
 });
