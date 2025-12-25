@@ -62,7 +62,7 @@ export default function SupportScreen() {
   };
 
   const handleEmailPress = () => {
-    Linking.openURL('mailto:support@fixr.app');
+    Linking.openURL(`mailto:${BETA_EMAIL}?subject=Fixr Beta Support`);
   };
 
   return (
