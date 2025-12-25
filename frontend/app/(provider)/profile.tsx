@@ -300,6 +300,10 @@ const styles = StyleSheet.create({
     color: '#E53935',
     fontWeight: '600',
   },
+  betaText: {
+    color: '#E53935',
+    fontWeight: '600',
+  },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
