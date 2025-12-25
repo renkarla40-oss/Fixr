@@ -35,6 +35,10 @@ export default function ProfileScreen() {
     ]);
   };
 
+  const handleContactBeta = () => {
+    Linking.openURL(`mailto:${BETA_EMAIL}?subject=Fixr Beta Feedback`);
+  };
+
   const handleSwitchToProvider = async () => {
     if (!user) return;
 
