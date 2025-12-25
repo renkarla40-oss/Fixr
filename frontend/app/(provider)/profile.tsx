@@ -115,6 +115,18 @@ export default function ProviderProfileScreen() {
             
             <TouchableOpacity 
               style={styles.menuItem} 
+              onPress={handleContactBeta}
+              activeOpacity={0.7}
+            >
+              <View style={styles.menuItemLeft}>
+                <Ionicons name="mail-outline" size={24} color="#E53935" />
+                <Text style={[styles.menuItemText, styles.betaText]}>Contact Fixr (Beta)</Text>
+              </View>
+              <Ionicons name="open-outline" size={20} color="#E53935" />
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.menuItem} 
               onPress={() => router.push('/support')}
               activeOpacity={0.7}
             >
