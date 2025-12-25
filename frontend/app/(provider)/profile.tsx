@@ -8,10 +8,13 @@ import {
   Alert,
   ActivityIndicator,
   ScrollView,
+  Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
+
+const BETA_EMAIL = 'fixr.beta@gmail.com';
 
 export default function ProviderProfileScreen() {
   const { user, logout, switchRole } = useAuth();
@@ -30,6 +33,10 @@ export default function ProviderProfileScreen() {
         },
       },
     ]);
+  };
+
+  const handleContactBeta = () => {
+    Linking.openURL(`mailto:${BETA_EMAIL}?subject=Fixr Beta Feedback (Provider)`);
   };
 
   const handleSwitchToCustomer = async () => {
