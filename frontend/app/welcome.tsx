@@ -1,29 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ImageBackground, Dimensions } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ImageBackground } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../contexts/AuthContext';
 import BetaNoticeModal from '../components/BetaNoticeModal';
 
-const { width, height } = Dimensions.get('window');
-
-// Hero background image URL
-const HERO_IMAGE_URL = 'https://images.pexels.com/photos/16552856/pexels-photo-16552856.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2';
+// Uploaded electrician background image
+const HERO_IMAGE_URL = 'https://customer-assets.emergentagent.com/job_9839009c-27a4-4199-a2fc-d4475a74b912/artifacts/v3tftjv7_Electrician.png';
 
 export default function WelcomeScreen() {
   const router = useRouter();
   const { user, loading, shouldShowBetaNotice, markBetaNoticeSeen } = useAuth();
-  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     if (!loading && user) {
-      // Check if user has beta access
       if (!user.isBetaUser) {
         router.replace('/beta-gate');
         return;
       }
-      
-      // Navigate to appropriate screen if user is logged in and has seen beta notice
       if (!shouldShowBetaNotice) {
         navigateToHome();
       }
@@ -32,7 +27,6 @@ export default function WelcomeScreen() {
 
   const navigateToHome = () => {
     if (!user) return;
-    
     if (user.currentRole === 'customer') {
       router.replace('/(customer)/home');
     } else if (user.currentRole === 'provider' && user.isProviderEnabled) {
@@ -45,6 +39,18 @@ export default function WelcomeScreen() {
   const handleBetaNoticeContinue = async () => {
     await markBetaNoticeSeen();
     navigateToHome();
+  };
+
+  const handleContinueWithEmail = () => {
+    router.push('/role-selection');
+  };
+
+  const handleContinueWithPhone = () => {
+    router.push('/role-selection');
+  };
+
+  const handleSignIn = () => {
+    router.push('/login');
   };
 
   if (loading) {
@@ -62,16 +68,13 @@ export default function WelcomeScreen() {
         onClose={handleBetaNoticeContinue}
       />
       
-      {/* Hero Background Image */}
       <ImageBackground
         source={{ uri: HERO_IMAGE_URL }}
         style={styles.heroBackground}
         resizeMode="cover"
-        onLoad={() => setImageLoaded(true)}
       >
-        {/* Dark gradient overlay for text readability */}
         <LinearGradient
-          colors={['rgba(0,0,0,0.3)', 'rgba(0,0,0,0.5)', 'rgba(0,0,0,0.85)']}
+          colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.85)']}
           style={styles.overlay}
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
@@ -89,30 +92,48 @@ export default function WelcomeScreen() {
 
           {/* Content Section */}
           <View style={styles.contentSection}>
-            {/* Main tagline */}
             <Text style={styles.tagline}>Where Trinis{'\n'}Get Things Done</Text>
-            
             <Text style={styles.subtitle}>
-              Connect with trusted service providers or offer your skills to customers in your area
+              Book trusted Fixrs faster, track your jobs, and manage everything in one place.
             </Text>
           </View>
 
-          {/* CTA Buttons */}
-          <View style={styles.buttonContainer}>
+          {/* Auth Buttons */}
+          <View style={styles.authSection}>
             <TouchableOpacity
               style={styles.primaryButton}
-              onPress={() => router.push('/role-selection')}
+              onPress={handleContinueWithEmail}
               activeOpacity={0.8}
             >
-              <Text style={styles.primaryButtonText}>Get Started</Text>
+              <Text style={styles.primaryButtonText}>Continue with Email</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.secondaryButton}
-              onPress={() => router.push('/login')}
+              onPress={handleContinueWithPhone}
               activeOpacity={0.8}
             >
-              <Text style={styles.secondaryButtonText}>I already have an account</Text>
+              <Text style={styles.secondaryButtonText}>Continue with Phone Number</Text>
+            </TouchableOpacity>
+
+            {/* Social Sign Up */}
+            <View style={styles.socialSection}>
+              <Text style={styles.socialText}>Or sign up with</Text>
+              <View style={styles.socialIcons}>
+                <TouchableOpacity style={styles.socialIconButton} activeOpacity={0.7}>
+                  <Ionicons name="logo-apple" size={24} color="#FFFFFF" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.socialIconButton} activeOpacity={0.7}>
+                  <Ionicons name="logo-google" size={24} color="#FFFFFF" />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Sign In Link */}
+            <TouchableOpacity onPress={handleSignIn} activeOpacity={0.7}>
+              <Text style={styles.signInText}>
+                Already have an account? <Text style={styles.signInLink}>Sign in</Text>
+              </Text>
             </TouchableOpacity>
           </View>
         </LinearGradient>
@@ -135,7 +156,6 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 18,
     color: '#FFFFFF',
-    textAlign: 'center',
   },
   heroBackground: {
     flex: 1,
@@ -152,31 +172,29 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
   logoContainer: {
-    width: 80,
-    height: 80,
+    width: 72,
+    height: 72,
     backgroundColor: '#000000',
-    borderRadius: 40,
+    borderRadius: 36,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.2)',
   },
   logo: {
-    width: 55,
-    height: 55,
+    width: 50,
+    height: 50,
   },
   contentSection: {
     flex: 1,
     justifyContent: 'flex-end',
-    paddingBottom: 32,
+    paddingBottom: 24,
   },
   tagline: {
-    fontSize: 36,
+    fontSize: 34,
     fontWeight: '800',
     color: '#FFFFFF',
-    marginBottom: 16,
-    lineHeight: 44,
+    marginBottom: 12,
+    lineHeight: 42,
     letterSpacing: -0.5,
   },
   subtitle: {
@@ -184,21 +202,19 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.85)',
     lineHeight: 24,
   },
-  buttonContainer: {
-    paddingBottom: 48,
-    gap: 12,
+  authSection: {
+    paddingBottom: 40,
   },
   primaryButton: {
     backgroundColor: '#E53935',
-    paddingVertical: 18,
+    paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
-    minHeight: 56,
-    justifyContent: 'center',
+    marginBottom: 12,
   },
   primaryButtonText: {
     color: '#FFFFFF',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
   },
   secondaryButton: {
@@ -206,14 +222,45 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
-    minHeight: 56,
-    justifyContent: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.3)',
+    marginBottom: 24,
   },
   secondaryButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '500',
+  },
+  socialSection: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  socialText: {
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 14,
+    marginBottom: 16,
+  },
+  socialIcons: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  socialIconButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  signInText: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  signInLink: {
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
 });
