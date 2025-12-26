@@ -174,6 +174,27 @@ export default function RequestServiceScreen() {
               </View>
             </View>
 
+            {/* Show sub-category if present (for Handyman) */}
+            {subCategory && (
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Service Type</Text>
+                <View style={styles.readOnlyInput}>
+                  <Text style={styles.readOnlyText}>{subCategory}</Text>
+                </View>
+              </View>
+            )}
+
+            {/* Show location if present */}
+            {location && (
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Service Location</Text>
+                <View style={styles.readOnlyInputWithIcon}>
+                  <Ionicons name="location-outline" size={18} color="#E53935" />
+                  <Text style={styles.readOnlyText}>{location}</Text>
+                </View>
+              </View>
+            )}
+
             {isGeneralRequest && (
               <View style={styles.betaNotice}>
                 <Ionicons name="information-circle" size={20} color="#F57C00" />
