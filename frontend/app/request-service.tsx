@@ -26,6 +26,8 @@ export default function RequestServiceScreen() {
   const { token } = useAuth();
   const providerId = params.providerId as string;
   const category = params.category as string;
+  const subCategory = params.subCategory as string | undefined;
+  const location = params.location as string | undefined;
 
   // Check if this is a general request (no specific provider)
   const isGeneralRequest = providerId === 'general' || category === 'other';
