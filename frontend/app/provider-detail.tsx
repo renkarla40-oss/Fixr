@@ -31,6 +31,8 @@ export default function ProviderDetailScreen() {
   const { token } = useAuth();
   const providerId = params.providerId as string;
   const category = params.category as string;
+  const subCategory = params.subCategory as string | undefined;
+  const location = params.location as string | undefined;
 
   const [provider, setProvider] = useState<Provider | null>(null);
   const [loading, setLoading] = useState(true);
@@ -60,7 +62,12 @@ export default function ProviderDetailScreen() {
   const handleRequestService = () => {
     router.push({
       pathname: '/request-service',
-      params: { providerId, category },
+      params: { 
+        providerId, 
+        category,
+        subCategory: subCategory || '',
+        location: location || '',
+      },
     });
   };
 
