@@ -305,6 +305,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
   },
+  subCategoryText: {
+    fontSize: 13,
+    color: '#E53935',
+    fontWeight: '500',
+    marginBottom: 4,
+  },
   providerName: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -316,6 +322,17 @@ const styles = StyleSheet.create({
     color: '#666',
     lineHeight: 20,
     marginBottom: 12,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 12,
+  },
+  locationText: {
+    fontSize: 13,
+    color: '#E53935',
+    fontWeight: '500',
   },
   requestFooter: {
     flexDirection: 'row',
