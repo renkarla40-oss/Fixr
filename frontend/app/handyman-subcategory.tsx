@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
+  Platform,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -45,78 +46,76 @@ export default function HandymanSubcategoryScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={styles.backButton}
-          >
-            <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
-          </TouchableOpacity>
-          <Text style={styles.title}>Handyman Services</Text>
-          <View style={styles.backButton} />
-        </View>
-
-        <ScrollView
-          style={styles.content}
-          contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
         >
-          <Text style={styles.subtitle}>
-            What type of handyman service do you need?
-          </Text>
+          <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+        </TouchableOpacity>
+        <Text style={styles.title}>Handyman Services</Text>
+        <View style={styles.backButton} />
+      </View>
 
-          <View style={styles.optionsContainer}>
-            {HANDYMAN_SUBCATEGORIES.map((subcategory) => (
-              <TouchableOpacity
-                key={subcategory.id}
-                style={[
-                  styles.optionCard,
-                  selectedSubcategory === subcategory.id && styles.optionCardSelected,
-                ]}
-                onPress={() => handleSubcategorySelect(subcategory.id)}
-                activeOpacity={0.7}
-              >
-                <View style={[
-                  styles.optionIconContainer,
-                  selectedSubcategory === subcategory.id && styles.optionIconContainerSelected,
-                ]}>
-                  <Ionicons
-                    name={subcategory.icon as any}
-                    size={24}
-                    color={selectedSubcategory === subcategory.id ? '#FFFFFF' : '#E53935'}
-                  />
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.subtitle}>
+          What type of handyman service do you need?
+        </Text>
+
+        <View style={styles.optionsContainer}>
+          {HANDYMAN_SUBCATEGORIES.map((subcategory) => (
+            <TouchableOpacity
+              key={subcategory.id}
+              style={[
+                styles.optionCard,
+                selectedSubcategory === subcategory.id && styles.optionCardSelected,
+              ]}
+              onPress={() => handleSubcategorySelect(subcategory.id)}
+              activeOpacity={0.7}
+            >
+              <View style={[
+                styles.optionIconContainer,
+                selectedSubcategory === subcategory.id && styles.optionIconContainerSelected,
+              ]}>
+                <Ionicons
+                  name={subcategory.icon as any}
+                  size={24}
+                  color={selectedSubcategory === subcategory.id ? '#FFFFFF' : '#E53935'}
+                />
+              </View>
+              <Text style={[
+                styles.optionText,
+                selectedSubcategory === subcategory.id && styles.optionTextSelected,
+              ]}>
+                {subcategory.name}
+              </Text>
+              {selectedSubcategory === subcategory.id && (
+                <View style={styles.checkmark}>
+                  <Ionicons name="checkmark-circle" size={24} color="#E53935" />
                 </View>
-                <Text style={[
-                  styles.optionText,
-                  selectedSubcategory === subcategory.id && styles.optionTextSelected,
-                ]}>
-                  {subcategory.name}
-                </Text>
-                {selectedSubcategory === subcategory.id && (
-                  <View style={styles.checkmark}>
-                    <Ionicons name="checkmark-circle" size={24} color="#E53935" />
-                  </View>
-                )}
-              </TouchableOpacity>
-            ))}
-          </View>
-        </ScrollView>
-
-        <View style={styles.footer}>
-          <TouchableOpacity
-            style={[
-              styles.continueButton,
-              !selectedSubcategory && styles.continueButtonDisabled,
-            ]}
-            onPress={handleContinue}
-            disabled={!selectedSubcategory}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.continueButtonText}>Continue</Text>
-            <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
-          </TouchableOpacity>
+              )}
+            </TouchableOpacity>
+          ))}
         </View>
+      </ScrollView>
+
+      <View style={styles.footer}>
+        <TouchableOpacity
+          style={[
+            styles.continueButton,
+            !selectedSubcategory && styles.continueButtonDisabled,
+          ]}
+          onPress={handleContinue}
+          disabled={!selectedSubcategory}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.continueButtonText}>Continue</Text>
+          <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -124,10 +123,6 @@ export default function HandymanSubcategoryScreen() {
 
 const styles = StyleSheet.create({
   safeArea: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
@@ -156,6 +151,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 24,
+    paddingBottom: 24,
   },
   subtitle: {
     fontSize: 16,
@@ -206,18 +202,20 @@ const styles = StyleSheet.create({
   },
   footer: {
     padding: 24,
-    paddingBottom: 32,
+    paddingBottom: Platform.OS === 'ios' ? 32 : 24,
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
+    backgroundColor: '#FFFFFF',
   },
   continueButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#E53935',
-    paddingVertical: 16,
+    paddingVertical: 18,
     borderRadius: 12,
     gap: 8,
+    minHeight: 56,
   },
   continueButtonDisabled: {
     backgroundColor: '#CCCCCC',
