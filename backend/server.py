@@ -359,6 +359,8 @@ async def create_service_request(
                 "customerPhone": current_user.phone,
                 "providerName": None,
                 "isGeneralRequest": True,
+                "subCategory": request_data.subCategory,
+                "location": request_data.location,
                 "createdAt": datetime.utcnow(),
             }
         else:
@@ -378,6 +380,8 @@ async def create_service_request(
                 "customerPhone": current_user.phone,
                 "providerName": provider["name"],
                 "isGeneralRequest": False,
+                "subCategory": request_data.subCategory,
+                "location": request_data.location,
                 "createdAt": datetime.utcnow(),
             }
         
