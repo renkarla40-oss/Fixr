@@ -31,6 +31,8 @@ export default function ProviderListScreen() {
   // Extract params with clear variable names
   const categoryId = params.category as string;
   const categoryName = params.categoryName as string;
+  const subCategory = params.subCategory as string | undefined;
+  const location = params.location as string | undefined;
   
   // Check if this is the "Other Services (Beta)" category
   const isOtherCategory = categoryId === 'other';
@@ -60,14 +62,24 @@ export default function ProviderListScreen() {
   const handleProviderPress = (providerId: string) => {
     router.push({
       pathname: '/provider-detail',
-      params: { providerId, category: categoryId },
+      params: { 
+        providerId, 
+        category: categoryId,
+        subCategory: subCategory || '',
+        location: location || '',
+      },
     });
   };
 
   const handleSubmitGeneralRequest = () => {
     router.push({
       pathname: '/request-service',
-      params: { providerId: 'general', category: 'other' },
+      params: { 
+        providerId: 'general', 
+        category: 'other',
+        subCategory: subCategory || '',
+        location: location || '',
+      },
     });
   };
 
