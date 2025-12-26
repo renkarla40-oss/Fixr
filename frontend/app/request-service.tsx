@@ -118,6 +118,8 @@ export default function RequestServiceScreen() {
           service: category,
           description: description.trim(),
           preferredDateTime,
+          subCategory: subCategory || null,
+          location: location || null,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
