@@ -489,9 +489,13 @@ async def get_service_requests(current_user: User = Depends(get_current_user)):
     result = []
     for req in requests:
         req["_id"] = str(req["_id"])
-        # Ensure isGeneralRequest field exists for backward compatibility
+        # Ensure fields exist for backward compatibility
         if "isGeneralRequest" not in req:
             req["isGeneralRequest"] = False
+        if "subCategory" not in req:
+            req["subCategory"] = None
+        if "location" not in req:
+            req["location"] = None
         result.append(ServiceRequestResponse(**req))
     return result
 
