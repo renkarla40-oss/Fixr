@@ -27,6 +27,8 @@ interface ServiceRequest {
   createdAt: string;
   preferredDateTime?: string;
   isGeneralRequest?: boolean;
+  subCategory?: string;
+  location?: string;
 }
 
 export default function ProviderRequestDetailScreen() {
