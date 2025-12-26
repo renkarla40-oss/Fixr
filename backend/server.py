@@ -112,6 +112,8 @@ class ServiceRequest(BaseModel):
     service: str
     description: str
     preferredDateTime: Optional[datetime] = None
+    subCategory: Optional[str] = None  # For handyman sub-categories
+    location: Optional[str] = None  # Customer's service location
 
 class ServiceRequestResponse(BaseModel):
     id: str = Field(alias="_id")
@@ -125,6 +127,8 @@ class ServiceRequestResponse(BaseModel):
     customerPhone: str
     providerName: Optional[str] = None  # Can be None for general requests
     isGeneralRequest: bool = False  # Flag for "Other Services" requests
+    subCategory: Optional[str] = None  # For handyman sub-categories
+    location: Optional[str] = None  # Customer's service location
     createdAt: datetime
     
     class Config:
