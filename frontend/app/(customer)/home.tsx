@@ -55,10 +55,27 @@ export default function CustomerHomeScreen() {
   };
 
   const handleCategoryPress = (categoryId: string, categoryName: string) => {
-    router.push({
-      pathname: '/provider-list',
-      params: { category: categoryId, categoryName },
-    });
+    // Handyman goes to sub-category selection first
+    if (categoryId === 'handyman') {
+      router.push({
+        pathname: '/handyman-subcategory',
+        params: { category: categoryId, categoryName },
+      });
+    } 
+    // Other services go directly to provider list (existing flow)
+    else if (categoryId === 'other') {
+      router.push({
+        pathname: '/provider-list',
+        params: { category: categoryId, categoryName },
+      });
+    }
+    // All other services go to location selection first
+    else {
+      router.push({
+        pathname: '/service-location',
+        params: { category: categoryId, categoryName },
+      });
+    }
   };
 
   return (
