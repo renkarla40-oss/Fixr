@@ -182,11 +182,24 @@ export default function MyRequestsScreen() {
                   </View>
                 </View>
 
-                <Text style={styles.providerName}>{request.providerName}</Text>
+                {/* Show sub-category if present */}
+                {request.subCategory && (
+                  <Text style={styles.subCategoryText}>{request.subCategory}</Text>
+                )}
+
+                <Text style={styles.providerName}>{request.providerName || 'Open Request'}</Text>
 
                 <Text style={styles.description} numberOfLines={2}>
                   {request.description}
                 </Text>
+
+                {/* Show location if present */}
+                {request.location && (
+                  <View style={styles.locationRow}>
+                    <Ionicons name="location-outline" size={14} color="#E53935" />
+                    <Text style={styles.locationText}>{request.location}</Text>
+                  </View>
+                )}
 
                 <View style={styles.requestFooter}>
                   <View style={styles.dateContainer}>
