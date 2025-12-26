@@ -470,6 +470,22 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
     lineHeight: 24,
   },
+  locationBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF5F5',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#FFCDD2',
+    alignSelf: 'flex-start',
+  },
+  locationText: {
+    fontSize: 16,
+    color: '#E53935',
+    fontWeight: '600',
+  },
   footer: {
     position: 'absolute',
     bottom: 0,
