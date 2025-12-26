@@ -243,6 +243,30 @@ export default function ProviderRequestDetailScreen() {
             </Text>
           </View>
 
+          {/* Sub-category for Handyman services */}
+          {request.subCategory && (
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Ionicons name="list" size={20} color="#666" />
+                <Text style={styles.sectionTitle}>Service Type</Text>
+              </View>
+              <Text style={styles.sectionContent}>{request.subCategory}</Text>
+            </View>
+          )}
+
+          {/* Customer Location */}
+          {request.location && (
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Ionicons name="location" size={20} color="#E53935" />
+                <Text style={styles.sectionTitle}>Service Location</Text>
+              </View>
+              <View style={styles.locationBadge}>
+                <Text style={styles.locationText}>{request.location}</Text>
+              </View>
+            </View>
+          )}
+
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Ionicons name="person" size={20} color="#666" />
