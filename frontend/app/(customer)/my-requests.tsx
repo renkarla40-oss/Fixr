@@ -24,6 +24,8 @@ interface ServiceRequest {
   status: string;
   createdAt: string;
   preferredDateTime?: string;
+  subCategory?: string;
+  location?: string;
 }
 
 export default function MyRequestsScreen() {
