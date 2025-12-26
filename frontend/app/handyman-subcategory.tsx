@@ -109,9 +109,12 @@ export default function HandymanSubcategoryScreen() {
             styles.continueButton,
             !selectedSubcategory && styles.continueButtonDisabled,
           ]}
-          onPress={handleContinue}
-          disabled={!selectedSubcategory}
-          activeOpacity={0.8}
+          onPress={() => {
+            if (selectedSubcategory) {
+              handleContinue();
+            }
+          }}
+          activeOpacity={0.7}
         >
           <Text style={styles.continueButtonText}>Continue</Text>
           <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
