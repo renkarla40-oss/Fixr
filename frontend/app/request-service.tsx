@@ -361,6 +361,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
   },
+  readOnlyInputWithIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+  },
   readOnlyText: {
     fontSize: 16,
     color: '#666',
