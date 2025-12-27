@@ -234,6 +234,75 @@ async def login(login_data: LoginRequest):
 async def get_me(current_user: User = Depends(get_current_user)):
     return current_user
 
+@api_router.post("/auth/social", response_model=Token)
+async def social_auth(auth_data: SocialAuthRequest):
+    """
+    Handle Apple and Google social authentication.
+    - If user exists (by providerId or email) → log them in
+    - If new user → create account and log them in
+    """
+    try:
+        logger.info(f"Social auth request: provider={auth_data.provider}, email={auth_data.email}")
+        
+        # First, try to find user by provider ID
+        user = await db.users.find_one({
+            "authProvider": auth_data.provider,
+            "providerId": auth_data.providerId
+        })
+        
+        # If not found by provider ID, try to find by email (if email provided)
+        if not user and auth_data.email:
+            user = await db.users.find_one({"email": auth_data.email})
+            
+            # If found by email, update with provider info
+            if user:
+                await db.users.update_one(
+                    {"_id": user["_id"]},
+                    {"$set": {
+                        "authProvider": auth_data.provider,
+                        "providerId": auth_data.providerId,
+                        "updatedAt": datetime.utcnow()
+                    }}
+                )
+                user = await db.users.find_one({"_id": user["_id"]})
+        
+        if user:
+            # Existing user - log them in
+            user["_id"] = str(user["_id"])
+            access_token = create_access_token(data={"sub": user["_id"]})
+            return Token(token=access_token, user=User(**user))
+        
+        # New user - create account
+        # Generate a placeholder email if not provided (for Apple privacy)
+        email = auth_data.email or f"{auth_data.providerId}@{auth_data.provider}.placeholder"
+        name = auth_data.name or f"{auth_data.provider.capitalize()} User"
+        
+        user_dict = {
+            "email": email,
+            "name": name,
+            "phone": "",
+            "currentRole": "customer",
+            "isProviderEnabled": False,
+            "isBetaUser": True,  # Social auth users get beta access
+            "authProvider": auth_data.provider,
+            "providerId": auth_data.providerId,
+            "password": "",  # No password for social auth users
+            "createdAt": datetime.utcnow(),
+            "updatedAt": datetime.utcnow(),
+        }
+        
+        result = await db.users.insert_one(user_dict)
+        user_dict["_id"] = str(result.inserted_id)
+        
+        access_token = create_access_token(data={"sub": str(result.inserted_id)})
+        
+        logger.info(f"Created new user via {auth_data.provider}: {email}")
+        return Token(token=access_token, user=User(**user_dict))
+        
+    except Exception as e:
+        logger.error(f"Social auth error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Authentication failed: {str(e)}")
+
 # User Routes
 @api_router.patch("/users/role", response_model=User)
 async def switch_role(role_data: RoleUpdate, current_user: User = Depends(get_current_user)):
