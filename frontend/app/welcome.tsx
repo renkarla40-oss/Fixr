@@ -260,17 +260,15 @@ export default function WelcomeScreen() {
 
   // Handle Google button press
   const handleGoogleSignIn = async () => {
-    // Check if Google Client ID is configured
+    // Show the user what redirect URI needs to be configured
+    console.log('=== GOOGLE OAUTH DEBUG ===');
+    console.log('Redirect URI:', EXPO_REDIRECT_URI);
+    console.log('Client ID:', GOOGLE_CLIENT_ID);
+    
     if (!GOOGLE_CLIENT_ID) {
       Alert.alert(
         'Configuration Required',
-        'Google Sign-In requires a Google Client ID.\n\n' +
-        'To set up:\n' +
-        '1. Go to console.cloud.google.com\n' +
-        '2. Create OAuth credentials\n' +
-        '3. Add redirect URI:\n' +
-        `   ${EXPO_REDIRECT_URI}\n\n` +
-        '4. Add Client ID to welcome.tsx',
+        'Google Sign-In requires a Google Client ID.',
         [{ text: 'OK' }]
       );
       return;
@@ -278,11 +276,19 @@ export default function WelcomeScreen() {
 
     setSocialLoading('google');
     try {
-      await promptGoogleAsync();
-    } catch (error) {
+      const result = await promptGoogleAsync();
+      console.log('Google Auth Result:', result);
+      if (result?.type === 'cancel' || result?.type === 'dismiss') {
+        setSocialLoading(null);
+      }
+    } catch (error: any) {
       console.error('Google prompt error:', error);
       setSocialLoading(null);
-      Alert.alert('Google Sign In Failed', 'Unable to start Google sign in.');
+      Alert.alert(
+        'Google Sign In Issue',
+        `Please add this redirect URI to your Google OAuth credentials:\n\n${EXPO_REDIRECT_URI}\n\nError: ${error.message || 'Unknown error'}`,
+        [{ text: 'OK' }]
+      );
     }
   };
 
