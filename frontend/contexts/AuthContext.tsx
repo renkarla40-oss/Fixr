@@ -23,7 +23,6 @@ interface AuthContextType {
   shouldShowBetaNotice: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, name: string, phone: string, role: 'customer' | 'provider') => Promise<void>;
-  loginWithToken: (token: string, userData: any) => Promise<void>;
   logout: () => Promise<void>;
   switchRole: (role: 'customer' | 'provider') => Promise<void>;
   refreshUser: () => Promise<void>;
