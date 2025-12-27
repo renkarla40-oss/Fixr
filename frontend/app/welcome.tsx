@@ -1,11 +1,19 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ImageBackground } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ImageBackground, Platform, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import Svg, { Path, G } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
+import * as AppleAuthentication from 'expo-apple-authentication';
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
+import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import BetaNoticeModal from '../components/BetaNoticeModal';
+
+WebBrowser.maybeCompleteAuthSession();
+
+const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 // Uploaded electrician background image
 const HERO_IMAGE_URL = 'https://customer-assets.emergentagent.com/job_9839009c-27a4-4199-a2fc-d4475a74b912/artifacts/v3tftjv7_Electrician.png';
@@ -34,7 +42,15 @@ const GoogleIcon = ({ size = 24 }) => (
 
 export default function WelcomeScreen() {
   const router = useRouter();
-  const { user, loading, shouldShowBetaNotice, markBetaNoticeSeen } = useAuth();
+  const { user, loading, shouldShowBetaNotice, markBetaNoticeSeen, loginWithToken } = useAuth();
+  const [socialLoading, setSocialLoading] = useState<'apple' | 'google' | null>(null);
+
+  // Google OAuth configuration
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    webClientId: '000000000000-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com',
+    iosClientId: '000000000000-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com',
+    androidClientId: '000000000000-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com',
+  });
 
   useEffect(() => {
     if (!loading && user) {
@@ -47,6 +63,16 @@ export default function WelcomeScreen() {
       }
     }
   }, [user, loading, shouldShowBetaNotice]);
+
+  // Handle Google OAuth response
+  useEffect(() => {
+    if (response?.type === 'success') {
+      handleGoogleSuccess(response.authentication?.accessToken);
+    } else if (response?.type === 'error') {
+      setSocialLoading(null);
+      Alert.alert('Google Sign In Failed', 'Unable to sign in with Google. Please try again.');
+    }
+  }, [response]);
 
   const navigateToHome = () => {
     if (!user) return;
@@ -74,6 +100,97 @@ export default function WelcomeScreen() {
 
   const handleSignIn = () => {
     router.push('/login');
+  };
+
+  // Apple Sign In
+  const handleAppleSignIn = async () => {
+    try {
+      setSocialLoading('apple');
+      
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+
+      // Get user info from Apple
+      const appleId = credential.user;
+      const email = credential.email;
+      const fullName = credential.fullName;
+      const name = fullName ? `${fullName.givenName || ''} ${fullName.familyName || ''}`.trim() : null;
+
+      // Send to backend
+      const response = await axios.post(`${BACKEND_URL}/api/auth/social`, {
+        provider: 'apple',
+        providerId: appleId,
+        email: email,
+        name: name,
+      });
+
+      // Login with received token
+      if (response.data.token) {
+        await loginWithToken(response.data.token, response.data.user);
+        // Navigate to role selection for new users, or home for existing
+        router.replace('/role-selection');
+      }
+    } catch (error: any) {
+      if (error.code === 'ERR_CANCELED') {
+        // User canceled - do nothing
+      } else {
+        console.error('Apple Sign In Error:', error);
+        Alert.alert('Apple Sign In Failed', 'Unable to sign in with Apple. Please try again.');
+      }
+    } finally {
+      setSocialLoading(null);
+    }
+  };
+
+  // Google Sign In - Fetch user info after OAuth
+  const handleGoogleSuccess = async (accessToken: string | undefined) => {
+    if (!accessToken) {
+      setSocialLoading(null);
+      return;
+    }
+
+    try {
+      // Get user info from Google
+      const userInfoResponse = await fetch('https://www.googleapis.com/userinfo/v2/me', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const userInfo = await userInfoResponse.json();
+
+      // Send to backend
+      const response = await axios.post(`${BACKEND_URL}/api/auth/social`, {
+        provider: 'google',
+        providerId: userInfo.id,
+        email: userInfo.email,
+        name: userInfo.name,
+      });
+
+      // Login with received token
+      if (response.data.token) {
+        await loginWithToken(response.data.token, response.data.user);
+        // Navigate to role selection
+        router.replace('/role-selection');
+      }
+    } catch (error) {
+      console.error('Google Sign In Error:', error);
+      Alert.alert('Google Sign In Failed', 'Unable to complete Google sign in. Please try again.');
+    } finally {
+      setSocialLoading(null);
+    }
+  };
+
+  // Handle Google button press
+  const handleGoogleSignIn = async () => {
+    setSocialLoading('google');
+    try {
+      await promptAsync();
+    } catch (error) {
+      console.error('Google prompt error:', error);
+      setSocialLoading(null);
+    }
   };
 
   if (loading) {
@@ -143,13 +260,41 @@ export default function WelcomeScreen() {
             <View style={styles.socialSection}>
               <Text style={styles.socialText}>Or sign up with</Text>
               <View style={styles.socialIcons}>
-                {/* Apple icon - solid black per brand standards */}
-                <TouchableOpacity style={styles.socialIconButton} activeOpacity={0.7}>
-                  <Ionicons name="logo-apple" size={26} color="#000000" />
-                </TouchableOpacity>
-                {/* Google icon - official multi-color logo */}
-                <TouchableOpacity style={styles.socialIconButton} activeOpacity={0.7}>
-                  <GoogleIcon size={24} />
+                {/* Apple Sign In - only show on iOS */}
+                {Platform.OS === 'ios' ? (
+                  <TouchableOpacity 
+                    style={styles.socialIconButton} 
+                    activeOpacity={0.7}
+                    onPress={handleAppleSignIn}
+                    disabled={socialLoading !== null}
+                  >
+                    {socialLoading === 'apple' ? (
+                      <ActivityIndicator size="small" color="#000000" />
+                    ) : (
+                      <Ionicons name="logo-apple" size={26} color="#000000" />
+                    )}
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity 
+                    style={[styles.socialIconButton, styles.socialIconDisabled]} 
+                    activeOpacity={1}
+                  >
+                    <Ionicons name="logo-apple" size={26} color="#CCCCCC" />
+                  </TouchableOpacity>
+                )}
+                
+                {/* Google Sign In */}
+                <TouchableOpacity 
+                  style={styles.socialIconButton} 
+                  activeOpacity={0.7}
+                  onPress={handleGoogleSignIn}
+                  disabled={socialLoading !== null}
+                >
+                  {socialLoading === 'google' ? (
+                    <ActivityIndicator size="small" color="#4285F4" />
+                  ) : (
+                    <GoogleIcon size={24} />
+                  )}
                 </TouchableOpacity>
               </View>
             </View>
@@ -278,6 +423,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,0.12)',
+  },
+  socialIconDisabled: {
+    backgroundColor: '#F5F5F5',
   },
   signInText: {
     color: 'rgba(0,0,0,0.6)',
