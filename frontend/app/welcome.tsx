@@ -33,7 +33,7 @@ const HERO_IMAGE_URL = 'https://customer-assets.emergentagent.com/job_9839009c-2
 // For production builds, you'll also need iOS and Android client IDs
 // ============================================================
 
-const GOOGLE_CLIENT_ID = ''; // <-- PASTE YOUR GOOGLE WEB CLIENT ID HERE
+const GOOGLE_CLIENT_ID = '645219689760-6gft22iacv09mpc0jua6gfai4a2ah2n5.apps.googleusercontent.com';
 
 // Expo AuthSession redirect URI for Google
 const EXPO_REDIRECT_URI = AuthSession.makeRedirectUri({
