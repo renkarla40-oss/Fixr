@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
 import * as AppleAuthentication from 'expo-apple-authentication';
-import * as Google from 'expo-auth-session/providers/google';
+import * as AuthSession from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
@@ -17,6 +17,36 @@ const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 // Uploaded electrician background image
 const HERO_IMAGE_URL = 'https://customer-assets.emergentagent.com/job_9839009c-27a4-4199-a2fc-d4475a74b912/artifacts/v3tftjv7_Electrician.png';
+
+// ============================================================
+// GOOGLE OAUTH CONFIGURATION
+// ============================================================
+// To enable Google Sign-In, you need to:
+// 1. Go to https://console.cloud.google.com/
+// 2. Create a new project or select existing one
+// 3. Enable "Google+ API" or "Google Identity"
+// 4. Go to "Credentials" → "Create Credentials" → "OAuth Client ID"
+// 5. For Expo Go testing, create a "Web application" type client
+// 6. Add this redirect URI: https://auth.expo.io/@your-expo-username/fixr
+// 7. Copy the Client ID and paste it below
+//
+// For production builds, you'll also need iOS and Android client IDs
+// ============================================================
+
+const GOOGLE_CLIENT_ID = ''; // <-- PASTE YOUR GOOGLE WEB CLIENT ID HERE
+
+// Expo AuthSession redirect URI for Google
+const EXPO_REDIRECT_URI = AuthSession.makeRedirectUri({
+  scheme: 'fixr',
+  useProxy: true, // This uses Expo's proxy for Expo Go
+});
+
+// Google OAuth discovery document
+const discovery = {
+  authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
+  tokenEndpoint: 'https://oauth2.googleapis.com/token',
+  revocationEndpoint: 'https://oauth2.googleapis.com/revoke',
+};
 
 // Official Google "G" logo component with brand colors
 const GoogleIcon = ({ size = 24 }) => (
@@ -44,13 +74,28 @@ export default function WelcomeScreen() {
   const router = useRouter();
   const { user, loading, shouldShowBetaNotice, markBetaNoticeSeen, loginWithToken } = useAuth();
   const [socialLoading, setSocialLoading] = useState<'apple' | 'google' | null>(null);
+  const [appleAuthAvailable, setAppleAuthAvailable] = useState(false);
 
-  // Google OAuth configuration
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: '000000000000-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com',
-    iosClientId: '000000000000-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com',
-    androidClientId: '000000000000-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com',
-  });
+  // Check if Apple Auth is available on this device
+  useEffect(() => {
+    const checkAppleAuth = async () => {
+      if (Platform.OS === 'ios') {
+        const isAvailable = await AppleAuthentication.isAvailableAsync();
+        setAppleAuthAvailable(isAvailable);
+      }
+    };
+    checkAppleAuth();
+  }, []);
+
+  // Google OAuth request
+  const [googleRequest, googleResponse, promptGoogleAsync] = AuthSession.useAuthRequest(
+    {
+      clientId: GOOGLE_CLIENT_ID,
+      scopes: ['openid', 'profile', 'email'],
+      redirectUri: EXPO_REDIRECT_URI,
+    },
+    discovery
+  );
 
   useEffect(() => {
     if (!loading && user) {
@@ -66,13 +111,16 @@ export default function WelcomeScreen() {
 
   // Handle Google OAuth response
   useEffect(() => {
-    if (response?.type === 'success') {
-      handleGoogleSuccess(response.authentication?.accessToken);
-    } else if (response?.type === 'error') {
+    if (googleResponse?.type === 'success') {
+      handleGoogleSuccess(googleResponse.authentication?.accessToken);
+    } else if (googleResponse?.type === 'error') {
       setSocialLoading(null);
+      console.error('Google OAuth Error:', googleResponse.error);
       Alert.alert('Google Sign In Failed', 'Unable to sign in with Google. Please try again.');
+    } else if (googleResponse?.type === 'dismiss') {
+      setSocialLoading(null);
     }
-  }, [response]);
+  }, [googleResponse]);
 
   const navigateToHome = () => {
     if (!user) return;
@@ -102,8 +150,28 @@ export default function WelcomeScreen() {
     router.push('/login');
   };
 
-  // Apple Sign In
+  // Apple Sign In Handler
   const handleAppleSignIn = async () => {
+    // Check platform
+    if (Platform.OS !== 'ios') {
+      Alert.alert(
+        'Apple Sign In',
+        'Apple Sign In is only available on iOS devices.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+    // Check availability
+    if (!appleAuthAvailable) {
+      Alert.alert(
+        'Apple Sign In Unavailable',
+        'Apple Sign In is not available on this device. Please use Email or Google sign in.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
     try {
       setSocialLoading('apple');
       
@@ -125,21 +193,20 @@ export default function WelcomeScreen() {
         provider: 'apple',
         providerId: appleId,
         email: email,
-        name: name,
+        name: name || 'Apple User',
       });
 
       // Login with received token
       if (response.data.token) {
         await loginWithToken(response.data.token, response.data.user);
-        // Navigate to role selection for new users, or home for existing
         router.replace('/role-selection');
       }
     } catch (error: any) {
-      if (error.code === 'ERR_CANCELED') {
+      if (error.code === 'ERR_REQUEST_CANCELED') {
         // User canceled - do nothing
       } else {
         console.error('Apple Sign In Error:', error);
-        Alert.alert('Apple Sign In Failed', 'Unable to sign in with Apple. Please try again.');
+        Alert.alert('Apple Sign In Failed', error.message || 'Unable to sign in with Apple. Please try again.');
       }
     } finally {
       setSocialLoading(null);
@@ -150,6 +217,7 @@ export default function WelcomeScreen() {
   const handleGoogleSuccess = async (accessToken: string | undefined) => {
     if (!accessToken) {
       setSocialLoading(null);
+      Alert.alert('Google Sign In Failed', 'No access token received.');
       return;
     }
 
@@ -158,6 +226,11 @@ export default function WelcomeScreen() {
       const userInfoResponse = await fetch('https://www.googleapis.com/userinfo/v2/me', {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
+      
+      if (!userInfoResponse.ok) {
+        throw new Error('Failed to fetch user info from Google');
+      }
+      
       const userInfo = await userInfoResponse.json();
 
       // Send to backend
@@ -165,18 +238,17 @@ export default function WelcomeScreen() {
         provider: 'google',
         providerId: userInfo.id,
         email: userInfo.email,
-        name: userInfo.name,
+        name: userInfo.name || 'Google User',
       });
 
       // Login with received token
       if (response.data.token) {
         await loginWithToken(response.data.token, response.data.user);
-        // Navigate to role selection
         router.replace('/role-selection');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Google Sign In Error:', error);
-      Alert.alert('Google Sign In Failed', 'Unable to complete Google sign in. Please try again.');
+      Alert.alert('Google Sign In Failed', error.message || 'Unable to complete Google sign in. Please try again.');
     } finally {
       setSocialLoading(null);
     }
@@ -184,12 +256,29 @@ export default function WelcomeScreen() {
 
   // Handle Google button press
   const handleGoogleSignIn = async () => {
+    // Check if Google Client ID is configured
+    if (!GOOGLE_CLIENT_ID) {
+      Alert.alert(
+        'Configuration Required',
+        'Google Sign-In requires a Google Client ID.\n\n' +
+        'To set up:\n' +
+        '1. Go to console.cloud.google.com\n' +
+        '2. Create OAuth credentials\n' +
+        '3. Add redirect URI:\n' +
+        `   ${EXPO_REDIRECT_URI}\n\n` +
+        '4. Add Client ID to welcome.tsx',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
     setSocialLoading('google');
     try {
-      await promptAsync();
+      await promptGoogleAsync();
     } catch (error) {
       console.error('Google prompt error:', error);
       setSocialLoading(null);
+      Alert.alert('Google Sign In Failed', 'Unable to start Google sign in.');
     }
   };
 
@@ -260,28 +349,19 @@ export default function WelcomeScreen() {
             <View style={styles.socialSection}>
               <Text style={styles.socialText}>Or sign up with</Text>
               <View style={styles.socialIcons}>
-                {/* Apple Sign In - only show on iOS */}
-                {Platform.OS === 'ios' ? (
-                  <TouchableOpacity 
-                    style={styles.socialIconButton} 
-                    activeOpacity={0.7}
-                    onPress={handleAppleSignIn}
-                    disabled={socialLoading !== null}
-                  >
-                    {socialLoading === 'apple' ? (
-                      <ActivityIndicator size="small" color="#000000" />
-                    ) : (
-                      <Ionicons name="logo-apple" size={26} color="#000000" />
-                    )}
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity 
-                    style={[styles.socialIconButton, styles.socialIconDisabled]} 
-                    activeOpacity={1}
-                  >
-                    <Ionicons name="logo-apple" size={26} color="#CCCCCC" />
-                  </TouchableOpacity>
-                )}
+                {/* Apple Sign In - clickable on all platforms */}
+                <TouchableOpacity 
+                  style={styles.socialIconButton} 
+                  activeOpacity={0.7}
+                  onPress={handleAppleSignIn}
+                  disabled={socialLoading !== null}
+                >
+                  {socialLoading === 'apple' ? (
+                    <ActivityIndicator size="small" color="#000000" />
+                  ) : (
+                    <Ionicons name="logo-apple" size={26} color="#000000" />
+                  )}
+                </TouchableOpacity>
                 
                 {/* Google Sign In */}
                 <TouchableOpacity 
@@ -423,9 +503,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,0.12)',
-  },
-  socialIconDisabled: {
-    backgroundColor: '#F5F5F5',
   },
   signInText: {
     color: 'rgba(0,0,0,0.6)',
