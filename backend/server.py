@@ -91,6 +91,12 @@ class LoginRequest(BaseModel):
     email: EmailStr
     password: str
 
+class SocialAuthRequest(BaseModel):
+    provider: str  # "apple" or "google"
+    providerId: str  # Apple ID or Google ID
+    email: Optional[str] = None
+    name: Optional[str] = None
+
 class RoleUpdate(BaseModel):
     currentRole: str
 
