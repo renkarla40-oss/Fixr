@@ -126,20 +126,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const loginWithToken = async (newToken: string, userData: any) => {
-    try {
-      await AsyncStorage.setItem('authToken', newToken);
-      setToken(newToken);
-      setUser(userData);
-      
-      // Check if beta notice was seen for this user
-      const betaNoticeSeen = await AsyncStorage.getItem(`${BETA_NOTICE_KEY}_${userData._id}`);
-      setBetaNoticeSeenByUser(betaNoticeSeen === 'true');
-    } catch (error: any) {
-      throw new Error('Failed to set authentication');
-    }
-  };
-
   const logout = async () => {
     setUser(null);
     setToken(null);
