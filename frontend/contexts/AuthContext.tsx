@@ -185,6 +185,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         shouldShowBetaNotice,
         login, 
         signup, 
+        loginWithToken,
         logout, 
         switchRole, 
         refreshUser,
