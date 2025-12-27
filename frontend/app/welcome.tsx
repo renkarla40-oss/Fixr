@@ -1,56 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ImageBackground, Platform, Alert, ActivityIndicator } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ImageBackground, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
-import * as AppleAuthentication from 'expo-apple-authentication';
-import * as AuthSession from 'expo-auth-session';
-import * as WebBrowser from 'expo-web-browser';
-import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import BetaNoticeModal from '../components/BetaNoticeModal';
-
-WebBrowser.maybeCompleteAuthSession();
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 // Uploaded electrician background image
 const HERO_IMAGE_URL = 'https://customer-assets.emergentagent.com/job_9839009c-27a4-4199-a2fc-d4475a74b912/artifacts/v3tftjv7_Electrician.png';
-
-// ============================================================
-// GOOGLE OAUTH CONFIGURATION
-// ============================================================
-// To enable Google Sign-In, you need to:
-// 1. Go to https://console.cloud.google.com/
-// 2. Create a new project or select existing one
-// 3. Enable "Google+ API" or "Google Identity"
-// 4. Go to "Credentials" → "Create Credentials" → "OAuth Client ID"
-// 5. For Expo Go testing, create a "Web application" type client
-// 6. Add this redirect URI: https://auth.expo.io/@your-expo-username/fixr
-// 7. Copy the Client ID and paste it below
-//
-// For production builds, you'll also need iOS and Android client IDs
-// ============================================================
-
-const GOOGLE_CLIENT_ID = '645219689760-6gft22iacv09mpc0jua6gfai4a2ah2n5.apps.googleusercontent.com';
-
-// For Expo Go, we need to use the Expo proxy
-// The redirect URI will be: https://auth.expo.io/@your-username/fixr
-const EXPO_REDIRECT_URI = AuthSession.makeRedirectUri({
-  scheme: 'fixr',
-  path: 'redirect',
-});
-
-// Log the redirect URI for debugging
-console.log('Google OAuth Redirect URI:', EXPO_REDIRECT_URI);
-
-// Google OAuth discovery document
-const discovery = {
-  authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
-  tokenEndpoint: 'https://oauth2.googleapis.com/token',
-  revocationEndpoint: 'https://oauth2.googleapis.com/revoke',
-};
 
 // Official Google "G" logo component with brand colors
 const GoogleIcon = ({ size = 24 }) => (
@@ -76,30 +36,7 @@ const GoogleIcon = ({ size = 24 }) => (
 
 export default function WelcomeScreen() {
   const router = useRouter();
-  const { user, loading, shouldShowBetaNotice, markBetaNoticeSeen, loginWithToken } = useAuth();
-  const [socialLoading, setSocialLoading] = useState<'apple' | 'google' | null>(null);
-  const [appleAuthAvailable, setAppleAuthAvailable] = useState(false);
-
-  // Check if Apple Auth is available on this device
-  useEffect(() => {
-    const checkAppleAuth = async () => {
-      if (Platform.OS === 'ios') {
-        const isAvailable = await AppleAuthentication.isAvailableAsync();
-        setAppleAuthAvailable(isAvailable);
-      }
-    };
-    checkAppleAuth();
-  }, []);
-
-  // Google OAuth request
-  const [googleRequest, googleResponse, promptGoogleAsync] = AuthSession.useAuthRequest(
-    {
-      clientId: GOOGLE_CLIENT_ID,
-      scopes: ['openid', 'profile', 'email'],
-      redirectUri: EXPO_REDIRECT_URI,
-    },
-    discovery
-  );
+  const { user, loading, shouldShowBetaNotice, markBetaNoticeSeen } = useAuth();
 
   useEffect(() => {
     if (!loading && user) {
@@ -112,19 +49,6 @@ export default function WelcomeScreen() {
       }
     }
   }, [user, loading, shouldShowBetaNotice]);
-
-  // Handle Google OAuth response
-  useEffect(() => {
-    if (googleResponse?.type === 'success') {
-      handleGoogleSuccess(googleResponse.authentication?.accessToken);
-    } else if (googleResponse?.type === 'error') {
-      setSocialLoading(null);
-      console.error('Google OAuth Error:', googleResponse.error);
-      Alert.alert('Google Sign In Failed', 'Unable to sign in with Google. Please try again.');
-    } else if (googleResponse?.type === 'dismiss') {
-      setSocialLoading(null);
-    }
-  }, [googleResponse]);
 
   const navigateToHome = () => {
     if (!user) return;
@@ -152,144 +76,6 @@ export default function WelcomeScreen() {
 
   const handleSignIn = () => {
     router.push('/login');
-  };
-
-  // Apple Sign In Handler
-  const handleAppleSignIn = async () => {
-    // Check platform
-    if (Platform.OS !== 'ios') {
-      Alert.alert(
-        'Apple Sign In',
-        'Apple Sign In is only available on iOS devices.',
-        [{ text: 'OK' }]
-      );
-      return;
-    }
-
-    // Check availability
-    if (!appleAuthAvailable) {
-      Alert.alert(
-        'Apple Sign In Unavailable',
-        'Apple Sign In is not available on this device. Please use Email or Google sign in.',
-        [{ text: 'OK' }]
-      );
-      return;
-    }
-
-    try {
-      setSocialLoading('apple');
-      
-      const credential = await AppleAuthentication.signInAsync({
-        requestedScopes: [
-          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
-          AppleAuthentication.AppleAuthenticationScope.EMAIL,
-        ],
-      });
-
-      // Get user info from Apple
-      const appleId = credential.user;
-      const email = credential.email;
-      const fullName = credential.fullName;
-      const name = fullName ? `${fullName.givenName || ''} ${fullName.familyName || ''}`.trim() : null;
-
-      // Send to backend
-      const response = await axios.post(`${BACKEND_URL}/api/auth/social`, {
-        provider: 'apple',
-        providerId: appleId,
-        email: email,
-        name: name || 'Apple User',
-      });
-
-      // Login with received token
-      if (response.data.token) {
-        await loginWithToken(response.data.token, response.data.user);
-        router.replace('/role-selection');
-      }
-    } catch (error: any) {
-      if (error.code === 'ERR_REQUEST_CANCELED') {
-        // User canceled - do nothing
-      } else {
-        console.error('Apple Sign In Error:', error);
-        Alert.alert('Apple Sign In Failed', error.message || 'Unable to sign in with Apple. Please try again.');
-      }
-    } finally {
-      setSocialLoading(null);
-    }
-  };
-
-  // Google Sign In - Fetch user info after OAuth
-  const handleGoogleSuccess = async (accessToken: string | undefined) => {
-    if (!accessToken) {
-      setSocialLoading(null);
-      Alert.alert('Google Sign In Failed', 'No access token received.');
-      return;
-    }
-
-    try {
-      // Get user info from Google
-      const userInfoResponse = await fetch('https://www.googleapis.com/userinfo/v2/me', {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      
-      if (!userInfoResponse.ok) {
-        throw new Error('Failed to fetch user info from Google');
-      }
-      
-      const userInfo = await userInfoResponse.json();
-
-      // Send to backend
-      const response = await axios.post(`${BACKEND_URL}/api/auth/social`, {
-        provider: 'google',
-        providerId: userInfo.id,
-        email: userInfo.email,
-        name: userInfo.name || 'Google User',
-      });
-
-      // Login with received token
-      if (response.data.token) {
-        await loginWithToken(response.data.token, response.data.user);
-        router.replace('/role-selection');
-      }
-    } catch (error: any) {
-      console.error('Google Sign In Error:', error);
-      Alert.alert('Google Sign In Failed', error.message || 'Unable to complete Google sign in. Please try again.');
-    } finally {
-      setSocialLoading(null);
-    }
-  };
-
-  // Handle Google button press
-  const handleGoogleSignIn = async () => {
-    // Show the user what redirect URI needs to be configured
-    console.log('=== GOOGLE OAUTH DEBUG ===');
-    console.log('Redirect URI:', EXPO_REDIRECT_URI);
-    console.log('Client ID:', GOOGLE_CLIENT_ID);
-    
-    if (!GOOGLE_CLIENT_ID) {
-      Alert.alert(
-        'Configuration Required',
-        'Google Sign-In requires a Google Client ID.',
-        [{ text: 'OK' }]
-      );
-      return;
-    }
-
-    setSocialLoading('google');
-    try {
-      const result = await promptGoogleAsync();
-      console.log('Google Auth Result:', result);
-      if (result?.type === 'cancel' || result?.type === 'dismiss') {
-        setSocialLoading(null);
-      }
-    } catch (error: any) {
-      console.error('Google prompt error:', error);
-      setSocialLoading(null);
-      Alert.alert(
-        'Google Sign In Issue',
-        `Please add this redirect URI to your Google OAuth credentials:\n\n${EXPO_REDIRECT_URI}\n\nError: ${error.message || 'Unknown error'}`,
-        [{ text: 'OK' }]
-      );
-    }
   };
 
   if (loading) {
@@ -355,38 +141,21 @@ export default function WelcomeScreen() {
               <Text style={styles.secondaryButtonText}>Continue with Phone Number</Text>
             </TouchableOpacity>
 
-            {/* Social Sign Up */}
+            {/* Social Sign Up - Disabled for beta */}
             <View style={styles.socialSection}>
               <Text style={styles.socialText}>Or sign up with</Text>
               <View style={styles.socialIcons}>
-                {/* Apple Sign In - clickable on all platforms */}
-                <TouchableOpacity 
-                  style={styles.socialIconButton} 
-                  activeOpacity={0.7}
-                  onPress={handleAppleSignIn}
-                  disabled={socialLoading !== null}
-                >
-                  {socialLoading === 'apple' ? (
-                    <ActivityIndicator size="small" color="#000000" />
-                  ) : (
-                    <Ionicons name="logo-apple" size={26} color="#000000" />
-                  )}
-                </TouchableOpacity>
+                {/* Apple icon - disabled */}
+                <View style={styles.socialIconButton}>
+                  <Ionicons name="logo-apple" size={26} color="#000000" />
+                </View>
                 
-                {/* Google Sign In */}
-                <TouchableOpacity 
-                  style={styles.socialIconButton} 
-                  activeOpacity={0.7}
-                  onPress={handleGoogleSignIn}
-                  disabled={socialLoading !== null}
-                >
-                  {socialLoading === 'google' ? (
-                    <ActivityIndicator size="small" color="#4285F4" />
-                  ) : (
-                    <GoogleIcon size={24} />
-                  )}
-                </TouchableOpacity>
+                {/* Google icon - disabled */}
+                <View style={styles.socialIconButton}>
+                  <GoogleIcon size={24} />
+                </View>
               </View>
+              <Text style={styles.comingSoonText}>Coming soon</Text>
             </View>
 
             {/* Sign In Link */}
@@ -513,6 +282,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,0.12)',
+  },
+  comingSoonText: {
+    color: 'rgba(0,0,0,0.4)',
+    fontSize: 12,
+    marginTop: 8,
+    fontStyle: 'italic',
   },
   signInText: {
     color: 'rgba(0,0,0,0.6)',
