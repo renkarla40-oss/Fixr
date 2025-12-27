@@ -35,11 +35,15 @@ const HERO_IMAGE_URL = 'https://customer-assets.emergentagent.com/job_9839009c-2
 
 const GOOGLE_CLIENT_ID = '645219689760-6gft22iacv09mpc0jua6gfai4a2ah2n5.apps.googleusercontent.com';
 
-// Expo AuthSession redirect URI for Google
+// For Expo Go, we need to use the Expo proxy
+// The redirect URI will be: https://auth.expo.io/@your-username/fixr
 const EXPO_REDIRECT_URI = AuthSession.makeRedirectUri({
   scheme: 'fixr',
-  useProxy: true, // This uses Expo's proxy for Expo Go
+  path: 'redirect',
 });
+
+// Log the redirect URI for debugging
+console.log('Google OAuth Redirect URI:', EXPO_REDIRECT_URI);
 
 // Google OAuth discovery document
 const discovery = {
