@@ -1234,6 +1234,52 @@ async def verify_phone_otp(
 # Phase 4: Job Code & Workflow Endpoints
 # ============================================
 
+@api_router.get("/service-requests/{request_id}")
+async def get_service_request_detail(
+    request_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get a single service request by ID.
+    Accessible by both customer (owner) and assigned provider.
+    """
+    try:
+        request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
+    except:
+        raise HTTPException(status_code=404, detail="Request not found")
+        
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    # Verify user has access (either customer or provider)
+    is_customer = request["customerId"] == current_user.id
+    provider = await db.providers.find_one({"userId": current_user.id})
+    is_provider = provider and str(provider["_id"]) == request.get("providerId")
+    
+    # Also check if user is a provider matching the service (for general/open requests)
+    is_general_request = request.get("isGeneralRequest", False)
+    
+    if not is_customer and not is_provider and not is_general_request:
+        raise HTTPException(status_code=403, detail="Not authorized to view this request")
+    
+    # Convert ObjectId to string
+    request["_id"] = str(request["_id"])
+    
+    # Ensure all fields have defaults
+    request["jobCode"] = request.get("jobCode")
+    request["jobStartedAt"] = request.get("jobStartedAt")
+    request["jobCompletedAt"] = request.get("jobCompletedAt")
+    request["customerReview"] = request.get("customerReview")
+    request["customerRating"] = request.get("customerRating")
+    request["reviewedAt"] = request.get("reviewedAt")
+    request["subCategory"] = request.get("subCategory")
+    request["location"] = request.get("location")
+    request["jobTown"] = request.get("jobTown")
+    request["searchRadiusMiles"] = request.get("searchRadiusMiles", 10)
+    request["jobDuration"] = request.get("jobDuration")
+    
+    return request
+
 @api_router.patch("/service-requests/{request_id}/accept")
 async def accept_service_request(
     request_id: str,
