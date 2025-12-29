@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,42 +9,96 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Modal,
+  FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import axios from 'axios';
+import { useAuth } from '../contexts/AuthContext';
 
-// Popular areas in Trinidad & Tobago for quick selection
-const POPULAR_AREAS = [
-  'Port of Spain',
-  'San Fernando',
-  'Chaguanas',
-  'Arima',
-  'Tunapuna',
-  'Sangre Grande',
-  'Point Fortin',
-  'Couva',
-  'Diego Martin',
-  'Maraval',
+const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+
+const SEARCH_RADIUS_OPTIONS = [
+  { value: 5, label: '5 miles' },
+  { value: 10, label: '10 miles' },
+  { value: 15, label: '15 miles' },
+  { value: 25, label: '25 miles' },
+  { value: 40, label: '40 miles' },
 ];
+
+const JOB_DURATION_OPTIONS = [
+  { value: 'less_than_1_hour', label: 'Less than 1 hour' },
+  { value: '1_to_2_hours', label: '1-2 hours' },
+  { value: '2_to_4_hours', label: '2-4 hours' },
+  { value: 'half_day', label: 'Half day' },
+  { value: 'full_day', label: 'Full day' },
+  { value: 'multiple_days', label: 'Multiple days' },
+  { value: 'not_sure', label: 'Not sure' },
+];
+
+interface Town {
+  key: string;
+  label: string;
+  region: string;
+}
 
 export default function ServiceLocationScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const { token } = useAuth();
+  
   const category = params.category as string;
   const categoryName = params.categoryName as string;
   const subCategory = params.subCategory as string | undefined;
   
   const [location, setLocation] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [searchRadiusMiles, setSearchRadiusMiles] = useState(10); // Default 10 miles
+  const [jobDuration, setJobDuration] = useState('');
+  
+  // Modal states
+  const [showTownPicker, setShowTownPicker] = useState(false);
+  const [showRadiusPicker, setShowRadiusPicker] = useState(false);
+  const [showDurationPicker, setShowDurationPicker] = useState(false);
+  
+  // Towns data
+  const [towns, setTowns] = useState<Town[]>([]);
+  const [townSearchQuery, setTownSearchQuery] = useState('');
+  const [loadingTowns, setLoadingTowns] = useState(false);
 
-  const filteredAreas = POPULAR_AREAS.filter(area =>
-    area.toLowerCase().includes(location.toLowerCase())
-  );
+  useEffect(() => {
+    fetchTowns();
+  }, []);
 
-  const handleAreaSelect = (area: string) => {
-    setLocation(area);
-    setShowSuggestions(false);
+  const fetchTowns = async () => {
+    try {
+      setLoadingTowns(true);
+      const response = await axios.get(`${BACKEND_URL}/api/towns`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setTowns(response.data);
+    } catch (error) {
+      console.error('Error fetching towns:', error);
+      // Fallback to hardcoded list if API fails
+      setTowns([
+        { key: 'port_of_spain', label: 'Port of Spain', region: 'north' },
+        { key: 'san_fernando', label: 'San Fernando', region: 'south' },
+        { key: 'chaguanas', label: 'Chaguanas', region: 'central' },
+        { key: 'arima', label: 'Arima', region: 'corridor' },
+        { key: 'diego_martin', label: 'Diego Martin', region: 'north' },
+        { key: 'tunapuna', label: 'Tunapuna', region: 'corridor' },
+        { key: 'couva', label: 'Couva', region: 'central' },
+        { key: 'sangre_grande', label: 'Sangre Grande', region: 'east' },
+      ]);
+    } finally {
+      setLoadingTowns(false);
+    }
   };
+
+  const filteredTowns = towns.filter(town =>
+    town.label.toLowerCase().includes(townSearchQuery.toLowerCase())
+  );
 
   const handleContinue = () => {
     if (!location.trim()) return;
@@ -56,8 +110,15 @@ export default function ServiceLocationScreen() {
         categoryName,
         subCategory: subCategory || '',
         location: location.trim(),
+        searchRadiusMiles: searchRadiusMiles.toString(),
+        jobDuration: jobDuration || '',
       },
     });
+  };
+
+  const getSelectedDurationLabel = () => {
+    const selected = JOB_DURATION_OPTIONS.find(opt => opt.value === jobDuration);
+    return selected?.label || '';
   };
 
   return (
@@ -92,76 +153,57 @@ export default function ServiceLocationScreen() {
           </Text>
           
           <Text style={styles.description}>
-            Enter your area, town, or region so we can show you nearby providers.
+            Select your town and search radius so we can show you nearby providers.
           </Text>
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="location-outline" size={20} color="#999" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="e.g., Chaguanas, Port of Spain"
-              value={location}
-              onChangeText={(text) => {
-                setLocation(text);
-                setShowSuggestions(text.length > 0);
-              }}
-              onFocus={() => setShowSuggestions(location.length > 0)}
-              placeholderTextColor="#999"
-              autoCapitalize="words"
-            />
-            {location.length > 0 && (
-              <TouchableOpacity
-                onPress={() => {
-                  setLocation('');
-                  setShowSuggestions(false);
-                }}
-                style={styles.clearButton}
-              >
-                <Ionicons name="close-circle" size={20} color="#999" />
-              </TouchableOpacity>
-            )}
+          {/* Town Selection */}
+          <View style={styles.section}>
+            <Text style={styles.label}>
+              Job Location <Text style={styles.required}>*</Text>
+            </Text>
+            <TouchableOpacity
+              style={styles.pickerButton}
+              onPress={() => setShowTownPicker(true)}
+            >
+              <Ionicons name="location-outline" size={20} color="#666" />
+              <Text style={[styles.pickerButtonText, !location && styles.pickerPlaceholder]}>
+                {location || 'Select town/area'}
+              </Text>
+              <Ionicons name="chevron-down" size={20} color="#666" />
+            </TouchableOpacity>
           </View>
 
-          {showSuggestions && filteredAreas.length > 0 && (
-            <View style={styles.suggestionsContainer}>
-              <Text style={styles.suggestionsTitle}>Popular Areas</Text>
-              {filteredAreas.map((area) => (
-                <TouchableOpacity
-                  key={area}
-                  style={styles.suggestionItem}
-                  onPress={() => handleAreaSelect(area)}
-                >
-                  <Ionicons name="location-outline" size={18} color="#666" />
-                  <Text style={styles.suggestionText}>{area}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
+          {/* Search Radius Selection */}
+          <View style={styles.section}>
+            <Text style={styles.label}>Search Radius</Text>
+            <Text style={styles.hint}>How far should we search for providers?</Text>
+            <TouchableOpacity
+              style={styles.pickerButton}
+              onPress={() => setShowRadiusPicker(true)}
+            >
+              <Ionicons name="radio-outline" size={20} color="#666" />
+              <Text style={styles.pickerButtonText}>
+                {searchRadiusMiles} miles
+              </Text>
+              <Ionicons name="chevron-down" size={20} color="#666" />
+            </TouchableOpacity>
+          </View>
 
-          {!showSuggestions && (
-            <View style={styles.quickSelectContainer}>
-              <Text style={styles.quickSelectTitle}>Quick Select</Text>
-              <View style={styles.quickSelectGrid}>
-                {POPULAR_AREAS.slice(0, 6).map((area) => (
-                  <TouchableOpacity
-                    key={area}
-                    style={[
-                      styles.quickSelectChip,
-                      location === area && styles.quickSelectChipSelected,
-                    ]}
-                    onPress={() => handleAreaSelect(area)}
-                  >
-                    <Text style={[
-                      styles.quickSelectText,
-                      location === area && styles.quickSelectTextSelected,
-                    ]}>
-                      {area}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-          )}
+          {/* Job Duration (Optional) */}
+          <View style={styles.section}>
+            <Text style={styles.label}>Estimated Job Duration</Text>
+            <Text style={styles.hint}>Optional - helps providers plan their schedule</Text>
+            <TouchableOpacity
+              style={styles.pickerButton}
+              onPress={() => setShowDurationPicker(true)}
+            >
+              <Ionicons name="time-outline" size={20} color="#666" />
+              <Text style={[styles.pickerButtonText, !jobDuration && styles.pickerPlaceholder]}>
+                {getSelectedDurationLabel() || 'Select duration (optional)'}
+              </Text>
+              <Ionicons name="chevron-down" size={20} color="#666" />
+            </TouchableOpacity>
+          </View>
         </ScrollView>
 
         <View style={styles.footer}>
@@ -174,11 +216,173 @@ export default function ServiceLocationScreen() {
             disabled={!location.trim()}
             activeOpacity={0.8}
           >
-            <Text style={styles.continueButtonText}>Continue</Text>
+            <Text style={styles.continueButtonText}>Find Providers</Text>
             <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+
+      {/* Town Picker Modal */}
+      <Modal
+        visible={showTownPicker}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowTownPicker(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Town</Text>
+              <TouchableOpacity onPress={() => setShowTownPicker(false)}>
+                <Ionicons name="close" size={24} color="#666" />
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.searchContainer}>
+              <Ionicons name="search" size={20} color="#999" />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search towns..."
+                value={townSearchQuery}
+                onChangeText={setTownSearchQuery}
+                placeholderTextColor="#999"
+              />
+            </View>
+
+            {loadingTowns ? (
+              <ActivityIndicator size="large" color="#E53935" style={styles.loadingIndicator} />
+            ) : (
+              <FlatList
+                data={filteredTowns}
+                keyExtractor={(item) => item.key}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={[
+                      styles.listItem,
+                      location === item.label && styles.listItemSelected,
+                    ]}
+                    onPress={() => {
+                      setLocation(item.label);
+                      setShowTownPicker(false);
+                      setTownSearchQuery('');
+                    }}
+                  >
+                    <Text style={[
+                      styles.listItemText,
+                      location === item.label && styles.listItemTextSelected,
+                    ]}>
+                      {item.label}
+                    </Text>
+                    {location === item.label && (
+                      <Ionicons name="checkmark" size={20} color="#E53935" />
+                    )}
+                  </TouchableOpacity>
+                )}
+                showsVerticalScrollIndicator={false}
+              />
+            )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* Radius Picker Modal */}
+      <Modal
+        visible={showRadiusPicker}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowRadiusPicker(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContentSmall}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Search Radius</Text>
+              <TouchableOpacity onPress={() => setShowRadiusPicker(false)}>
+                <Ionicons name="close" size={24} color="#666" />
+              </TouchableOpacity>
+            </View>
+            
+            {SEARCH_RADIUS_OPTIONS.map((option) => (
+              <TouchableOpacity
+                key={option.value}
+                style={[
+                  styles.listItem,
+                  searchRadiusMiles === option.value && styles.listItemSelected,
+                ]}
+                onPress={() => {
+                  setSearchRadiusMiles(option.value);
+                  setShowRadiusPicker(false);
+                }}
+              >
+                <Text style={[
+                  styles.listItemText,
+                  searchRadiusMiles === option.value && styles.listItemTextSelected,
+                ]}>
+                  {option.label}
+                </Text>
+                {searchRadiusMiles === option.value && (
+                  <Ionicons name="checkmark" size={20} color="#E53935" />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </Modal>
+
+      {/* Duration Picker Modal */}
+      <Modal
+        visible={showDurationPicker}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowDurationPicker(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContentSmall}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Job Duration</Text>
+              <TouchableOpacity onPress={() => setShowDurationPicker(false)}>
+                <Ionicons name="close" size={24} color="#666" />
+              </TouchableOpacity>
+            </View>
+            
+            <TouchableOpacity
+              style={[styles.listItem, !jobDuration && styles.listItemSelected]}
+              onPress={() => {
+                setJobDuration('');
+                setShowDurationPicker(false);
+              }}
+            >
+              <Text style={[styles.listItemText, !jobDuration && styles.listItemTextSelected]}>
+                Skip (I'm not sure)
+              </Text>
+              {!jobDuration && <Ionicons name="checkmark" size={20} color="#E53935" />}
+            </TouchableOpacity>
+            
+            {JOB_DURATION_OPTIONS.filter(opt => opt.value !== 'not_sure').map((option) => (
+              <TouchableOpacity
+                key={option.value}
+                style={[
+                  styles.listItem,
+                  jobDuration === option.value && styles.listItemSelected,
+                ]}
+                onPress={() => {
+                  setJobDuration(option.value);
+                  setShowDurationPicker(false);
+                }}
+              >
+                <Text style={[
+                  styles.listItemText,
+                  jobDuration === option.value && styles.listItemTextSelected,
+                ]}>
+                  {option.label}
+                </Text>
+                {jobDuration === option.value && (
+                  <Ionicons name="checkmark" size={20} color="#E53935" />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -242,90 +446,40 @@ const styles = StyleSheet.create({
     marginBottom: 32,
     lineHeight: 22,
   },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    paddingHorizontal: 16,
-    marginBottom: 16,
+  section: {
+    marginBottom: 24,
   },
-  inputIcon: {
-    marginRight: 12,
-  },
-  input: {
-    flex: 1,
-    paddingVertical: 16,
+  label: {
     fontSize: 16,
-    color: '#1A1A1A',
-  },
-  clearButton: {
-    padding: 4,
-  },
-  suggestionsContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    marginBottom: 16,
-  },
-  suggestionsTitle: {
-    fontSize: 12,
     fontWeight: '600',
-    color: '#999',
-    textTransform: 'uppercase',
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 8,
-  },
-  suggestionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-    gap: 12,
-  },
-  suggestionText: {
-    fontSize: 16,
     color: '#1A1A1A',
+    marginBottom: 4,
   },
-  quickSelectContainer: {
-    marginTop: 8,
+  required: {
+    color: '#E53935',
   },
-  quickSelectTitle: {
-    fontSize: 14,
-    fontWeight: '600',
+  hint: {
+    fontSize: 13,
     color: '#666',
     marginBottom: 12,
   },
-  quickSelectGrid: {
+  pickerButton: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  quickSelectChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 20,
+    alignItems: 'center',
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: '#E0E0E0',
+    padding: 16,
+    gap: 12,
   },
-  quickSelectChipSelected: {
-    backgroundColor: '#FFF5F5',
-    borderColor: '#E53935',
+  pickerButtonText: {
+    flex: 1,
+    fontSize: 16,
+    color: '#1A1A1A',
   },
-  quickSelectText: {
-    fontSize: 14,
-    color: '#666',
-  },
-  quickSelectTextSelected: {
-    color: '#E53935',
-    fontWeight: '600',
+  pickerPlaceholder: {
+    color: '#999',
   },
   footer: {
     padding: 24,
@@ -348,6 +502,76 @@ const styles = StyleSheet.create({
   continueButtonText: {
     color: '#FFFFFF',
     fontSize: 18,
+    fontWeight: '600',
+  },
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: '80%',
+    paddingBottom: 32,
+  },
+  modalContentSmall: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingBottom: 32,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    borderRadius: 12,
+    margin: 16,
+    paddingHorizontal: 12,
+    gap: 8,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: '#1A1A1A',
+  },
+  loadingIndicator: {
+    marginVertical: 32,
+  },
+  listItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  listItemSelected: {
+    backgroundColor: '#FFF5F5',
+  },
+  listItemText: {
+    fontSize: 16,
+    color: '#1A1A1A',
+  },
+  listItemTextSelected: {
+    color: '#E53935',
     fontWeight: '600',
   },
 });
