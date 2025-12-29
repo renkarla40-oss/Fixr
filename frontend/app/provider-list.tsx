@@ -234,7 +234,7 @@ export default function ProviderListScreen() {
               {isOtherCategory 
                 ? "This is a beta category. You can still submit a request and we'll try to match you with an available provider."
                 : location 
-                  ? `We couldn't find any providers within ${searchRadiusMiles} miles of ${location}.`
+                  ? `We couldn't find any providers within ${searchDistanceKm} km of ${location}.`
                   : `We're actively onboarding verified ${(categoryName || 'service').toLowerCase()} professionals in your area.`}
             </Text>
             {isOtherCategory ? (
