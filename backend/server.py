@@ -131,7 +131,8 @@ class ProviderSetup(BaseModel):
     services: List[str]
     bio: str
     baseTown: str  # Required for setup
-    travelRadiusMiles: int = 10
+    travelDistanceKm: int = 16  # Stored in km (default ~10 miles)
+    travelRadiusMiles: Optional[int] = None  # Legacy support - converted to km
     travelAnywhere: bool = False
 
 # Provider Availability Update Model (Phase 3A)
@@ -151,7 +152,8 @@ class ServiceRequest(BaseModel):
     subCategory: Optional[str] = None  # For handyman sub-categories
     location: Optional[str] = None  # Customer's service location (legacy)
     jobTown: Optional[str] = None  # New: specific job town
-    searchRadiusMiles: int = 10  # New: customer's search radius
+    searchDistanceKm: int = 16  # Customer's search distance in km (default ~10 mi)
+    searchRadiusMiles: Optional[int] = None  # Legacy support
     jobDuration: Optional[str] = None  # New: estimated job duration
 
 class ServiceRequestResponse(BaseModel):
