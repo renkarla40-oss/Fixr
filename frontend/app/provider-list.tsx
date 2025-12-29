@@ -447,7 +447,7 @@ export default function ProviderListScreen() {
             
             <Text style={styles.modalTitle}>No Local Providers Found</Text>
             <Text style={styles.modalMessage}>
-              We couldn't find any {displayName.toLowerCase()} providers within {searchRadiusMiles} miles of {location}.
+              We couldn't find any {displayName.toLowerCase()} providers within {searchDistanceKm} km of {location}.
             </Text>
             
             <View style={styles.modalOptions}>
