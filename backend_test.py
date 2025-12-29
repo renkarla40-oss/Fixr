@@ -184,8 +184,8 @@ class FixrAPITester:
             "jobTown": "Port of Spain"
         }, self.customer_token)
         
-        if service_request["success"] and "id" in service_request["data"]:
-            self.service_request_id = service_request["data"]["id"]
+        if service_request["success"] and service_request["data"].get("_id"):
+            self.service_request_id = service_request["data"]["_id"]
             self.log_test("Create Service Request", True, f"Request ID: {self.service_request_id}")
             
             # 2. Accept request as provider (should generate job code)
