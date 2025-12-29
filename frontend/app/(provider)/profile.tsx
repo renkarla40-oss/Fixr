@@ -329,6 +329,56 @@ export default function ProviderProfileScreen() {
           </View>
         </ScrollView>
       </View>
+
+      {/* Availability Note Modal */}
+      <Modal
+        visible={showNoteModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowNoteModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Availability Note</Text>
+              <TouchableOpacity onPress={() => setShowNoteModal(false)}>
+                <Ionicons name="close" size={24} color="#666" />
+              </TouchableOpacity>
+            </View>
+            
+            <Text style={styles.modalDescription}>
+              Add a short note about your availability. This helps customers know the best time to reach you.
+            </Text>
+            
+            <TextInput
+              style={styles.noteInput}
+              placeholder="e.g., Weekends only, After 5pm, Available Mon-Fri"
+              value={tempNote}
+              onChangeText={setTempNote}
+              maxLength={60}
+              placeholderTextColor="#999"
+              autoFocus
+            />
+            
+            <Text style={styles.charCount}>{tempNote.length}/60 characters</Text>
+            
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.modalCancelButton}
+                onPress={() => setShowNoteModal(false)}
+              >
+                <Text style={styles.modalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalSaveButton}
+                onPress={handleSaveNote}
+              >
+                <Text style={styles.modalSaveText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
