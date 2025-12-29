@@ -163,7 +163,7 @@ class ServiceRequestResponse(BaseModel):
     service: str
     description: str
     preferredDateTime: Optional[datetime] = None
-    status: str = "pending"
+    status: str = "pending"  # pending, accepted, started, completed, cancelled
     customerName: str
     customerPhone: str
     providerName: Optional[str] = None  # Can be None for general requests
@@ -171,9 +171,17 @@ class ServiceRequestResponse(BaseModel):
     subCategory: Optional[str] = None  # For handyman sub-categories
     location: Optional[str] = None  # Customer's service location (legacy)
     jobTown: Optional[str] = None  # New: specific job town
-    searchRadiusMiles: int = 10  # New: customer's search radius
-    jobDuration: Optional[str] = None  # New: estimated job duration
+    searchRadiusMiles: int = 10  # Customer's search radius
+    jobDuration: Optional[str] = None  # Estimated job duration
     createdAt: datetime
+    # Job confirmation code (Phase 4 - Trust)
+    jobCode: Optional[str] = None  # 6-digit code for job start confirmation
+    jobStartedAt: Optional[datetime] = None  # When provider entered correct code
+    jobCompletedAt: Optional[datetime] = None  # When job was marked complete
+    # Review fields (Phase 4 - Trust)
+    customerReview: Optional[str] = None  # Customer's review text (max 500 chars)
+    customerRating: Optional[int] = None  # 1-5 stars
+    reviewedAt: Optional[datetime] = None
     
     class Config:
         populate_by_name = True
