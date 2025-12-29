@@ -1034,6 +1034,35 @@ async def get_profile_photo(filename: str):
         raise HTTPException(status_code=404, detail="Photo not found")
     return FileResponse(file_path, media_type="image/jpeg")
 
+# Get current provider's profile (for fetching upload status)
+@api_router.get("/providers/me/profile")
+async def get_my_provider_profile(current_user: User = Depends(get_current_user)):
+    """Get the current user's provider profile"""
+    provider = await db.providers.find_one({"userId": current_user.id})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Provider profile not found")
+    
+    provider["_id"] = str(provider["_id"])
+    
+    # Ensure all fields have defaults
+    for field in ["profilePhotoUrl", "governmentIdFrontUrl", "governmentIdBackUrl"]:
+        if field not in provider:
+            provider[field] = None
+    if "uploadsComplete" not in provider:
+        provider["uploadsComplete"] = False
+    if "isAcceptingJobs" not in provider:
+        provider["isAcceptingJobs"] = True
+    if "availabilityNote" not in provider:
+        provider["availabilityNote"] = None
+    if "baseTown" not in provider:
+        provider["baseTown"] = None
+    if "travelRadiusMiles" not in provider:
+        provider["travelRadiusMiles"] = 10
+    if "travelAnywhere" not in provider:
+        provider["travelAnywhere"] = False
+        
+    return Provider(**provider)
+
 # Service Request Routes
 @api_router.post("/service-requests", response_model=ServiceRequestResponse)
 async def create_service_request(
