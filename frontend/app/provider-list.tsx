@@ -28,6 +28,8 @@ interface Provider {
   travelAnywhere?: boolean;
   distanceFromJob?: number;
   isOutsideSelectedArea?: boolean;
+  isAcceptingJobs?: boolean;
+  availabilityNote?: string;
 }
 
 export default function ProviderListScreen() {
