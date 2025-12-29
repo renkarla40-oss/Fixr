@@ -145,6 +145,26 @@ class PhotoUploadRequest(BaseModel):
     imageData: str  # Base64 encoded image data
     uploadType: str  # "profile_photo" | "government_id_front" | "government_id_back"
 
+# Phone verification models (Phase 4 - Trust)
+class SendOTPRequest(BaseModel):
+    phone: str  # Phone number to send OTP to
+
+class VerifyOTPRequest(BaseModel):
+    phone: str
+    otp: str  # 6-digit code
+
+class OTPResponse(BaseModel):
+    success: bool
+    message: str
+
+# Job code confirmation models (Phase 4 - Trust)
+class ConfirmJobStartRequest(BaseModel):
+    jobCode: str  # 6-digit code from customer
+
+class SubmitReviewRequest(BaseModel):
+    rating: int  # 1-5 stars
+    review: Optional[str] = None  # Optional review text (max 500 chars)
+
 class ServiceRequest(BaseModel):
     service: str
     description: str
