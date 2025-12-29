@@ -365,11 +365,14 @@ async def update_user_profile(
 
 @api_router.post("/users/provider-setup", response_model=User)
 async def setup_provider(setup_data: ProviderSetup, current_user: User = Depends(get_current_user)):
-    # Create or update provider profile
+    # Create or update provider profile with location data
     provider_profile = {
         "userId": current_user.id,
         "services": setup_data.services,
         "bio": setup_data.bio,
+        "baseTown": setup_data.baseTown,
+        "travelRadiusMiles": setup_data.travelRadiusMiles,
+        "travelAnywhere": setup_data.travelAnywhere,
         "verificationStatus": "pending",
         "setupComplete": True,
         "name": current_user.name,
@@ -396,18 +399,110 @@ async def setup_provider(setup_data: ProviderSetup, current_user: User = Depends
     updated_user["_id"] = str(updated_user["_id"])
     return User(**updated_user)
 
+# Trinidad nearbyTownsMap for radius-based matching (no GPS for beta)
+NEARBY_TOWNS_MAP = {
+    "Port of Spain": {
+        "within5": ["Woodbrook", "St James", "Belmont", "Cascade"],
+        "within10": ["Diego Martin", "Maraval", "Laventille"],
+        "within20": ["Arima", "Chaguanas"]
+    },
+    "Diego Martin": {
+        "within5": ["Petit Valley", "St James", "Maraval"],
+        "within10": ["Port of Spain", "Woodbrook"],
+        "within20": ["Arima", "Chaguanas"]
+    },
+    "Arima": {
+        "within5": ["Maloney", "Wallerfield"],
+        "within10": ["Tunapuna", "Arouca"],
+        "within20": ["Port of Spain", "Chaguanas"]
+    },
+    "Chaguanas": {
+        "within5": ["Charlieville", "Cunupia"],
+        "within10": ["Couva", "Freeport"],
+        "within20": ["San Fernando", "Arima"]
+    },
+    "San Fernando": {
+        "within5": ["Marabella", "Palmiste"],
+        "within10": ["Debe", "La Romain"],
+        "within20": ["Couva", "Chaguanas"]
+    },
+    "Couva": {
+        "within5": ["California", "Preysal"],
+        "within10": ["Chaguanas", "Marabella"],
+        "within20": ["San Fernando"]
+    }
+}
+
+def get_towns_within_radius(job_town: str, radius_miles: int) -> List[str]:
+    """Get list of towns within the specified radius of the job town"""
+    towns = [job_town]  # Always include the job town itself
+    
+    if job_town in NEARBY_TOWNS_MAP:
+        town_data = NEARBY_TOWNS_MAP[job_town]
+        if radius_miles >= 5:
+            towns.extend(town_data.get("within5", []))
+        if radius_miles >= 10:
+            towns.extend(town_data.get("within10", []))
+        if radius_miles >= 20:
+            towns.extend(town_data.get("within20", []))
+    
+    return list(set(towns))  # Remove duplicates
+
 # Provider Routes
 @api_router.get("/providers", response_model=List[Provider])
-async def get_providers(service: Optional[str] = None, current_user: User = Depends(get_current_user)):
+async def get_providers(
+    service: Optional[str] = None,
+    job_town: Optional[str] = None,
+    search_radius: int = 10,
+    include_travel_anywhere: bool = False,
+    current_user: User = Depends(get_current_user)
+):
     query = {"setupComplete": True}
     if service:
         query["services"] = service
     
     providers = await db.providers.find(query).to_list(100)
     result = []
+    travel_anywhere_providers = []
+    
     for provider in providers:
         provider["_id"] = str(provider["_id"])
-        result.append(Provider(**provider))
+        
+        # Ensure new fields have defaults for backward compatibility
+        if "baseTown" not in provider:
+            provider["baseTown"] = None
+        if "travelRadiusMiles" not in provider:
+            provider["travelRadiusMiles"] = 10
+        if "travelAnywhere" not in provider:
+            provider["travelAnywhere"] = False
+        
+        # If no job_town specified, return all providers
+        if not job_town:
+            result.append(Provider(**provider))
+            continue
+        
+        provider_base_town = provider.get("baseTown")
+        provider_travel_radius = provider.get("travelRadiusMiles", 10)
+        provider_travel_anywhere = provider.get("travelAnywhere", False)
+        
+        # Calculate effective radius
+        effective_radius = min(search_radius, provider_travel_radius)
+        
+        # Get towns within effective radius
+        towns_in_radius = get_towns_within_radius(job_town, effective_radius)
+        
+        # Check if provider is within radius
+        is_in_radius = provider_base_town and provider_base_town in towns_in_radius
+        
+        if is_in_radius:
+            result.append(Provider(**provider))
+        elif provider_travel_anywhere and include_travel_anywhere:
+            # Add to travel-anywhere list to append after radius-matched
+            travel_anywhere_providers.append(Provider(**provider))
+    
+    # Append travel-anywhere providers after radius-matched
+    result.extend(travel_anywhere_providers)
+    
     return result
 
 @api_router.get("/providers/{provider_id}", response_model=Provider)
