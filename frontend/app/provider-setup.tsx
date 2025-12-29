@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,9 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
+  Switch,
+  Modal,
+  FlatList,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -27,12 +30,71 @@ const serviceOptions = [
   { id: 'handyman', name: 'Handyman', icon: 'hammer' },
 ];
 
+const TRAVEL_RADIUS_OPTIONS = [
+  { value: 5, label: '5 miles' },
+  { value: 10, label: '10 miles' },
+  { value: 15, label: '15 miles' },
+  { value: 25, label: '25 miles' },
+  { value: 40, label: '40 miles' },
+];
+
+interface Town {
+  key: string;
+  label: string;
+  region: string;
+}
+
 export default function ProviderSetupScreen() {
   const router = useRouter();
   const { token, refreshUser } = useAuth();
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [bio, setBio] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  // Location fields
+  const [baseTown, setBaseTown] = useState('');
+  const [travelRadiusMiles, setTravelRadiusMiles] = useState(10);
+  const [travelAnywhere, setTravelAnywhere] = useState(false);
+  
+  // Town picker modal
+  const [showTownPicker, setShowTownPicker] = useState(false);
+  const [showRadiusPicker, setShowRadiusPicker] = useState(false);
+  const [towns, setTowns] = useState<Town[]>([]);
+  const [townSearchQuery, setTownSearchQuery] = useState('');
+  const [loadingTowns, setLoadingTowns] = useState(false);
+
+  useEffect(() => {
+    fetchTowns();
+  }, []);
+
+  const fetchTowns = async () => {
+    try {
+      setLoadingTowns(true);
+      const response = await axios.get(`${BACKEND_URL}/api/towns`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setTowns(response.data);
+    } catch (error) {
+      console.error('Error fetching towns:', error);
+      // Fallback to hardcoded list if API fails
+      setTowns([
+        { key: 'port_of_spain', label: 'Port of Spain', region: 'north' },
+        { key: 'san_fernando', label: 'San Fernando', region: 'south' },
+        { key: 'chaguanas', label: 'Chaguanas', region: 'central' },
+        { key: 'arima', label: 'Arima', region: 'corridor' },
+        { key: 'diego_martin', label: 'Diego Martin', region: 'north' },
+        { key: 'tunapuna', label: 'Tunapuna', region: 'corridor' },
+        { key: 'couva', label: 'Couva', region: 'central' },
+        { key: 'sangre_grande', label: 'Sangre Grande', region: 'east' },
+      ]);
+    } finally {
+      setLoadingTowns(false);
+    }
+  };
+
+  const filteredTowns = towns.filter(town =>
+    town.label.toLowerCase().includes(townSearchQuery.toLowerCase())
+  );
 
   const toggleService = (serviceId: string) => {
     if (selectedServices.includes(serviceId)) {
@@ -46,6 +108,9 @@ export default function ProviderSetupScreen() {
     console.log('=== SUBMIT BUTTON PRESSED ===');
     console.log('Selected services:', selectedServices);
     console.log('Bio length:', bio.length);
+    console.log('Base town:', baseTown);
+    console.log('Travel radius:', travelRadiusMiles);
+    console.log('Travel anywhere:', travelAnywhere);
     
     if (selectedServices.length === 0) {
       console.log('No services selected');
@@ -59,6 +124,12 @@ export default function ProviderSetupScreen() {
       return;
     }
 
+    if (!baseTown) {
+      console.log('No base town selected');
+      Alert.alert('Required', 'Please select your base town/area');
+      return;
+    }
+
     console.log('Starting provider setup API call...');
     setLoading(true);
     try {
@@ -67,6 +138,9 @@ export default function ProviderSetupScreen() {
         {
           services: selectedServices,
           bio: bio.trim(),
+          baseTown: baseTown,
+          travelRadiusMiles: travelRadiusMiles,
+          travelAnywhere: travelAnywhere,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -86,6 +160,8 @@ export default function ProviderSetupScreen() {
       setLoading(false);
     }
   };
+
+  const selectedTown = towns.find(t => t.label === baseTown);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -149,6 +225,63 @@ export default function ProviderSetupScreen() {
             </View>
           </View>
 
+          {/* Location Section */}
+          <View style={styles.section}>
+            <Text style={styles.label}>
+              Your Base Location <Text style={styles.required}>*</Text>
+            </Text>
+            <Text style={styles.hint}>Where are you primarily based?</Text>
+            
+            <TouchableOpacity
+              style={styles.pickerButton}
+              onPress={() => setShowTownPicker(true)}
+            >
+              <Ionicons name="location-outline" size={20} color="#666" />
+              <Text style={[styles.pickerButtonText, !baseTown && styles.pickerPlaceholder]}>
+                {baseTown || 'Select your town/area'}
+              </Text>
+              <Ionicons name="chevron-down" size={20} color="#666" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Travel Radius Section */}
+          <View style={styles.section}>
+            <Text style={styles.label}>Travel Radius</Text>
+            <Text style={styles.hint}>How far are you willing to travel for jobs?</Text>
+            
+            <TouchableOpacity
+              style={styles.pickerButton}
+              onPress={() => setShowRadiusPicker(true)}
+            >
+              <Ionicons name="car-outline" size={20} color="#666" />
+              <Text style={styles.pickerButtonText}>
+                {travelRadiusMiles} miles
+              </Text>
+              <Ionicons name="chevron-down" size={20} color="#666" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Travel Anywhere Toggle */}
+          <View style={styles.section}>
+            <View style={styles.toggleRow}>
+              <View style={styles.toggleInfo}>
+                <Ionicons name="globe-outline" size={24} color="#E53935" />
+                <View style={styles.toggleTextContainer}>
+                  <Text style={styles.toggleLabel}>Willing to travel anywhere</Text>
+                  <Text style={styles.toggleHint}>
+                    Show your profile to customers outside your travel radius
+                  </Text>
+                </View>
+              </View>
+              <Switch
+                value={travelAnywhere}
+                onValueChange={setTravelAnywhere}
+                trackColor={{ false: '#E0E0E0', true: '#FFCDD2' }}
+                thumbColor={travelAnywhere ? '#E53935' : '#f4f3f4'}
+              />
+            </View>
+          </View>
+
           <View style={styles.section}>
             <Text style={styles.label}>
               About Your Services <Text style={styles.required}>*</Text>
@@ -179,6 +312,112 @@ export default function ProviderSetupScreen() {
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Town Picker Modal */}
+      <Modal
+        visible={showTownPicker}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowTownPicker(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Your Town</Text>
+              <TouchableOpacity onPress={() => setShowTownPicker(false)}>
+                <Ionicons name="close" size={24} color="#666" />
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.searchContainer}>
+              <Ionicons name="search" size={20} color="#999" />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search towns..."
+                value={townSearchQuery}
+                onChangeText={setTownSearchQuery}
+                placeholderTextColor="#999"
+              />
+            </View>
+
+            {loadingTowns ? (
+              <ActivityIndicator size="large" color="#E53935" style={styles.loadingIndicator} />
+            ) : (
+              <FlatList
+                data={filteredTowns}
+                keyExtractor={(item) => item.key}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={[
+                      styles.townItem,
+                      baseTown === item.label && styles.townItemSelected,
+                    ]}
+                    onPress={() => {
+                      setBaseTown(item.label);
+                      setShowTownPicker(false);
+                      setTownSearchQuery('');
+                    }}
+                  >
+                    <Text style={[
+                      styles.townItemText,
+                      baseTown === item.label && styles.townItemTextSelected,
+                    ]}>
+                      {item.label}
+                    </Text>
+                    {baseTown === item.label && (
+                      <Ionicons name="checkmark" size={20} color="#E53935" />
+                    )}
+                  </TouchableOpacity>
+                )}
+                showsVerticalScrollIndicator={false}
+              />
+            )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* Radius Picker Modal */}
+      <Modal
+        visible={showRadiusPicker}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowRadiusPicker(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContentSmall}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Travel Radius</Text>
+              <TouchableOpacity onPress={() => setShowRadiusPicker(false)}>
+                <Ionicons name="close" size={24} color="#666" />
+              </TouchableOpacity>
+            </View>
+            
+            {TRAVEL_RADIUS_OPTIONS.map((option) => (
+              <TouchableOpacity
+                key={option.value}
+                style={[
+                  styles.radiusItem,
+                  travelRadiusMiles === option.value && styles.radiusItemSelected,
+                ]}
+                onPress={() => {
+                  setTravelRadiusMiles(option.value);
+                  setShowRadiusPicker(false);
+                }}
+              >
+                <Text style={[
+                  styles.radiusItemText,
+                  travelRadiusMiles === option.value && styles.radiusItemTextSelected,
+                ]}>
+                  {option.label}
+                </Text>
+                {travelRadiusMiles === option.value && (
+                  <Ionicons name="checkmark" size={20} color="#E53935" />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
