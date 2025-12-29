@@ -160,9 +160,6 @@ class BackendTester:
         
         user_data = response["data"]
         
-        # Debug: Print the user data to see what's returned
-        print(f"   DEBUG: Provider setup response: {user_data}")
-        
         # Verify user is now provider enabled
         if not user_data.get("isProviderEnabled"):
             self.log_result("Provider Setup with Location", False, "User not marked as provider enabled")
