@@ -671,13 +671,25 @@ async def get_providers(
     include_travel_anywhere: bool = False,
     current_user: User = Depends(get_current_user)
 ):
+    """
+    Get providers with location-based matching.
+    
+    Matching Logic (Phase 2):
+    - Bucket A (local/within radius): Providers where distance <= customer's search_radius
+      AND (provider.travelAnywhere OR distance <= provider.travelRadiusMiles)
+      Sorted by distance ascending (closest first)
+    
+    - Bucket B (travel-anywhere): Providers with travelAnywhere=true that weren't in Bucket A
+      Only included if include_travel_anywhere=true
+    """
     query = {"setupComplete": True}
     if service:
         query["services"] = service
     
     providers = await db.providers.find(query).to_list(100)
-    result = []
-    travel_anywhere_providers = []
+    
+    bucket_a = []  # Local providers within radius
+    bucket_b = []  # Travel-anywhere providers (outside radius)
     
     for provider in providers:
         provider["_id"] = str(provider["_id"])
@@ -690,34 +702,59 @@ async def get_providers(
         if "travelAnywhere" not in provider:
             provider["travelAnywhere"] = False
         
-        # If no job_town specified, return all providers
+        # If no job_town specified, return all providers (no location filtering)
         if not job_town:
-            result.append(Provider(**provider))
+            bucket_a.append({"provider": Provider(**provider), "distance": 0})
             continue
         
         provider_base_town = provider.get("baseTown")
         provider_travel_radius = provider.get("travelRadiusMiles", 10)
         provider_travel_anywhere = provider.get("travelAnywhere", False)
         
-        # Calculate effective radius
-        effective_radius = min(search_radius, provider_travel_radius)
+        # Calculate distance from job town to provider's base town
+        if not provider_base_town:
+            # Provider hasn't set base town - skip for location-based search
+            if provider_travel_anywhere and include_travel_anywhere:
+                bucket_b.append(Provider(**provider))
+            continue
         
-        # Get towns within effective radius
-        towns_in_radius = get_towns_within_radius(job_town, effective_radius)
+        distance = estimate_distance(job_town, provider_base_town)
         
-        # Check if provider is within radius
-        is_in_radius = provider_base_town and provider_base_town in towns_in_radius
+        # Bucket A Logic: Include if within customer's search radius AND
+        # (provider willing to travel anywhere OR within provider's travel radius)
+        is_within_customer_radius = distance <= search_radius
+        is_within_provider_radius = provider_travel_anywhere or distance <= provider_travel_radius
         
-        if is_in_radius:
-            result.append(Provider(**provider))
+        if is_within_customer_radius and is_within_provider_radius:
+            # Add to Bucket A
+            bucket_a.append({"provider": Provider(**provider), "distance": distance})
         elif provider_travel_anywhere and include_travel_anywhere:
-            # Add to travel-anywhere list to append after radius-matched
-            travel_anywhere_providers.append(Provider(**provider))
+            # Bucket B: Travel-anywhere provider not in Bucket A
+            bucket_b.append(Provider(**provider))
     
-    # Append travel-anywhere providers after radius-matched
-    result.extend(travel_anywhere_providers)
+    # Sort Bucket A by distance ascending (closest first)
+    bucket_a.sort(key=lambda x: x["distance"])
+    
+    # Build result: Bucket A first, then Bucket B
+    result = [item["provider"] for item in bucket_a]
+    result.extend(bucket_b)
     
     return result
+
+# Endpoint to get list of available towns for frontend dropdowns
+@api_router.get("/towns")
+async def get_towns():
+    """Get list of all available towns for selection dropdowns"""
+    towns = []
+    for key, data in TRINIDAD_TOWNS.items():
+        towns.append({
+            "key": key,
+            "label": data["label"],
+            "region": data["region"]
+        })
+    # Sort by label for display
+    towns.sort(key=lambda x: x["label"])
+    return towns
 
 @api_router.get("/providers/{provider_id}", response_model=Provider)
 async def get_provider(provider_id: str, current_user: User = Depends(get_current_user)):
