@@ -777,8 +777,8 @@ async def get_providers(
     
     providers = await db.providers.find(query).to_list(100)
     
-    bucket_a = []  # Local providers within radius
-    bucket_b = []  # Travel-anywhere providers (outside radius)
+    bucket_a = []  # Local providers within distance
+    bucket_b = []  # Travel-anywhere providers (outside distance)
     
     for provider in providers:
         provider["_id"] = str(provider["_id"])
@@ -786,8 +786,11 @@ async def get_providers(
         # Ensure new fields have defaults for backward compatibility
         if "baseTown" not in provider:
             provider["baseTown"] = None
-        if "travelRadiusMiles" not in provider:
-            provider["travelRadiusMiles"] = 10
+        # Handle both old (miles) and new (km) field names
+        if "travelDistanceKm" not in provider:
+            # Convert legacy travelRadiusMiles to km, or use default
+            legacy_miles = provider.get("travelRadiusMiles", 10)
+            provider["travelDistanceKm"] = round(legacy_miles * 1.60934)
         if "travelAnywhere" not in provider:
             provider["travelAnywhere"] = False
         if "isAcceptingJobs" not in provider:
@@ -812,10 +815,10 @@ async def get_providers(
             continue
         
         provider_base_town = provider.get("baseTown")
-        provider_travel_radius = provider.get("travelRadiusMiles", 10)
+        provider_travel_distance_km = provider.get("travelDistanceKm", 16)
         provider_travel_anywhere = provider.get("travelAnywhere", False)
         
-        # Calculate distance from job town to provider's base town
+        # Calculate distance from job town to provider's base town (in km)
         if not provider_base_town:
             # Provider hasn't set base town - skip for location-based search
             if provider_travel_anywhere and include_travel_anywhere:
@@ -826,12 +829,12 @@ async def get_providers(
         
         distance = estimate_distance(job_town, provider_base_town)
         
-        # Bucket A Logic: Include if within customer's search radius AND
-        # (provider willing to travel anywhere OR within provider's travel radius)
-        is_within_customer_radius = distance <= search_radius
-        is_within_provider_radius = provider_travel_anywhere or distance <= provider_travel_radius
+        # Bucket A Logic: Include if within customer's search distance AND
+        # (provider willing to travel anywhere OR within provider's travel distance)
+        is_within_customer_distance = distance <= search_radius
+        is_within_provider_distance = provider_travel_anywhere or distance <= provider_travel_distance_km
         
-        if is_within_customer_radius and is_within_provider_radius:
+        if is_within_customer_distance and is_within_provider_distance:
             # Add to Bucket A
             provider["distanceFromJob"] = distance
             provider["isOutsideSelectedArea"] = False
