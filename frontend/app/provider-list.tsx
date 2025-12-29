@@ -5,17 +5,19 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   ActivityIndicator,
   Switch,
   Modal,
   Image,
+  Platform,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import { getServiceLabel } from '../constants/serviceCategories';
+import { kmToMiles } from '../constants/distanceUtils';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
