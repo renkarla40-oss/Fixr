@@ -114,51 +114,63 @@ user_problem_statement: |
 backend:
   - task: "Provider availability fields"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Added isAcceptingJobs (boolean, default true) and availabilityNote (string, optional, max 60 chars) to Provider model"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Provider profile endpoint returns both isAcceptingJobs and availabilityNote fields correctly. GET /api/providers/me/profile working as expected."
 
   - task: "Provider availability update endpoint"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Added PATCH /api/providers/me/availability endpoint to update isAcceptingJobs and availabilityNote. Added GET /api/providers/me/profile to fetch provider's own profile."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: PATCH /api/providers/me/availability successfully updates both isAcceptingJobs and availabilityNote fields. Tested setting unavailable with note 'Weekends only' and setting back to available."
 
   - task: "Provider discovery filtering"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Updated GET /api/providers to filter out providers where isAcceptingJobs=false. Query now uses isAcceptingJobs: {$ne: false}"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: GET /api/providers?service=electrical correctly filters out unavailable providers (isAcceptingJobs=false) and includes available providers (isAcceptingJobs=true). Filtering logic working properly."
 
   - task: "Service request validation"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Updated POST /api/service-requests to check provider.isAcceptingJobs before creating request. Returns 400 error with user-friendly message if provider is unavailable."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: POST /api/service-requests correctly validates provider availability. Returns 400 error with message 'Provider unavailable. This Fixr isn't accepting new jobs right now. Please choose another provider.' when trying to request unavailable provider. Allows requests to available providers."
 
 frontend:
   - task: "Provider availability toggle in profile"
