@@ -66,7 +66,7 @@ export default function ProviderListScreen() {
 
   useEffect(() => {
     fetchProviders(false); // Initial fetch with travel-anywhere OFF
-  }, [categoryId, location, searchRadiusMiles]);
+  }, [categoryId, location, searchDistanceKm]);
 
   useEffect(() => {
     if (initialSearchComplete) {
@@ -83,7 +83,7 @@ export default function ProviderListScreen() {
         params: { 
           service: categoryId,
           job_town: location,
-          search_radius: searchRadiusMiles,
+          search_radius: searchDistanceKm,
           include_travel_anywhere: includeTravel,
         },
         headers: { Authorization: `Bearer ${token}` },
