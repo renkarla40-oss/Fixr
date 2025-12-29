@@ -7,6 +7,8 @@ import {
   ScrollView,
   SafeAreaView,
   ActivityIndicator,
+  Switch,
+  Modal,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,6 +23,11 @@ interface Provider {
   services: string[];
   bio: string;
   verificationStatus: string;
+  baseTown?: string;
+  travelRadiusMiles?: number;
+  travelAnywhere?: boolean;
+  distanceFromJob?: number;
+  isOutsideSelectedArea?: boolean;
 }
 
 export default function ProviderListScreen() {
@@ -33,25 +40,49 @@ export default function ProviderListScreen() {
   const categoryName = params.categoryName as string;
   const subCategory = params.subCategory as string | undefined;
   const location = params.location as string | undefined;
+  const searchRadiusMiles = params.searchRadiusMiles ? parseInt(params.searchRadiusMiles as string) : 10;
+  const jobDuration = params.jobDuration as string | undefined;
   
   // Check if this is the "Other Services (Beta)" category
   const isOtherCategory = categoryId === 'other';
 
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
+  const [includeTravelAnywhere, setIncludeTravelAnywhere] = useState(false); // Default OFF
+  const [showNoProvidersModal, setShowNoProvidersModal] = useState(false);
+  const [initialSearchComplete, setInitialSearchComplete] = useState(false);
 
   useEffect(() => {
-    fetchProviders();
-  }, [categoryId]);
+    fetchProviders(false); // Initial fetch with travel-anywhere OFF
+  }, [categoryId, location, searchRadiusMiles]);
 
-  const fetchProviders = async () => {
+  useEffect(() => {
+    if (initialSearchComplete) {
+      fetchProviders(includeTravelAnywhere);
+    }
+  }, [includeTravelAnywhere]);
+
+  const fetchProviders = async (includeTravel: boolean) => {
     try {
       setLoading(true);
       const response = await axios.get(`${BACKEND_URL}/api/providers`, {
-        params: { service: categoryId },
+        params: { 
+          service: categoryId,
+          job_town: location,
+          search_radius: searchRadiusMiles,
+          include_travel_anywhere: includeTravel,
+        },
         headers: { Authorization: `Bearer ${token}` },
       });
       setProviders(response.data);
+      
+      // Check if we need to show the no-providers modal
+      if (!initialSearchComplete) {
+        setInitialSearchComplete(true);
+        if (response.data.length === 0 && location) {
+          setShowNoProvidersModal(true);
+        }
+      }
     } catch (error) {
       console.error('Error fetching providers:', error);
     } finally {
@@ -67,6 +98,8 @@ export default function ProviderListScreen() {
         category: categoryId,
         subCategory: subCategory || '',
         location: location || '',
+        searchRadiusMiles: searchRadiusMiles.toString(),
+        jobDuration: jobDuration || '',
       },
     });
   };
@@ -83,7 +116,16 @@ export default function ProviderListScreen() {
     });
   };
 
+  const handleExpandSearch = () => {
+    setShowNoProvidersModal(false);
+    setIncludeTravelAnywhere(true);
+  };
+
   const displayName = categoryName || 'Services';
+
+  // Count providers in each bucket for display
+  const localProviders = providers.filter(p => !p.isOutsideSelectedArea);
+  const travelAnywhereProviders = providers.filter(p => p.isOutsideSelectedArea);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -98,6 +140,27 @@ export default function ProviderListScreen() {
           <Text style={styles.title}>{displayName}</Text>
           <View style={styles.backButton} />
         </View>
+
+        {/* Location & Filter Bar */}
+        {location && (
+          <View style={styles.filterBar}>
+            <View style={styles.locationInfo}>
+              <Ionicons name="location" size={16} color="#E53935" />
+              <Text style={styles.locationText}>{location}</Text>
+              <Text style={styles.radiusText}>({searchRadiusMiles} mi)</Text>
+            </View>
+            
+            <View style={styles.toggleContainer}>
+              <Text style={styles.toggleLabel}>Include travel providers</Text>
+              <Switch
+                value={includeTravelAnywhere}
+                onValueChange={setIncludeTravelAnywhere}
+                trackColor={{ false: '#E0E0E0', true: '#FFCDD2' }}
+                thumbColor={includeTravelAnywhere ? '#E53935' : '#f4f3f4'}
+              />
+            </View>
+          </View>
+        )}
 
         {loading ? (
           <View style={styles.centerContent}>
@@ -114,7 +177,9 @@ export default function ProviderListScreen() {
             <Text style={styles.emptySubtitle}>
               {isOtherCategory 
                 ? "This is a beta category. You can still submit a request and we'll try to match you with an available provider."
-                : `We're actively onboarding verified ${(categoryName || 'service').toLowerCase()} professionals in your area.`}
+                : location 
+                  ? `We couldn't find any providers within ${searchRadiusMiles} miles of ${location}.`
+                  : `We're actively onboarding verified ${(categoryName || 'service').toLowerCase()} professionals in your area.`}
             </Text>
             {isOtherCategory ? (
               <TouchableOpacity
@@ -125,6 +190,15 @@ export default function ProviderListScreen() {
               </TouchableOpacity>
             ) : (
               <View>
+                {location && !includeTravelAnywhere && (
+                  <TouchableOpacity
+                    style={styles.expandSearchButton}
+                    onPress={() => setIncludeTravelAnywhere(true)}
+                  >
+                    <Ionicons name="globe-outline" size={20} color="#E53935" />
+                    <Text style={styles.expandSearchText}>Include providers willing to travel</Text>
+                  </TouchableOpacity>
+                )}
                 <Text style={styles.emptyHint}>
                   Check back soon or try another service category.
                 </Text>
@@ -143,6 +217,20 @@ export default function ProviderListScreen() {
             contentContainerStyle={styles.contentContainer}
             showsVerticalScrollIndicator={false}
           >
+            {/* Results summary */}
+            {location && (
+              <View style={styles.resultsSummary}>
+                <Text style={styles.resultsText}>
+                  {localProviders.length} provider{localProviders.length !== 1 ? 's' : ''} in your area
+                  {includeTravelAnywhere && travelAnywhereProviders.length > 0 && (
+                    <Text style={styles.travelResultsText}>
+                      {' '}+ {travelAnywhereProviders.length} willing to travel
+                    </Text>
+                  )}
+                </Text>
+              </View>
+            )}
+
             {providers.map((provider) => (
               <TouchableOpacity
                 key={provider._id}
@@ -179,6 +267,38 @@ export default function ProviderListScreen() {
                     </View>
                   </View>
                 </View>
+
+                {/* Badges */}
+                <View style={styles.badgeContainer}>
+                  {provider.baseTown && (
+                    <View style={styles.locationBadge}>
+                      <Ionicons name="location-outline" size={12} color="#666" />
+                      <Text style={styles.locationBadgeText}>{provider.baseTown}</Text>
+                    </View>
+                  )}
+                  
+                  {provider.travelAnywhere && (
+                    <View style={styles.travelBadge}>
+                      <Ionicons name="globe-outline" size={12} color="#1976D2" />
+                      <Text style={styles.travelBadgeText}>Willing to travel</Text>
+                    </View>
+                  )}
+                  
+                  {provider.isOutsideSelectedArea && (
+                    <View style={styles.outsideAreaBadge}>
+                      <Ionicons name="car-outline" size={12} color="#F57C00" />
+                      <Text style={styles.outsideAreaBadgeText}>Outside selected area</Text>
+                    </View>
+                  )}
+                  
+                  {provider.distanceFromJob !== undefined && provider.distanceFromJob !== null && !provider.isOutsideSelectedArea && (
+                    <View style={styles.distanceBadge}>
+                      <Ionicons name="navigate-outline" size={12} color="#666" />
+                      <Text style={styles.distanceBadgeText}>~{provider.distanceFromJob} mi away</Text>
+                    </View>
+                  )}
+                </View>
+
                 {provider.bio && (
                   <Text style={styles.providerBio} numberOfLines={2}>
                     {provider.bio}
@@ -193,6 +313,54 @@ export default function ProviderListScreen() {
           </ScrollView>
         )}
       </View>
+
+      {/* No Providers Modal */}
+      <Modal
+        visible={showNoProvidersModal}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setShowNoProvidersModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalIconContainer}>
+              <Ionicons name="search-outline" size={48} color="#E53935" />
+            </View>
+            
+            <Text style={styles.modalTitle}>No Local Providers Found</Text>
+            <Text style={styles.modalMessage}>
+              We couldn't find any {displayName.toLowerCase()} providers within {searchRadiusMiles} miles of {location}.
+            </Text>
+            
+            <View style={styles.modalOptions}>
+              <TouchableOpacity
+                style={styles.modalPrimaryButton}
+                onPress={handleExpandSearch}
+              >
+                <Ionicons name="globe-outline" size={20} color="#FFFFFF" />
+                <Text style={styles.modalPrimaryButtonText}>Include providers willing to travel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.modalSecondaryButton}
+                onPress={() => {
+                  setShowNoProvidersModal(false);
+                  router.back();
+                }}
+              >
+                <Text style={styles.modalSecondaryButtonText}>Change location or radius</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.modalTertiaryButton}
+                onPress={() => setShowNoProvidersModal(false)}
+              >
+                <Text style={styles.modalTertiaryButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -225,6 +393,37 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#1A1A1A',
+  },
+  filterBar: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#F8F9FA',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  locationInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    gap: 6,
+  },
+  locationText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1A1A1A',
+  },
+  radiusText: {
+    fontSize: 13,
+    color: '#666',
+  },
+  toggleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  toggleLabel: {
+    fontSize: 14,
+    color: '#666',
   },
   centerContent: {
     flex: 1,
@@ -261,6 +460,24 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 24,
   },
+  expandSearchButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFF5F5',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E53935',
+    marginBottom: 16,
+    gap: 8,
+  },
+  expandSearchText: {
+    color: '#E53935',
+    fontSize: 14,
+    fontWeight: '600',
+  },
   backToServicesButton: {
     backgroundColor: '#E53935',
     paddingHorizontal: 24,
@@ -290,6 +507,16 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 16,
     gap: 16,
+  },
+  resultsSummary: {
+    paddingVertical: 8,
+  },
+  resultsText: {
+    fontSize: 14,
+    color: '#666',
+  },
+  travelResultsText: {
+    color: '#1976D2',
   },
   providerCard: {
     backgroundColor: '#FFFFFF',
@@ -340,6 +567,64 @@ const styles = StyleSheet.create({
   statusTextPending: {
     color: '#F57C00',
   },
+  badgeContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 12,
+  },
+  locationBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  locationBadgeText: {
+    fontSize: 12,
+    color: '#666',
+  },
+  travelBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E3F2FD',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  travelBadgeText: {
+    fontSize: 12,
+    color: '#1976D2',
+  },
+  outsideAreaBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF3E0',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  outsideAreaBadgeText: {
+    fontSize: 12,
+    color: '#F57C00',
+  },
+  distanceBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  distanceBadgeText: {
+    fontSize: 12,
+    color: '#666',
+  },
   providerBio: {
     fontSize: 14,
     color: '#666',
@@ -356,5 +641,82 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#E53935',
     fontWeight: '600',
+  },
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 24,
+    width: '100%',
+    maxWidth: 400,
+  },
+  modalIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#FFF5F5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  modalMessage: {
+    fontSize: 15,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 24,
+  },
+  modalOptions: {
+    gap: 12,
+  },
+  modalPrimaryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#E53935',
+    paddingVertical: 14,
+    borderRadius: 12,
+    gap: 8,
+  },
+  modalPrimaryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  modalSecondaryButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F5F5F5',
+    paddingVertical: 14,
+    borderRadius: 12,
+  },
+  modalSecondaryButtonText: {
+    color: '#666',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  modalTertiaryButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+  },
+  modalTertiaryButtonText: {
+    color: '#999',
+    fontSize: 14,
   },
 });
