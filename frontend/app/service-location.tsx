@@ -47,6 +47,7 @@ export default function ServiceLocationScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { token } = useAuth();
+  const insets = useSafeAreaInsets();
   
   const category = params.category as string;
   const categoryName = params.categoryName as string;
