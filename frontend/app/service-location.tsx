@@ -159,7 +159,7 @@ export default function ServiceLocationScreen() {
           </Text>
           
           <Text style={styles.description}>
-            Select your town and search radius so we can show you nearby providers.
+            Select your town and search distance so we can show you nearby providers.
           </Text>
 
           {/* Town Selection */}
@@ -179,17 +179,33 @@ export default function ServiceLocationScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Search Radius Selection */}
+          {/* Search Distance Selection with Unit Toggle */}
           <View style={styles.section}>
-            <Text style={styles.label}>Search Radius</Text>
+            <View style={styles.labelRow}>
+              <Text style={styles.label}>Search Distance</Text>
+              <View style={styles.unitToggle}>
+                <TouchableOpacity
+                  style={[styles.unitButton, distanceUnit === 'km' && styles.unitButtonActive]}
+                  onPress={() => setDistanceUnit('km')}
+                >
+                  <Text style={[styles.unitButtonText, distanceUnit === 'km' && styles.unitButtonTextActive]}>km</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.unitButton, distanceUnit === 'mi' && styles.unitButtonActive]}
+                  onPress={() => setDistanceUnit('mi')}
+                >
+                  <Text style={[styles.unitButtonText, distanceUnit === 'mi' && styles.unitButtonTextActive]}>mi</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
             <Text style={styles.hint}>How far should we search for providers?</Text>
             <TouchableOpacity
               style={styles.pickerButton}
-              onPress={() => setShowRadiusPicker(true)}
+              onPress={() => setShowDistancePicker(true)}
             >
-              <Ionicons name="radio-outline" size={20} color="#666" />
+              <Ionicons name="navigate-outline" size={20} color="#666" />
               <Text style={styles.pickerButtonText}>
-                {searchRadiusMiles} miles
+                {getCurrentDistanceLabel()}
               </Text>
               <Ionicons name="chevron-down" size={20} color="#666" />
             </TouchableOpacity>
