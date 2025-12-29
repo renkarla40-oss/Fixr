@@ -25,7 +25,7 @@ interface ProviderProfile {
   isAcceptingJobs: boolean;
   availabilityNote: string | null;
   baseTown: string | null;
-  travelRadiusMiles: number;
+  travelDistanceKm: number;
   travelAnywhere: boolean;
 }
 
