@@ -89,7 +89,9 @@ class FixrAPITester:
         
         if provider_login["success"] and "token" in provider_login["data"]:
             self.provider_token = provider_login["data"]["token"]
-            self.provider_id = provider_login["data"]["user"]["id"]
+            # Handle both 'id' and '_id' fields
+            user_data = provider_login["data"]["user"]
+            self.provider_id = user_data.get("id") or user_data.get("_id")
             self.log_test("Provider Authentication", True, f"Provider ID: {self.provider_id}")
         else:
             self.log_test("Provider Authentication", False, f"Login failed: {provider_login['data']}")
