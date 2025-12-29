@@ -175,7 +175,7 @@ export default function RequestServiceScreen() {
               <Text style={styles.label}>Service Category</Text>
               <View style={styles.readOnlyInput}>
                 <Text style={styles.readOnlyText}>
-                  {categoryNames[category] || category}
+                  {categoryLabel}
                 </Text>
               </View>
             </View>
