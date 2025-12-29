@@ -477,6 +477,36 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
     marginBottom: 4,
   },
+  labelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  unitToggle: {
+    flexDirection: 'row',
+    backgroundColor: '#F0F0F0',
+    borderRadius: 8,
+    padding: 2,
+  },
+  unitButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    minWidth: 40,
+    alignItems: 'center',
+  },
+  unitButtonActive: {
+    backgroundColor: '#E53935',
+  },
+  unitButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#666',
+  },
+  unitButtonTextActive: {
+    color: '#FFFFFF',
+  },
   required: {
     color: '#E53935',
   },
