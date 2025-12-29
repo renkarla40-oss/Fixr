@@ -479,7 +479,7 @@ export default function ProviderListScreen() {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
 
