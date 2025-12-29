@@ -148,8 +148,8 @@ export default function ProviderSetupScreen() {
       );
       console.log('Provider setup successful:', response.data);
 
-      // Phase 4: Navigate to uploads screen instead of directly to dashboard
-      router.push('/provider-uploads');
+      // Phase 4: Navigate to phone verification first, then uploads
+      router.push('/phone-verification');
     } catch (error: any) {
       console.error('Error setting up provider:', error);
       Alert.alert(
