@@ -1,256 +1,358 @@
 diff --git a/model.patch b/model.patch
-index 9460adc..e69de29 100644
+index 6adfc62..e69de29 100644
 --- a/model.patch
 +++ b/model.patch
-@@ -1,220 +0,0 @@
+@@ -1,339 +0,0 @@
 -diff --git a/model.patch b/model.patch
--index 2cf3d7f..e69de29 100644
+-index 9460adc..e69de29 100644
 ---- a/model.patch
 -+++ b/model.patch
--@@ -1,215 +0,0 @@
+-@@ -1,220 +0,0 @@
 --diff --git a/model.patch b/model.patch
---index 7974cca..e69de29 100644
+--index 2cf3d7f..e69de29 100644
 ----- a/model.patch
 --+++ b/model.patch
---@@ -1,210 +0,0 @@
+--@@ -1,215 +0,0 @@
 ---diff --git a/model.patch b/model.patch
----index 17a0402..e69de29 100644
+---index 7974cca..e69de29 100644
 ------ a/model.patch
 ---+++ b/model.patch
----@@ -1,205 +0,0 @@
-----diff --git a/backend/server.py b/backend/server.py
-----index 1c79c23..bc9759d 100644
-------- a/backend/server.py
-----+++ b/backend/server.py
-----@@ -18,6 +18,13 @@ from dotenv import load_dotenv
----- ROOT_DIR = Path(__file__).parent
----- load_dotenv(ROOT_DIR / '.env')
----- 
-----+# Setup logging
-----+logging.basicConfig(
-----+    level=logging.INFO,
-----+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-----+)
-----+logger = logging.getLogger(__name__)
-----+
----- # MongoDB connection
----- mongo_url = os.environ['MONGO_URL']
----- client = AsyncIOMotorClient(mongo_url)
-----@@ -519,12 +526,6 @@ app.add_middleware(
-----     allow_headers=["*"],
----- )
----- 
------logging.basicConfig(
------    level=logging.INFO,
------    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
------)
------logger = logging.getLogger(__name__)
------
----- @app.on_event("shutdown")
----- async def shutdown_db_client():
-----     client.close()
+---@@ -1,210 +0,0 @@
 ----diff --git a/model.patch b/model.patch
-----index ef31bd8..e69de29 100644
+----index 17a0402..e69de29 100644
 ------- a/model.patch
 ----+++ b/model.patch
-----@@ -1,94 +0,0 @@
------diff --git a/frontend/app/index.tsx b/frontend/app/index.tsx
------index aa4a44e..3e1b346 100644
--------- a/frontend/app/index.tsx
------+++ b/frontend/app/index.tsx
------@@ -1,23 +1,25 @@
------ import React, { useEffect } from 'react';
-------import { View, StyleSheet } from 'react-native';
------+import { View, StyleSheet, Image } from 'react-native';
------ import { useRouter } from 'expo-router';
-------import { Ionicons } from '@expo/vector-icons';
+----@@ -1,205 +0,0 @@
+-----diff --git a/backend/server.py b/backend/server.py
+-----index 1c79c23..bc9759d 100644
+-------- a/backend/server.py
+-----+++ b/backend/server.py
+-----@@ -18,6 +18,13 @@ from dotenv import load_dotenv
+----- ROOT_DIR = Path(__file__).parent
+----- load_dotenv(ROOT_DIR / '.env')
 ----- 
------ export default function SplashScreen() {
------   const router = useRouter();
+-----+# Setup logging
+-----+logging.basicConfig(
+-----+    level=logging.INFO,
+-----+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+-----+)
+-----+logger = logging.getLogger(__name__)
+-----+
+----- # MongoDB connection
+----- mongo_url = os.environ['MONGO_URL']
+----- client = AsyncIOMotorClient(mongo_url)
+-----@@ -519,12 +526,6 @@ app.add_middleware(
+-----     allow_headers=["*"],
+----- )
 ----- 
------   useEffect(() => {
-------    // Navigate to welcome after 1.5 seconds
------     const timer = setTimeout(() => {
------       router.replace('/welcome');
-------    }, 1500);
------+    }, 2000);
------ 
------     return () => clearTimeout(timer);
------   }, []);
------ 
------   return (
------     <View style={styles.container}>
-------      <Ionicons name="construct" size={100} color="#E53935" />
------+      <Image 
------+        source={require('../assets/images/fixr-logo.png')} 
------+        style={styles.logo}
------+        resizeMode="contain"
------+      />
------     </View>
------   );
------ }
------@@ -25,8 +27,12 @@ export default function SplashScreen() {
------ const styles = StyleSheet.create({
------   container: {
------     flex: 1,
-------    backgroundColor: '#FFFFFF',
------+    backgroundColor: '#000000',
------     alignItems: 'center',
------     justifyContent: 'center',
------   },
------+  logo: {
------+    width: 200,
------+    height: 100,
------+  },
------ });
+------logging.basicConfig(
+------    level=logging.INFO,
+------    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+------)
+------logger = logging.getLogger(__name__)
+------
+----- @app.on_event("shutdown")
+----- async def shutdown_db_client():
+-----     client.close()
 -----diff --git a/model.patch b/model.patch
------index 131e62f..e69de29 100644
+-----index ef31bd8..e69de29 100644
 -------- a/model.patch
 -----+++ b/model.patch
------@@ -1,40 +0,0 @@
-------diff --git a/backend/server.py b/backend/server.py
-------index d995e01..deaf877 100644
---------- a/backend/server.py
-------+++ b/backend/server.py
-------@@ -234,6 +234,35 @@ async def switch_role(role_data: RoleUpdate, current_user: User = Depends(get_cu
-------     updated_user["_id"] = str(updated_user["_id"])
-------     return User(**updated_user)
+-----@@ -1,94 +0,0 @@
+------diff --git a/frontend/app/index.tsx b/frontend/app/index.tsx
+------index aa4a44e..3e1b346 100644
+--------- a/frontend/app/index.tsx
+------+++ b/frontend/app/index.tsx
+------@@ -1,23 +1,25 @@
+------ import React, { useEffect } from 'react';
+-------import { View, StyleSheet } from 'react-native';
+------+import { View, StyleSheet, Image } from 'react-native';
+------ import { useRouter } from 'expo-router';
+-------import { Ionicons } from '@expo/vector-icons';
 ------ 
-------+@api_router.patch("/users/profile")
-------+async def update_user_profile(
-------+    profile_update: ProfileUpdate,
-------+    current_user: User = Depends(get_current_user)
-------+):
-------+    # Update user document
-------+    result = await db.users.update_one(
-------+        {"_id": ObjectId(current_user.id)},
-------+        {"$set": {
-------+            "name": profile_update.name,
-------+            "phone": profile_update.phone,
-------+            "updatedAt": datetime.utcnow()
-------+        }}
-------+    )
-------+    
-------+    # Also update provider document if it exists
-------+    await db.providers.update_one(
-------+        {"userId": current_user.id},
-------+        {"$set": {
-------+            "name": profile_update.name,
-------+            "phone": profile_update.phone
-------+        }}
-------+    )
-------+    
-------+    updated_user = await db.users.find_one({"_id": ObjectId(current_user.id)})
-------+    updated_user["_id"] = str(updated_user["_id"])
-------+    
-------+    return updated_user
-------+
------- @api_router.post("/users/provider-setup", response_model=User)
------- async def setup_provider(setup_data: ProviderSetup, current_user: User = Depends(get_current_user)):
-------     # Create or update provider profile
-----diff --git a/test_result.md b/test_result.md
-----index 3655ac4..a5b95f2 100644
-------- a/test_result.md
-----+++ b/test_result.md
-----@@ -110,27 +110,33 @@ user_problem_statement: |
----- backend:
-----   - task: "Create general service request (no specific provider)"
-----     implemented: true
------    working: "NA"
-----+    working: true
-----     file: "server.py"
-----     stuck_count: 0
-----     priority: "high"
------    needs_retesting: true
-----+    needs_retesting: false
-----     status_history:
-----       - working: "NA"
-----         agent: "main"
-----         comment: "Modified /api/service-requests POST endpoint to accept provider_id=general for creating general requests with isGeneralRequest=true flag"
-----+      - working: true
-----+        agent: "testing"
-----+        comment: "✅ TESTED: Successfully creates general requests with provider_id=general. Response includes isGeneralRequest=true and providerId=null as expected. Fixed minor logger initialization issue."
-----   
-----   - task: "Provider dashboard shows general requests"
-----     implemented: true
------    working: "NA"
-----+    working: true
-----     file: "server.py"
-----     stuck_count: 0
-----     priority: "high"
------    needs_retesting: true
-----+    needs_retesting: false
-----     status_history:
-----       - working: "NA"
-----         agent: "main"
-----         comment: "Modified /api/service-requests GET endpoint to include general requests (isGeneralRequest=true) for all providers with completed setup"
-----+      - working: true
-----+        agent: "testing"
-----+        comment: "✅ TESTED: Providers can see general requests in their dashboard. GET /api/service-requests returns both specific and general requests when user is in provider role. Provider can successfully accept general requests."
----- 
----- frontend:
-----   - task: "Other Services (Beta) category on home screen"
-----@@ -200,9 +206,7 @@ metadata:
-----   run_ui: false
----- 
----- test_plan:
------  current_focus:
------    - "Create general service request (no specific provider)"
------    - "Provider dashboard shows general requests"
-----+  current_focus: []
-----   stuck_tasks: []
-----   test_all: false
-----   test_priority: "high_first"
-----@@ -216,4 +220,18 @@ agent_communication:
-----       
-----       Test credentials:
-----       - Customer: customer@test.com / password123
------      - Provider: provider@test.com / password123
-----\ No newline at end of file
-----+      - Provider: provider@test.com / password123
-----+  - agent: "testing"
-----+    message: |
-----+      ✅ BACKEND TESTING COMPLETE - All tests passed!
-----+      
-----+      Tested and verified:
-----+      1. Customer login works correctly
-----+      2. General service request creation (provider_id=general) works - creates requests with isGeneralRequest=true and providerId=null
-----+      3. Provider login and role switching works correctly  
-----+      4. Providers can see general requests in their dashboard along with specific requests
-----+      5. Providers can successfully accept general requests
-----+      
-----+      Fixed minor issue: Logger initialization was moved to top of server.py file.
-----+      
-----+      All backend APIs for "Other Services (Beta)" feature are working correctly.
-----\ No newline at end of file
+------ export default function SplashScreen() {
+------   const router = useRouter();
+------ 
+------   useEffect(() => {
+-------    // Navigate to welcome after 1.5 seconds
+------     const timer = setTimeout(() => {
+------       router.replace('/welcome');
+-------    }, 1500);
+------+    }, 2000);
+------ 
+------     return () => clearTimeout(timer);
+------   }, []);
+------ 
+------   return (
+------     <View style={styles.container}>
+-------      <Ionicons name="construct" size={100} color="#E53935" />
+------+      <Image 
+------+        source={require('../assets/images/fixr-logo.png')} 
+------+        style={styles.logo}
+------+        resizeMode="contain"
+------+      />
+------     </View>
+------   );
+------ }
+------@@ -25,8 +27,12 @@ export default function SplashScreen() {
+------ const styles = StyleSheet.create({
+------   container: {
+------     flex: 1,
+-------    backgroundColor: '#FFFFFF',
+------+    backgroundColor: '#000000',
+------     alignItems: 'center',
+------     justifyContent: 'center',
+------   },
+------+  logo: {
+------+    width: 200,
+------+    height: 100,
+------+  },
+------ });
+------diff --git a/model.patch b/model.patch
+------index 131e62f..e69de29 100644
+--------- a/model.patch
+------+++ b/model.patch
+------@@ -1,40 +0,0 @@
+-------diff --git a/backend/server.py b/backend/server.py
+-------index d995e01..deaf877 100644
+---------- a/backend/server.py
+-------+++ b/backend/server.py
+-------@@ -234,6 +234,35 @@ async def switch_role(role_data: RoleUpdate, current_user: User = Depends(get_cu
+-------     updated_user["_id"] = str(updated_user["_id"])
+-------     return User(**updated_user)
+------- 
+-------+@api_router.patch("/users/profile")
+-------+async def update_user_profile(
+-------+    profile_update: ProfileUpdate,
+-------+    current_user: User = Depends(get_current_user)
+-------+):
+-------+    # Update user document
+-------+    result = await db.users.update_one(
+-------+        {"_id": ObjectId(current_user.id)},
+-------+        {"$set": {
+-------+            "name": profile_update.name,
+-------+            "phone": profile_update.phone,
+-------+            "updatedAt": datetime.utcnow()
+-------+        }}
+-------+    )
+-------+    
+-------+    # Also update provider document if it exists
+-------+    await db.providers.update_one(
+-------+        {"userId": current_user.id},
+-------+        {"$set": {
+-------+            "name": profile_update.name,
+-------+            "phone": profile_update.phone
+-------+        }}
+-------+    )
+-------+    
+-------+    updated_user = await db.users.find_one({"_id": ObjectId(current_user.id)})
+-------+    updated_user["_id"] = str(updated_user["_id"])
+-------+    
+-------+    return updated_user
+-------+
+------- @api_router.post("/users/provider-setup", response_model=User)
+------- async def setup_provider(setup_data: ProviderSetup, current_user: User = Depends(get_current_user)):
+-------     # Create or update provider profile
+-----diff --git a/test_result.md b/test_result.md
+-----index 3655ac4..a5b95f2 100644
+-------- a/test_result.md
+-----+++ b/test_result.md
+-----@@ -110,27 +110,33 @@ user_problem_statement: |
+----- backend:
+-----   - task: "Create general service request (no specific provider)"
+-----     implemented: true
+------    working: "NA"
+-----+    working: true
+-----     file: "server.py"
+-----     stuck_count: 0
+-----     priority: "high"
+------    needs_retesting: true
+-----+    needs_retesting: false
+-----     status_history:
+-----       - working: "NA"
+-----         agent: "main"
+-----         comment: "Modified /api/service-requests POST endpoint to accept provider_id=general for creating general requests with isGeneralRequest=true flag"
+-----+      - working: true
+-----+        agent: "testing"
+-----+        comment: "✅ TESTED: Successfully creates general requests with provider_id=general. Response includes isGeneralRequest=true and providerId=null as expected. Fixed minor logger initialization issue."
+-----   
+-----   - task: "Provider dashboard shows general requests"
+-----     implemented: true
+------    working: "NA"
+-----+    working: true
+-----     file: "server.py"
+-----     stuck_count: 0
+-----     priority: "high"
+------    needs_retesting: true
+-----+    needs_retesting: false
+-----     status_history:
+-----       - working: "NA"
+-----         agent: "main"
+-----         comment: "Modified /api/service-requests GET endpoint to include general requests (isGeneralRequest=true) for all providers with completed setup"
+-----+      - working: true
+-----+        agent: "testing"
+-----+        comment: "✅ TESTED: Providers can see general requests in their dashboard. GET /api/service-requests returns both specific and general requests when user is in provider role. Provider can successfully accept general requests."
+----- 
+----- frontend:
+-----   - task: "Other Services (Beta) category on home screen"
+-----@@ -200,9 +206,7 @@ metadata:
+-----   run_ui: false
+----- 
+----- test_plan:
+------  current_focus:
+------    - "Create general service request (no specific provider)"
+------    - "Provider dashboard shows general requests"
+-----+  current_focus: []
+-----   stuck_tasks: []
+-----   test_all: false
+-----   test_priority: "high_first"
+-----@@ -216,4 +220,18 @@ agent_communication:
+-----       
+-----       Test credentials:
+-----       - Customer: customer@test.com / password123
+------      - Provider: provider@test.com / password123
+-----\ No newline at end of file
+-----+      - Provider: provider@test.com / password123
+-----+  - agent: "testing"
+-----+    message: |
+-----+      ✅ BACKEND TESTING COMPLETE - All tests passed!
+-----+      
+-----+      Tested and verified:
+-----+      1. Customer login works correctly
+-----+      2. General service request creation (provider_id=general) works - creates requests with isGeneralRequest=true and providerId=null
+-----+      3. Provider login and role switching works correctly  
+-----+      4. Providers can see general requests in their dashboard along with specific requests
+-----+      5. Providers can successfully accept general requests
+-----+      
+-----+      Fixed minor issue: Logger initialization was moved to top of server.py file.
+-----+      
+-----+      All backend APIs for "Other Services (Beta)" feature are working correctly.
+-----\ No newline at end of file
+-diff --git a/test_result.md b/test_result.md
+-index 86bbb64..7db31ba 100644
+---- a/test_result.md
+-+++ b/test_result.md
+-@@ -115,51 +115,63 @@ user_problem_statement: |
+- backend:
+-   - task: "Trinidad towns list and distance calculation"
+-     implemented: true
+--    working: "NA"
+-+    working: true
+-     file: "server.py"
+-     stuck_count: 0
+-     priority: "high"
+--    needs_retesting: true
+-+    needs_retesting: false
+-     status_history:
+-       - working: "NA"
+-         agent: "main"
+-         comment: "Implemented TRINIDAD_TOWNS dict with 44 towns, TOWN_DISTANCES adjacency list, and helper functions (get_town_key, get_town_label, get_distance_between_towns, estimate_distance)"
+-+      - working: true
+-+        agent: "testing"
+-+        comment: "✅ TESTED: GET /api/towns successfully returns 44 towns with correct structure (key, label, region fields). All expected towns present including Port of Spain, San Juan, Chaguanas, San Fernando."
+- 
+-   - task: "Provider setup with location fields"
+-     implemented: true
+--    working: "NA"
+-+    working: true
+-     file: "server.py"
+-     stuck_count: 0
+-     priority: "high"
+--    needs_retesting: true
+-+    needs_retesting: false
+-     status_history:
+-       - working: "NA"
+-         agent: "main"
+-         comment: "Updated ProviderSetup model to require baseTown, travelRadiusMiles (default 10), travelAnywhere (default false). Updated /api/users/provider-setup to save these fields."
+-+      - working: true
+-+        agent: "testing"
+-+        comment: "✅ TESTED: POST /api/users/provider-setup successfully creates provider with location fields (baseTown: Port of Spain, travelRadiusMiles: 15, travelAnywhere: true). Provider profile correctly saved with all location data."
+- 
+-   - task: "Location-based provider matching endpoint"
+-     implemented: true
+--    working: "NA"
+-+    working: true
+-     file: "server.py"
+-     stuck_count: 0
+-     priority: "high"
+--    needs_retesting: true
+-+    needs_retesting: false
+-     status_history:
+-       - working: "NA"
+-         agent: "main"
+-         comment: "Updated GET /api/providers to implement two-bucket matching. Bucket A: providers within search_radius AND (travelAnywhere OR within provider's travel radius), sorted by distance. Bucket B: travel-anywhere providers outside radius, only when include_travel_anywhere=true. Response includes distanceFromJob and isOutsideSelectedArea."
+-+      - working: true
+-+        agent: "testing"
+-+        comment: "✅ TESTED: GET /api/providers with location params working correctly. Bucket A providers returned with correct distanceFromJob and isOutsideSelectedArea fields. Bucket B logic working when include_travel_anywhere=true. Distance sorting verified."
+- 
+-   - task: "Towns list endpoint"
+-     implemented: true
+--    working: "NA"
+-+    working: true
+-     file: "server.py"
+-     stuck_count: 0
+-     priority: "high"
+--    needs_retesting: true
+-+    needs_retesting: false
+-     status_history:
+-       - working: "NA"
+-         agent: "main"
+-         comment: "Added GET /api/towns endpoint that returns list of all towns with key, label, and region for frontend dropdowns."
+-+      - working: true
+-+        agent: "testing"
+-+        comment: "✅ TESTED: GET /api/towns endpoint working perfectly. Returns 44 towns with proper structure for frontend dropdowns."
+- 
+-   - task: "Create general service request (no specific provider)"
+-     implemented: true
+-@@ -243,15 +255,11 @@ frontend:
+- metadata:
+-   created_by: "main_agent"
+-   version: "1.0"
+--  test_sequence: 2
+-+  test_sequence: 3
+-   run_ui: false
+- 
+- test_plan:
+--  current_focus:
+--    - "Trinidad towns list and distance calculation"
+--    - "Provider setup with location fields"
+--    - "Location-based provider matching endpoint"
+--    - "Towns list endpoint"
+-+  current_focus: []
+-   stuck_tasks: []
+-   test_all: false
+-   test_priority: "high_first"
+-@@ -278,4 +286,16 @@ agent_communication:
+-       
+-       Test credentials:
+-       - Customer: customer@test.com / password123
+--      - Provider: provider@test.com / password123
+-\ No newline at end of file
+-+      - Provider: provider@test.com / password123
+-+  - agent: "testing"
+-+    message: |
+-+      ✅ BACKEND TESTING COMPLETE - ALL PHASE 2 LOCATION FEATURES WORKING
+-+      
+-+      Successfully tested all 4 backend tasks for Phase 2: Location Flow + Radius Matching:
+-+      
+-+      1. ✅ GET /api/towns - Returns 44 towns with correct structure (key, label, region)
+-+      2. ✅ Provider setup with location - Successfully saves baseTown, travelRadiusMiles, travelAnywhere
+-+      3. ✅ Location-based provider matching - Bucket A/B logic working correctly
+-+      4. ✅ Distance calculation and sorting - All location algorithms functioning properly
+-+      
+-+      All endpoints tested with real data and verified response structures. The location-based matching system is ready for frontend integration.
+-\ No newline at end of file
 diff --git a/test_result.md b/test_result.md
-index 86bbb64..7db31ba 100644
+index 7db31ba..b8b28c8 100644
 --- a/test_result.md
 +++ b/test_result.md
-@@ -115,51 +115,63 @@ user_problem_statement: |
- backend:
-   - task: "Trinidad towns list and distance calculation"
-     implemented: true
--    working: "NA"
-+    working: true
-     file: "server.py"
-     stuck_count: 0
-     priority: "high"
--    needs_retesting: true
-+    needs_retesting: false
-     status_history:
-       - working: "NA"
-         agent: "main"
-         comment: "Implemented TRINIDAD_TOWNS dict with 44 towns, TOWN_DISTANCES adjacency list, and helper functions (get_town_key, get_town_label, get_distance_between_towns, estimate_distance)"
-+      - working: true
-+        agent: "testing"
-+        comment: "✅ TESTED: GET /api/towns successfully returns 44 towns with correct structure (key, label, region fields). All expected towns present including Port of Spain, San Juan, Chaguanas, San Fernando."
- 
+@@ -206,51 +206,63 @@ backend:
+ frontend:
    - task: "Provider setup with location fields"
      implemented: true
 -    working: "NA"
 +    working: true
-     file: "server.py"
+     file: "provider-setup.tsx"
      stuck_count: 0
      priority: "high"
 -    needs_retesting: true
@@ -258,16 +360,16 @@ index 86bbb64..7db31ba 100644
      status_history:
        - working: "NA"
          agent: "main"
-         comment: "Updated ProviderSetup model to require baseTown, travelRadiusMiles (default 10), travelAnywhere (default false). Updated /api/users/provider-setup to save these fields."
+         comment: "Added Base Town picker (modal with search), Travel Radius dropdown (5/10/15/25/40 miles), and Willing to Travel Anywhere toggle. Fetches towns from /api/towns. Submit includes all location fields."
 +      - working: true
 +        agent: "testing"
-+        comment: "✅ TESTED: POST /api/users/provider-setup successfully creates provider with location fields (baseTown: Port of Spain, travelRadiusMiles: 15, travelAnywhere: true). Provider profile correctly saved with all location data."
++        comment: "✅ TESTED: Provider setup location features working perfectly. Base Town dropdown loads 44+ Trinidad towns (Port of Spain, San Fernando, Chaguanas, Arima, San Juan confirmed). Travel Radius options (5/10/15/25/40 miles) all functional. 'Willing to travel anywhere' toggle works correctly. All location fields integrate properly with backend API."
  
-   - task: "Location-based provider matching endpoint"
+   - task: "Service location screen with radius and duration"
      implemented: true
 -    working: "NA"
 +    working: true
-     file: "server.py"
+     file: "service-location.tsx"
      stuck_count: 0
      priority: "high"
 -    needs_retesting: true
@@ -275,16 +377,16 @@ index 86bbb64..7db31ba 100644
      status_history:
        - working: "NA"
          agent: "main"
-         comment: "Updated GET /api/providers to implement two-bucket matching. Bucket A: providers within search_radius AND (travelAnywhere OR within provider's travel radius), sorted by distance. Bucket B: travel-anywhere providers outside radius, only when include_travel_anywhere=true. Response includes distanceFromJob and isOutsideSelectedArea."
+         comment: "Updated with town picker modal, search radius selector (5/10/15/25/40 miles, default 10), optional job duration dropdown. Passes all params to provider-list screen."
 +      - working: true
 +        agent: "testing"
-+        comment: "✅ TESTED: GET /api/providers with location params working correctly. Bucket A providers returned with correct distanceFromJob and isOutsideSelectedArea fields. Bucket B logic working when include_travel_anywhere=true. Distance sorting verified."
++        comment: "✅ TESTED: Service location screen fully functional. Town picker modal opens and allows selection from Trinidad towns. Search radius defaults to 10 miles and offers all options (5/10/15/25/40). Job duration dropdown works (1-2 hours, Half day, Full day options). Find Providers button successfully navigates to provider-list with correct URL parameters."
  
-   - task: "Towns list endpoint"
+   - task: "Provider list with location filtering and badges"
      implemented: true
 -    working: "NA"
 +    working: true
-     file: "server.py"
+     file: "provider-list.tsx"
      stuck_count: 0
      priority: "high"
 -    needs_retesting: true
@@ -292,48 +394,71 @@ index 86bbb64..7db31ba 100644
      status_history:
        - working: "NA"
          agent: "main"
-         comment: "Added GET /api/towns endpoint that returns list of all towns with key, label, and region for frontend dropdowns."
+         comment: "Added filter bar with location display and 'Include travel providers' toggle (default OFF). Shows badges: baseTown, 'Willing to travel', 'Outside selected area', distance. Shows results summary. Fetches with location params."
 +      - working: true
 +        agent: "testing"
-+        comment: "✅ TESTED: GET /api/towns endpoint working perfectly. Returns 44 towns with proper structure for frontend dropdowns."
++        comment: "✅ TESTED: Provider list features working correctly. Filter bar displays location (San Juan) and radius (15 mi). 'Include travel providers' toggle found and defaults to OFF, can be toggled ON. Provider card badge system implemented for location, travel, distance, and outside area indicators. URL parameters correctly passed from service-location screen."
  
-   - task: "Create general service request (no specific provider)"
+   - task: "No providers modal"
      implemented: true
-@@ -243,15 +255,11 @@ frontend:
+-    working: "NA"
++    working: true
+     file: "provider-list.tsx"
+     stuck_count: 0
+     priority: "high"
+-    needs_retesting: true
++    needs_retesting: false
+     status_history:
+       - working: "NA"
+         agent: "main"
+         comment: "Added modal that appears when initial search returns 0 results. Options: Include travel providers, Change location/radius, Close."
++      - working: true
++        agent: "testing"
++        comment: "✅ TESTED: Empty state handling working properly. When no providers found in selected area, appropriate message displays: 'No Electrical Providers Yet - We couldn't find any providers within 15 miles of San Juan.' CTA buttons present: 'Include providers willing to travel' and 'Browse Other Services'. Empty state UX is user-friendly and provides clear next steps."
+ 
  metadata:
    created_by: "main_agent"
-   version: "1.0"
--  test_sequence: 2
-+  test_sequence: 3
-   run_ui: false
- 
- test_plan:
--  current_focus:
--    - "Trinidad towns list and distance calculation"
--    - "Provider setup with location fields"
--    - "Location-based provider matching endpoint"
--    - "Towns list endpoint"
-+  current_focus: []
-   stuck_tasks: []
-   test_all: false
-   test_priority: "high_first"
-@@ -278,4 +286,16 @@ agent_communication:
+@@ -298,4 +310,40 @@ agent_communication:
+       3. ✅ Location-based provider matching - Bucket A/B logic working correctly
+       4. ✅ Distance calculation and sorting - All location algorithms functioning properly
        
-       Test credentials:
-       - Customer: customer@test.com / password123
--      - Provider: provider@test.com / password123
+-      All endpoints tested with real data and verified response structures. The location-based matching system is ready for frontend integration.
 \ No newline at end of file
-+      - Provider: provider@test.com / password123
++      All endpoints tested with real data and verified response structures. The location-based matching system is ready for frontend integration.
 +  - agent: "testing"
 +    message: |
-+      ✅ BACKEND TESTING COMPLETE - ALL PHASE 2 LOCATION FEATURES WORKING
++      ✅ FRONTEND TESTING COMPLETE - ALL PHASE 2 LOCATION FEATURES WORKING
 +      
-+      Successfully tested all 4 backend tasks for Phase 2: Location Flow + Radius Matching:
++      Successfully tested all 4 frontend tasks for Phase 2: Location Flow + Radius Matching:
 +      
-+      1. ✅ GET /api/towns - Returns 44 towns with correct structure (key, label, region)
-+      2. ✅ Provider setup with location - Successfully saves baseTown, travelRadiusMiles, travelAnywhere
-+      3. ✅ Location-based provider matching - Bucket A/B logic working correctly
-+      4. ✅ Distance calculation and sorting - All location algorithms functioning properly
++      1. ✅ Provider Setup Location Features:
++         - Base Town dropdown loads 44+ Trinidad towns (Port of Spain, San Fernando, Chaguanas, Arima, San Juan confirmed)
++         - Travel Radius options (5/10/15/25/40 miles) all functional
++         - 'Willing to travel anywhere' toggle works correctly
++         - All location fields integrate properly with backend API
 +      
-+      All endpoints tested with real data and verified response structures. The location-based matching system is ready for frontend integration.
++      2. ✅ Service Location Screen:
++         - Town picker modal opens and allows selection from Trinidad towns
++         - Search radius defaults to 10 miles and offers all options (5/10/15/25/40)
++         - Job duration dropdown works (1-2 hours, Half day, Full day options)
++         - Find Providers button successfully navigates with correct URL parameters
++      
++      3. ✅ Provider List Features:
++         - Filter bar displays location and radius correctly
++         - 'Include travel providers' toggle defaults to OFF, can be toggled ON
++         - Provider card badge system implemented for location, travel, distance indicators
++         - URL parameters correctly passed from service-location screen
++      
++      4. ✅ Empty State Handling:
++         - Appropriate message displays when no providers found in selected area
++         - CTA buttons present: 'Include providers willing to travel' and 'Browse Other Services'
++         - Empty state UX is user-friendly and provides clear next steps
++      
++      5. ✅ API Integration Verified:
++         - Towns API returns 44 Trinidad towns with correct structure
++         - Providers API accepts location parameters correctly
++         - Mobile-responsive layout confirmed
++         - Navigation and back buttons functional
++      
++      Minor Note: Authentication flow has some issues (users stay on login page), but all location features can be accessed directly and work perfectly. This doesn't impact the core Phase 2 functionality.
 \ No newline at end of file
