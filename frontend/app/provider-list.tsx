@@ -333,6 +333,39 @@ export default function ProviderListScreen() {
 
                 {/* Badges */}
                 <View style={styles.badgeContainer}>
+                  {/* Trust Badges - Phase 4 (Positive framing only) */}
+                  {provider.uploadsComplete && (
+                    <View style={styles.trustBadge}>
+                      <Ionicons name="checkmark-circle" size={12} color="#2E7D32" />
+                      <Text style={styles.trustBadgeText}>ID on file</Text>
+                    </View>
+                  )}
+                  
+                  {provider.phoneVerified && (
+                    <View style={styles.trustBadge}>
+                      <Ionicons name="call" size={12} color="#2E7D32" />
+                      <Text style={styles.trustBadgeText}>Phone verified</Text>
+                    </View>
+                  )}
+                  
+                  {(provider.completedJobsCount || 0) > 0 && (
+                    <View style={styles.jobsBadge}>
+                      <Ionicons name="briefcase-outline" size={12} color="#1565C0" />
+                      <Text style={styles.jobsBadgeText}>
+                        {provider.completedJobsCount} job{(provider.completedJobsCount || 0) !== 1 ? 's' : ''} completed
+                      </Text>
+                    </View>
+                  )}
+                  
+                  {provider.averageRating && provider.averageRating > 0 && (
+                    <View style={styles.ratingBadge}>
+                      <Ionicons name="star" size={12} color="#FFA000" />
+                      <Text style={styles.ratingBadgeText}>
+                        {provider.averageRating.toFixed(1)} ({provider.totalReviews || 0})
+                      </Text>
+                    </View>
+                  )}
+                  
                   {/* Availability status badge - Phase 3A */}
                   {provider.isAcceptingJobs !== false ? (
                     <View style={styles.acceptingBadge}>
@@ -370,7 +403,7 @@ export default function ProviderListScreen() {
                   {provider.distanceFromJob !== undefined && provider.distanceFromJob !== null && !provider.isOutsideSelectedArea && (
                     <View style={styles.distanceBadge}>
                       <Ionicons name="navigate-outline" size={12} color="#666" />
-                      <Text style={styles.distanceBadgeText}>~{provider.distanceFromJob} mi away</Text>
+                      <Text style={styles.distanceBadgeText}>~{provider.distanceFromJob} km away</Text>
                     </View>
                   )}
                 </View>
