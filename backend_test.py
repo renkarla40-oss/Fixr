@@ -223,7 +223,7 @@ class FixrAPITester:
                 providers = response.json()
                 
                 # Check if our test provider is excluded
-                provider_ids = [p.get("id") for p in providers]
+                provider_ids = [p.get("id") or p.get("_id") for p in providers]
                 
                 if self.provider_id not in provider_ids:
                     self.log_test("Filter Unavailable Providers", True, 
