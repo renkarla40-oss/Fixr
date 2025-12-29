@@ -249,16 +249,25 @@ class FixrAPITester:
             
             if response.status_code == 200:
                 providers = response.json()
-                provider_ids = [p.get("id") for p in providers]
+                provider_ids = [p.get("id") or p.get("_id") for p in providers]
+                
+                print(f"DEBUG: Available provider test - Provider IDs found: {provider_ids}")
+                print(f"DEBUG: Looking for provider ID: {self.provider_id}")
+                print(f"DEBUG: Total providers returned: {len(providers)}")
                 
                 if self.provider_id in provider_ids:
                     self.log_test("Include Available Providers", True, 
                                 "Available provider correctly included in results",
                                 f"Provider {self.provider_id} found in {len(providers)} results")
                 else:
+                    # Let's check if the provider has the electrical service
+                    for provider in providers:
+                        if provider.get("services") and "electrical" in provider.get("services", []):
+                            print(f"DEBUG: Found electrical provider: {provider.get('id') or provider.get('_id')} with services: {provider.get('services')}")
+                    
                     self.log_test("Include Available Providers", False, 
                                 "Available provider not found in results",
-                                f"Provider {self.provider_id} not in results")
+                                f"Provider {self.provider_id} not in results. Available providers: {provider_ids}")
             else:
                 self.log_test("Include Available Providers", False, 
                             f"HTTP {response.status_code}: {response.text}")
