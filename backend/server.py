@@ -1700,20 +1700,6 @@ async def get_service_requests(current_user: User = Depends(get_current_user)):
         result.append(ServiceRequestResponse(**req))
     return result
 
-@api_router.patch("/service-requests/{request_id}/accept", response_model=ServiceRequestResponse)
-async def accept_request(request_id: str, current_user: User = Depends(get_current_user)):
-    await db.service_requests.update_one(
-        {"_id": ObjectId(request_id)},
-        {"$set": {"status": "accepted"}}
-    )
-    
-    updated_request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
-    if not updated_request:
-        raise HTTPException(status_code=404, detail="Request not found")
-    
-    updated_request["_id"] = str(updated_request["_id"])
-    return ServiceRequestResponse(**updated_request)
-
 @api_router.patch("/service-requests/{request_id}/decline", response_model=ServiceRequestResponse)
 async def decline_request(request_id: str, current_user: User = Depends(get_current_user)):
     await db.service_requests.update_one(
@@ -1726,6 +1712,13 @@ async def decline_request(request_id: str, current_user: User = Depends(get_curr
         raise HTTPException(status_code=404, detail="Request not found")
     
     updated_request["_id"] = str(updated_request["_id"])
+    # Ensure new fields have defaults
+    updated_request["jobCode"] = updated_request.get("jobCode")
+    updated_request["jobStartedAt"] = updated_request.get("jobStartedAt")
+    updated_request["jobCompletedAt"] = updated_request.get("jobCompletedAt")
+    updated_request["customerReview"] = updated_request.get("customerReview")
+    updated_request["customerRating"] = updated_request.get("customerRating")
+    updated_request["reviewedAt"] = updated_request.get("reviewedAt")
     return ServiceRequestResponse(**updated_request)
 
 # Include the router
