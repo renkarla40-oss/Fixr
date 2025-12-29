@@ -311,6 +311,37 @@ export default function RequestServiceScreen() {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+
+      {/* Provider Unavailable Modal - Phase 3A */}
+      <Modal
+        visible={showUnavailableModal}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setShowUnavailableModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalIconContainer}>
+              <Ionicons name="person-remove-outline" size={48} color="#E53935" />
+            </View>
+            
+            <Text style={styles.modalTitle}>Provider Unavailable</Text>
+            <Text style={styles.modalMessage}>
+              This Fixr isn't accepting new jobs right now. Please choose another provider.
+            </Text>
+            
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => {
+                setShowUnavailableModal(false);
+                router.back();
+              }}
+            >
+              <Text style={styles.modalButtonText}>Back to Providers</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
