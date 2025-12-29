@@ -346,7 +346,7 @@ async def update_user_profile(
     current_user: User = Depends(get_current_user)
 ):
     # Update user document
-    result = await db.users.update_one(
+    await db.users.update_one(
         {"_id": ObjectId(current_user.id)},
         {"$set": {
             "name": profile_update.name,
