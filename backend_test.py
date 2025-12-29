@@ -117,22 +117,37 @@ class BackendTester:
         """Test provider setup creates profile with Phase 4 fields"""
         print("\n=== TESTING PROVIDER SETUP ===")
         
+        # First check if provider already has uploads complete
+        profile_check = self.make_request("GET", "/providers/me/profile", token=self.provider_token)
+        existing_uploads_complete = False
+        if profile_check["success"]:
+            existing_uploads_complete = profile_check["data"].get("uploadsComplete", False)
+        
         # Create/update provider profile
         setup_response = self.make_request("POST", "/users/provider-setup", 
                                          PROVIDER_SETUP_DATA, self.provider_token)
         
         if setup_response["success"]:
             user_data = setup_response["data"]
-            # Should NOT enable provider access until uploads complete
-            expected_enabled = False  # Phase 4: uploads required first
             actual_enabled = user_data.get("isProviderEnabled", False)
             
-            if actual_enabled == expected_enabled:
-                self.log_result("Provider setup - access control", True, 
-                              f"isProviderEnabled correctly set to {actual_enabled}")
+            if existing_uploads_complete:
+                # If uploads were already complete, provider should remain enabled
+                if actual_enabled:
+                    self.log_result("Provider setup - access control (existing uploads)", True, 
+                                  f"isProviderEnabled correctly preserved as {actual_enabled} with existing uploads")
+                else:
+                    self.log_result("Provider setup - access control (existing uploads)", False,
+                                  f"isProviderEnabled should remain true with existing uploads, got {actual_enabled}")
             else:
-                self.log_result("Provider setup - access control", False,
-                              f"Expected isProviderEnabled={expected_enabled}, got {actual_enabled}")
+                # If no existing uploads, should NOT enable provider access
+                expected_enabled = False  # Phase 4: uploads required first
+                if actual_enabled == expected_enabled:
+                    self.log_result("Provider setup - access control (new setup)", True, 
+                                  f"isProviderEnabled correctly set to {actual_enabled}")
+                else:
+                    self.log_result("Provider setup - access control (new setup)", False,
+                                  f"Expected isProviderEnabled={expected_enabled}, got {actual_enabled}")
         else:
             self.log_result("Provider setup", False, 
                           f"Status: {setup_response['status_code']}, Error: {setup_response['data']}")
