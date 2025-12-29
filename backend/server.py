@@ -727,8 +727,8 @@ async def get_providers(
     """
     Get providers with location-based matching.
     
-    Matching Logic (Phase 2 + Phase 3A):
-    - Filter: setupComplete=true AND isAcceptingJobs=true
+    Matching Logic (Phase 2 + Phase 3A + Phase 4):
+    - Filter: setupComplete=true AND isAcceptingJobs=true AND profilePhotoUrl exists AND governmentIdFrontUrl exists
     - Bucket A (local/within radius): Providers where distance <= customer's search_radius
       AND (provider.travelAnywhere OR distance <= provider.travelRadiusMiles)
       Sorted by distance ascending (closest first)
@@ -736,8 +736,14 @@ async def get_providers(
     - Bucket B (travel-anywhere): Providers with travelAnywhere=true that weren't in Bucket A
       Only included if include_travel_anywhere=true
     """
-    # Phase 3A: Only show providers who are accepting jobs
-    query = {"setupComplete": True, "isAcceptingJobs": {"$ne": False}}
+    # Phase 3A + Phase 4: Only show providers who are accepting jobs AND have completed uploads
+    query = {
+        "setupComplete": True, 
+        "isAcceptingJobs": {"$ne": False},
+        # Phase 4: Require photo and ID uploads to be visible
+        "profilePhotoUrl": {"$ne": None, "$exists": True},
+        "governmentIdFrontUrl": {"$ne": None, "$exists": True}
+    }
     if service:
         query["services"] = service
     
@@ -760,6 +766,15 @@ async def get_providers(
             provider["isAcceptingJobs"] = True
         if "availabilityNote" not in provider:
             provider["availabilityNote"] = None
+        # Phase 4: Ensure photo fields have defaults
+        if "profilePhotoUrl" not in provider:
+            provider["profilePhotoUrl"] = None
+        if "governmentIdFrontUrl" not in provider:
+            provider["governmentIdFrontUrl"] = None
+        if "governmentIdBackUrl" not in provider:
+            provider["governmentIdBackUrl"] = None
+        if "uploadsComplete" not in provider:
+            provider["uploadsComplete"] = False
         
         # If no job_town specified, return all providers (no location filtering)
         if not job_town:
