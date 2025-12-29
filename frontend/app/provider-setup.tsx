@@ -148,8 +148,8 @@ export default function ProviderSetupScreen() {
       );
       console.log('Provider setup successful:', response.data);
 
-      await refreshUser();
-      router.replace('/(provider)/dashboard');
+      // Phase 4: Navigate to uploads screen instead of directly to dashboard
+      router.push('/provider-uploads');
     } catch (error: any) {
       console.error('Error setting up provider:', error);
       Alert.alert(
