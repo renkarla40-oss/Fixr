@@ -128,8 +128,10 @@ class FixrAPITester:
                                 "All required availability fields present", 
                                 {k: profile.get(k) for k in required_fields})
                 
-                # Store provider ID for later tests
-                self.provider_id = profile.get("id")
+                # Store provider ID for later tests (check both possible field names)
+                self.provider_id = profile.get("id") or profile.get("_id")
+                print(f"DEBUG: Provider ID captured: {self.provider_id}")
+                print(f"DEBUG: Profile keys: {list(profile.keys())}")
                 
                 self.log_test("Get Provider Profile", True, "Successfully retrieved provider profile")
                 return profile
