@@ -119,7 +119,9 @@ class FixrAPITester:
             self.log_test("Get Provider Profile", False, "Failed to get provider profile", provider_response["content"])
             return None
         
-        provider_id = provider_response["content"]["id"]
+        # Debug: Check the response structure
+        print(f"Provider response: {provider_response['content']}")
+        provider_id = provider_response["content"].get("id") or provider_response["content"].get("_id")
         
         # Create service request as customer
         request_data = {
