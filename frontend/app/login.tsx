@@ -162,18 +162,21 @@ export default function LoginScreen() {
             </View>
           </View>
 
-          <TouchableOpacity
-            style={styles.loginButton}
+          <Pressable
+            style={({ pressed }) => [
+              styles.loginButton,
+              loading && styles.loginButtonDisabled,
+              pressed && styles.loginButtonPressed,
+            ]}
             onPress={handleLogin}
             disabled={loading}
-            activeOpacity={0.8}
           >
             {loading ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
               <Text style={styles.loginButtonText}>Sign In</Text>
             )}
-          </TouchableOpacity>
+          </Pressable>
 
           <View style={styles.signupContainer}>
             <Text style={styles.signupText}>Don't have an account? </Text>
