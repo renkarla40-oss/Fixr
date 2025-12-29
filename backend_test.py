@@ -1,35 +1,21 @@
 #!/usr/bin/env python3
 """
-Backend Testing Suite for Phase 4: Trust - Provider Photo + ID Upload
-Tests all backend endpoints and functionality for provider photo/ID uploads
+Backend API Testing Script for Beta Bypass Fix (@test.com emails)
+
+Tests the following scenarios:
+1. New @test.com user signup gets beta access (isBetaUser: true)
+2. Existing @test.com user login updates to beta access (retroactive)
+3. Non-@test.com emails get isBetaUser: false
+4. Provider onboarding flow works for @test.com users
 """
 
 import requests
 import json
-import base64
-import os
-from typing import Dict, Any, Optional
+import sys
+from datetime import datetime
 
-# Get backend URL from frontend env
+# Get backend URL from frontend .env
 BACKEND_URL = "https://fixr-services.preview.emergentagent.com/api"
-
-# Test credentials
-PROVIDER_EMAIL = "provider@test.com"
-PROVIDER_PASSWORD = "password123"
-CUSTOMER_EMAIL = "customer@test.com"
-CUSTOMER_PASSWORD = "password123"
-
-# Test data
-PROVIDER_SETUP_DATA = {
-    "services": ["electrical"],
-    "bio": "Experienced electrician with 10+ years in residential and commercial work",
-    "baseTown": "Port of Spain",
-    "travelRadiusMiles": 15,
-    "travelAnywhere": False
-}
-
-# Simple base64 test image (1x1 pixel PNG)
-TEST_IMAGE_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
 
 class BackendTester:
     def __init__(self):
