@@ -145,7 +145,7 @@ export default function ProviderListScreen() {
     setIncludeTravelAnywhere(true);
   };
 
-  const displayName = categoryName || 'Services';
+  const displayName = categoryName || getServiceLabel(categoryId) || 'Services';
 
   // Count providers in each bucket for display
   const localProviders = providers.filter(p => !p.isOutsideSelectedArea);
