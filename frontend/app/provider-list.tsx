@@ -187,7 +187,24 @@ export default function ProviderListScreen() {
           <View style={styles.centerContent}>
             <ActivityIndicator size="large" color="#E53935" />
           </View>
+        ) : fetchError ? (
+          // Show error state for actual API failures
+          <View style={styles.centerContent}>
+            <View style={styles.emptyIconContainer}>
+              <Ionicons name="cloud-offline-outline" size={48} color="#E53935" />
+            </View>
+            <Text style={styles.emptyTitle}>Something Went Wrong</Text>
+            <Text style={styles.emptySubtitle}>{fetchError}</Text>
+            <TouchableOpacity
+              style={styles.retryButton}
+              onPress={() => fetchProviders(includeTravelAnywhere)}
+            >
+              <Ionicons name="refresh" size={20} color="#FFFFFF" />
+              <Text style={styles.retryButtonText}>Try Again</Text>
+            </TouchableOpacity>
+          </View>
         ) : providers.length === 0 ? (
+          // Show empty state for valid results with no providers (NOT an error)
           <View style={styles.centerContent}>
             <View style={styles.emptyIconContainer}>
               <Ionicons name="people-outline" size={48} color="#E53935" />
