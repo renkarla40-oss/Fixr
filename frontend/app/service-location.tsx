@@ -229,7 +229,7 @@ export default function ServiceLocationScreen() {
           </View>
         </ScrollView>
 
-        <View style={styles.footer}>
+        <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 16) + 8 }]}>
           <TouchableOpacity
             style={[
               styles.continueButton,
