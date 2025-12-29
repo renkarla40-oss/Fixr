@@ -48,9 +48,12 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      await login(email.trim(), password);
-      // Mark login as successful - this will trigger useEffect navigation
-      setLoginSuccess(true);
+      // Login returns the user data directly - use it for immediate navigation
+      const userData = await login(email.trim(), password);
+      console.log('Login successful, navigating with user data:', userData.email);
+      
+      // Navigate immediately using the returned user data (don't wait for state)
+      navigateBasedOnUser(userData);
     } catch (error: any) {
       // User-friendly error messages
       const errorMessage = error.message?.toLowerCase() || '';
@@ -62,11 +65,10 @@ export default function LoginScreen() {
         Alert.alert('Sign In Failed', 'Something went wrong. Please try again later.');
       }
       setLoading(false);
-      setLoginSuccess(false);
     }
   };
 
-  // Navigation function
+  // Navigation function - can accept user from state or from parameter
   const navigateBasedOnUser = (userData: typeof user) => {
     if (!userData) return;
     
@@ -92,19 +94,16 @@ export default function LoginScreen() {
     }
   };
 
-  // Handle navigation after successful login
+  // Handle the case where user is already logged in (page refresh or direct navigation)
   useEffect(() => {
-    console.log('Login useEffect - user:', user?.email, 'loginSuccess:', loginSuccess, 'authLoading:', authLoading);
+    console.log('Login useEffect - user:', user?.email, 'authLoading:', authLoading);
     
-    // Navigate if login was successful and we have a user
-    if (loginSuccess && user) {
+    // If auth is done loading and we have a user, redirect them
+    if (!authLoading && user) {
+      console.log('User already logged in, redirecting...');
       navigateBasedOnUser(user);
     }
-    // Also handle the case where user was already logged in (page refresh)
-    else if (!authLoading && user && !loginSuccess) {
-      navigateBasedOnUser(user);
-    }
-  }, [user, loginSuccess, authLoading]);
+  }, [user, authLoading]);
 
   return (
     <KeyboardAvoidingView
