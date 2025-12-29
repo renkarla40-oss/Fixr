@@ -127,7 +127,7 @@ export default function RequestServiceScreen() {
       // Navigate to confirmation
       router.replace({
         pathname: '/request-confirmation',
-        params: { category: categoryNames[category] || category },
+        params: { category: categoryLabel },
       });
     } catch (error: any) {
       console.error('Error creating request:', error);
