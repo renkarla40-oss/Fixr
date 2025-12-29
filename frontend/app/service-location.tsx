@@ -406,7 +406,7 @@ export default function ServiceLocationScreen() {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
 
