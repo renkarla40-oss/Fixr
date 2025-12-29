@@ -55,7 +55,7 @@ export default function ProviderListScreen() {
   const subCategory = params.subCategory as string | undefined;
   const subcategoryKey = params.subcategoryKey as string | undefined;
   const location = params.location as string | undefined;
-  // Use searchDistanceKm consistently (convert legacy searchRadiusMiles if present)
+  // Use searchDistanceKm consistently
   const searchDistanceKm = params.searchDistanceKm 
     ? parseInt(params.searchDistanceKm as string) 
     : 16; // Default 16km (~10 miles)
