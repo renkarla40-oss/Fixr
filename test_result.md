@@ -104,165 +104,98 @@
 
 user_problem_statement: |
   Build a launch-ready mobile app called Fixr. The app is for home services (electrical, plumbing, etc).
-  Current task: Implement "Phase 2: Location Flow + Radius Matching" which includes:
-  - Comprehensive Trinidad towns list with distance calculations
-  - Provider location setup (baseTown, travelRadiusMiles, travelAnywhere)
-  - Customer location flow with search radius and job duration
-  - Location-based provider matching with two buckets (local and travel-anywhere)
-  - Provider list badges showing travel status and distance
-  - No-providers modal when no local matches found
+  Current task: Implement "Phase 3A: Provider Availability + Workload Control" which includes:
+  - Provider fields: isAcceptingJobs, availabilityNote
+  - Provider UI to toggle availability
+  - Customer discovery filters out unavailable providers
+  - Request submission validation for unavailable providers
+  - UI indicators showing availability status
 
 backend:
-  - task: "Trinidad towns list and distance calculation"
+  - task: "Provider availability fields"
     implemented: true
-    working: true
+    working: "NA"
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Implemented TRINIDAD_TOWNS dict with 44 towns, TOWN_DISTANCES adjacency list, and helper functions (get_town_key, get_town_label, get_distance_between_towns, estimate_distance)"
-      - working: true
-        agent: "testing"
-        comment: "✅ TESTED: GET /api/towns successfully returns 44 towns with correct structure (key, label, region fields). All expected towns present including Port of Spain, San Juan, Chaguanas, San Fernando."
+        comment: "Added isAcceptingJobs (boolean, default true) and availabilityNote (string, optional, max 60 chars) to Provider model"
 
-  - task: "Provider setup with location fields"
+  - task: "Provider availability update endpoint"
     implemented: true
-    working: true
+    working: "NA"
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Updated ProviderSetup model to require baseTown, travelRadiusMiles (default 10), travelAnywhere (default false). Updated /api/users/provider-setup to save these fields."
-      - working: true
-        agent: "testing"
-        comment: "✅ TESTED: POST /api/users/provider-setup successfully creates provider with location fields (baseTown: Port of Spain, travelRadiusMiles: 15, travelAnywhere: true). Provider profile correctly saved with all location data."
+        comment: "Added PATCH /api/providers/me/availability endpoint to update isAcceptingJobs and availabilityNote. Added GET /api/providers/me/profile to fetch provider's own profile."
 
-  - task: "Location-based provider matching endpoint"
+  - task: "Provider discovery filtering"
     implemented: true
-    working: true
+    working: "NA"
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Updated GET /api/providers to implement two-bucket matching. Bucket A: providers within search_radius AND (travelAnywhere OR within provider's travel radius), sorted by distance. Bucket B: travel-anywhere providers outside radius, only when include_travel_anywhere=true. Response includes distanceFromJob and isOutsideSelectedArea."
-      - working: true
-        agent: "testing"
-        comment: "✅ TESTED: GET /api/providers with location params working correctly. Bucket A providers returned with correct distanceFromJob and isOutsideSelectedArea fields. Bucket B logic working when include_travel_anywhere=true. Distance sorting verified."
+        comment: "Updated GET /api/providers to filter out providers where isAcceptingJobs=false. Query now uses isAcceptingJobs: {$ne: false}"
 
-  - task: "Towns list endpoint"
+  - task: "Service request validation"
     implemented: true
-    working: true
+    working: "NA"
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Added GET /api/towns endpoint that returns list of all towns with key, label, and region for frontend dropdowns."
-      - working: true
-        agent: "testing"
-        comment: "✅ TESTED: GET /api/towns endpoint working perfectly. Returns 44 towns with proper structure for frontend dropdowns."
-
-  - task: "Create general service request (no specific provider)"
-    implemented: true
-    working: true
-    file: "server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Modified /api/service-requests POST endpoint to accept provider_id=general for creating general requests with isGeneralRequest=true flag"
-      - working: true
-        agent: "testing"
-        comment: "✅ TESTED: Successfully creates general requests with provider_id=general. Response includes isGeneralRequest=true and providerId=null as expected."
-  
-  - task: "Provider dashboard shows general requests"
-    implemented: true
-    working: true
-    file: "server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Modified /api/service-requests GET endpoint to include general requests (isGeneralRequest=true) for all providers with completed setup"
-      - working: true
-        agent: "testing"
-        comment: "✅ TESTED: Providers can see general requests in their dashboard."
+        comment: "Updated POST /api/service-requests to check provider.isAcceptingJobs before creating request. Returns 400 error with user-friendly message if provider is unavailable."
 
 frontend:
-  - task: "Provider setup with location fields"
+  - task: "Provider availability toggle in profile"
     implemented: true
-    working: true
-    file: "provider-setup.tsx"
+    working: "NA"
+    file: "(provider)/profile.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Added Base Town picker (modal with search), Travel Radius dropdown (5/10/15/25/40 miles), and Willing to Travel Anywhere toggle. Fetches towns from /api/towns. Submit includes all location fields."
-      - working: true
-        agent: "testing"
-        comment: "✅ TESTED: Provider setup location features working perfectly. Base Town dropdown loads 44+ Trinidad towns (Port of Spain, San Fernando, Chaguanas, Arima, San Juan confirmed). Travel Radius options (5/10/15/25/40 miles) all functional. 'Willing to travel anywhere' toggle works correctly. All location fields integrate properly with backend API."
+        comment: "Added Availability section with toggle, status indicator, and note editor modal. Fetches profile from /api/providers/me/profile, saves via PATCH /api/providers/me/availability"
 
-  - task: "Service location screen with radius and duration"
+  - task: "Provider card availability badges"
     implemented: true
-    working: true
-    file: "service-location.tsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Updated with town picker modal, search radius selector (5/10/15/25/40 miles, default 10), optional job duration dropdown. Passes all params to provider-list screen."
-      - working: true
-        agent: "testing"
-        comment: "✅ TESTED: Service location screen fully functional. Town picker modal opens and allows selection from Trinidad towns. Search radius defaults to 10 miles and offers all options (5/10/15/25/40). Job duration dropdown works (1-2 hours, Half day, Full day options). Find Providers button successfully navigates to provider-list with correct URL parameters."
-
-  - task: "Provider list with location filtering and badges"
-    implemented: true
-    working: true
+    working: "NA"
     file: "provider-list.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Added filter bar with location display and 'Include travel providers' toggle (default OFF). Shows badges: baseTown, 'Willing to travel', 'Outside selected area', distance. Shows results summary. Fetches with location params."
-      - working: true
-        agent: "testing"
-        comment: "✅ TESTED: Provider list features working correctly. Filter bar displays location (San Juan) and radius (15 mi). 'Include travel providers' toggle found and defaults to OFF, can be toggled ON. Provider card badge system implemented for location, travel, distance, and outside area indicators. URL parameters correctly passed from service-location screen."
+        comment: "Added 'Accepting jobs' (green) and 'Unavailable' (red) badges to provider cards. Shows availabilityNote if set."
 
-  - task: "No providers modal"
+  - task: "Provider unavailable modal on request"
     implemented: true
-    working: true
-    file: "provider-list.tsx"
+    working: "NA"
+    file: "request-service.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Added modal that appears when initial search returns 0 results. Options: Include travel providers, Change location/radius, Close."
-      - working: true
-        agent: "testing"
-        comment: "✅ TESTED: Empty state handling working properly. When no providers found in selected area, appropriate message displays: 'No Electrical Providers Yet - We couldn't find any providers within 15 miles of San Juan.' CTA buttons present: 'Include providers willing to travel' and 'Browse Other Services'. Empty state UX is user-friendly and provides clear next steps."
+        comment: "Added modal that appears when trying to submit request to unavailable provider. Shows 'Provider unavailable' with 'Back to Providers' button."
 
 metadata:
   created_by: "main_agent"
@@ -271,7 +204,11 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Provider availability fields"
+    - "Provider availability update endpoint"
+    - "Provider discovery filtering"
+    - "Service request validation"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -279,71 +216,19 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: |
-      Implemented Phase 2: Location Flow + Radius Matching. Please test:
+      Implemented Phase 3A: Provider Availability + Workload Control. Please test:
       
-      1. GET /api/towns - Should return list of 44+ Trinidad towns with key, label, region
+      1. GET /api/providers/me/profile - Should return provider profile with isAcceptingJobs and availabilityNote
       
-      2. POST /api/users/provider-setup - Test with location fields:
-         - baseTown: "Port of Spain" (required)
-         - travelRadiusMiles: 15
-         - travelAnywhere: true
+      2. PATCH /api/providers/me/availability - Test updating availability:
+         - Set isAcceptingJobs: false, availabilityNote: "Weekends only"
+         - Verify response contains updated fields
       
-      3. GET /api/providers?service=electrical&job_town=San%20Juan&search_radius=10&include_travel_anywhere=false
-         - Should return providers in Bucket A (within radius AND within their travel range)
-         - Sorted by distance ascending
-         
-      4. GET /api/providers?service=electrical&job_town=San%20Juan&search_radius=10&include_travel_anywhere=true
-         - Should include Bucket B (travel-anywhere providers outside radius)
-         - Response should include distanceFromJob and isOutsideSelectedArea fields
+      3. GET /api/providers?service=electrical - Verify that providers with isAcceptingJobs=false are NOT returned
+      
+      4. POST /api/service-requests?provider_id={id} - Test submitting request to unavailable provider:
+         - Should return 400 error with message containing "unavailable"
       
       Test credentials:
       - Customer: customer@test.com / password123
       - Provider: provider@test.com / password123
-  - agent: "testing"
-    message: |
-      ✅ BACKEND TESTING COMPLETE - ALL PHASE 2 LOCATION FEATURES WORKING
-      
-      Successfully tested all 4 backend tasks for Phase 2: Location Flow + Radius Matching:
-      
-      1. ✅ GET /api/towns - Returns 44 towns with correct structure (key, label, region)
-      2. ✅ Provider setup with location - Successfully saves baseTown, travelRadiusMiles, travelAnywhere
-      3. ✅ Location-based provider matching - Bucket A/B logic working correctly
-      4. ✅ Distance calculation and sorting - All location algorithms functioning properly
-      
-      All endpoints tested with real data and verified response structures. The location-based matching system is ready for frontend integration.
-  - agent: "testing"
-    message: |
-      ✅ FRONTEND TESTING COMPLETE - ALL PHASE 2 LOCATION FEATURES WORKING
-      
-      Successfully tested all 4 frontend tasks for Phase 2: Location Flow + Radius Matching:
-      
-      1. ✅ Provider Setup Location Features:
-         - Base Town dropdown loads 44+ Trinidad towns (Port of Spain, San Fernando, Chaguanas, Arima, San Juan confirmed)
-         - Travel Radius options (5/10/15/25/40 miles) all functional
-         - 'Willing to travel anywhere' toggle works correctly
-         - All location fields integrate properly with backend API
-      
-      2. ✅ Service Location Screen:
-         - Town picker modal opens and allows selection from Trinidad towns
-         - Search radius defaults to 10 miles and offers all options (5/10/15/25/40)
-         - Job duration dropdown works (1-2 hours, Half day, Full day options)
-         - Find Providers button successfully navigates with correct URL parameters
-      
-      3. ✅ Provider List Features:
-         - Filter bar displays location and radius correctly
-         - 'Include travel providers' toggle defaults to OFF, can be toggled ON
-         - Provider card badge system implemented for location, travel, distance indicators
-         - URL parameters correctly passed from service-location screen
-      
-      4. ✅ Empty State Handling:
-         - Appropriate message displays when no providers found in selected area
-         - CTA buttons present: 'Include providers willing to travel' and 'Browse Other Services'
-         - Empty state UX is user-friendly and provides clear next steps
-      
-      5. ✅ API Integration Verified:
-         - Towns API returns 44 Trinidad towns with correct structure
-         - Providers API accepts location parameters correctly
-         - Mobile-responsive layout confirmed
-         - Navigation and back buttons functional
-      
-      Minor Note: Authentication flow has some issues (users stay on login page), but all location features can be accessed directly and work perfectly. This doesn't impact the core Phase 2 functionality.
