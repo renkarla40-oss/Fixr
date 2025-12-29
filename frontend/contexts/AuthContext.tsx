@@ -21,7 +21,7 @@ interface AuthContextType {
   token: string | null;
   loading: boolean;
   shouldShowBetaNotice: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
   signup: (email: string, password: string, name: string, phone: string, role: 'customer' | 'provider') => Promise<void>;
   logout: () => Promise<void>;
   switchRole: (role: 'customer' | 'provider') => Promise<void>;
