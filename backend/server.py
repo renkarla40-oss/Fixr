@@ -164,6 +164,9 @@ class Provider(BaseModel):
     baseTown: Optional[str] = None
     travelRadiusMiles: int = 10
     travelAnywhere: bool = False
+    # Availability fields (Phase 3A)
+    isAcceptingJobs: bool = True
+    availabilityNote: Optional[str] = None  # e.g., "Weekends only", "After 5pm"
     # Response-only fields for frontend badges
     distanceFromJob: Optional[int] = None  # Distance in miles (set by endpoint)
     isOutsideSelectedArea: bool = False    # True if only shown due to travel-anywhere
