@@ -650,6 +650,56 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 12,
   },
+  // Availability badges - Phase 3A
+  acceptingBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F5E9',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  acceptingDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#4CAF50',
+  },
+  acceptingBadgeText: {
+    fontSize: 12,
+    color: '#2E7D32',
+  },
+  unavailableBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFEBEE',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  unavailableDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#9E9E9E',
+  },
+  unavailableBadgeText: {
+    fontSize: 12,
+    color: '#757575',
+  },
+  availabilityNoteContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 8,
+  },
+  availabilityNoteText: {
+    fontSize: 13,
+    color: '#666',
+    fontStyle: 'italic',
+  },
   locationBadge: {
     flexDirection: 'row',
     alignItems: 'center',
