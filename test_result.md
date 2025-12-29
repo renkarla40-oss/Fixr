@@ -104,88 +104,114 @@
 
 user_problem_statement: |
   Build a launch-ready mobile app called Fixr. The app is for home services (electrical, plumbing, etc).
-  Current task: Implement "Phase 3A: Provider Availability + Workload Control" which includes:
-  - Provider fields: isAcceptingJobs, availabilityNote
-  - Provider UI to toggle availability
-  - Customer discovery filters out unavailable providers
-  - Request submission validation for unavailable providers
-  - UI indicators showing availability status
+  Current task: Implement "Phase 4: Trust - Provider Photo + ID Upload" which includes:
+  - Provider must upload profile photo (required)
+  - Provider must upload government ID front and back (required)
+  - Providers cannot complete onboarding without uploads
+  - verificationStatus: "unverified" | "pending" | "verified" | "rejected"
+  - Providers visible in search only if uploads complete
+  - Profile photo shown publicly, IDs stored privately
+  - No manual approval bottleneck - auto-set to "pending" when uploads complete
 
 backend:
-  - task: "Provider availability fields"
-    implemented: true
-    working: true
-    file: "server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Added isAcceptingJobs (boolean, default true) and availabilityNote (string, optional, max 60 chars) to Provider model"
-      - working: true
-        agent: "testing"
-        comment: "✅ TESTED: Provider profile endpoint returns both isAcceptingJobs and availabilityNote fields correctly. GET /api/providers/me/profile working as expected."
-
-  - task: "Provider availability update endpoint"
-    implemented: true
-    working: true
-    file: "server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Added PATCH /api/providers/me/availability endpoint to update isAcceptingJobs and availabilityNote. Added GET /api/providers/me/profile to fetch provider's own profile."
-      - working: true
-        agent: "testing"
-        comment: "✅ TESTED: PATCH /api/providers/me/availability successfully updates both isAcceptingJobs and availabilityNote fields. Tested setting unavailable with note 'Weekends only' and setting back to available."
-
-  - task: "Provider discovery filtering"
-    implemented: true
-    working: true
-    file: "server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Updated GET /api/providers to filter out providers where isAcceptingJobs=false. Query now uses isAcceptingJobs: {$ne: false}"
-      - working: true
-        agent: "testing"
-        comment: "✅ TESTED: GET /api/providers?service=electrical correctly filters out unavailable providers (isAcceptingJobs=false) and includes available providers (isAcceptingJobs=true). Filtering logic working properly."
-
-  - task: "Service request validation"
-    implemented: true
-    working: true
-    file: "server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Updated POST /api/service-requests to check provider.isAcceptingJobs before creating request. Returns 400 error with user-friendly message if provider is unavailable."
-      - working: true
-        agent: "testing"
-        comment: "✅ TESTED: POST /api/service-requests correctly validates provider availability. Returns 400 error with message 'Provider unavailable. This Fixr isn't accepting new jobs right now. Please choose another provider.' when trying to request unavailable provider. Allows requests to available providers."
-
-frontend:
-  - task: "Provider availability toggle in profile"
+  - task: "Provider photo/ID fields in model"
     implemented: true
     working: "NA"
-    file: "(provider)/profile.tsx"
+    file: "server.py"
     stuck_count: 0
     priority: "high"
     needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Added Availability section with toggle, status indicator, and note editor modal. Fetches profile from /api/providers/me/profile, saves via PATCH /api/providers/me/availability"
+        comment: "Added profilePhotoUrl, governmentIdFrontUrl, governmentIdBackUrl, uploadsComplete, verificationStatus fields to Provider model"
 
-  - task: "Provider card availability badges"
+  - task: "Provider photo upload endpoint"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added POST /api/providers/me/upload for base64 image uploads. Supports profile_photo, government_id_front, government_id_back types. Auto-sets verificationStatus to 'pending' and enables provider when all uploads complete."
+
+  - task: "Provider profile endpoint"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added GET /api/providers/me/profile to fetch current user's provider profile including upload status"
+
+  - task: "Provider search filters uploads"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated GET /api/providers to require profilePhotoUrl and governmentIdFrontUrl to exist - providers without uploads are excluded from search"
+
+  - task: "Provider setup updated for Phase 4"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "POST /api/users/provider-setup now sets verificationStatus='unverified' and setupComplete=false until uploads are done. Only enables provider access when uploads complete."
+
+  - task: "Profile photo serving endpoint"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added GET /api/uploads/profile_photos/{filename} to serve profile photos publicly. Government IDs are not exposed."
+
+frontend:
+  - task: "Provider uploads screen"
+    implemented: true
+    working: "NA"
+    file: "provider-uploads.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "New screen with upload boxes for profile photo, ID front, ID back. Uses expo-image-picker. Shows upload status. Disables Complete button until all uploads done."
+
+  - task: "Provider setup redirects to uploads"
+    implemented: true
+    working: "NA"
+    file: "provider-setup.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "After saving basic info, redirects to /provider-uploads instead of directly to dashboard"
+
+  - task: "Provider card shows profile photo"
     implemented: true
     working: "NA"
     file: "provider-list.tsx"
@@ -195,9 +221,7 @@ frontend:
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Added 'Accepting jobs' (green) and 'Unavailable' (red) badges to provider cards. Shows availabilityNote if set."
-
-  - task: "Provider unavailable modal on request"
+        comment: "Provider cards now show profile photo if available, fallback to person icon"
     implemented: true
     working: "NA"
     file: "request-service.tsx"
