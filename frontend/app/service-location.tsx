@@ -51,14 +51,16 @@ export default function ServiceLocationScreen() {
   const category = params.category as string;
   const categoryName = params.categoryName as string;
   const subCategory = params.subCategory as string | undefined;
+  const subcategoryKey = params.subcategoryKey as string | undefined;
   
   const [location, setLocation] = useState('');
-  const [searchRadiusMiles, setSearchRadiusMiles] = useState(10); // Default 10 miles
+  const [searchDistanceKm, setSearchDistanceKm] = useState(DEFAULT_SEARCH_DISTANCE_KM);
+  const [distanceUnit, setDistanceUnit] = useState<DistanceUnit>(DEFAULT_DISTANCE_UNIT);
   const [jobDuration, setJobDuration] = useState('');
   
   // Modal states
   const [showTownPicker, setShowTownPicker] = useState(false);
-  const [showRadiusPicker, setShowRadiusPicker] = useState(false);
+  const [showDistancePicker, setShowDistancePicker] = useState(false);
   const [showDurationPicker, setShowDurationPicker] = useState(false);
   
   // Towns data
