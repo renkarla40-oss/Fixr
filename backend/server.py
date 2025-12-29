@@ -161,6 +161,9 @@ class Provider(BaseModel):
     bio: str
     verificationStatus: str
     setupComplete: bool
+    baseTown: Optional[str] = None
+    travelRadiusMiles: int = 10
+    travelAnywhere: bool = False
     
     class Config:
         populate_by_name = True
