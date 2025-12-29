@@ -109,17 +109,26 @@ class ProviderProfile(BaseModel):
     bio: str = ""
     verificationStatus: str = "pending"
     setupComplete: bool = False
+    baseTown: Optional[str] = None
+    travelRadiusMiles: int = 10
+    travelAnywhere: bool = False
 
 class ProviderSetup(BaseModel):
     services: List[str]
     bio: str
+    baseTown: str  # Required for setup
+    travelRadiusMiles: int = 10
+    travelAnywhere: bool = False
 
 class ServiceRequest(BaseModel):
     service: str
     description: str
     preferredDateTime: Optional[datetime] = None
     subCategory: Optional[str] = None  # For handyman sub-categories
-    location: Optional[str] = None  # Customer's service location
+    location: Optional[str] = None  # Customer's service location (legacy)
+    jobTown: Optional[str] = None  # New: specific job town
+    searchRadiusMiles: int = 10  # New: customer's search radius
+    jobDuration: Optional[str] = None  # New: estimated job duration
 
 class ServiceRequestResponse(BaseModel):
     id: str = Field(alias="_id")
@@ -134,7 +143,10 @@ class ServiceRequestResponse(BaseModel):
     providerName: Optional[str] = None  # Can be None for general requests
     isGeneralRequest: bool = False  # Flag for "Other Services" requests
     subCategory: Optional[str] = None  # For handyman sub-categories
-    location: Optional[str] = None  # Customer's service location
+    location: Optional[str] = None  # Customer's service location (legacy)
+    jobTown: Optional[str] = None  # New: specific job town
+    searchRadiusMiles: int = 10  # New: customer's search radius
+    jobDuration: Optional[str] = None  # New: estimated job duration
     createdAt: datetime
     
     class Config:
