@@ -154,7 +154,7 @@ export default function SubcategoryScreen() {
         </View>
       </ScrollView>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 16) + 8 }]}>
         <TouchableOpacity
           style={[
             styles.continueButton,
@@ -168,7 +168,7 @@ export default function SubcategoryScreen() {
           <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
