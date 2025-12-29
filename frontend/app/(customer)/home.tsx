@@ -86,18 +86,29 @@ export default function CustomerHomeScreen() {
           <View style={styles.categoriesGrid}>
             {categories.map((category) => (
               <TouchableOpacity
-                key={category.id}
-                style={styles.categoryCard}
-                onPress={() => handleCategoryPress(category.id, category.name)}
+                key={category.serviceKey}
+                style={[
+                  styles.categoryCard,
+                  category.status === 'beta' && styles.categoryCardBeta,
+                ]}
+                onPress={() => handleCategoryPress(category)}
                 activeOpacity={0.7}
               >
-                <Ionicons
-                  name={category.icon}
-                  size={32}
-                  color="#E53935"
-                  style={styles.categoryIcon}
-                />
-                <Text style={styles.categoryName}>{category.name}</Text>
+                <View style={styles.categoryIconContainer}>
+                  <Ionicons
+                    name={category.icon as any}
+                    size={28}
+                    color="#E53935"
+                  />
+                </View>
+                <Text style={styles.categoryName} numberOfLines={2}>
+                  {category.label}
+                </Text>
+                {category.status === 'beta' && (
+                  <View style={styles.betaBadge}>
+                    <Text style={styles.betaBadgeText}>BETA</Text>
+                  </View>
+                )}
               </TouchableOpacity>
             ))}
           </View>
