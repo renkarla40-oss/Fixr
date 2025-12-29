@@ -1,18 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   ActivityIndicator,
   Alert,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  RefreshControl,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+import { getServiceLabel } from '../constants/serviceCategories';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -23,40 +28,124 @@ interface ServiceRequest {
   providerName: string;
   customerName: string;
   customerPhone: string;
+  customerId: string;
+  providerId?: string;
   status: string;
   createdAt: string;
   preferredDateTime?: string;
   isGeneralRequest?: boolean;
   subCategory?: string;
   location?: string;
+  jobTown?: string;
+  jobCode?: string;
+  jobStartedAt?: string;
+  jobCompletedAt?: string;
 }
+
+interface Message {
+  _id: string;
+  senderId: string;
+  senderName: string;
+  senderRole: 'customer' | 'provider';
+  text: string;
+  createdAt: string;
+}
+
+type TabType = 'details' | 'chat';
 
 export default function ProviderRequestDetailScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
+  const insets = useSafeAreaInsets();
   const requestId = params.requestId as string;
 
   const [request, setRequest] = useState<ServiceRequest | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>('details');
+  const [newMessage, setNewMessage] = useState('');
+  const [sendingMessage, setSendingMessage] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Job code entry
+  const [jobCodeInput, setJobCodeInput] = useState('');
+  const [confirmingArrival, setConfirmingArrival] = useState(false);
+
+  const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
-    fetchRequestDetail();
+    if (requestId) {
+      fetchRequestDetail();
+    } else {
+      setError('No request ID provided');
+      setLoading(false);
+    }
   }, [requestId]);
+
+  useEffect(() => {
+    if (activeTab === 'chat' && request) {
+      fetchMessages();
+    }
+  }, [activeTab, request?._id]);
 
   const fetchRequestDetail = async () => {
     try {
-      const response = await axios.get(`${BACKEND_URL}/api/service-requests`, {
+      setError(null);
+      const response = await axios.get(`${BACKEND_URL}/api/service-requests/${requestId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const allRequests = response.data;
-      const foundRequest = allRequests.find((r: any) => r._id === requestId);
-      setRequest(foundRequest || null);
-    } catch (error) {
-      console.error('Error fetching request detail:', error);
+      setRequest(response.data);
+    } catch (err: any) {
+      if (err.response?.status === 404) {
+        setError('This request could not be found.');
+      } else if (err.response?.status === 403) {
+        setError('You don\'t have permission to view this request.');
+      } else {
+        setError('Unable to load request details. Please try again.');
+      }
     } finally {
       setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const fetchMessages = async () => {
+    if (!request?._id) return;
+
+    setLoadingMessages(true);
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/service-requests/${request._id}/messages`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setMessages(response.data.messages || []);
+      setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
+    } catch (err) {
+      console.log('Messages fetch error');
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || !request?._id) return;
+
+    setSendingMessage(true);
+    try {
+      await axios.post(
+        `${BACKEND_URL}/api/service-requests/${request._id}/messages`,
+        { text: newMessage.trim() },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setNewMessage('');
+      fetchMessages();
+    } catch (err) {
+      Alert.alert('Error', 'Failed to send message. Please try again.');
+    } finally {
+      setSendingMessage(false);
     }
   };
 
@@ -66,11 +155,7 @@ export default function ProviderRequestDetailScreen() {
       'Are you sure you want to accept this service request?',
       [
         { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Accept',
-          style: 'default',
-          onPress: () => updateRequestStatus('accept'),
-        },
+        { text: 'Accept', onPress: () => updateRequestStatus('accept') },
       ]
     );
   };
@@ -81,57 +166,86 @@ export default function ProviderRequestDetailScreen() {
       'Are you sure you want to decline this service request?',
       [
         { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Decline',
-          style: 'destructive',
-          onPress: () => updateRequestStatus('decline'),
-        },
+        { text: 'Decline', style: 'destructive', onPress: () => updateRequestStatus('decline') },
       ]
     );
   };
 
   const updateRequestStatus = async (action: 'accept' | 'decline') => {
-    if (!request) return;
-
     setActionLoading(true);
     try {
       await axios.patch(
         `${BACKEND_URL}/api/service-requests/${requestId}/${action}`,
         {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      const statusText = action === 'accept' ? 'accepted' : 'declined';
       Alert.alert(
         'Success',
-        `Request has been ${statusText}`,
-        [
-          {
-            text: 'OK',
-            onPress: () => router.replace('/(provider)/dashboard'),
-          },
-        ]
+        `Request ${action === 'accept' ? 'accepted' : 'declined'} successfully!`,
+        [{ text: 'OK', onPress: () => fetchRequestDetail() }]
       );
-    } catch (error: any) {
-      console.error('Error updating request:', error);
-      Alert.alert(
-        'Error',
-        error.response?.data?.detail || 'Failed to update request. Please try again.'
-      );
+    } catch (err) {
+      Alert.alert('Error', `Failed to ${action} request. Please try again.`);
     } finally {
       setActionLoading(false);
     }
   };
 
-  const categoryNames: { [key: string]: string } = {
-    electrical: 'Electrical',
-    plumbing: 'Plumbing',
-    ac: 'AC Repair',
-    cleaning: 'Cleaning',
-    handyman: 'Handyman',
-    other: 'Other Services (Beta)',
+  const handleConfirmArrival = async () => {
+    if (!jobCodeInput.trim() || !request?._id) return;
+
+    setConfirmingArrival(true);
+    try {
+      await axios.post(
+        `${BACKEND_URL}/api/service-requests/${request._id}/confirm-arrival`,
+        { jobCode: jobCodeInput.trim() },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      Alert.alert('Success', 'Job started successfully!');
+      setJobCodeInput('');
+      fetchRequestDetail();
+    } catch (err: any) {
+      const message = err.response?.data?.detail || 'Incorrect code. Please try again.';
+      Alert.alert('Error', message);
+    } finally {
+      setConfirmingArrival(false);
+    }
+  };
+
+  const handleCompleteJob = async () => {
+    if (!request?._id) return;
+
+    Alert.alert(
+      'Complete Job',
+      'Mark this job as completed?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Complete',
+          onPress: async () => {
+            try {
+              await axios.patch(
+                `${BACKEND_URL}/api/service-requests/${request._id}/complete`,
+                {},
+                { headers: { Authorization: `Bearer ${token}` } }
+              );
+              Alert.alert('Success', 'Job marked as complete!');
+              fetchRequestDetail();
+            } catch (err) {
+              Alert.alert('Error', 'Failed to complete job. Please try again.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchRequestDetail();
+    if (activeTab === 'chat') {
+      fetchMessages();
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -156,195 +270,300 @@ export default function ProviderRequestDetailScreen() {
     });
   };
 
+  const formatMessageTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+    });
+  };
+
+  const getStatusInfo = (status: string) => {
+    switch (status) {
+      case 'accepted':
+        return { bg: '#E8F5E9', text: '#2E7D32', icon: 'checkmark-circle', label: 'Accepted' };
+      case 'started':
+        return { bg: '#E3F2FD', text: '#1565C0', icon: 'play-circle', label: 'In Progress' };
+      case 'completed':
+        return { bg: '#F3E5F5', text: '#7B1FA2', icon: 'checkmark-done-circle', label: 'Completed' };
+      case 'declined':
+        return { bg: '#FFEBEE', text: '#C62828', icon: 'close-circle', label: 'Declined' };
+      default:
+        return { bg: '#FFF3E0', text: '#F57C00', icon: 'time', label: 'Pending' };
+    }
+  };
+
+  // Loading state
   if (loading) {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <TouchableOpacity
-              onPress={() => router.back()}
-              style={styles.backButton}
-            >
-              <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
-            </TouchableOpacity>
-            <Text style={styles.title}>Request Details</Text>
-            <View style={styles.backButton} />
-          </View>
-          <View style={styles.centerContent}>
-            <ActivityIndicator size="large" color="#E53935" />
-          </View>
+      <View style={[styles.safeArea, { paddingTop: insets.top }]}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+          </TouchableOpacity>
+          <Text style={styles.title}>Request Details</Text>
+          <View style={styles.backButton} />
         </View>
-      </SafeAreaView>
+        <View style={styles.centerContent}>
+          <ActivityIndicator size="large" color="#E53935" />
+          <Text style={styles.loadingText}>Loading request...</Text>
+        </View>
+      </View>
     );
   }
 
-  if (!request) {
+  // Error state
+  if (error || !request) {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <TouchableOpacity
-              onPress={() => router.back()}
-              style={styles.backButton}
-            >
-              <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
-            </TouchableOpacity>
-            <Text style={styles.title}>Request Details</Text>
-            <View style={styles.backButton} />
-          </View>
-          <View style={styles.centerContent}>
-            <Text style={styles.errorText}>Request not found</Text>
-          </View>
+      <View style={[styles.safeArea, { paddingTop: insets.top }]}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+          </TouchableOpacity>
+          <Text style={styles.title}>Request Details</Text>
+          <View style={styles.backButton} />
         </View>
-      </SafeAreaView>
+        <View style={styles.centerContent}>
+          <Ionicons name="document-text-outline" size={64} color="#CCC" />
+          <Text style={styles.errorTitle}>Unable to Load</Text>
+          <Text style={styles.errorText}>{error || 'This request could not be found.'}</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={() => { setLoading(true); fetchRequestDetail(); }}>
+            <Text style={styles.retryButtonText}>Try Again</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     );
   }
 
-  const isPending = request.status === 'pending';
+  const statusInfo = getStatusInfo(request.status);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
+    <View style={[styles.safeArea, { paddingTop: insets.top }]}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+      >
+        {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={styles.backButton}
-          >
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
           </TouchableOpacity>
           <Text style={styles.title}>Request Details</Text>
           <View style={styles.backButton} />
         </View>
 
-        <ScrollView
-          style={styles.content}
-          contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          {request.isGeneralRequest ? (
-            <View style={styles.generalBanner}>
-              <Ionicons name="people" size={20} color="#7C4DFF" />
-              <Text style={styles.generalBannerText}>General Request - Open to All Providers</Text>
-            </View>
-          ) : (
-            <View style={styles.urgentBanner}>
-              <Ionicons name="alert-circle" size={20} color="#E53935" />
-              <Text style={styles.urgentText}>New Service Request</Text>
-            </View>
-          )}
+        {/* Tab Bar */}
+        <View style={styles.tabBar}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'details' && styles.tabActive]}
+            onPress={() => setActiveTab('details')}
+          >
+            <Ionicons name="document-text-outline" size={18} color={activeTab === 'details' ? '#E53935' : '#666'} />
+            <Text style={[styles.tabText, activeTab === 'details' && styles.tabTextActive]}>Details</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'chat' && styles.tabActive]}
+            onPress={() => setActiveTab('chat')}
+          >
+            <Ionicons name="chatbubbles-outline" size={18} color={activeTab === 'chat' ? '#E53935' : '#666'} />
+            <Text style={[styles.tabText, activeTab === 'chat' && styles.tabTextActive]}>Messages</Text>
+          </TouchableOpacity>
+        </View>
 
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Ionicons name="construct" size={20} color="#666" />
-              <Text style={styles.sectionTitle}>Service</Text>
+        {activeTab === 'details' ? (
+          <ScrollView
+            style={styles.content}
+            contentContainerStyle={styles.contentContainer}
+            showsVerticalScrollIndicator={false}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          >
+            {/* Status Banner */}
+            <View style={[styles.statusSection, { backgroundColor: statusInfo.bg }]}>
+              <Ionicons name={statusInfo.icon as any} size={40} color={statusInfo.text} />
+              <Text style={[styles.statusLabel, { color: statusInfo.text }]}>{statusInfo.label}</Text>
             </View>
-            <Text style={styles.sectionContent}>
-              {categoryNames[request.service] || request.service}
-            </Text>
-          </View>
 
-          {/* Sub-category for Handyman services */}
-          {request.subCategory && (
+            {/* Job Code Entry (Provider enters code when accepted) */}
+            {request.status === 'accepted' && (
+              <View style={styles.jobCodeSection}>
+                <Text style={styles.jobCodeTitle}>Confirm Your Arrival</Text>
+                <Text style={styles.jobCodeHint}>Enter the 6-digit code from the customer</Text>
+                <View style={styles.jobCodeInputRow}>
+                  <TextInput
+                    style={styles.jobCodeInput}
+                    placeholder="Enter code"
+                    value={jobCodeInput}
+                    onChangeText={setJobCodeInput}
+                    keyboardType="number-pad"
+                    maxLength={6}
+                  />
+                  <TouchableOpacity
+                    style={[styles.confirmButton, (!jobCodeInput.trim() || confirmingArrival) && styles.confirmButtonDisabled]}
+                    onPress={handleConfirmArrival}
+                    disabled={!jobCodeInput.trim() || confirmingArrival}
+                  >
+                    {confirmingArrival ? (
+                      <ActivityIndicator size="small" color="#FFFFFF" />
+                    ) : (
+                      <Text style={styles.confirmButtonText}>Start Job</Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
+            {/* Complete Job Button (when started) */}
+            {request.status === 'started' && (
+              <TouchableOpacity style={styles.completeJobButton} onPress={handleCompleteJob}>
+                <Ionicons name="checkmark-done" size={20} color="#FFFFFF" />
+                <Text style={styles.completeJobButtonText}>Mark Job as Complete</Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Service Info */}
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="list" size={20} color="#666" />
-                <Text style={styles.sectionTitle}>Service Type</Text>
+                <Ionicons name="construct" size={20} color="#666" />
+                <Text style={styles.sectionTitle}>Service</Text>
               </View>
-              <Text style={styles.sectionContent}>{request.subCategory}</Text>
+              <Text style={styles.sectionContent}>{getServiceLabel(request.service)}</Text>
+              {request.subCategory && <Text style={styles.subCategoryText}>{request.subCategory}</Text>}
             </View>
-          )}
 
-          {/* Customer Location */}
-          {request.location && (
+            {/* Customer Info */}
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="location" size={20} color="#E53935" />
-                <Text style={styles.sectionTitle}>Service Location</Text>
+                <Ionicons name="person" size={20} color="#666" />
+                <Text style={styles.sectionTitle}>Customer</Text>
               </View>
-              <View style={styles.locationBadge}>
-                <Text style={styles.locationText}>{request.location}</Text>
+              <Text style={styles.sectionContent}>{request.customerName}</Text>
+            </View>
+
+            {/* Location */}
+            {(request.jobTown || request.location) && (
+              <View style={styles.section}>
+                <View style={styles.sectionHeader}>
+                  <Ionicons name="location" size={20} color="#666" />
+                  <Text style={styles.sectionTitle}>Location</Text>
+                </View>
+                <Text style={styles.sectionContent}>{request.jobTown || request.location}</Text>
               </View>
-            </View>
-          )}
+            )}
 
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Ionicons name="person" size={20} color="#666" />
-              <Text style={styles.sectionTitle}>Customer</Text>
+            {/* Description */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Ionicons name="document-text" size={20} color="#666" />
+                <Text style={styles.sectionTitle}>Description</Text>
+              </View>
+              <Text style={styles.descriptionText}>{request.description}</Text>
             </View>
-            <Text style={styles.customerName}>{request.customerName}</Text>
-            <TouchableOpacity style={styles.phoneButton}>
-              <Ionicons name="call" size={18} color="#E53935" />
-              <Text style={styles.phoneText}>{request.customerPhone}</Text>
-            </TouchableOpacity>
-          </View>
 
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Ionicons name="document-text" size={20} color="#666" />
-              <Text style={styles.sectionTitle}>Description</Text>
+            {/* Preferred Date */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Ionicons name="calendar" size={20} color="#666" />
+                <Text style={styles.sectionTitle}>Preferred Date & Time</Text>
+              </View>
+              <Text style={styles.sectionContent}>{formatDateTime(request.preferredDateTime)}</Text>
             </View>
-            <Text style={styles.descriptionText}>{request.description}</Text>
-          </View>
 
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Ionicons name="calendar" size={20} color="#666" />
-              <Text style={styles.sectionTitle}>Preferred Date & Time</Text>
+            {/* Request Date */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Ionicons name="time" size={20} color="#666" />
+                <Text style={styles.sectionTitle}>Requested On</Text>
+              </View>
+              <Text style={styles.sectionContent}>{formatDate(request.createdAt)}</Text>
             </View>
-            <Text style={styles.sectionContent}>
-              {formatDateTime(request.preferredDateTime)}
-            </Text>
-          </View>
 
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Ionicons name="time" size={20} color="#666" />
-              <Text style={styles.sectionTitle}>Requested On</Text>
-            </View>
-            <Text style={styles.sectionContent}>
-              {formatDate(request.createdAt)}
-            </Text>
-          </View>
-        </ScrollView>
-
-        {isPending && (
-          <View style={styles.footer}>
-            <TouchableOpacity
-              style={[styles.declineButton, actionLoading && styles.buttonDisabled]}
-              onPress={handleDecline}
-              disabled={actionLoading}
-              activeOpacity={0.8}
-            >
-              {actionLoading ? (
-                <ActivityIndicator color="#E53935" />
-              ) : (
-                <>
-                  <Ionicons name="close-circle" size={20} color="#E53935" />
+            {/* Accept/Decline Buttons (only for pending) */}
+            {request.status === 'pending' && (
+              <View style={[styles.actionButtons, { paddingBottom: Math.max(insets.bottom, 16) }]}>
+                <TouchableOpacity
+                  style={styles.declineButton}
+                  onPress={handleDecline}
+                  disabled={actionLoading}
+                >
+                  <Ionicons name="close" size={20} color="#C62828" />
                   <Text style={styles.declineButtonText}>Decline</Text>
-                </>
-              )}
-            </TouchableOpacity>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.acceptButton}
+                  onPress={handleAccept}
+                  disabled={actionLoading}
+                >
+                  {actionLoading ? (
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  ) : (
+                    <>
+                      <Ionicons name="checkmark" size={20} color="#FFFFFF" />
+                      <Text style={styles.acceptButtonText}>Accept</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              </View>
+            )}
+          </ScrollView>
+        ) : (
+          /* Chat Tab */
+          <View style={styles.chatContainer}>
+            {loadingMessages ? (
+              <View style={styles.centerContent}>
+                <ActivityIndicator size="large" color="#E53935" />
+              </View>
+            ) : messages.length === 0 ? (
+              <View style={styles.emptyChatContainer}>
+                <Ionicons name="chatbubbles-outline" size={48} color="#CCC" />
+                <Text style={styles.emptyChatTitle}>No messages yet</Text>
+                <Text style={styles.emptyChatText}>Keep all job communication in one place</Text>
+              </View>
+            ) : (
+              <ScrollView
+                ref={scrollViewRef}
+                style={styles.messagesContainer}
+                contentContainerStyle={styles.messagesContent}
+                showsVerticalScrollIndicator={false}
+              >
+                {messages.map((msg) => {
+                  const isMine = msg.senderId === user?.id;
+                  return (
+                    <View key={msg._id} style={[styles.messageBubble, isMine ? styles.messageBubbleMine : styles.messageBubbleTheirs]}>
+                      {!isMine && <Text style={styles.messageSender}>{msg.senderName}</Text>}
+                      <Text style={[styles.messageText, isMine && styles.messageTextMine]}>{msg.text}</Text>
+                      <Text style={[styles.messageTime, isMine && styles.messageTimeMine]}>{formatMessageTime(msg.createdAt)}</Text>
+                    </View>
+                  );
+                })}
+              </ScrollView>
+            )}
 
-            <TouchableOpacity
-              style={[styles.acceptButton, actionLoading && styles.buttonDisabled]}
-              onPress={handleAccept}
-              disabled={actionLoading}
-              activeOpacity={0.8}
-            >
-              {actionLoading ? (
-                <ActivityIndicator color="#FFFFFF" />
-              ) : (
-                <>
-                  <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
-                  <Text style={styles.acceptButtonText}>Accept</Text>
-                </>
-              )}
-            </TouchableOpacity>
+            {/* Message Input */}
+            <View style={[styles.messageInputContainer, { paddingBottom: Math.max(insets.bottom, 12) }]}>
+              <TextInput
+                style={styles.messageInput}
+                placeholder="Type a message..."
+                value={newMessage}
+                onChangeText={setNewMessage}
+                multiline
+                maxLength={1000}
+              />
+              <TouchableOpacity
+                style={[styles.sendButton, (!newMessage.trim() || sendingMessage) && styles.sendButtonDisabled]}
+                onPress={handleSendMessage}
+                disabled={!newMessage.trim() || sendingMessage}
+              >
+                {sendingMessage ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Ionicons name="send" size={20} color="#FFFFFF" />
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
         )}
-      </View>
-    </SafeAreaView>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -355,7 +574,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
   },
   header: {
     flexDirection: 'row',
@@ -373,7 +591,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#1A1A1A',
   },
@@ -381,54 +599,152 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 24,
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: '#666',
+  },
+  errorTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    marginTop: 16,
+    marginBottom: 8,
   },
   errorText: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  retryButton: {
+    backgroundColor: '#E53935',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: '#FFFFFF',
     fontSize: 16,
-    color: '#999',
+    fontWeight: '600',
+  },
+  tabBar: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  tab: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    gap: 6,
+  },
+  tabActive: {
+    borderBottomWidth: 2,
+    borderBottomColor: '#E53935',
+  },
+  tabText: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+  },
+  tabTextActive: {
+    color: '#E53935',
+    fontWeight: '600',
   },
   content: {
     flex: 1,
   },
   contentContainer: {
+    padding: 16,
+    paddingBottom: 32,
+  },
+  statusSection: {
+    alignItems: 'center',
     padding: 24,
-    paddingBottom: 150,
+    borderRadius: 12,
+    marginBottom: 20,
   },
-  urgentBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: '#FFF5F5',
+  statusLabel: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 8,
+  },
+  jobCodeSection: {
+    backgroundColor: '#FFF8E1',
     padding: 16,
     borderRadius: 12,
+    marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#FFCDD2',
-    marginBottom: 24,
+    borderColor: '#FFE082',
   },
-  urgentText: {
+  jobCodeTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#E53935',
+    fontWeight: '600',
+    color: '#1A1A1A',
+    marginBottom: 4,
   },
-  generalBanner: {
+  jobCodeHint: {
+    fontSize: 13,
+    color: '#666',
+    marginBottom: 12,
+  },
+  jobCodeInputRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  jobCodeInput: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 18,
+    textAlign: 'center',
+    letterSpacing: 4,
+  },
+  confirmButton: {
+    backgroundColor: '#E53935',
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 100,
+  },
+  confirmButtonDisabled: {
+    backgroundColor: '#CCCCCC',
+  },
+  confirmButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  completeJobButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    backgroundColor: '#EDE7F6',
+    justifyContent: 'center',
+    backgroundColor: '#4CAF50',
     padding: 16,
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#D1C4E9',
-    marginBottom: 24,
+    marginBottom: 20,
+    gap: 8,
   },
-  generalBannerText: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: '#7C4DFF',
+  completeJobButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
   section: {
-    paddingVertical: 20,
+    paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: '#F0F0F0',
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -437,82 +753,46 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   sectionTitle: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
-    color: '#666',
+    color: '#999',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   sectionContent: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#1A1A1A',
     fontWeight: '500',
   },
-  customerName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
-    marginBottom: 8,
-  },
-  phoneButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingVertical: 8,
-  },
-  phoneText: {
-    fontSize: 16,
+  subCategoryText: {
+    fontSize: 14,
     color: '#E53935',
-    fontWeight: '600',
+    marginTop: 4,
   },
   descriptionText: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#1A1A1A',
-    lineHeight: 24,
+    lineHeight: 22,
   },
-  locationBadge: {
+  actionButtons: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFF5F5',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#FFCDD2',
-    alignSelf: 'flex-start',
-  },
-  locationText: {
-    fontSize: 16,
-    color: '#E53935',
-    fontWeight: '600',
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    padding: 16,
     gap: 12,
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+    marginTop: 24,
   },
   declineButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 16,
-    borderRadius: 12,
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
-    borderColor: '#E53935',
-    minHeight: 56,
+    borderColor: '#C62828',
+    paddingVertical: 14,
+    borderRadius: 12,
+    gap: 8,
   },
   declineButtonText: {
-    color: '#E53935',
+    color: '#C62828',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -521,18 +801,108 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 16,
+    backgroundColor: '#4CAF50',
+    paddingVertical: 14,
     borderRadius: 12,
-    backgroundColor: '#E53935',
-    minHeight: 56,
+    gap: 8,
   },
   acceptButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },
-  buttonDisabled: {
-    opacity: 0.6,
+  chatContainer: {
+    flex: 1,
+  },
+  emptyChatContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  emptyChatTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    marginTop: 12,
+  },
+  emptyChatText: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 4,
+  },
+  messagesContainer: {
+    flex: 1,
+  },
+  messagesContent: {
+    padding: 16,
+    paddingBottom: 8,
+  },
+  messageBubble: {
+    maxWidth: '80%',
+    padding: 12,
+    borderRadius: 16,
+    marginBottom: 8,
+  },
+  messageBubbleMine: {
+    backgroundColor: '#E53935',
+    alignSelf: 'flex-end',
+    borderBottomRightRadius: 4,
+  },
+  messageBubbleTheirs: {
+    backgroundColor: '#F0F0F0',
+    alignSelf: 'flex-start',
+    borderBottomLeftRadius: 4,
+  },
+  messageSender: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#666',
+    marginBottom: 4,
+  },
+  messageText: {
+    fontSize: 15,
+    color: '#1A1A1A',
+    lineHeight: 20,
+  },
+  messageTextMine: {
+    color: '#FFFFFF',
+  },
+  messageTime: {
+    fontSize: 11,
+    color: '#999',
+    marginTop: 4,
+    alignSelf: 'flex-end',
+  },
+  messageTimeMine: {
+    color: 'rgba(255,255,255,0.7)',
+  },
+  messageInputContainer: {
+    flexDirection: 'row',
+    padding: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+    backgroundColor: '#FFFFFF',
+    gap: 8,
+  },
+  messageInput: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    fontSize: 15,
+    maxHeight: 100,
+  },
+  sendButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#E53935',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  sendButtonDisabled: {
+    backgroundColor: '#CCCCCC',
   },
 });
