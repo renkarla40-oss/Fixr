@@ -307,41 +307,41 @@ export default function ServiceLocationScreen() {
         </View>
       </Modal>
 
-      {/* Radius Picker Modal */}
+      {/* Distance Picker Modal */}
       <Modal
-        visible={showRadiusPicker}
+        visible={showDistancePicker}
         animationType="slide"
         transparent={true}
-        onRequestClose={() => setShowRadiusPicker(false)}
+        onRequestClose={() => setShowDistancePicker(false)}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContentSmall}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Search Radius</Text>
-              <TouchableOpacity onPress={() => setShowRadiusPicker(false)}>
+              <Text style={styles.modalTitle}>Search Distance</Text>
+              <TouchableOpacity onPress={() => setShowDistancePicker(false)}>
                 <Ionicons name="close" size={24} color="#666" />
               </TouchableOpacity>
             </View>
             
-            {SEARCH_RADIUS_OPTIONS.map((option) => (
+            {SEARCH_DISTANCE_OPTIONS_KM.map((option) => (
               <TouchableOpacity
-                key={option.value}
+                key={option.valueKm}
                 style={[
                   styles.listItem,
-                  searchRadiusMiles === option.value && styles.listItemSelected,
+                  searchDistanceKm === option.valueKm && styles.listItemSelected,
                 ]}
                 onPress={() => {
-                  setSearchRadiusMiles(option.value);
-                  setShowRadiusPicker(false);
+                  setSearchDistanceKm(option.valueKm);
+                  setShowDistancePicker(false);
                 }}
               >
                 <Text style={[
                   styles.listItemText,
-                  searchRadiusMiles === option.value && styles.listItemTextSelected,
+                  searchDistanceKm === option.valueKm && styles.listItemTextSelected,
                 ]}>
-                  {option.label}
+                  {distanceUnit === 'mi' ? option.labelMi : option.labelKm}
                 </Text>
-                {searchRadiusMiles === option.value && (
+                {searchDistanceKm === option.valueKm && (
                   <Ionicons name="checkmark" size={20} color="#E53935" />
                 )}
               </TouchableOpacity>
