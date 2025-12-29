@@ -110,8 +110,9 @@ export default function ServiceLocationScreen() {
         category,
         categoryName,
         subCategory: subCategory || '',
+        subcategoryKey: subcategoryKey || '',
         location: location.trim(),
-        searchRadiusMiles: searchRadiusMiles.toString(),
+        searchDistanceKm: searchDistanceKm.toString(),
         jobDuration: jobDuration || '',
       },
     });
@@ -120,6 +121,10 @@ export default function ServiceLocationScreen() {
   const getSelectedDurationLabel = () => {
     const selected = JOB_DURATION_OPTIONS.find(opt => opt.value === jobDuration);
     return selected?.label || '';
+  };
+
+  const getCurrentDistanceLabel = () => {
+    return getDistanceLabel(searchDistanceKm, distanceUnit, SEARCH_DISTANCE_OPTIONS_KM);
   };
 
   return (
