@@ -104,10 +104,63 @@
 
 user_problem_statement: |
   Build a launch-ready mobile app called Fixr. The app is for home services (electrical, plumbing, etc).
-  Current task: Implement "Other Services (Beta)" category that allows customers to submit general requests 
-  without selecting a specific provider. These requests should be visible to ALL providers who have completed setup.
+  Current task: Implement "Phase 2: Location Flow + Radius Matching" which includes:
+  - Comprehensive Trinidad towns list with distance calculations
+  - Provider location setup (baseTown, travelRadiusMiles, travelAnywhere)
+  - Customer location flow with search radius and job duration
+  - Location-based provider matching with two buckets (local and travel-anywhere)
+  - Provider list badges showing travel status and distance
+  - No-providers modal when no local matches found
 
 backend:
+  - task: "Trinidad towns list and distance calculation"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented TRINIDAD_TOWNS dict with 44 towns, TOWN_DISTANCES adjacency list, and helper functions (get_town_key, get_town_label, get_distance_between_towns, estimate_distance)"
+
+  - task: "Provider setup with location fields"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated ProviderSetup model to require baseTown, travelRadiusMiles (default 10), travelAnywhere (default false). Updated /api/users/provider-setup to save these fields."
+
+  - task: "Location-based provider matching endpoint"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated GET /api/providers to implement two-bucket matching. Bucket A: providers within search_radius AND (travelAnywhere OR within provider's travel radius), sorted by distance. Bucket B: travel-anywhere providers outside radius, only when include_travel_anywhere=true. Response includes distanceFromJob and isOutsideSelectedArea."
+
+  - task: "Towns list endpoint"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added GET /api/towns endpoint that returns list of all towns with key, label, and region for frontend dropdowns."
+
   - task: "Create general service request (no specific provider)"
     implemented: true
     working: true
@@ -121,7 +174,7 @@ backend:
         comment: "Modified /api/service-requests POST endpoint to accept provider_id=general for creating general requests with isGeneralRequest=true flag"
       - working: true
         agent: "testing"
-        comment: "✅ TESTED: Successfully creates general requests with provider_id=general. Response includes isGeneralRequest=true and providerId=null as expected. Fixed minor logger initialization issue."
+        comment: "✅ TESTED: Successfully creates general requests with provider_id=general. Response includes isGeneralRequest=true and providerId=null as expected."
   
   - task: "Provider dashboard shows general requests"
     implemented: true
@@ -136,22 +189,34 @@ backend:
         comment: "Modified /api/service-requests GET endpoint to include general requests (isGeneralRequest=true) for all providers with completed setup"
       - working: true
         agent: "testing"
-        comment: "✅ TESTED: Providers can see general requests in their dashboard. GET /api/service-requests returns both specific and general requests when user is in provider role. Provider can successfully accept general requests."
+        comment: "✅ TESTED: Providers can see general requests in their dashboard."
 
 frontend:
-  - task: "Other Services (Beta) category on home screen"
+  - task: "Provider setup with location fields"
     implemented: true
     working: "NA"
-    file: "(customer)/home.tsx"
+    file: "provider-setup.tsx"
     stuck_count: 0
     priority: "high"
     needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Category already existed from previous session"
+        comment: "Added Base Town picker (modal with search), Travel Radius dropdown (5/10/15/25/40 miles), and Willing to Travel Anywhere toggle. Fetches towns from /api/towns. Submit includes all location fields."
 
-  - task: "Provider list shows Submit General Request button for Other Services"
+  - task: "Service location screen with radius and duration"
+    implemented: true
+    working: "NA"
+    file: "service-location.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated with town picker modal, search radius selector (5/10/15/25/40 miles, default 10), optional job duration dropdown. Passes all params to provider-list screen."
+
+  - task: "Provider list with location filtering and badges"
     implemented: true
     working: "NA"
     file: "provider-list.tsx"
@@ -161,52 +226,32 @@ frontend:
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Fixed categoryId reference, updated button text and navigation params"
+        comment: "Added filter bar with location display and 'Include travel providers' toggle (default OFF). Shows badges: baseTown, 'Willing to travel', 'Outside selected area', distance. Shows results summary. Fetches with location params."
 
-  - task: "Request service form shows beta helper text"
+  - task: "No providers modal"
     implemented: true
     working: "NA"
-    file: "request-service.tsx"
+    file: "provider-list.tsx"
     stuck_count: 0
     priority: "high"
     needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Added beta notice box with specific helper text for general requests, modified API call to use provider_id=general"
-
-  - task: "Provider dashboard displays general requests distinctly"
-    implemented: true
-    working: "NA"
-    file: "(provider)/dashboard.tsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: true
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Added GENERAL badge with purple styling for general requests to distinguish from regular NEW requests"
-
-  - task: "Provider request detail shows general request indicator"
-    implemented: true
-    working: "NA"
-    file: "provider-request-detail.tsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: true
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Added purple banner for general requests indicating 'Open to All Providers'"
+        comment: "Added modal that appears when initial search returns 0 results. Options: Include travel providers, Change location/radius, Close."
 
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 1
+  test_sequence: 2
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Trinidad towns list and distance calculation"
+    - "Provider setup with location fields"
+    - "Location-based provider matching endpoint"
+    - "Towns list endpoint"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -214,24 +259,23 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: |
-      Implemented "Other Services (Beta)" feature. Please test:
-      1. POST /api/service-requests with provider_id=general should create a request with isGeneralRequest=true
-      2. GET /api/service-requests as a provider should return both specific and general requests
+      Implemented Phase 2: Location Flow + Radius Matching. Please test:
+      
+      1. GET /api/towns - Should return list of 44+ Trinidad towns with key, label, region
+      
+      2. POST /api/users/provider-setup - Test with location fields:
+         - baseTown: "Port of Spain" (required)
+         - travelRadiusMiles: 15
+         - travelAnywhere: true
+      
+      3. GET /api/providers?service=electrical&job_town=San%20Juan&search_radius=10&include_travel_anywhere=false
+         - Should return providers in Bucket A (within radius AND within their travel range)
+         - Sorted by distance ascending
+         
+      4. GET /api/providers?service=electrical&job_town=San%20Juan&search_radius=10&include_travel_anywhere=true
+         - Should include Bucket B (travel-anywhere providers outside radius)
+         - Response should include distanceFromJob and isOutsideSelectedArea fields
       
       Test credentials:
       - Customer: customer@test.com / password123
       - Provider: provider@test.com / password123
-  - agent: "testing"
-    message: |
-      ✅ BACKEND TESTING COMPLETE - All tests passed!
-      
-      Tested and verified:
-      1. Customer login works correctly
-      2. General service request creation (provider_id=general) works - creates requests with isGeneralRequest=true and providerId=null
-      3. Provider login and role switching works correctly  
-      4. Providers can see general requests in their dashboard along with specific requests
-      5. Providers can successfully accept general requests
-      
-      Fixed minor issue: Logger initialization was moved to top of server.py file.
-      
-      All backend APIs for "Other Services (Beta)" feature are working correctly.
