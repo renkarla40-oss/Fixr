@@ -11,6 +11,7 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
+  Modal,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -39,6 +40,9 @@ export default function RequestServiceScreen() {
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [timeError, setTimeError] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  // Phase 3A: Provider unavailable modal
+  const [showUnavailableModal, setShowUnavailableModal] = useState(false);
 
   const categoryNames: { [key: string]: string } = {
     electrical: 'Electrical',
