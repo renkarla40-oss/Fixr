@@ -182,6 +182,11 @@ class BackendTester:
                 break
         
         if not test_provider:
+            # Debug: Print available providers to understand the issue
+            print(f"   DEBUG: User ID: {user_data.get('id')}")
+            print(f"   DEBUG: Available providers: {len(providers)}")
+            for i, provider in enumerate(providers):
+                print(f"   DEBUG: Provider {i}: userId={provider.get('userId')}, name={provider.get('name')}")
             self.log_result("Provider Setup with Location", False, "Test provider not found in providers list")
             return
         
