@@ -186,7 +186,7 @@ export default function ProviderListScreen() {
             <View style={styles.locationInfo}>
               <Ionicons name="location" size={16} color="#E53935" />
               <Text style={styles.locationText}>{location}</Text>
-              <Text style={styles.radiusText}>({searchRadiusMiles} mi)</Text>
+              <Text style={styles.radiusText}>({searchDistanceKm} km)</Text>
             </View>
             
             <View style={styles.toggleContainer}>
