@@ -310,6 +310,19 @@ export default function ProviderListScreen() {
 
                 {/* Badges */}
                 <View style={styles.badgeContainer}>
+                  {/* Availability status badge - Phase 3A */}
+                  {provider.isAcceptingJobs !== false ? (
+                    <View style={styles.acceptingBadge}>
+                      <View style={styles.acceptingDot} />
+                      <Text style={styles.acceptingBadgeText}>Accepting jobs</Text>
+                    </View>
+                  ) : (
+                    <View style={styles.unavailableBadge}>
+                      <View style={styles.unavailableDot} />
+                      <Text style={styles.unavailableBadgeText}>Unavailable</Text>
+                    </View>
+                  )}
+                  
                   {provider.baseTown && (
                     <View style={styles.locationBadge}>
                       <Ionicons name="location-outline" size={12} color="#666" />
@@ -338,6 +351,14 @@ export default function ProviderListScreen() {
                     </View>
                   )}
                 </View>
+
+                {/* Availability note - Phase 3A */}
+                {provider.availabilityNote && (
+                  <View style={styles.availabilityNoteContainer}>
+                    <Ionicons name="time-outline" size={14} color="#666" />
+                    <Text style={styles.availabilityNoteText}>{provider.availabilityNote}</Text>
+                  </View>
+                )}
 
                 {provider.bio && (
                   <Text style={styles.providerBio} numberOfLines={2}>
