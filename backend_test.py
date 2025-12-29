@@ -105,7 +105,9 @@ class FixrAPITester:
         
         if customer_login["success"] and "token" in customer_login["data"]:
             self.customer_token = customer_login["data"]["token"]
-            self.customer_id = customer_login["data"]["user"]["id"]
+            # Handle both 'id' and '_id' fields
+            user_data = customer_login["data"]["user"]
+            self.customer_id = user_data.get("id") or user_data.get("_id")
             self.log_test("Customer Authentication", True, f"Customer ID: {self.customer_id}")
         else:
             self.log_test("Customer Authentication", False, f"Login failed: {customer_login['data']}")
