@@ -883,6 +883,142 @@ async def update_provider_availability(
     updated_provider["_id"] = str(updated_provider["_id"])
     return Provider(**updated_provider)
 
+# Phase 4: Provider Photo Upload Endpoint
+@api_router.post("/providers/me/upload", response_model=Provider)
+async def upload_provider_photo(
+    upload_data: PhotoUploadRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Upload provider profile photo or government ID.
+    Accepts base64 encoded image data.
+    
+    uploadType options:
+    - "profile_photo": Public profile picture
+    - "government_id_front": Front of government-issued ID (private)
+    - "government_id_back": Back of government-issued ID (private)
+    """
+    # Find provider profile
+    provider = await db.providers.find_one({"userId": current_user.id})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Provider profile not found. Please complete provider setup first.")
+    
+    # Validate upload type
+    valid_types = ["profile_photo", "government_id_front", "government_id_back"]
+    if upload_data.uploadType not in valid_types:
+        raise HTTPException(status_code=400, detail=f"Invalid upload type. Must be one of: {', '.join(valid_types)}")
+    
+    try:
+        # Decode base64 image data
+        # Handle data URLs (e.g., "data:image/jpeg;base64,...")
+        image_data = upload_data.imageData
+        if image_data.startswith('data:'):
+            # Extract base64 part from data URL
+            image_data = image_data.split(',')[1]
+        
+        image_bytes = base64.b64decode(image_data)
+        
+        # Validate image size (max 10MB)
+        max_size = 10 * 1024 * 1024  # 10MB
+        if len(image_bytes) > max_size:
+            raise HTTPException(status_code=400, detail="Image too large. Maximum size is 10MB.")
+        
+        # Generate unique filename
+        file_extension = ".jpg"  # Default to jpg
+        unique_id = str(uuid.uuid4())
+        
+        # Determine storage directory
+        if upload_data.uploadType == "profile_photo":
+            storage_dir = UPLOADS_DIR / "profile_photos"
+            url_field = "profilePhotoUrl"
+        else:
+            storage_dir = UPLOADS_DIR / "government_ids"
+            url_field = "governmentIdFrontUrl" if upload_data.uploadType == "government_id_front" else "governmentIdBackUrl"
+        
+        # Create filename with user_id prefix for organization
+        filename = f"{current_user.id}_{upload_data.uploadType}_{unique_id}{file_extension}"
+        file_path = storage_dir / filename
+        
+        # Save file
+        with open(file_path, 'wb') as f:
+            f.write(image_bytes)
+        
+        # Generate URL (relative path for serving)
+        if upload_data.uploadType == "profile_photo":
+            file_url = f"/api/uploads/profile_photos/{filename}"
+        else:
+            file_url = f"/api/uploads/government_ids/{filename}"
+        
+        # Update provider document
+        update_data = {
+            url_field: file_url,
+            "updatedAt": datetime.utcnow()
+        }
+        
+        await db.providers.update_one(
+            {"userId": current_user.id},
+            {"$set": update_data}
+        )
+        
+        # Check if all required uploads are now complete
+        updated_provider = await db.providers.find_one({"userId": current_user.id})
+        profile_photo_exists = bool(updated_provider.get("profilePhotoUrl"))
+        id_front_exists = bool(updated_provider.get("governmentIdFrontUrl"))
+        id_back_exists = bool(updated_provider.get("governmentIdBackUrl"))
+        
+        # Phase 4: All uploads complete = pending status + setupComplete + provider enabled
+        all_uploads_complete = profile_photo_exists and id_front_exists and id_back_exists
+        
+        if all_uploads_complete:
+            # Set status to pending and mark setup complete
+            await db.providers.update_one(
+                {"userId": current_user.id},
+                {"$set": {
+                    "uploadsComplete": True,
+                    "setupComplete": True,
+                    "verificationStatus": "pending"
+                }}
+            )
+            
+            # Enable provider access in user document
+            await db.users.update_one(
+                {"_id": ObjectId(current_user.id)},
+                {"$set": {"isProviderEnabled": True, "updatedAt": datetime.utcnow()}}
+            )
+        
+        # Return updated provider
+        final_provider = await db.providers.find_one({"userId": current_user.id})
+        final_provider["_id"] = str(final_provider["_id"])
+        
+        # Ensure all fields have defaults
+        for field in ["profilePhotoUrl", "governmentIdFrontUrl", "governmentIdBackUrl"]:
+            if field not in final_provider:
+                final_provider[field] = None
+        if "uploadsComplete" not in final_provider:
+            final_provider["uploadsComplete"] = all_uploads_complete
+        if "isAcceptingJobs" not in final_provider:
+            final_provider["isAcceptingJobs"] = True
+        if "availabilityNote" not in final_provider:
+            final_provider["availabilityNote"] = None
+            
+        return Provider(**final_provider)
+        
+    except base64.binascii.Error:
+        raise HTTPException(status_code=400, detail="Invalid image data. Please provide valid base64 encoded image.")
+    except Exception as e:
+        logger.error(f"Upload error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to upload image. Please try again.")
+
+# Serve uploaded files (profile photos only - IDs are private)
+@api_router.get("/uploads/profile_photos/{filename}")
+async def get_profile_photo(filename: str):
+    """Serve profile photos publicly"""
+    from fastapi.responses import FileResponse
+    file_path = UPLOADS_DIR / "profile_photos" / filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Photo not found")
+    return FileResponse(file_path, media_type="image/jpeg")
+
 # Service Request Routes
 @api_router.post("/service-requests", response_model=ServiceRequestResponse)
 async def create_service_request(
