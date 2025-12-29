@@ -685,7 +685,8 @@ async def get_providers(
     """
     Get providers with location-based matching.
     
-    Matching Logic (Phase 2):
+    Matching Logic (Phase 2 + Phase 3A):
+    - Filter: setupComplete=true AND isAcceptingJobs=true
     - Bucket A (local/within radius): Providers where distance <= customer's search_radius
       AND (provider.travelAnywhere OR distance <= provider.travelRadiusMiles)
       Sorted by distance ascending (closest first)
@@ -693,7 +694,8 @@ async def get_providers(
     - Bucket B (travel-anywhere): Providers with travelAnywhere=true that weren't in Bucket A
       Only included if include_travel_anywhere=true
     """
-    query = {"setupComplete": True}
+    # Phase 3A: Only show providers who are accepting jobs
+    query = {"setupComplete": True, "isAcceptingJobs": {"$ne": False}}
     if service:
         query["services"] = service
     
@@ -712,6 +714,10 @@ async def get_providers(
             provider["travelRadiusMiles"] = 10
         if "travelAnywhere" not in provider:
             provider["travelAnywhere"] = False
+        if "isAcceptingJobs" not in provider:
+            provider["isAcceptingJobs"] = True
+        if "availabilityNote" not in provider:
+            provider["availabilityNote"] = None
         
         # If no job_town specified, return all providers (no location filtering)
         if not job_town:
