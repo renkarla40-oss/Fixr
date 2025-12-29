@@ -384,6 +384,8 @@ async def setup_provider(setup_data: ProviderSetup, current_user: User = Depends
         "travelAnywhere": setup_data.travelAnywhere,
         "verificationStatus": "pending",
         "setupComplete": True,
+        "isAcceptingJobs": True,  # Default to accepting jobs
+        "availabilityNote": None,
         "name": current_user.name,
         "phone": current_user.phone,
         "createdAt": datetime.utcnow(),
@@ -391,6 +393,9 @@ async def setup_provider(setup_data: ProviderSetup, current_user: User = Depends
     
     existing_provider = await db.providers.find_one({"userId": current_user.id})
     if existing_provider:
+        # Preserve existing availability settings when updating
+        provider_profile["isAcceptingJobs"] = existing_provider.get("isAcceptingJobs", True)
+        provider_profile["availabilityNote"] = existing_provider.get("availabilityNote")
         await db.providers.update_one(
             {"userId": current_user.id},
             {"$set": provider_profile}
