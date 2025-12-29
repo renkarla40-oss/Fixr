@@ -198,6 +198,15 @@ class Provider(BaseModel):
     governmentIdFrontUrl: Optional[str] = None  # Private - never shown to customers
     governmentIdBackUrl: Optional[str] = None  # Private - never shown to customers
     uploadsComplete: bool = False  # True when both profilePhotoUrl AND governmentIdFrontUrl exist
+    # Phone verification (Phase 4 - Trust)
+    phoneVerified: bool = False
+    phoneVerifiedAt: Optional[datetime] = None
+    # Trust badges & stats
+    completedJobsCount: int = 0
+    averageRating: Optional[float] = None  # 1-5 stars
+    totalReviews: int = 0
+    # Internal risk signals (backend only, never exposed to users)
+    riskFlags: List[str] = []  # Internal tracking only
     # Response-only fields for frontend badges
     distanceFromJob: Optional[int] = None  # Distance in km (set by endpoint)
     isOutsideSelectedArea: bool = False    # True if only shown due to travel-anywhere
