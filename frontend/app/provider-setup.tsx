@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   section: {
-    marginBottom: 32,
+    marginBottom: 24,
   },
   label: {
     fontSize: 18,
@@ -508,6 +508,53 @@ const styles = StyleSheet.create({
     top: 8,
     right: 8,
   },
+  pickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    padding: 16,
+    gap: 12,
+  },
+  pickerButtonText: {
+    flex: 1,
+    fontSize: 16,
+    color: '#1A1A1A',
+  },
+  pickerPlaceholder: {
+    color: '#999',
+  },
+  toggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  toggleInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: 12,
+  },
+  toggleTextContainer: {
+    flex: 1,
+  },
+  toggleLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    marginBottom: 2,
+  },
+  toggleHint: {
+    fontSize: 13,
+    color: '#666',
+  },
   textArea: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
@@ -535,6 +582,96 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: '#FFFFFF',
     fontSize: 18,
+    fontWeight: '600',
+  },
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: '80%',
+    paddingBottom: 32,
+  },
+  modalContentSmall: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingBottom: 32,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    borderRadius: 12,
+    margin: 16,
+    paddingHorizontal: 12,
+    gap: 8,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: '#1A1A1A',
+  },
+  loadingIndicator: {
+    marginVertical: 32,
+  },
+  townItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  townItemSelected: {
+    backgroundColor: '#FFF5F5',
+  },
+  townItemText: {
+    fontSize: 16,
+    color: '#1A1A1A',
+  },
+  townItemTextSelected: {
+    color: '#E53935',
+    fontWeight: '600',
+  },
+  radiusItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  radiusItemSelected: {
+    backgroundColor: '#FFF5F5',
+  },
+  radiusItemText: {
+    fontSize: 16,
+    color: '#1A1A1A',
+  },
+  radiusItemTextSelected: {
+    color: '#E53935',
     fontWeight: '600',
   },
 });
