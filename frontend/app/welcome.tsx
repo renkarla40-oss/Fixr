@@ -39,12 +39,16 @@ export default function WelcomeScreen() {
   const { user, loading, shouldShowBetaNotice, markBetaNoticeSeen } = useAuth();
 
   useEffect(() => {
+    console.log('Welcome useEffect - loading:', loading, 'user:', user?.email, 'shouldShowBetaNotice:', shouldShowBetaNotice);
+    
     if (!loading && user) {
       if (!user.isBetaUser) {
+        console.log('Welcome: Redirecting to beta-gate');
         router.replace('/beta-gate');
         return;
       }
       if (!shouldShowBetaNotice) {
+        console.log('Welcome: User already seen beta notice, navigating to home');
         navigateToHome();
       }
     }
@@ -52,6 +56,8 @@ export default function WelcomeScreen() {
 
   const navigateToHome = () => {
     if (!user) return;
+    console.log('Welcome navigateToHome - role:', user.currentRole, 'isProviderEnabled:', user.isProviderEnabled);
+    
     if (user.currentRole === 'customer') {
       router.replace('/(customer)/home');
     } else if (user.currentRole === 'provider' && user.isProviderEnabled) {
