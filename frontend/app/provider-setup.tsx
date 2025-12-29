@@ -244,18 +244,34 @@ export default function ProviderSetupScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Travel Radius Section */}
+          {/* Travel Distance Section with Unit Toggle */}
           <View style={styles.section}>
-            <Text style={styles.label}>Travel Radius</Text>
+            <View style={styles.labelRow}>
+              <Text style={styles.label}>Travel Distance</Text>
+              <View style={styles.unitToggle}>
+                <TouchableOpacity
+                  style={[styles.unitButton, distanceUnit === 'km' && styles.unitButtonActive]}
+                  onPress={() => setDistanceUnit('km')}
+                >
+                  <Text style={[styles.unitButtonText, distanceUnit === 'km' && styles.unitButtonTextActive]}>km</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.unitButton, distanceUnit === 'mi' && styles.unitButtonActive]}
+                  onPress={() => setDistanceUnit('mi')}
+                >
+                  <Text style={[styles.unitButtonText, distanceUnit === 'mi' && styles.unitButtonTextActive]}>mi</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
             <Text style={styles.hint}>How far are you willing to travel for jobs?</Text>
             
             <TouchableOpacity
               style={styles.pickerButton}
-              onPress={() => setShowRadiusPicker(true)}
+              onPress={() => setShowDistancePicker(true)}
             >
               <Ionicons name="car-outline" size={20} color="#666" />
               <Text style={styles.pickerButtonText}>
-                {travelRadiusMiles} miles
+                {getDistanceLabel(travelDistanceKm, distanceUnit, TRAVEL_DISTANCE_OPTIONS_KM)}
               </Text>
               <Ionicons name="chevron-down" size={20} color="#666" />
             </TouchableOpacity>
@@ -269,7 +285,7 @@ export default function ProviderSetupScreen() {
                 <View style={styles.toggleTextContainer}>
                   <Text style={styles.toggleLabel}>Willing to travel anywhere</Text>
                   <Text style={styles.toggleHint}>
-                    Show your profile to customers outside your travel radius
+                    Show your profile to customers outside your travel distance
                   </Text>
                 </View>
               </View>
