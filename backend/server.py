@@ -1142,8 +1142,333 @@ async def get_my_provider_profile(current_user: User = Depends(get_current_user)
         provider["travelRadiusMiles"] = 10
     if "travelAnywhere" not in provider:
         provider["travelAnywhere"] = False
+    # Add new trust fields defaults
+    if "phoneVerified" not in provider:
+        provider["phoneVerified"] = False
+    if "completedJobsCount" not in provider:
+        provider["completedJobsCount"] = 0
+    if "averageRating" not in provider:
+        provider["averageRating"] = None
+    if "totalReviews" not in provider:
+        provider["totalReviews"] = 0
         
     return Provider(**provider)
+
+# ============================================
+# Phase 4: Phone Verification Endpoints
+# ============================================
+
+@api_router.post("/providers/me/phone/send-otp", response_model=OTPResponse)
+async def send_phone_otp(
+    otp_data: SendOTPRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Send OTP to provider's phone number for verification.
+    Neutral messaging: "Verify your phone number"
+    """
+    phone = otp_data.phone.strip()
+    
+    # Generate OTP
+    otp = generate_otp()
+    
+    # Store OTP with 10 minute expiry
+    otp_storage[phone] = {
+        "otp": otp,
+        "expires": datetime.utcnow() + timedelta(minutes=10),
+        "user_id": current_user.id
+    }
+    
+    # In production, send SMS via Twilio or similar
+    # For now, log the OTP (in beta, display in response for testing)
+    logger.info(f"OTP for {phone}: {otp}")
+    
+    # For beta testing, include OTP in response (remove in production)
+    return OTPResponse(
+        success=True,
+        message=f"Verification code sent to {phone[-4:].rjust(len(phone), '*')}. Code: {otp} (beta only)"
+    )
+
+@api_router.post("/providers/me/phone/verify", response_model=OTPResponse)
+async def verify_phone_otp(
+    verify_data: VerifyOTPRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Verify OTP and mark provider's phone as verified.
+    """
+    phone = verify_data.phone.strip()
+    otp = verify_data.otp.strip()
+    
+    # Check if OTP exists and is valid
+    stored = otp_storage.get(phone)
+    if not stored:
+        return OTPResponse(success=False, message="Verification code expired. Please request a new one.")
+    
+    if datetime.utcnow() > stored["expires"]:
+        del otp_storage[phone]
+        return OTPResponse(success=False, message="Verification code expired. Please request a new one.")
+    
+    if stored["otp"] != otp:
+        return OTPResponse(success=False, message="Incorrect code. Please try again.")
+    
+    if stored["user_id"] != current_user.id:
+        return OTPResponse(success=False, message="Verification failed. Please try again.")
+    
+    # Mark phone as verified
+    await db.providers.update_one(
+        {"userId": current_user.id},
+        {"$set": {
+            "phoneVerified": True,
+            "phoneVerifiedAt": datetime.utcnow(),
+            "updatedAt": datetime.utcnow()
+        }}
+    )
+    
+    # Clean up OTP
+    del otp_storage[phone]
+    
+    return OTPResponse(success=True, message="Phone number verified successfully.")
+
+# ============================================
+# Phase 4: Job Code & Workflow Endpoints
+# ============================================
+
+@api_router.patch("/service-requests/{request_id}/accept")
+async def accept_service_request(
+    request_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Provider accepts a job request. Generates a job code for arrival confirmation.
+    """
+    request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    # Verify the current user is the provider for this request
+    provider = await db.providers.find_one({"userId": current_user.id})
+    if not provider or str(provider["_id"]) != request.get("providerId"):
+        raise HTTPException(status_code=403, detail="Not authorized to accept this request")
+    
+    # Generate job code for customer to share on arrival
+    job_code = generate_job_code()
+    
+    await db.service_requests.update_one(
+        {"_id": ObjectId(request_id)},
+        {"$set": {
+            "status": "accepted",
+            "jobCode": job_code,
+            "acceptedAt": datetime.utcnow()
+        }}
+    )
+    
+    updated_request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
+    updated_request["_id"] = str(updated_request["_id"])
+    
+    return {"success": True, "message": "Job accepted", "jobCode": job_code}
+
+@api_router.post("/service-requests/{request_id}/confirm-arrival")
+async def confirm_job_arrival(
+    request_id: str,
+    confirm_data: ConfirmJobStartRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Provider enters the job code from customer to confirm arrival and start the job.
+    Neutral framing: "Confirm you've arrived"
+    """
+    request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    # Verify the current user is the provider
+    provider = await db.providers.find_one({"userId": current_user.id})
+    if not provider or str(provider["_id"]) != request.get("providerId"):
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Check job code
+    if request.get("jobCode") != confirm_data.jobCode:
+        raise HTTPException(status_code=400, detail="Incorrect code. Please ask the customer for the correct code.")
+    
+    # Mark job as started
+    await db.service_requests.update_one(
+        {"_id": ObjectId(request_id)},
+        {"$set": {
+            "status": "started",
+            "jobStartedAt": datetime.utcnow()
+        }}
+    )
+    
+    return {"success": True, "message": "Job started successfully"}
+
+@api_router.patch("/service-requests/{request_id}/complete")
+async def complete_service_request(
+    request_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Provider marks the job as completed.
+    """
+    request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    # Verify the current user is the provider
+    provider = await db.providers.find_one({"userId": current_user.id})
+    if not provider or str(provider["_id"]) != request.get("providerId"):
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Mark job as completed
+    await db.service_requests.update_one(
+        {"_id": ObjectId(request_id)},
+        {"$set": {
+            "status": "completed",
+            "jobCompletedAt": datetime.utcnow()
+        }}
+    )
+    
+    # Update provider's completed jobs count
+    await db.providers.update_one(
+        {"_id": provider["_id"]},
+        {"$inc": {"completedJobsCount": 1}}
+    )
+    
+    return {"success": True, "message": "Job marked as complete"}
+
+# ============================================
+# Phase 4: Review System Endpoints
+# ============================================
+
+@api_router.post("/service-requests/{request_id}/review")
+async def submit_job_review(
+    request_id: str,
+    review_data: SubmitReviewRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Customer submits a review for a completed job.
+    """
+    request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    # Verify the current user is the customer
+    if request["customerId"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to review this job")
+    
+    # Only allow reviews for completed jobs
+    if request["status"] != "completed":
+        raise HTTPException(status_code=400, detail="Reviews can only be submitted for completed jobs")
+    
+    # Validate rating
+    if review_data.rating < 1 or review_data.rating > 5:
+        raise HTTPException(status_code=400, detail="Rating must be between 1 and 5")
+    
+    # Limit review text
+    review_text = (review_data.review or "")[:500]
+    
+    # Save review
+    await db.service_requests.update_one(
+        {"_id": ObjectId(request_id)},
+        {"$set": {
+            "customerRating": review_data.rating,
+            "customerReview": review_text,
+            "reviewedAt": datetime.utcnow()
+        }}
+    )
+    
+    # Update provider's average rating
+    if request.get("providerId"):
+        # Calculate new average
+        all_reviews = await db.service_requests.find({
+            "providerId": request["providerId"],
+            "customerRating": {"$exists": True, "$ne": None}
+        }).to_list(1000)
+        
+        if all_reviews:
+            total_rating = sum(r["customerRating"] for r in all_reviews)
+            # Include the new rating
+            total_rating += review_data.rating
+            avg_rating = total_rating / (len(all_reviews) + 1)
+            
+            await db.providers.update_one(
+                {"_id": ObjectId(request["providerId"])},
+                {"$set": {
+                    "averageRating": round(avg_rating, 1),
+                    "totalReviews": len(all_reviews) + 1
+                }}
+            )
+    
+    return {"success": True, "message": "Thank you for your feedback"}
+
+# ============================================
+# Phase 4: In-App Messaging (Basic)
+# ============================================
+
+@api_router.get("/service-requests/{request_id}/messages")
+async def get_job_messages(
+    request_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get messages for a job. Keeps communication in-app.
+    """
+    request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    # Verify user is part of this request
+    is_customer = request["customerId"] == current_user.id
+    provider = await db.providers.find_one({"userId": current_user.id})
+    is_provider = provider and str(provider["_id"]) == request.get("providerId")
+    
+    if not is_customer and not is_provider:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Get messages
+    messages = await db.job_messages.find({"requestId": request_id}).sort("createdAt", 1).to_list(100)
+    for msg in messages:
+        msg["_id"] = str(msg["_id"])
+    
+    return {"messages": messages}
+
+@api_router.post("/service-requests/{request_id}/messages")
+async def send_job_message(
+    request_id: str,
+    message: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Send a message within a job. No phone numbers exposed.
+    Framing: "Keep all job communication in one place"
+    """
+    request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    # Verify user is part of this request
+    is_customer = request["customerId"] == current_user.id
+    provider = await db.providers.find_one({"userId": current_user.id})
+    is_provider = provider and str(provider["_id"]) == request.get("providerId")
+    
+    if not is_customer and not is_provider:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Create message
+    msg_dict = {
+        "requestId": request_id,
+        "senderId": current_user.id,
+        "senderName": current_user.name,
+        "senderRole": "provider" if is_provider else "customer",
+        "text": message.get("text", "")[:1000],  # Limit message length
+        "createdAt": datetime.utcnow()
+    }
+    
+    result = await db.job_messages.insert_one(msg_dict)
+    msg_dict["_id"] = str(result.inserted_id)
+    
+    return {"success": True, "message": msg_dict}
 
 # Service Request Routes
 @api_router.post("/service-requests", response_model=ServiceRequestResponse)
