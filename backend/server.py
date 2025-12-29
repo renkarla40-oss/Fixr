@@ -281,6 +281,14 @@ async def login(login_data: LoginRequest):
     if not verify_password(login_data.password, user["password"]):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
+    # Beta bypass for @test.com emails - update existing accounts
+    if is_test_email(login_data.email) and not user.get("isBetaUser", False):
+        await db.users.update_one(
+            {"_id": user["_id"]},
+            {"$set": {"isBetaUser": True, "updatedAt": datetime.utcnow()}}
+        )
+        user["isBetaUser"] = True
+    
     user["_id"] = str(user["_id"])
     access_token = create_access_token(data={"sub": user["_id"]})
     
