@@ -788,7 +788,58 @@ async def get_provider(provider_id: str, current_user: User = Depends(get_curren
         raise HTTPException(status_code=404, detail="Provider not found")
     
     provider["_id"] = str(provider["_id"])
+    # Ensure availability fields have defaults
+    if "isAcceptingJobs" not in provider:
+        provider["isAcceptingJobs"] = True
+    if "availabilityNote" not in provider:
+        provider["availabilityNote"] = None
     return Provider(**provider)
+
+# Phase 3A: Provider availability endpoint
+@api_router.get("/providers/me/profile", response_model=Provider)
+async def get_my_provider_profile(current_user: User = Depends(get_current_user)):
+    """Get current user's provider profile"""
+    provider = await db.providers.find_one({"userId": current_user.id})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Provider profile not found")
+    
+    provider["_id"] = str(provider["_id"])
+    # Ensure availability fields have defaults
+    if "isAcceptingJobs" not in provider:
+        provider["isAcceptingJobs"] = True
+    if "availabilityNote" not in provider:
+        provider["availabilityNote"] = None
+    return Provider(**provider)
+
+@api_router.patch("/providers/me/availability", response_model=Provider)
+async def update_provider_availability(
+    availability_data: ProviderAvailabilityUpdate,
+    current_user: User = Depends(get_current_user)
+):
+    """Update provider's availability settings"""
+    # Find provider profile
+    provider = await db.providers.find_one({"userId": current_user.id})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Provider profile not found")
+    
+    # Validate availability note length
+    if availability_data.availabilityNote and len(availability_data.availabilityNote) > 60:
+        raise HTTPException(status_code=400, detail="Availability note must be 60 characters or less")
+    
+    # Update availability settings
+    await db.providers.update_one(
+        {"userId": current_user.id},
+        {"$set": {
+            "isAcceptingJobs": availability_data.isAcceptingJobs,
+            "availabilityNote": availability_data.availabilityNote,
+            "updatedAt": datetime.utcnow()
+        }}
+    )
+    
+    # Return updated provider
+    updated_provider = await db.providers.find_one({"userId": current_user.id})
+    updated_provider["_id"] = str(updated_provider["_id"])
+    return Provider(**updated_provider)
 
 # Service Request Routes
 @api_router.post("/service-requests", response_model=ServiceRequestResponse)
