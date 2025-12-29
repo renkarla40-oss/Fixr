@@ -47,6 +47,20 @@ ACCESS_TOKEN_EXPIRE_DAYS = 30
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 security = HTTPBearer()
 
+# OTP storage (in production, use Redis with TTL)
+# Format: {phone: {otp: str, expires: datetime}}
+otp_storage = {}
+
+def generate_otp() -> str:
+    """Generate a 6-digit OTP code"""
+    import random
+    return str(random.randint(100000, 999999))
+
+def generate_job_code() -> str:
+    """Generate a 6-digit job confirmation code"""
+    import random
+    return str(random.randint(100000, 999999))
+
 # Create the main app
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
