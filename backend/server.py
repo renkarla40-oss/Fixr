@@ -188,7 +188,7 @@ class Provider(BaseModel):
     verificationStatus: str  # "unverified" | "pending" | "verified" | "rejected"
     setupComplete: bool
     baseTown: Optional[str] = None
-    travelRadiusMiles: int = 10
+    travelDistanceKm: int = 16  # Stored in km (default ~10 mi)
     travelAnywhere: bool = False
     # Availability fields (Phase 3A)
     isAcceptingJobs: bool = True
@@ -199,7 +199,7 @@ class Provider(BaseModel):
     governmentIdBackUrl: Optional[str] = None  # Private - never shown to customers
     uploadsComplete: bool = False  # True when both profilePhotoUrl AND governmentIdFrontUrl exist
     # Response-only fields for frontend badges
-    distanceFromJob: Optional[int] = None  # Distance in miles (set by endpoint)
+    distanceFromJob: Optional[int] = None  # Distance in km (set by endpoint)
     isOutsideSelectedArea: bool = False    # True if only shown due to travel-anywhere
     
     class Config:
