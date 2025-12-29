@@ -134,6 +134,11 @@ class ProviderAvailabilityUpdate(BaseModel):
     isAcceptingJobs: bool
     availabilityNote: Optional[str] = None  # max 60 chars
 
+# Provider Photo Upload Model (Phase 4)
+class PhotoUploadRequest(BaseModel):
+    imageData: str  # Base64 encoded image data
+    uploadType: str  # "profile_photo" | "government_id_front" | "government_id_back"
+
 class ServiceRequest(BaseModel):
     service: str
     description: str
