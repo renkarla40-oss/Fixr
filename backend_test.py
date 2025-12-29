@@ -1,385 +1,340 @@
 #!/usr/bin/env python3
 """
-Backend API Tests for Fixr App - Other Services (Beta) Feature
-Tests the general service request functionality where customers can submit 
-requests without selecting a specific provider.
+Backend API Testing for Phase 2: Location Flow + Radius Matching
+Tests the Trinidad towns list, provider setup with location, and location-based provider matching
 """
 
 import requests
 import json
-from datetime import datetime, timedelta
 import sys
+from typing import Dict, Any, Optional
 
-# Use the production URL from frontend/.env
-BASE_URL = "https://connect-fixr.preview.emergentagent.com/api"
+# Backend URL from frontend .env
+BACKEND_URL = "https://connect-fixr.preview.emergentagent.com/api"
 
 # Test credentials
-CUSTOMER_EMAIL = "customer@test.com"
-CUSTOMER_PASSWORD = "password123"
-PROVIDER_EMAIL = "provider@test.com"
-PROVIDER_PASSWORD = "password123"
+TEST_CUSTOMER = {"email": "customer@test.com", "password": "password123"}
+TEST_PROVIDER = {"email": "provider@test.com", "password": "password123"}
 
-class FixrAPITester:
+class BackendTester:
     def __init__(self):
         self.customer_token = None
         self.provider_token = None
-        self.created_request_id = None
         self.test_results = []
         
-    def log_test(self, test_name, success, message, details=None):
-        """Log test results"""
+    def log_result(self, test_name: str, success: bool, details: str = ""):
+        """Log test result"""
         status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status} {test_name}: {message}")
-        if details:
-            print(f"   Details: {details}")
-        
         self.test_results.append({
             "test": test_name,
             "success": success,
-            "message": message,
             "details": details
         })
+        print(f"{status}: {test_name}")
+        if details:
+            print(f"   Details: {details}")
+        print()
+    
+    def make_request(self, method: str, endpoint: str, data: Dict = None, token: str = None) -> Dict[str, Any]:
+        """Make HTTP request to backend"""
+        url = f"{BACKEND_URL}{endpoint}"
+        headers = {"Content-Type": "application/json"}
         
-    def make_request(self, method, endpoint, headers=None, json_data=None, params=None):
-        """Make HTTP request with error handling"""
-        url = f"{BASE_URL}{endpoint}"
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+        
         try:
-            response = requests.request(
-                method=method,
-                url=url,
-                headers=headers,
-                json=json_data,
-                params=params,
-                timeout=30
-            )
-            return response
+            if method.upper() == "GET":
+                response = requests.get(url, headers=headers, timeout=30)
+            elif method.upper() == "POST":
+                response = requests.post(url, headers=headers, json=data, timeout=30)
+            elif method.upper() == "PATCH":
+                response = requests.patch(url, headers=headers, json=data, timeout=30)
+            else:
+                return {"error": f"Unsupported method: {method}"}
+            
+            return {
+                "status_code": response.status_code,
+                "data": response.json() if response.content else {},
+                "success": 200 <= response.status_code < 300
+            }
         except requests.exceptions.RequestException as e:
-            print(f"Request failed: {e}")
-            return None
-            
-    def test_customer_login(self):
-        """Test 1: Login as Customer"""
-        print("\n=== Test 1: Customer Login ===")
+            return {"error": str(e), "success": False}
+        except json.JSONDecodeError as e:
+            return {"error": f"JSON decode error: {str(e)}", "success": False}
+    
+    def authenticate_users(self) -> bool:
+        """Authenticate test users"""
+        print("=== AUTHENTICATION ===")
         
-        response = self.make_request(
-            "POST",
-            "/auth/login",
-            json_data={
-                "email": CUSTOMER_EMAIL,
-                "password": CUSTOMER_PASSWORD
-            }
-        )
-        
-        if not response:
-            self.log_test("Customer Login", False, "Request failed")
+        # Login customer
+        customer_response = self.make_request("POST", "/auth/login", TEST_CUSTOMER)
+        if not customer_response.get("success"):
+            self.log_result("Customer Authentication", False, f"Failed to login customer: {customer_response}")
             return False
-            
-        if response.status_code == 200:
-            data = response.json()
-            if "token" in data:
-                self.customer_token = data["token"]
-                user_info = data.get("user", {})
-                self.log_test(
-                    "Customer Login", 
-                    True, 
-                    f"Successfully logged in as {user_info.get('name', 'customer')}",
-                    f"User ID: {user_info.get('id')}, Role: {user_info.get('currentRole')}"
-                )
-                return True
-            else:
-                self.log_test("Customer Login", False, "No token in response", data)
-                return False
-        else:
-            self.log_test("Customer Login", False, f"HTTP {response.status_code}", response.text)
-            return False
-            
-    def test_create_general_request(self):
-        """Test 2: Create General Service Request (Other Services Beta)"""
-        print("\n=== Test 2: Create General Service Request ===")
         
+        self.customer_token = customer_response["data"].get("token")
         if not self.customer_token:
-            self.log_test("Create General Request", False, "No customer token available")
+            self.log_result("Customer Authentication", False, "No token received for customer")
             return False
-            
-        # Create a general request with provider_id=general
-        preferred_datetime = (datetime.utcnow() + timedelta(days=1)).isoformat() + "Z"
         
-        response = self.make_request(
-            "POST",
-            "/service-requests",
-            headers={"Authorization": f"Bearer {self.customer_token}"},
-            params={"provider_id": "general"},
-            json_data={
-                "service": "other",
-                "description": "I need help assembling furniture for my new apartment",
-                "preferredDateTime": preferred_datetime
-            }
-        )
+        self.log_result("Customer Authentication", True, "Successfully authenticated customer")
         
-        if not response:
-            self.log_test("Create General Request", False, "Request failed")
+        # Login provider
+        provider_response = self.make_request("POST", "/auth/login", TEST_PROVIDER)
+        if not provider_response.get("success"):
+            self.log_result("Provider Authentication", False, f"Failed to login provider: {provider_response}")
             return False
-            
-        if response.status_code == 200:
-            data = response.json()
-            
-            # Handle both _id and id field names
-            request_id = data.get("id") or data.get("_id")
-            if not request_id:
-                self.log_test(
-                    "Create General Request", 
-                    False, 
-                    "Missing id field in response",
-                    data
-                )
-                return False
-                
-            self.created_request_id = request_id
-            
-            # Verify required fields exist
-            required_fields = ["isGeneralRequest", "service", "description"]
-            missing_fields = [field for field in required_fields if field not in data]
-            
-            if missing_fields:
-                self.log_test(
-                    "Create General Request", 
-                    False, 
-                    f"Missing fields in response: {missing_fields}",
-                    data
-                )
-                return False
-                
-            # Verify it's marked as a general request
-            if data.get("isGeneralRequest") != True:
-                self.log_test(
-                    "Create General Request", 
-                    False, 
-                    f"isGeneralRequest should be True, got: {data.get('isGeneralRequest')}",
-                    data
-                )
-                return False
-                
-            # Verify providerId is None
-            if data.get("providerId") is not None:
-                self.log_test(
-                    "Create General Request", 
-                    False, 
-                    f"providerId should be None for general requests, got: {data.get('providerId')}",
-                    data
-                )
-                return False
-                
-            self.log_test(
-                "Create General Request", 
-                True, 
-                f"Successfully created general request with ID: {self.created_request_id}",
-                f"isGeneralRequest: {data.get('isGeneralRequest')}, providerId: {data.get('providerId')}"
-            )
-            return True
-        else:
-            self.log_test("Create General Request", False, f"HTTP {response.status_code}", response.text)
-            return False
-            
-    def test_provider_login(self):
-        """Test 3: Login as Provider"""
-        print("\n=== Test 3: Provider Login ===")
         
-        response = self.make_request(
-            "POST",
-            "/auth/login",
-            json_data={
-                "email": PROVIDER_EMAIL,
-                "password": PROVIDER_PASSWORD
-            }
-        )
-        
-        if not response:
-            self.log_test("Provider Login", False, "Request failed")
-            return False
-            
-        if response.status_code == 200:
-            data = response.json()
-            if "token" in data:
-                self.provider_token = data["token"]
-                user_info = data.get("user", {})
-                
-                # Switch to provider role if not already
-                if user_info.get("currentRole") != "provider":
-                    print("   Switching to provider role...")
-                    role_response = self.make_request(
-                        "PATCH",
-                        "/users/role",
-                        headers={"Authorization": f"Bearer {self.provider_token}"},
-                        json_data={"currentRole": "provider"}
-                    )
-                    
-                    if role_response and role_response.status_code == 200:
-                        user_info = role_response.json()
-                        print(f"   Successfully switched to provider role")
-                    else:
-                        self.log_test("Provider Login", False, "Failed to switch to provider role")
-                        return False
-                
-                self.log_test(
-                    "Provider Login", 
-                    True, 
-                    f"Successfully logged in as {user_info.get('name', 'provider')}",
-                    f"User ID: {user_info.get('id')}, Role: {user_info.get('currentRole')}, Provider Enabled: {user_info.get('isProviderEnabled')}"
-                )
-                return True
-            else:
-                self.log_test("Provider Login", False, "No token in response", data)
-                return False
-        else:
-            self.log_test("Provider Login", False, f"HTTP {response.status_code}", response.text)
-            return False
-            
-    def test_provider_get_requests(self):
-        """Test 4: Get Service Requests as Provider (should include general requests)"""
-        print("\n=== Test 4: Provider Get Service Requests ===")
-        
+        self.provider_token = provider_response["data"].get("token")
         if not self.provider_token:
-            self.log_test("Provider Get Requests", False, "No provider token available")
+            self.log_result("Provider Authentication", False, "No token received for provider")
             return False
-            
-        response = self.make_request(
-            "GET",
-            "/service-requests",
-            headers={"Authorization": f"Bearer {self.provider_token}"}
-        )
         
-        if not response:
-            self.log_test("Provider Get Requests", False, "Request failed")
-            return False
-            
-        if response.status_code == 200:
-            data = response.json()
-            
-            if not isinstance(data, list):
-                self.log_test("Provider Get Requests", False, "Response should be a list", data)
-                return False
-                
-            # Look for our created general request
-            general_requests = [req for req in data if req.get("isGeneralRequest") == True]
-            our_request = None
-            
-            if self.created_request_id:
-                our_request = next((req for req in data if (req.get("id") or req.get("_id")) == self.created_request_id), None)
-                
-            if not general_requests:
-                self.log_test(
-                    "Provider Get Requests", 
-                    False, 
-                    "No general requests found in provider's request list",
-                    f"Total requests: {len(data)}, General requests: {len(general_requests)}"
-                )
-                return False
-                
-            if self.created_request_id and not our_request:
-                self.log_test(
-                    "Provider Get Requests", 
-                    False, 
-                    f"Our created request (ID: {self.created_request_id}) not found in provider's list",
-                    f"Found {len(data)} requests, {len(general_requests)} general requests"
-                )
-                return False
-                
-            self.log_test(
-                "Provider Get Requests", 
-                True, 
-                f"Provider can see general requests",
-                f"Total requests: {len(data)}, General requests: {len(general_requests)}, Our request found: {our_request is not None}"
-            )
-            return True
-        else:
-            self.log_test("Provider Get Requests", False, f"HTTP {response.status_code}", response.text)
-            return False
-            
-    def test_provider_accept_request(self):
-        """Test 5: Provider Accepts the General Request"""
-        print("\n=== Test 5: Provider Accept General Request ===")
+        self.log_result("Provider Authentication", True, "Successfully authenticated provider")
+        return True
+    
+    def test_towns_endpoint(self):
+        """Test GET /api/towns endpoint"""
+        print("=== TESTING TOWNS ENDPOINT ===")
         
-        if not self.provider_token:
-            self.log_test("Provider Accept Request", False, "No provider token available")
-            return False
-            
-        if not self.created_request_id:
-            self.log_test("Provider Accept Request", False, "No request ID to accept")
-            return False
-            
-        response = self.make_request(
-            "PATCH",
-            f"/service-requests/{self.created_request_id}/accept",
-            headers={"Authorization": f"Bearer {self.provider_token}"}
-        )
+        response = self.make_request("GET", "/towns", token=self.customer_token)
         
-        if not response:
-            self.log_test("Provider Accept Request", False, "Request failed")
-            return False
-            
-        if response.status_code == 200:
-            data = response.json()
-            
-            if data.get("status") != "accepted":
-                self.log_test(
-                    "Provider Accept Request", 
-                    False, 
-                    f"Status should be 'accepted', got: {data.get('status')}",
-                    data
-                )
-                return False
-                
-            self.log_test(
-                "Provider Accept Request", 
-                True, 
-                f"Successfully accepted request {self.created_request_id}",
-                f"Status: {data.get('status')}, Request ID: {data.get('id')}"
-            )
-            return True
-        else:
-            self.log_test("Provider Accept Request", False, f"HTTP {response.status_code}", response.text)
-            return False
-            
-    def run_all_tests(self):
-        """Run all tests in sequence"""
-        print("🚀 Starting Fixr API Tests - Other Services (Beta) Feature")
-        print(f"Testing against: {BASE_URL}")
+        if not response.get("success"):
+            self.log_result("GET /api/towns", False, f"Request failed: {response}")
+            return
         
-        tests = [
-            self.test_customer_login,
-            self.test_create_general_request,
-            self.test_provider_login,
-            self.test_provider_get_requests,
-            self.test_provider_accept_request
+        towns = response["data"]
+        
+        # Verify it's a list
+        if not isinstance(towns, list):
+            self.log_result("GET /api/towns", False, f"Expected list, got {type(towns)}")
+            return
+        
+        # Verify we have 44+ towns as expected
+        if len(towns) < 44:
+            self.log_result("GET /api/towns", False, f"Expected 44+ towns, got {len(towns)}")
+            return
+        
+        # Verify structure of first town
+        if not towns:
+            self.log_result("GET /api/towns", False, "Towns list is empty")
+            return
+        
+        first_town = towns[0]
+        required_fields = ["key", "label", "region"]
+        missing_fields = [field for field in required_fields if field not in first_town]
+        
+        if missing_fields:
+            self.log_result("GET /api/towns", False, f"Missing fields in town object: {missing_fields}")
+            return
+        
+        # Check for specific towns mentioned in the code
+        town_labels = [town["label"] for town in towns]
+        expected_towns = ["Port of Spain", "San Juan", "Chaguanas", "San Fernando"]
+        missing_towns = [town for town in expected_towns if town not in town_labels]
+        
+        if missing_towns:
+            self.log_result("GET /api/towns", False, f"Missing expected towns: {missing_towns}")
+            return
+        
+        self.log_result("GET /api/towns", True, f"Successfully returned {len(towns)} towns with correct structure")
+    
+    def test_provider_setup_with_location(self):
+        """Test POST /api/users/provider-setup with location fields"""
+        print("=== TESTING PROVIDER SETUP WITH LOCATION ===")
+        
+        setup_data = {
+            "services": ["electrical"],
+            "bio": "Test electrical provider for location testing",
+            "baseTown": "Port of Spain",
+            "travelRadiusMiles": 15,
+            "travelAnywhere": True
+        }
+        
+        response = self.make_request("POST", "/users/provider-setup", setup_data, self.provider_token)
+        
+        if not response.get("success"):
+            self.log_result("Provider Setup with Location", False, f"Setup failed: {response}")
+            return
+        
+        user_data = response["data"]
+        
+        # Verify user is now provider enabled
+        if not user_data.get("isProviderEnabled"):
+            self.log_result("Provider Setup with Location", False, "User not marked as provider enabled")
+            return
+        
+        # Now verify the provider profile was created with location data
+        provider_response = self.make_request("GET", "/providers", token=self.provider_token)
+        
+        if not provider_response.get("success"):
+            self.log_result("Provider Setup with Location", False, f"Failed to fetch providers: {provider_response}")
+            return
+        
+        providers = provider_response["data"]
+        
+        # Find our test provider
+        test_provider = None
+        for provider in providers:
+            if provider.get("userId") == user_data.get("id"):
+                test_provider = provider
+                break
+        
+        if not test_provider:
+            self.log_result("Provider Setup with Location", False, "Test provider not found in providers list")
+            return
+        
+        # Verify location fields
+        location_checks = [
+            ("baseTown", "Port of Spain"),
+            ("travelRadiusMiles", 15),
+            ("travelAnywhere", True)
         ]
         
-        for test in tests:
-            success = test()
-            if not success:
-                print(f"\n⚠️  Test failed, continuing with remaining tests...")
-                
+        for field, expected_value in location_checks:
+            actual_value = test_provider.get(field)
+            if actual_value != expected_value:
+                self.log_result("Provider Setup with Location", False, 
+                              f"Field {field}: expected {expected_value}, got {actual_value}")
+                return
+        
+        self.log_result("Provider Setup with Location", True, 
+                       "Provider successfully created with all location fields")
+    
+    def test_location_based_provider_matching(self):
+        """Test GET /api/providers with location-based matching"""
+        print("=== TESTING LOCATION-BASED PROVIDER MATCHING ===")
+        
+        # Test 1: Basic location search without travel providers
+        print("Test 1: Providers in radius with travel OFF")
+        params = {
+            "service": "electrical",
+            "job_town": "San Juan",
+            "search_radius": "10",
+            "include_travel_anywhere": "false"
+        }
+        
+        response = self.make_request("GET", f"/providers?{'&'.join([f'{k}={v}' for k, v in params.items()])}", 
+                                   token=self.customer_token)
+        
+        if not response.get("success"):
+            self.log_result("Location Matching - Bucket A Only", False, f"Request failed: {response}")
+            return
+        
+        bucket_a_providers = response["data"]
+        
+        # Verify response structure
+        if not isinstance(bucket_a_providers, list):
+            self.log_result("Location Matching - Bucket A Only", False, f"Expected list, got {type(bucket_a_providers)}")
+            return
+        
+        # Check that providers have required location fields
+        for provider in bucket_a_providers:
+            required_fields = ["distanceFromJob", "isOutsideSelectedArea"]
+            missing_fields = [field for field in required_fields if field not in provider]
+            
+            if missing_fields:
+                self.log_result("Location Matching - Bucket A Only", False, 
+                              f"Provider missing fields: {missing_fields}")
+                return
+            
+            # Bucket A providers should not be outside selected area
+            if provider.get("isOutsideSelectedArea"):
+                self.log_result("Location Matching - Bucket A Only", False, 
+                              "Bucket A provider marked as outside selected area")
+                return
+        
+        self.log_result("Location Matching - Bucket A Only", True, 
+                       f"Found {len(bucket_a_providers)} providers in Bucket A with correct fields")
+        
+        # Test 2: Include travel-anywhere providers (Bucket B)
+        print("Test 2: Providers in radius with travel ON (includes Bucket B)")
+        params["include_travel_anywhere"] = "true"
+        
+        response = self.make_request("GET", f"/providers?{'&'.join([f'{k}={v}' for k, v in params.items()])}", 
+                                   token=self.customer_token)
+        
+        if not response.get("success"):
+            self.log_result("Location Matching - Bucket A + B", False, f"Request failed: {response}")
+            return
+        
+        all_providers = response["data"]
+        
+        # Should have same or more providers than Bucket A only
+        if len(all_providers) < len(bucket_a_providers):
+            self.log_result("Location Matching - Bucket A + B", False, 
+                          f"With travel providers should have >= {len(bucket_a_providers)} providers, got {len(all_providers)}")
+            return
+        
+        # Check for Bucket B providers (isOutsideSelectedArea = true)
+        bucket_b_providers = [p for p in all_providers if p.get("isOutsideSelectedArea")]
+        
+        # Verify all providers have location fields
+        for provider in all_providers:
+            required_fields = ["distanceFromJob", "isOutsideSelectedArea"]
+            missing_fields = [field for field in required_fields if field not in provider]
+            
+            if missing_fields:
+                self.log_result("Location Matching - Bucket A + B", False, 
+                              f"Provider missing fields: {missing_fields}")
+                return
+        
+        self.log_result("Location Matching - Bucket A + B", True, 
+                       f"Found {len(all_providers)} total providers ({len(bucket_b_providers)} in Bucket B)")
+        
+        # Test 3: Verify sorting (Bucket A should be sorted by distance)
+        print("Test 3: Verify distance sorting in Bucket A")
+        bucket_a_in_combined = [p for p in all_providers if not p.get("isOutsideSelectedArea")]
+        
+        # Check if sorted by distance (ascending)
+        distances = [p.get("distanceFromJob") for p in bucket_a_in_combined if p.get("distanceFromJob") is not None]
+        
+        if distances and distances != sorted(distances):
+            self.log_result("Location Matching - Distance Sorting", False, 
+                          f"Bucket A not sorted by distance: {distances}")
+            return
+        
+        self.log_result("Location Matching - Distance Sorting", True, 
+                       "Bucket A providers correctly sorted by distance")
+    
+    def run_all_tests(self):
+        """Run all backend tests"""
+        print("🧪 STARTING BACKEND API TESTS FOR PHASE 2: LOCATION FLOW")
+        print("=" * 60)
+        
+        # Authenticate first
+        if not self.authenticate_users():
+            print("❌ Authentication failed - cannot proceed with tests")
+            return False
+        
+        # Run all tests
+        self.test_towns_endpoint()
+        self.test_provider_setup_with_location()
+        self.test_location_based_provider_matching()
+        
         # Summary
-        print("\n" + "="*60)
+        print("=" * 60)
         print("📊 TEST SUMMARY")
-        print("="*60)
+        print("=" * 60)
         
         passed = sum(1 for result in self.test_results if result["success"])
         total = len(self.test_results)
         
         for result in self.test_results:
             status = "✅" if result["success"] else "❌"
-            print(f"{status} {result['test']}: {result['message']}")
-            
+            print(f"{status} {result['test']}")
+        
         print(f"\nResults: {passed}/{total} tests passed")
         
         if passed == total:
-            print("🎉 All tests passed! Other Services (Beta) feature is working correctly.")
+            print("🎉 ALL TESTS PASSED!")
             return True
         else:
-            print("⚠️  Some tests failed. Please check the issues above.")
+            print(f"⚠️  {total - passed} tests failed")
             return False
 
 if __name__ == "__main__":
-    tester = FixrAPITester()
+    tester = BackendTester()
     success = tester.run_all_tests()
     sys.exit(0 if success else 1)
