@@ -402,54 +402,265 @@ async def setup_provider(setup_data: ProviderSetup, current_user: User = Depends
     updated_user["_id"] = str(updated_user["_id"])
     return User(**updated_user)
 
-# Trinidad nearbyTownsMap for radius-based matching (no GPS for beta)
-NEARBY_TOWNS_MAP = {
-    "Port of Spain": {
-        "within5": ["Woodbrook", "St James", "Belmont", "Cascade"],
-        "within10": ["Diego Martin", "Maraval", "Laventille"],
-        "within20": ["Arima", "Chaguanas"]
-    },
-    "Diego Martin": {
-        "within5": ["Petit Valley", "St James", "Maraval"],
-        "within10": ["Port of Spain", "Woodbrook"],
-        "within20": ["Arima", "Chaguanas"]
-    },
-    "Arima": {
-        "within5": ["Maloney", "Wallerfield"],
-        "within10": ["Tunapuna", "Arouca"],
-        "within20": ["Port of Spain", "Chaguanas"]
-    },
-    "Chaguanas": {
-        "within5": ["Charlieville", "Cunupia"],
-        "within10": ["Couva", "Freeport"],
-        "within20": ["San Fernando", "Arima"]
-    },
-    "San Fernando": {
-        "within5": ["Marabella", "Palmiste"],
-        "within10": ["Debe", "La Romain"],
-        "within20": ["Couva", "Chaguanas"]
-    },
-    "Couva": {
-        "within5": ["California", "Preysal"],
-        "within10": ["Chaguanas", "Marabella"],
-        "within20": ["San Fernando"]
-    }
+# Trinidad Towns List v1 - Comprehensive list of major towns/areas
+# Each town has a canonical key and display label for future expansion
+TRINIDAD_TOWNS = {
+    # North-West (Port of Spain Area)
+    "port_of_spain": {"label": "Port of Spain", "region": "north"},
+    "woodbrook": {"label": "Woodbrook", "region": "north"},
+    "st_james": {"label": "St. James", "region": "north"},
+    "maraval": {"label": "Maraval", "region": "north"},
+    "st_anns": {"label": "St. Ann's", "region": "north"},
+    "diego_martin": {"label": "Diego Martin", "region": "north"},
+    "petit_valley": {"label": "Petit Valley", "region": "north"},
+    "carenage": {"label": "Carenage", "region": "north"},
+    "chaguaramas": {"label": "Chaguaramas", "region": "north"},
+    
+    # East-West Corridor
+    "san_juan": {"label": "San Juan", "region": "corridor"},
+    "aranguez": {"label": "Aranguez", "region": "corridor"},
+    "el_socorro": {"label": "El Socorro", "region": "corridor"},
+    "tunapuna": {"label": "Tunapuna", "region": "corridor"},
+    "tacarigua": {"label": "Tacarigua", "region": "corridor"},
+    "arouca": {"label": "Arouca", "region": "corridor"},
+    "trincity": {"label": "Trincity", "region": "corridor"},
+    "maloney": {"label": "Maloney", "region": "corridor"},
+    "arima": {"label": "Arima", "region": "corridor"},
+    
+    # Central Trinidad
+    "chaguanas": {"label": "Chaguanas", "region": "central"},
+    "charlieville": {"label": "Charlieville", "region": "central"},
+    "longdenville": {"label": "Longdenville", "region": "central"},
+    "felicity": {"label": "Felicity", "region": "central"},
+    "cunupia": {"label": "Cunupia", "region": "central"},
+    "freeport": {"label": "Freeport", "region": "central"},
+    "couva": {"label": "Couva", "region": "central"},
+    "california": {"label": "California", "region": "central"},
+    "claxton_bay": {"label": "Claxton Bay", "region": "central"},
+    "point_lisas": {"label": "Point Lisas", "region": "central"},
+    
+    # South Trinidad
+    "san_fernando": {"label": "San Fernando", "region": "south"},
+    "marabella": {"label": "Marabella", "region": "south"},
+    "la_romaine": {"label": "La Romaine", "region": "south"},
+    "palmiste": {"label": "Palmiste", "region": "south"},
+    "gulf_view": {"label": "Gulf View", "region": "south"},
+    "princes_town": {"label": "Princes Town", "region": "south"},
+    "penal": {"label": "Penal", "region": "south"},
+    "debe": {"label": "Debe", "region": "south"},
+    "siparia": {"label": "Siparia", "region": "south"},
+    "point_fortin": {"label": "Point Fortin", "region": "south"},
+    
+    # East Trinidad
+    "sangre_grande": {"label": "Sangre Grande", "region": "east"},
+    "valencia": {"label": "Valencia", "region": "east"},
+    
+    # Remote/Extra Areas
+    "toco": {"label": "Toco", "region": "remote"},
+    "mayaro": {"label": "Mayaro", "region": "remote"},
+    "rio_claro": {"label": "Rio Claro", "region": "remote"},
+    "cedros": {"label": "Cedros", "region": "remote"},
 }
 
-def get_towns_within_radius(job_town: str, radius_miles: int) -> List[str]:
-    """Get list of towns within the specified radius of the job town"""
-    towns = [job_town]  # Always include the job town itself
+# Distance matrix between towns (in miles, approximate driving distances)
+# Uses canonical keys for easy lookup
+TOWN_DISTANCES = {
+    # Port of Spain connections
+    ("port_of_spain", "woodbrook"): 1,
+    ("port_of_spain", "st_james"): 2,
+    ("port_of_spain", "maraval"): 3,
+    ("port_of_spain", "st_anns"): 3,
+    ("port_of_spain", "diego_martin"): 5,
+    ("port_of_spain", "san_juan"): 5,
+    ("port_of_spain", "petit_valley"): 6,
+    ("port_of_spain", "aranguez"): 6,
+    ("port_of_spain", "carenage"): 8,
+    ("port_of_spain", "el_socorro"): 8,
+    ("port_of_spain", "tunapuna"): 10,
+    ("port_of_spain", "chaguaramas"): 12,
+    ("port_of_spain", "tacarigua"): 12,
+    ("port_of_spain", "arouca"): 14,
+    ("port_of_spain", "trincity"): 15,
+    ("port_of_spain", "maloney"): 18,
+    ("port_of_spain", "arima"): 20,
+    ("port_of_spain", "chaguanas"): 25,
+    ("port_of_spain", "san_fernando"): 45,
     
-    if job_town in NEARBY_TOWNS_MAP:
-        town_data = NEARBY_TOWNS_MAP[job_town]
-        if radius_miles >= 5:
-            towns.extend(town_data.get("within5", []))
-        if radius_miles >= 10:
-            towns.extend(town_data.get("within10", []))
-        if radius_miles >= 20:
-            towns.extend(town_data.get("within20", []))
+    # Diego Martin connections
+    ("diego_martin", "petit_valley"): 2,
+    ("diego_martin", "st_james"): 4,
+    ("diego_martin", "woodbrook"): 5,
+    ("diego_martin", "maraval"): 5,
+    ("diego_martin", "carenage"): 5,
+    ("diego_martin", "chaguaramas"): 10,
     
-    return list(set(towns))  # Remove duplicates
+    # San Juan / East-West Corridor
+    ("san_juan", "aranguez"): 2,
+    ("san_juan", "el_socorro"): 3,
+    ("san_juan", "tunapuna"): 6,
+    ("san_juan", "tacarigua"): 8,
+    ("san_juan", "arouca"): 10,
+    ("san_juan", "trincity"): 12,
+    ("san_juan", "maloney"): 15,
+    ("san_juan", "arima"): 18,
+    
+    # Tunapuna area
+    ("tunapuna", "tacarigua"): 2,
+    ("tunapuna", "arouca"): 4,
+    ("tunapuna", "trincity"): 5,
+    ("tunapuna", "el_socorro"): 4,
+    ("tunapuna", "aranguez"): 5,
+    ("tunapuna", "maloney"): 8,
+    ("tunapuna", "arima"): 10,
+    
+    # Arima area
+    ("arima", "maloney"): 3,
+    ("arima", "trincity"): 5,
+    ("arima", "arouca"): 6,
+    ("arima", "tacarigua"): 8,
+    ("arima", "valencia"): 12,
+    ("arima", "sangre_grande"): 20,
+    
+    # Chaguanas / Central area
+    ("chaguanas", "charlieville"): 2,
+    ("chaguanas", "longdenville"): 3,
+    ("chaguanas", "felicity"): 3,
+    ("chaguanas", "cunupia"): 4,
+    ("chaguanas", "freeport"): 5,
+    ("chaguanas", "couva"): 8,
+    ("chaguanas", "california"): 10,
+    ("chaguanas", "claxton_bay"): 12,
+    ("chaguanas", "point_lisas"): 12,
+    ("chaguanas", "arima"): 18,
+    ("chaguanas", "san_fernando"): 20,
+    
+    # Couva area
+    ("couva", "california"): 3,
+    ("couva", "freeport"): 4,
+    ("couva", "claxton_bay"): 5,
+    ("couva", "point_lisas"): 6,
+    ("couva", "chaguanas"): 8,
+    ("couva", "san_fernando"): 15,
+    
+    # San Fernando / South
+    ("san_fernando", "marabella"): 2,
+    ("san_fernando", "la_romaine"): 3,
+    ("san_fernando", "palmiste"): 4,
+    ("san_fernando", "gulf_view"): 5,
+    ("san_fernando", "debe"): 8,
+    ("san_fernando", "penal"): 10,
+    ("san_fernando", "princes_town"): 12,
+    ("san_fernando", "siparia"): 15,
+    ("san_fernando", "point_fortin"): 18,
+    ("san_fernando", "couva"): 15,
+    ("san_fernando", "claxton_bay"): 12,
+    
+    # Princes Town area
+    ("princes_town", "penal"): 5,
+    ("princes_town", "debe"): 6,
+    ("princes_town", "rio_claro"): 10,
+    ("princes_town", "mayaro"): 20,
+    
+    # Point Fortin area
+    ("point_fortin", "siparia"): 8,
+    ("point_fortin", "penal"): 12,
+    ("point_fortin", "cedros"): 15,
+    
+    # Sangre Grande / East
+    ("sangre_grande", "valencia"): 8,
+    ("sangre_grande", "arima"): 20,
+    ("sangre_grande", "toco"): 25,
+    ("sangre_grande", "mayaro"): 25,
+    
+    # Remote areas
+    ("mayaro", "rio_claro"): 15,
+    ("toco", "valencia"): 18,
+}
+
+def get_town_key(town_label: str) -> Optional[str]:
+    """Convert a town display label to its canonical key"""
+    if not town_label:
+        return None
+    town_lower = town_label.lower().strip()
+    # First check if it's already a key
+    if town_lower.replace(" ", "_").replace(".", "").replace("'", "") in TRINIDAD_TOWNS:
+        return town_lower.replace(" ", "_").replace(".", "").replace("'", "")
+    # Then check labels
+    for key, data in TRINIDAD_TOWNS.items():
+        if data["label"].lower() == town_lower:
+            return key
+    return None
+
+def get_town_label(town_key: str) -> str:
+    """Convert a canonical key to display label"""
+    if town_key in TRINIDAD_TOWNS:
+        return TRINIDAD_TOWNS[town_key]["label"]
+    return town_key  # Return as-is if not found
+
+def get_distance_between_towns(town1: str, town2: str) -> Optional[int]:
+    """Get distance between two towns in miles. Returns None if not adjacent/known."""
+    key1 = get_town_key(town1)
+    key2 = get_town_key(town2)
+    
+    if not key1 or not key2:
+        return None
+    
+    if key1 == key2:
+        return 0
+    
+    # Check both orderings
+    if (key1, key2) in TOWN_DISTANCES:
+        return TOWN_DISTANCES[(key1, key2)]
+    if (key2, key1) in TOWN_DISTANCES:
+        return TOWN_DISTANCES[(key2, key1)]
+    
+    # If no direct connection, estimate via regions or return a large value
+    # For simplicity in beta, return None for unknown connections
+    return None
+
+def estimate_distance(town1: str, town2: str) -> int:
+    """Estimate distance between towns, using direct distance or region-based estimate"""
+    direct = get_distance_between_towns(town1, town2)
+    if direct is not None:
+        return direct
+    
+    key1 = get_town_key(town1)
+    key2 = get_town_key(town2)
+    
+    if not key1 or not key2:
+        return 999  # Unknown towns, return high value
+    
+    if key1 == key2:
+        return 0
+    
+    # Region-based estimates
+    region1 = TRINIDAD_TOWNS.get(key1, {}).get("region", "unknown")
+    region2 = TRINIDAD_TOWNS.get(key2, {}).get("region", "unknown")
+    
+    if region1 == region2:
+        return 10  # Same region, estimate 10 miles
+    
+    # Cross-region estimates
+    region_distances = {
+        ("north", "corridor"): 12,
+        ("north", "central"): 25,
+        ("north", "south"): 45,
+        ("north", "east"): 35,
+        ("north", "remote"): 50,
+        ("corridor", "central"): 15,
+        ("corridor", "south"): 35,
+        ("corridor", "east"): 20,
+        ("corridor", "remote"): 40,
+        ("central", "south"): 20,
+        ("central", "east"): 25,
+        ("central", "remote"): 35,
+        ("south", "east"): 40,
+        ("south", "remote"): 25,
+        ("east", "remote"): 25,
+    }
+    
+    pair = tuple(sorted([region1, region2]))
+    return region_distances.get(pair, 50)  # Default 50 miles for unknown
 
 # Provider Routes
 @api_router.get("/providers", response_model=List[Provider])
