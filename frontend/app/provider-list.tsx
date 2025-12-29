@@ -51,6 +51,7 @@ export default function ProviderListScreen() {
   const [includeTravelAnywhere, setIncludeTravelAnywhere] = useState(false); // Default OFF
   const [showNoProvidersModal, setShowNoProvidersModal] = useState(false);
   const [initialSearchComplete, setInitialSearchComplete] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProviders(false); // Initial fetch with travel-anywhere OFF
@@ -65,6 +66,8 @@ export default function ProviderListScreen() {
   const fetchProviders = async (includeTravel: boolean) => {
     try {
       setLoading(true);
+      setFetchError(null); // Clear any previous errors
+      
       const response = await axios.get(`${BACKEND_URL}/api/providers`, {
         params: { 
           service: categoryId,
@@ -74,6 +77,8 @@ export default function ProviderListScreen() {
         },
         headers: { Authorization: `Bearer ${token}` },
       });
+      
+      // Valid response - set providers (can be empty array, that's fine)
       setProviders(response.data);
       
       // Check if we need to show the no-providers modal
@@ -83,8 +88,24 @@ export default function ProviderListScreen() {
           setShowNoProvidersModal(true);
         }
       }
-    } catch (error) {
-      console.error('Error fetching providers:', error);
+    } catch (error: any) {
+      // Only log and show error for actual failures (network errors, 4xx/5xx)
+      // Use console.warn instead of console.error to avoid Expo's error toast
+      if (__DEV__) {
+        console.warn('Provider fetch failed:', error?.message || 'Unknown error');
+      }
+      
+      // Set user-friendly error message
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
+        setFetchError('Please sign in to view providers.');
+      } else if (error?.code === 'NETWORK_ERROR' || error?.message?.includes('Network')) {
+        setFetchError('Unable to connect. Please check your internet connection.');
+      } else {
+        setFetchError('Unable to load providers. Please try again.');
+      }
+      
+      // Keep providers empty on error
+      setProviders([]);
     } finally {
       setLoading(false);
     }
