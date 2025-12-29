@@ -14,7 +14,7 @@ import sys
 from typing import Dict, Any, Optional
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://connect-fixr.preview.emergentagent.com/api"
+BACKEND_URL = "https://fixr-services.preview.emergentagent.com/api"
 
 # Test credentials
 CUSTOMER_EMAIL = "customer@test.com"
