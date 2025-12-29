@@ -45,16 +45,16 @@ api_router = APIRouter(prefix="/api")
 # Add validation error handler
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    print(f"=== VALIDATION ERROR ===")
+    print("=== VALIDATION ERROR ===")
     print(f"Errors: {exc.errors()}")
     print(f"Request URL: {request.url}")
     print(f"Request method: {request.method}")
     try:
         body = await request.body()
         print(f"Request body: {body.decode()}")
-    except:
+    except Exception:
         print("Could not read request body")
-    print(f"======================")
+    print("======================")
     return JSONResponse(
         status_code=422,
         content={"detail": exc.errors()},
