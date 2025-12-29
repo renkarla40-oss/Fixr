@@ -17,11 +17,12 @@ import { useAuth } from '../contexts/AuthContext';
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { login, user } = useAuth();
+  const { login, user, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loginSuccess, setLoginSuccess] = useState(false);
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -48,7 +49,8 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await login(email.trim(), password);
-      // Navigation will happen in useEffect when user state updates
+      // Mark login as successful - navigation will happen in useEffect
+      setLoginSuccess(true);
     } catch (error: any) {
       // User-friendly error messages
       const errorMessage = error.message?.toLowerCase() || '';
@@ -60,27 +62,36 @@ export default function LoginScreen() {
         Alert.alert('Sign In Failed', 'Something went wrong. Please try again later.');
       }
       setLoading(false);
+      setLoginSuccess(false);
     }
   };
 
   // Handle navigation after successful login
   useEffect(() => {
-    if (user) {
+    // Only navigate if we have a user AND login was successful (not just auth loading complete)
+    if (user && (loginSuccess || !authLoading)) {
+      console.log('Login useEffect triggered - user:', user.email, 'role:', user.currentRole, 'isBetaUser:', user.isBetaUser);
+      
       // Check if user has beta access
       if (!user.isBetaUser) {
+        console.log('Redirecting to beta-gate');
         router.replace('/beta-gate');
         return;
       }
       
+      // Navigate based on role
       if (user.currentRole === 'provider' && user.isProviderEnabled) {
+        console.log('Redirecting to provider dashboard');
         router.replace('/(provider)/dashboard');
       } else if (user.currentRole === 'provider' && !user.isProviderEnabled) {
+        console.log('Redirecting to provider setup');
         router.replace('/provider-setup');
       } else {
+        console.log('Redirecting to customer home');
         router.replace('/(customer)/home');
       }
     }
-  }, [user]);
+  }, [user, loginSuccess, authLoading]);
 
   return (
     <KeyboardAvoidingView
