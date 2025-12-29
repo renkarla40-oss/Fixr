@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Switch,
   Modal,
+  Image,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -31,6 +32,7 @@ interface Provider {
   isOutsideSelectedArea?: boolean;
   isAcceptingJobs?: boolean;
   availabilityNote?: string;
+  profilePhotoUrl?: string;  // Phase 4: Provider profile photo
 }
 
 export default function ProviderListScreen() {
