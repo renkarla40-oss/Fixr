@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 import sys
 
 # Use the production URL from frontend/.env
-BASE_URL = "https://service-finder-233.preview.emergentagent.com/api"
+BASE_URL = "https://connect-fixr.preview.emergentagent.com/api"
 
 # Test credentials
 CUSTOMER_EMAIL = "customer@test.com"
