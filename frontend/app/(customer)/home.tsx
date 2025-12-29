@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -11,40 +11,11 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import BetaNoticeModal from '../../components/BetaNoticeModal';
-
-const categories = [
-  {
-    id: 'electrical',
-    name: 'Electrical',
-    icon: 'flash' as const,
-  },
-  {
-    id: 'plumbing',
-    name: 'Plumbing',
-    icon: 'water' as const,
-  },
-  {
-    id: 'ac',
-    name: 'AC Repair',
-    icon: 'snow' as const,
-  },
-  {
-    id: 'cleaning',
-    name: 'Cleaning',
-    icon: 'sparkles' as const,
-  },
-  {
-    id: 'handyman',
-    name: 'Handyman',
-    icon: 'hammer' as const,
-  },
-  {
-    id: 'other',
-    name: 'Other Services (Beta)',
-    icon: 'ellipsis-horizontal-circle' as const,
-    isBeta: true,
-  },
-];
+import {
+  getDisplayableCategories,
+  ServiceCategory,
+  requiresSubcategorySelection,
+} from '../../constants/serviceCategories';
 
 export default function CustomerHomeScreen() {
   const router = useRouter();
