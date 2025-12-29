@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,17 +9,101 @@ import {
   ActivityIndicator,
   ScrollView,
   Linking,
+  Switch,
+  TextInput,
+  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
+import axios from 'axios';
 
+const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const BETA_EMAIL = 'fixr.beta@gmail.com';
 
+interface ProviderProfile {
+  isAcceptingJobs: boolean;
+  availabilityNote: string | null;
+  baseTown: string | null;
+  travelRadiusMiles: number;
+  travelAnywhere: boolean;
+}
+
 export default function ProviderProfileScreen() {
-  const { user, logout, switchRole } = useAuth();
+  const { user, token, logout, switchRole } = useAuth();
   const router = useRouter();
   const [switching, setSwitching] = useState(false);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [savingAvailability, setSavingAvailability] = useState(false);
+  
+  // Availability state
+  const [isAcceptingJobs, setIsAcceptingJobs] = useState(true);
+  const [availabilityNote, setAvailabilityNote] = useState('');
+  const [showNoteModal, setShowNoteModal] = useState(false);
+  const [tempNote, setTempNote] = useState('');
+  
+  // Provider profile info
+  const [providerProfile, setProviderProfile] = useState<ProviderProfile | null>(null);
+
+  useEffect(() => {
+    fetchProviderProfile();
+  }, []);
+
+  const fetchProviderProfile = async () => {
+    try {
+      setLoadingProfile(true);
+      const response = await axios.get(`${BACKEND_URL}/api/providers/me/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const profile = response.data;
+      setProviderProfile(profile);
+      setIsAcceptingJobs(profile.isAcceptingJobs ?? true);
+      setAvailabilityNote(profile.availabilityNote || '');
+    } catch (error) {
+      console.warn('Could not load provider profile:', error);
+      // Set defaults if profile not found
+      setIsAcceptingJobs(true);
+      setAvailabilityNote('');
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
+
+  const handleToggleAcceptingJobs = async (value: boolean) => {
+    setIsAcceptingJobs(value);
+    await saveAvailability(value, availabilityNote);
+  };
+
+  const saveAvailability = async (accepting: boolean, note: string) => {
+    try {
+      setSavingAvailability(true);
+      await axios.patch(
+        `${BACKEND_URL}/api/providers/me/availability`,
+        {
+          isAcceptingJobs: accepting,
+          availabilityNote: note || null,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    } catch (error: any) {
+      console.error('Error saving availability:', error);
+      Alert.alert('Error', 'Failed to update availability settings. Please try again.');
+      // Revert on error
+      setIsAcceptingJobs(!accepting);
+    } finally {
+      setSavingAvailability(false);
+    }
+  };
+
+  const handleSaveNote = async () => {
+    if (tempNote.length > 60) {
+      Alert.alert('Too Long', 'Availability note must be 60 characters or less.');
+      return;
+    }
+    setAvailabilityNote(tempNote);
+    setShowNoteModal(false);
+    await saveAvailability(isAcceptingJobs, tempNote);
+  };
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -72,6 +156,57 @@ export default function ProviderProfileScreen() {
             <Text style={styles.phone}>{user?.phone}</Text>
             <View style={styles.roleBadge}>
               <Text style={styles.roleText}>Provider</Text>
+            </View>
+          </View>
+
+          {/* Availability Section - Phase 3A */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Availability</Text>
+            
+            <View style={styles.availabilityCard}>
+              <View style={styles.availabilityToggleRow}>
+                <View style={styles.availabilityInfo}>
+                  <View style={[
+                    styles.statusDot,
+                    isAcceptingJobs ? styles.statusDotActive : styles.statusDotInactive
+                  ]} />
+                  <View>
+                    <Text style={styles.availabilityLabel}>Accepting new jobs</Text>
+                    <Text style={styles.availabilityHint}>
+                      {isAcceptingJobs 
+                        ? 'You appear in customer searches'
+                        : 'You are hidden from searches'}
+                    </Text>
+                  </View>
+                </View>
+                {loadingProfile || savingAvailability ? (
+                  <ActivityIndicator size="small" color="#E53935" />
+                ) : (
+                  <Switch
+                    value={isAcceptingJobs}
+                    onValueChange={handleToggleAcceptingJobs}
+                    trackColor={{ false: '#E0E0E0', true: '#FFCDD2' }}
+                    thumbColor={isAcceptingJobs ? '#E53935' : '#f4f3f4'}
+                  />
+                )}
+              </View>
+              
+              <TouchableOpacity
+                style={styles.noteButton}
+                onPress={() => {
+                  setTempNote(availabilityNote);
+                  setShowNoteModal(true);
+                }}
+              >
+                <Ionicons name="time-outline" size={20} color="#666" />
+                <View style={styles.noteContent}>
+                  <Text style={styles.noteLabel}>Availability note</Text>
+                  <Text style={styles.noteValue} numberOfLines={1}>
+                    {availabilityNote || 'Add a note (e.g., "Weekends only")'}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color="#999" />
+              </TouchableOpacity>
             </View>
           </View>
 
