@@ -44,14 +44,8 @@ export default function RequestServiceScreen() {
   // Phase 3A: Provider unavailable modal
   const [showUnavailableModal, setShowUnavailableModal] = useState(false);
 
-  const categoryNames: { [key: string]: string } = {
-    electrical: 'Electrical',
-    plumbing: 'Plumbing',
-    ac: 'AC Repair',
-    cleaning: 'Cleaning',
-    handyman: 'Handyman',
-    other: 'Other Services (Beta)',
-  };
+  // Get display label from catalog
+  const categoryLabel = getServiceLabel(category);
 
   const formatTime12Hour = (date: Date) => {
     let hours = date.getHours();
