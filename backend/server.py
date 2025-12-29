@@ -878,6 +878,13 @@ async def create_service_request(
             if not provider:
                 raise HTTPException(status_code=404, detail="Provider not found")
             
+            # Phase 3A: Check if provider is accepting jobs
+            if not provider.get("isAcceptingJobs", True):
+                raise HTTPException(
+                    status_code=400, 
+                    detail="Provider unavailable. This Fixr isn't accepting new jobs right now. Please choose another provider."
+                )
+            
             request_dict = {
                 "customerId": current_user.id,
                 "providerId": provider_id,
@@ -898,6 +905,8 @@ async def create_service_request(
         request_dict["_id"] = str(result.inserted_id)
         
         return ServiceRequestResponse(**request_dict)
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error creating service request: {str(e)}")
         raise
