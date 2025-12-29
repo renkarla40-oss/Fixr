@@ -173,7 +173,7 @@ class Provider(BaseModel):
     phone: str
     services: List[str]
     bio: str
-    verificationStatus: str
+    verificationStatus: str  # "unverified" | "pending" | "verified" | "rejected"
     setupComplete: bool
     baseTown: Optional[str] = None
     travelRadiusMiles: int = 10
@@ -181,6 +181,11 @@ class Provider(BaseModel):
     # Availability fields (Phase 3A)
     isAcceptingJobs: bool = True
     availabilityNote: Optional[str] = None  # e.g., "Weekends only", "After 5pm"
+    # Trust/Verification fields (Phase 4)
+    profilePhotoUrl: Optional[str] = None  # Public - shown on provider cards
+    governmentIdFrontUrl: Optional[str] = None  # Private - never shown to customers
+    governmentIdBackUrl: Optional[str] = None  # Private - never shown to customers
+    uploadsComplete: bool = False  # True when both profilePhotoUrl AND governmentIdFrontUrl exist
     # Response-only fields for frontend badges
     distanceFromJob: Optional[int] = None  # Distance in miles (set by endpoint)
     isOutsideSelectedArea: bool = False    # True if only shown due to travel-anywhere
