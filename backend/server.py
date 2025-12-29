@@ -79,6 +79,11 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
 
+# Helper function to check if email is a test email (bypass beta gate)
+def is_test_email(email: str) -> bool:
+    """Check if email ends with @test.com - these get automatic beta access"""
+    return email.lower().endswith("@test.com")
+
 class User(UserBase):
     id: str = Field(alias="_id")
     isProviderEnabled: bool = False
