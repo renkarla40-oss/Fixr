@@ -109,7 +109,7 @@ export default function ProviderSetupScreen() {
     console.log('Selected services:', selectedServices);
     console.log('Bio length:', bio.length);
     console.log('Base town:', baseTown);
-    console.log('Travel radius:', travelRadiusMiles);
+    console.log('Travel distance (km):', travelDistanceKm);
     console.log('Travel anywhere:', travelAnywhere);
     
     if (selectedServices.length === 0) {
@@ -139,7 +139,7 @@ export default function ProviderSetupScreen() {
           services: selectedServices,
           bio: bio.trim(),
           baseTown: baseTown,
-          travelRadiusMiles: travelRadiusMiles,
+          travelDistanceKm: travelDistanceKm,
           travelAnywhere: travelAnywhere,
         },
         {
