@@ -79,21 +79,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
+      console.log('AuthContext: Starting login for', email);
       const response = await axios.post(`${BACKEND_URL}/api/auth/login`, {
         email,
         password,
       });
       const { token: newToken, user: userData } = response.data;
       
+      console.log('AuthContext: Login successful, saving token');
       await AsyncStorage.setItem('authToken', newToken);
       setToken(newToken);
       setUser(userData);
+      console.log('AuthContext: User state updated', userData.email, userData.currentRole);
       
       // Check if this specific user has seen the beta notice
       const userBetaKey = `${BETA_NOTICE_KEY}_${userData._id}`;
       const hasSeenNotice = await AsyncStorage.getItem(userBetaKey);
       setBetaNoticeSeenByUser(hasSeenNotice === 'true');
+      
+      console.log('AuthContext: Login complete');
     } catch (error: any) {
+      console.error('AuthContext: Login error', error.message);
       throw new Error(error.response?.data?.detail || 'Login failed');
     }
   };
