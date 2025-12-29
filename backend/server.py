@@ -399,6 +399,7 @@ async def update_user_profile(
 @api_router.post("/users/provider-setup", response_model=User)
 async def setup_provider(setup_data: ProviderSetup, current_user: User = Depends(get_current_user)):
     # Create or update provider profile with location data
+    # Phase 4: Start with "unverified" status until uploads complete
     provider_profile = {
         "userId": current_user.id,
         "services": setup_data.services,
@@ -406,10 +407,14 @@ async def setup_provider(setup_data: ProviderSetup, current_user: User = Depends
         "baseTown": setup_data.baseTown,
         "travelRadiusMiles": setup_data.travelRadiusMiles,
         "travelAnywhere": setup_data.travelAnywhere,
-        "verificationStatus": "pending",
-        "setupComplete": True,
+        "verificationStatus": "unverified",  # Phase 4: Start as unverified
+        "setupComplete": False,  # Phase 4: Not complete until uploads done
         "isAcceptingJobs": True,  # Default to accepting jobs
         "availabilityNote": None,
+        "profilePhotoUrl": None,  # Phase 4: To be uploaded
+        "governmentIdFrontUrl": None,  # Phase 4: To be uploaded
+        "governmentIdBackUrl": None,  # Phase 4: To be uploaded
+        "uploadsComplete": False,  # Phase 4: Track upload status
         "name": current_user.name,
         "phone": current_user.phone,
         "createdAt": datetime.utcnow(),
@@ -417,9 +422,20 @@ async def setup_provider(setup_data: ProviderSetup, current_user: User = Depends
     
     existing_provider = await db.providers.find_one({"userId": current_user.id})
     if existing_provider:
-        # Preserve existing availability settings when updating
+        # Preserve existing availability and upload settings when updating
         provider_profile["isAcceptingJobs"] = existing_provider.get("isAcceptingJobs", True)
         provider_profile["availabilityNote"] = existing_provider.get("availabilityNote")
+        # Preserve existing uploads
+        provider_profile["profilePhotoUrl"] = existing_provider.get("profilePhotoUrl")
+        provider_profile["governmentIdFrontUrl"] = existing_provider.get("governmentIdFrontUrl")
+        provider_profile["governmentIdBackUrl"] = existing_provider.get("governmentIdBackUrl")
+        # Check if uploads are complete
+        uploads_complete = bool(provider_profile["profilePhotoUrl"] and provider_profile["governmentIdFrontUrl"] and provider_profile["governmentIdBackUrl"])
+        provider_profile["uploadsComplete"] = uploads_complete
+        provider_profile["setupComplete"] = uploads_complete
+        # Set to pending if uploads complete
+        if uploads_complete:
+            provider_profile["verificationStatus"] = "pending"
         await db.providers.update_one(
             {"userId": current_user.id},
             {"$set": provider_profile}
@@ -427,11 +443,13 @@ async def setup_provider(setup_data: ProviderSetup, current_user: User = Depends
     else:
         await db.providers.insert_one(provider_profile)
     
-    # Update user to enable provider access
-    await db.users.update_one(
-        {"_id": ObjectId(current_user.id)},
-        {"$set": {"isProviderEnabled": True, "currentRole": "provider", "updatedAt": datetime.utcnow()}}
-    )
+    # Only enable provider access if uploads are complete (Phase 4 enforcement)
+    provider = await db.providers.find_one({"userId": current_user.id})
+    if provider and provider.get("uploadsComplete"):
+        await db.users.update_one(
+            {"_id": ObjectId(current_user.id)},
+            {"$set": {"isProviderEnabled": True, "currentRole": "provider", "updatedAt": datetime.utcnow()}}
+        )
     
     updated_user = await db.users.find_one({"_id": ObjectId(current_user.id)})
     updated_user["_id"] = str(updated_user["_id"])
