@@ -135,7 +135,7 @@ class FixrAPITester:
                                    self.customer_token, request_data)
         
         if response["success"]:
-            request_id = response["content"]["id"]
+            request_id = response["content"].get("id") or response["content"].get("_id")
             self.log_test("Create Service Request", True, f"Created test request with ID: {request_id}")
             return request_id
         else:
