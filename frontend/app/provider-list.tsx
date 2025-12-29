@@ -283,7 +283,15 @@ export default function ProviderListScreen() {
               >
                 <View style={styles.providerHeader}>
                   <View style={styles.avatarContainer}>
-                    <Ionicons name="person" size={24} color="#666" />
+                    {provider.profilePhotoUrl ? (
+                      <Image
+                        source={{ uri: provider.profilePhotoUrl.startsWith('/') ? `${BACKEND_URL}${provider.profilePhotoUrl}` : provider.profilePhotoUrl }}
+                        style={styles.avatarImage}
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <Ionicons name="person" size={24} color="#666" />
+                    )}
                   </View>
                   <View style={styles.providerInfo}>
                     <View style={styles.nameRow}>
