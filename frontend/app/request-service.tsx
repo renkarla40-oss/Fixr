@@ -137,10 +137,18 @@ export default function RequestServiceScreen() {
       });
     } catch (error: any) {
       console.error('Error creating request:', error);
-      Alert.alert(
-        'Request Failed',
-        error.response?.data?.detail || 'Failed to submit service request. Please try again.'
-      );
+      
+      // Phase 3A: Check if provider is unavailable
+      const errorMessage = error.response?.data?.detail || '';
+      if (errorMessage.toLowerCase().includes('unavailable') || 
+          errorMessage.toLowerCase().includes('not accepting')) {
+        setShowUnavailableModal(true);
+      } else {
+        Alert.alert(
+          'Request Failed',
+          errorMessage || 'Failed to submit service request. Please try again.'
+        );
+      }
     } finally {
       setLoading(false);
     }
