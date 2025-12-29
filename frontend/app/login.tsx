@@ -260,6 +260,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 8,
   },
+  loginButtonDisabled: {
+    backgroundColor: '#CCCCCC',
+  },
+  loginButtonPressed: {
+    backgroundColor: '#C62828',
+    opacity: 0.9,
+  },
   loginButtonText: {
     color: '#FFFFFF',
     fontSize: 18,
