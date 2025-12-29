@@ -33,6 +33,12 @@ interface Provider {
   isAcceptingJobs?: boolean;
   availabilityNote?: string;
   profilePhotoUrl?: string;  // Phase 4: Provider profile photo
+  // Trust badges (Phase 4)
+  phoneVerified?: boolean;
+  uploadsComplete?: boolean;
+  completedJobsCount?: number;
+  averageRating?: number;
+  totalReviews?: number;
 }
 
 export default function ProviderListScreen() {
