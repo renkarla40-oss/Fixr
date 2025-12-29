@@ -17,6 +17,9 @@ import {
   requiresSubcategorySelection,
 } from '../../constants/serviceCategories';
 
+// Get all displayable categories (excludes 'coming_soon')
+const categories = getDisplayableCategories();
+
 export default function CustomerHomeScreen() {
   const router = useRouter();
   const { user, shouldShowBetaNotice, markBetaNoticeSeen } = useAuth();
@@ -25,26 +28,35 @@ export default function CustomerHomeScreen() {
     await markBetaNoticeSeen();
   };
 
-  const handleCategoryPress = (categoryId: string, categoryName: string) => {
-    // Handyman goes to sub-category selection first
-    if (categoryId === 'handyman') {
+  const handleCategoryPress = (category: ServiceCategory) => {
+    // 'Other Services' goes directly to custom request form (no provider search)
+    if (category.serviceKey === 'other') {
       router.push({
-        pathname: '/handyman-subcategory',
-        params: { category: categoryId, categoryName },
+        pathname: '/request-service',
+        params: {
+          providerId: 'general',
+          category: 'other',
+          subCategory: '',
+          location: '',
+        },
       });
-    } 
-    // Other services go directly to provider list (existing flow)
-    else if (categoryId === 'other') {
-      router.push({
-        pathname: '/provider-list',
-        params: { category: categoryId, categoryName },
-      });
+      return;
     }
-    // All other services go to location selection first
-    else {
+
+    // Categories with subcategories go to subcategory selection
+    if (requiresSubcategorySelection(category.serviceKey)) {
+      router.push({
+        pathname: '/subcategory-screen',
+        params: { serviceKey: category.serviceKey },
+      });
+    } else {
+      // Categories without subcategories go directly to location
       router.push({
         pathname: '/service-location',
-        params: { category: categoryId, categoryName },
+        params: {
+          category: category.serviceKey,
+          categoryName: category.label,
+        },
       });
     }
   };
