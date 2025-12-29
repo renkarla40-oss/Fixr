@@ -421,12 +421,19 @@ async def update_user_profile(
 async def setup_provider(setup_data: ProviderSetup, current_user: User = Depends(get_current_user)):
     # Create or update provider profile with location data
     # Phase 4: Start with "unverified" status until uploads complete
+    
+    # Handle km/mi conversion - use km internally
+    travel_distance_km = setup_data.travelDistanceKm
+    if setup_data.travelRadiusMiles is not None:
+        # Legacy support: convert miles to km (1 mile = 1.60934 km)
+        travel_distance_km = round(setup_data.travelRadiusMiles * 1.60934)
+    
     provider_profile = {
         "userId": current_user.id,
         "services": setup_data.services,
         "bio": setup_data.bio,
         "baseTown": setup_data.baseTown,
-        "travelRadiusMiles": setup_data.travelRadiusMiles,
+        "travelDistanceKm": travel_distance_km,
         "travelAnywhere": setup_data.travelAnywhere,
         "verificationStatus": "unverified",  # Phase 4: Start as unverified
         "setupComplete": False,  # Phase 4: Not complete until uploads done
