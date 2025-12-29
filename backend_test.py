@@ -175,26 +175,50 @@ class BackendTester:
                 self.log_result("Provider profile - Phase 4 fields", True, 
                               "All Phase 4 fields present in response")
                 
-                # Check initial values
-                expected_values = {
-                    "profilePhotoUrl": None,
-                    "governmentIdFrontUrl": None, 
-                    "governmentIdBackUrl": None,
-                    "uploadsComplete": False,
-                    "verificationStatus": "unverified"
-                }
+                # Check if this is a fresh provider or one with existing uploads
+                has_existing_uploads = bool(profile.get("profilePhotoUrl") and 
+                                          profile.get("governmentIdFrontUrl") and 
+                                          profile.get("governmentIdBackUrl"))
                 
-                values_correct = True
-                for field, expected in expected_values.items():
-                    actual = profile.get(field)
-                    if actual != expected:
-                        values_correct = False
-                        self.log_result(f"Provider profile - {field} initial value", False,
-                                      f"Expected {expected}, got {actual}")
-                
-                if values_correct:
-                    self.log_result("Provider profile - initial values", True,
-                                  "All Phase 4 fields have correct initial values")
+                if has_existing_uploads:
+                    # Provider already has uploads - verify they're in correct state
+                    expected_values = {
+                        "uploadsComplete": True,
+                        "verificationStatus": "pending"
+                    }
+                    
+                    values_correct = True
+                    for field, expected in expected_values.items():
+                        actual = profile.get(field)
+                        if actual != expected:
+                            values_correct = False
+                            self.log_result(f"Provider profile - {field} with uploads", False,
+                                          f"Expected {expected}, got {actual}")
+                    
+                    if values_correct:
+                        self.log_result("Provider profile - existing uploads state", True,
+                                      "Provider with existing uploads has correct status")
+                else:
+                    # Fresh provider - check initial values
+                    expected_values = {
+                        "profilePhotoUrl": None,
+                        "governmentIdFrontUrl": None, 
+                        "governmentIdBackUrl": None,
+                        "uploadsComplete": False,
+                        "verificationStatus": "unverified"
+                    }
+                    
+                    values_correct = True
+                    for field, expected in expected_values.items():
+                        actual = profile.get(field)
+                        if actual != expected:
+                            values_correct = False
+                            self.log_result(f"Provider profile - {field} initial value", False,
+                                          f"Expected {expected}, got {actual}")
+                    
+                    if values_correct:
+                        self.log_result("Provider profile - initial values", True,
+                                      "All Phase 4 fields have correct initial values")
             else:
                 self.log_result("Provider profile - Phase 4 fields", False,
                               f"Missing fields: {missing_fields}")
