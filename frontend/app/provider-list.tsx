@@ -47,6 +47,7 @@ export default function ProviderListScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { token } = useAuth();
+  const insets = useSafeAreaInsets();
   
   // Extract params with clear variable names
   const categoryId = params.category as string;
@@ -54,12 +55,10 @@ export default function ProviderListScreen() {
   const subCategory = params.subCategory as string | undefined;
   const subcategoryKey = params.subcategoryKey as string | undefined;
   const location = params.location as string | undefined;
-  // Support both new (km) and legacy (miles) params
+  // Use searchDistanceKm consistently (convert legacy searchRadiusMiles if present)
   const searchDistanceKm = params.searchDistanceKm 
     ? parseInt(params.searchDistanceKm as string) 
-    : params.searchRadiusMiles 
-      ? Math.round(parseInt(params.searchRadiusMiles as string) * 1.60934)
-      : 16;
+    : 16; // Default 16km (~10 miles)
   const jobDuration = params.jobDuration as string | undefined;
   
   // Check if this is the "Other Services (Beta)" category
