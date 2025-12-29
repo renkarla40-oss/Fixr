@@ -258,6 +258,12 @@ async def signup(user_data: UserCreate):
     user_dict["createdAt"] = datetime.utcnow()
     user_dict["updatedAt"] = datetime.utcnow()
     
+    # Beta bypass for @test.com emails
+    if is_test_email(user_data.email):
+        user_dict["isBetaUser"] = True
+    else:
+        user_dict["isBetaUser"] = False
+    
     result = await db.users.insert_one(user_dict)
     user_dict["_id"] = str(result.inserted_id)
     
