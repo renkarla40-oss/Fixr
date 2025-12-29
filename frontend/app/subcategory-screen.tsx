@@ -4,13 +4,13 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
   Platform,
   TextInput,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   getCategoryByKey,
   getSubcategoriesByKey,
@@ -20,6 +20,7 @@ import {
 export default function SubcategoryScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
   const serviceKey = params.serviceKey as string;
   
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
