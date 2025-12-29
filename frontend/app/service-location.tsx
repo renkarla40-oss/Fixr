@@ -17,16 +17,15 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+import {
+  DistanceUnit,
+  SEARCH_DISTANCE_OPTIONS_KM,
+  DEFAULT_DISTANCE_UNIT,
+  DEFAULT_SEARCH_DISTANCE_KM,
+  getDistanceLabel,
+} from '../constants/distanceUtils';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
-
-const SEARCH_RADIUS_OPTIONS = [
-  { value: 5, label: '5 miles' },
-  { value: 10, label: '10 miles' },
-  { value: 15, label: '15 miles' },
-  { value: 25, label: '25 miles' },
-  { value: 40, label: '40 miles' },
-];
 
 const JOB_DURATION_OPTIONS = [
   { value: 'less_than_1_hour', label: 'Less than 1 hour' },
