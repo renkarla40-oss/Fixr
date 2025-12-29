@@ -1,39 +1,56 @@
 /**
  * Fixr Service Categories & Sub-Categories
- * 
- * Comprehensive Angi-style service catalog for Trinidad & Tobago
+ * SINGLE SOURCE OF TRUTH
  * 
  * Structure:
- * - id: unique identifier (snake_case)
+ * - serviceKey: API-safe identifier (snake_case)
  * - label: user-friendly display name
  * - icon: Ionicons icon name
- * - subcategories: array of specific services
+ * - subcategories: array with subcategoryKey + label
  * - status: 'core' | 'beta' | 'coming_soon'
  * 
- * Last updated: December 2024
+ * IMPORTANT: UI displays labels, API uses keys
  */
 
+export interface SubCategory {
+  subcategoryKey: string;
+  label: string;
+}
+
 export interface ServiceCategory {
-  id: string;
+  serviceKey: string;
   label: string;
   icon: string;
   description: string;
-  subcategories: string[];
+  subcategories: SubCategory[];
   status: 'core' | 'beta' | 'coming_soon';
 }
 
-export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
+// Helper to convert label to key
+const toKey = (label: string): string => 
+  label.toLowerCase()
+    .replace(/[&]/g, 'and')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+
+// Helper to create subcategories with keys
+const createSubs = (labels: string[]): SubCategory[] =>
+  labels.map(label => ({
+    subcategoryKey: toKey(label),
+    label,
+  }));
+
+export const SERVICE_CATEGORIES: ServiceCategory[] = [
   // ═══════════════════════════════════════════════════════════════
   // CORE HOME SERVICES
   // ═══════════════════════════════════════════════════════════════
-
-  electrical: {
-    id: 'electrical',
+  {
+    serviceKey: 'electrical',
     label: 'Electrical',
     icon: 'flash',
     description: 'Electrical repairs, installations, and upgrades',
     status: 'core',
-    subcategories: [
+    subcategories: createSubs([
       'Outlet & Switch Repair',
       'Outlet & Switch Installation',
       'Lighting Installation',
@@ -52,16 +69,15 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'EV Charger Installation',
       'Whole House Rewiring',
       'Commercial Electrical',
-    ],
+    ]),
   },
-
-  plumbing: {
-    id: 'plumbing',
+  {
+    serviceKey: 'plumbing',
     label: 'Plumbing',
     icon: 'water',
     description: 'Plumbing repairs, installations, and maintenance',
     status: 'core',
-    subcategories: [
+    subcategories: createSubs([
       'Leak Repair',
       'Pipe Repair & Replacement',
       'Faucet Repair & Installation',
@@ -84,16 +100,15 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Emergency Plumbing',
       'Gas Line Installation',
       'Septic Tank Service',
-    ],
+    ]),
   },
-
-  ac_hvac: {
-    id: 'ac_hvac',
+  {
+    serviceKey: 'ac_hvac',
     label: 'AC & Cooling',
     icon: 'snow',
     description: 'Air conditioning installation, repair, and maintenance',
     status: 'core',
-    subcategories: [
+    subcategories: createSubs([
       'AC Repair',
       'AC Installation',
       'AC Maintenance & Service',
@@ -109,16 +124,15 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Exhaust Fan Installation',
       'Commercial AC Service',
       'AC Unit Replacement',
-    ],
+    ]),
   },
-
-  cleaning: {
-    id: 'cleaning',
+  {
+    serviceKey: 'cleaning',
     label: 'Cleaning',
     icon: 'sparkles',
     description: 'Residential and commercial cleaning services',
     status: 'core',
-    subcategories: [
+    subcategories: createSubs([
       'House Cleaning',
       'Deep Cleaning',
       'Move-In/Move-Out Cleaning',
@@ -139,16 +153,15 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Disinfection Services',
       'Regular Maid Service',
       'One-Time Cleaning',
-    ],
+    ]),
   },
-
-  handyman: {
-    id: 'handyman',
+  {
+    serviceKey: 'handyman',
     label: 'Handyman',
     icon: 'hammer',
     description: 'General repairs and odd jobs around the home',
     status: 'core',
-    subcategories: [
+    subcategories: createSubs([
       'General Repairs',
       'Furniture Assembly',
       'Shelf & Rack Installation',
@@ -173,20 +186,19 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Yard Work & Cleanup',
       'Small Painting Jobs',
       'Odd Jobs',
-    ],
+    ]),
   },
 
   // ═══════════════════════════════════════════════════════════════
   // CONSTRUCTION & RENOVATION
   // ═══════════════════════════════════════════════════════════════
-
-  painting: {
-    id: 'painting',
+  {
+    serviceKey: 'painting',
     label: 'Painting',
     icon: 'color-palette',
     description: 'Interior and exterior painting services',
     status: 'core',
-    subcategories: [
+    subcategories: createSubs([
       'Interior Painting',
       'Exterior Painting',
       'Cabinet Painting',
@@ -201,16 +213,15 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Commercial Painting',
       'Pressure Washing & Prep',
       'Color Consultation',
-    ],
+    ]),
   },
-
-  carpentry: {
-    id: 'carpentry',
+  {
+    serviceKey: 'carpentry',
     label: 'Carpentry',
     icon: 'construct',
     description: 'Custom woodwork, built-ins, and carpentry projects',
     status: 'core',
-    subcategories: [
+    subcategories: createSubs([
       'Custom Cabinets',
       'Cabinet Repair',
       'Cabinet Refacing',
@@ -230,16 +241,15 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Railing Installation',
       'Wood Rot Repair',
       'Framing',
-    ],
+    ]),
   },
-
-  roofing: {
-    id: 'roofing',
+  {
+    serviceKey: 'roofing',
     label: 'Roofing',
     icon: 'home',
     description: 'Roof repair, replacement, and maintenance',
     status: 'core',
-    subcategories: [
+    subcategories: createSubs([
       'Roof Repair',
       'Roof Replacement',
       'Roof Inspection',
@@ -257,16 +267,15 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Emergency Roof Repair',
       'Storm Damage Repair',
       'Fascia & Soffit Repair',
-    ],
+    ]),
   },
-
-  flooring: {
-    id: 'flooring',
+  {
+    serviceKey: 'flooring',
     label: 'Flooring',
     icon: 'grid',
     description: 'Floor installation, repair, and refinishing',
     status: 'core',
-    subcategories: [
+    subcategories: createSubs([
       'Tile Installation',
       'Tile Repair',
       'Hardwood Installation',
@@ -283,16 +292,15 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Outdoor Tile',
       'Stair Treads',
       'Floor Removal',
-    ],
+    ]),
   },
-
-  masonry: {
-    id: 'masonry',
+  {
+    serviceKey: 'masonry',
     label: 'Masonry & Concrete',
     icon: 'cube',
     description: 'Concrete work, block laying, and stone work',
     status: 'core',
-    subcategories: [
+    subcategories: createSubs([
       'Concrete Pouring',
       'Concrete Repair',
       'Driveway Installation',
@@ -309,16 +317,15 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Concrete Sealing',
       'Stamped Concrete',
       'Decorative Concrete',
-    ],
+    ]),
   },
-
-  renovation: {
-    id: 'renovation',
+  {
+    serviceKey: 'renovation',
     label: 'Renovation',
     icon: 'build',
     description: 'Home renovation and remodeling projects',
     status: 'beta',
-    subcategories: [
+    subcategories: createSubs([
       'Kitchen Remodeling',
       'Bathroom Remodeling',
       'Basement Finishing',
@@ -331,20 +338,19 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Historic Restoration',
       'Commercial Renovation',
       'Structural Modifications',
-    ],
+    ]),
   },
 
   // ═══════════════════════════════════════════════════════════════
   // OUTDOOR & LANDSCAPING
   // ═══════════════════════════════════════════════════════════════
-
-  landscaping: {
-    id: 'landscaping',
+  {
+    serviceKey: 'landscaping',
     label: 'Landscaping',
     icon: 'leaf',
     description: 'Lawn care, garden design, and outdoor beautification',
     status: 'core',
-    subcategories: [
+    subcategories: createSubs([
       'Lawn Mowing',
       'Lawn Care & Treatment',
       'Garden Design',
@@ -368,16 +374,15 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Retaining Wall (Landscape)',
       'Paver Installation',
       'Walkway Installation',
-    ],
+    ]),
   },
-
-  fencing: {
-    id: 'fencing',
+  {
+    serviceKey: 'fencing',
     label: 'Fencing & Gates',
     icon: 'apps',
     description: 'Fence and gate installation, repair, and maintenance',
     status: 'core',
-    subcategories: [
+    subcategories: createSubs([
       'Wood Fence Installation',
       'Chain Link Fence',
       'Metal Fence Installation',
@@ -392,16 +397,15 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Security Fencing',
       'Pool Fencing',
       'Privacy Fence',
-    ],
+    ]),
   },
-
-  pools: {
-    id: 'pools',
+  {
+    serviceKey: 'pools',
     label: 'Pools & Spas',
     icon: 'water-outline',
     description: 'Pool installation, maintenance, and repair',
     status: 'beta',
-    subcategories: [
+    subcategories: createSubs([
       'Pool Cleaning',
       'Pool Maintenance',
       'Pool Repair',
@@ -417,16 +421,15 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Hot Tub Installation',
       'Pool Deck Repair',
       'Pool Safety Inspection',
-    ],
+    ]),
   },
-
-  outdoor_structures: {
-    id: 'outdoor_structures',
+  {
+    serviceKey: 'outdoor_structures',
     label: 'Outdoor Structures',
     icon: 'business',
     description: 'Decks, patios, pergolas, and outdoor living spaces',
     status: 'beta',
-    subcategories: [
+    subcategories: createSubs([
       'Deck Building',
       'Deck Repair',
       'Deck Staining & Sealing',
@@ -441,20 +444,19 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Retaining Wall',
       'Awning Installation',
       'Screen Enclosure',
-    ],
+    ]),
   },
 
   // ═══════════════════════════════════════════════════════════════
   // APPLIANCES & SYSTEMS
   // ═══════════════════════════════════════════════════════════════
-
-  appliance_repair: {
-    id: 'appliance_repair',
+  {
+    serviceKey: 'appliance_repair',
     label: 'Appliance Repair',
     icon: 'settings',
     description: 'Repair and maintenance for household appliances',
     status: 'core',
-    subcategories: [
+    subcategories: createSubs([
       'Refrigerator Repair',
       'Washing Machine Repair',
       'Dryer Repair',
@@ -469,16 +471,15 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Appliance Installation',
       'Water Heater Repair',
       'Water Heater Installation',
-    ],
+    ]),
   },
-
-  security_systems: {
-    id: 'security_systems',
+  {
+    serviceKey: 'security_systems',
     label: 'Security Systems',
     icon: 'shield-checkmark',
     description: 'Home security installation and monitoring',
     status: 'beta',
-    subcategories: [
+    subcategories: createSubs([
       'Security Camera Installation',
       'CCTV Installation',
       'Alarm System Installation',
@@ -492,16 +493,15 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Safe Installation',
       'Security Consultation',
       'Commercial Security',
-    ],
+    ]),
   },
-
-  smart_home: {
-    id: 'smart_home',
+  {
+    serviceKey: 'smart_home',
     label: 'Smart Home',
     icon: 'phone-portrait',
     description: 'Smart home device installation and setup',
     status: 'beta',
-    subcategories: [
+    subcategories: createSubs([
       'Smart Thermostat Installation',
       'Smart Lighting Setup',
       'Smart Lock Installation',
@@ -514,20 +514,19 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Smart Doorbell Installation',
       'Smart Garage Door',
       'Voice Assistant Setup',
-    ],
+    ]),
   },
 
   // ═══════════════════════════════════════════════════════════════
   // SPECIALTY SERVICES
   // ═══════════════════════════════════════════════════════════════
-
-  pest_control: {
-    id: 'pest_control',
+  {
+    serviceKey: 'pest_control',
     label: 'Pest Control',
     icon: 'bug',
     description: 'Pest elimination and prevention services',
     status: 'core',
-    subcategories: [
+    subcategories: createSubs([
       'General Pest Control',
       'Termite Treatment',
       'Termite Inspection',
@@ -541,16 +540,15 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Fumigation',
       'Preventive Pest Control',
       'Commercial Pest Control',
-    ],
+    ]),
   },
-
-  windows_doors: {
-    id: 'windows_doors',
+  {
+    serviceKey: 'windows_doors',
     label: 'Windows & Doors',
     icon: 'browsers',
     description: 'Window and door installation, repair, and replacement',
     status: 'core',
-    subcategories: [
+    subcategories: createSubs([
       'Window Installation',
       'Window Replacement',
       'Window Repair',
@@ -567,16 +565,15 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Window Tinting',
       'Hurricane Shutters',
       'Burglar Bars',
-    ],
+    ]),
   },
-
-  welding: {
-    id: 'welding',
+  {
+    serviceKey: 'welding',
     label: 'Welding & Metalwork',
     icon: 'flame',
     description: 'Custom welding and metal fabrication',
     status: 'core',
-    subcategories: [
+    subcategories: createSubs([
       'Gate Fabrication',
       'Fence Fabrication',
       'Railing Fabrication',
@@ -591,16 +588,15 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Custom Metal Fabrication',
       'Balcony Railings',
       'Car Port Construction',
-    ],
+    ]),
   },
-
-  garage_doors: {
-    id: 'garage_doors',
+  {
+    serviceKey: 'garage_doors',
     label: 'Garage Doors',
     icon: 'car',
     description: 'Garage door installation, repair, and maintenance',
     status: 'beta',
-    subcategories: [
+    subcategories: createSubs([
       'Garage Door Repair',
       'Garage Door Installation',
       'Garage Door Opener Repair',
@@ -610,20 +606,19 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Garage Door Maintenance',
       'Commercial Garage Doors',
       'Roll-Up Door Repair',
-    ],
+    ]),
   },
 
   // ═══════════════════════════════════════════════════════════════
   // MOVING & DELIVERY
   // ═══════════════════════════════════════════════════════════════
-
-  moving: {
-    id: 'moving',
+  {
+    serviceKey: 'moving',
     label: 'Moving & Hauling',
     icon: 'cube-outline',
     description: 'Moving, hauling, and junk removal services',
     status: 'beta',
-    subcategories: [
+    subcategories: createSubs([
       'Local Moving',
       'Long Distance Moving',
       'Furniture Moving',
@@ -639,16 +634,15 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Appliance Disposal',
       'Yard Waste Removal',
       'Estate Cleanout',
-    ],
+    ]),
   },
-
-  delivery: {
-    id: 'delivery',
+  {
+    serviceKey: 'delivery',
     label: 'Delivery & Errands',
     icon: 'bicycle',
     description: 'Pickup, delivery, and errand services',
     status: 'coming_soon',
-    subcategories: [
+    subcategories: createSubs([
       'Furniture Delivery',
       'Appliance Delivery',
       'Building Material Delivery',
@@ -657,20 +651,19 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Errand Running',
       'Waiting in Line',
       'Store Returns',
-    ],
+    ]),
   },
 
   // ═══════════════════════════════════════════════════════════════
-  // AUTOMOTIVE (Trinidad-relevant)
+  // AUTOMOTIVE
   // ═══════════════════════════════════════════════════════════════
-
-  automotive: {
-    id: 'automotive',
+  {
+    serviceKey: 'automotive',
     label: 'Automotive',
     icon: 'car-sport',
     description: 'Mobile auto services and detailing',
     status: 'coming_soon',
-    subcategories: [
+    subcategories: createSubs([
       'Mobile Car Wash',
       'Car Detailing',
       'Interior Cleaning',
@@ -684,20 +677,19 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Window Tinting (Auto)',
       'Dent Repair',
       'Scratch Repair',
-    ],
+    ]),
   },
 
   // ═══════════════════════════════════════════════════════════════
   // EVENTS & SPECIAL OCCASIONS
   // ═══════════════════════════════════════════════════════════════
-
-  events: {
-    id: 'events',
+  {
+    serviceKey: 'events',
     label: 'Events & Rentals',
     icon: 'calendar',
     description: 'Event setup, equipment rental, and party services',
     status: 'coming_soon',
-    subcategories: [
+    subcategories: createSubs([
       'Tent Rental & Setup',
       'Chair & Table Rental',
       'Party Equipment Rental',
@@ -709,87 +701,104 @@ export const SERVICE_CATEGORIES: Record<string, ServiceCategory> = {
       'Generator Rental',
       'Portable Toilet Rental',
       'BBQ Grill Rental',
-    ],
+    ]),
   },
 
   // ═══════════════════════════════════════════════════════════════
-  // OTHER / CATCH-ALL
+  // CUSTOM REQUEST (Always at end)
   // ═══════════════════════════════════════════════════════════════
-
-  other: {
-    id: 'other',
+  {
+    serviceKey: 'other',
     label: 'Other Services',
     icon: 'ellipsis-horizontal',
-    description: 'Services that don\'t fit other categories',
-    status: 'beta',
-    subcategories: [
+    description: 'Can\'t find what you need? Request here',
+    status: 'core',
+    subcategories: createSubs([
       'General Request',
+      'Custom Service',
       'Consultation',
       'Project Planning',
       'Second Opinion',
       'Emergency Service',
-      'Custom Request',
-    ],
+    ]),
   },
-};
+];
 
 // ═══════════════════════════════════════════════════════════════
 // HELPER FUNCTIONS
 // ═══════════════════════════════════════════════════════════════
 
 /**
- * Get all categories as an array
+ * Get all categories
  */
-export const getAllCategories = (): ServiceCategory[] => {
-  return Object.values(SERVICE_CATEGORIES);
-};
+export const getAllCategories = (): ServiceCategory[] => SERVICE_CATEGORIES;
 
 /**
  * Get categories by status
  */
-export const getCategoriesByStatus = (status: 'core' | 'beta' | 'coming_soon'): ServiceCategory[] => {
-  return Object.values(SERVICE_CATEGORIES).filter(cat => cat.status === status);
-};
+export const getCategoriesByStatus = (status: 'core' | 'beta' | 'coming_soon'): ServiceCategory[] =>
+  SERVICE_CATEGORIES.filter(cat => cat.status === status);
 
 /**
- * Get core categories (for main display)
+ * Get displayable categories (core + beta, exclude coming_soon)
  */
-export const getCoreCategories = (): ServiceCategory[] => {
-  return getCategoriesByStatus('core');
-};
+export const getDisplayableCategories = (): ServiceCategory[] =>
+  SERVICE_CATEGORIES.filter(cat => cat.status !== 'coming_soon');
 
 /**
- * Get beta categories
+ * Get a category by serviceKey
  */
-export const getBetaCategories = (): ServiceCategory[] => {
-  return getCategoriesByStatus('beta');
-};
-
-/**
- * Get a category by ID
- */
-export const getCategoryById = (id: string): ServiceCategory | undefined => {
-  return SERVICE_CATEGORIES[id];
-};
+export const getCategoryByKey = (serviceKey: string): ServiceCategory | undefined =>
+  SERVICE_CATEGORIES.find(cat => cat.serviceKey === serviceKey);
 
 /**
  * Get subcategories for a category
  */
-export const getSubcategories = (categoryId: string): string[] => {
-  return SERVICE_CATEGORIES[categoryId]?.subcategories || [];
+export const getSubcategoriesByKey = (serviceKey: string): SubCategory[] =>
+  getCategoryByKey(serviceKey)?.subcategories || [];
+
+/**
+ * Get a specific subcategory
+ */
+export const getSubcategory = (serviceKey: string, subcategoryKey: string): SubCategory | undefined =>
+  getSubcategoriesByKey(serviceKey).find(sub => sub.subcategoryKey === subcategoryKey);
+
+/**
+ * Get label for a serviceKey
+ */
+export const getServiceLabel = (serviceKey: string): string =>
+  getCategoryByKey(serviceKey)?.label || serviceKey;
+
+/**
+ * Get label for a subcategoryKey
+ */
+export const getSubcategoryLabel = (serviceKey: string, subcategoryKey: string): string =>
+  getSubcategory(serviceKey, subcategoryKey)?.label || subcategoryKey;
+
+/**
+ * Check if a category requires sub-category selection
+ * (All categories with subcategories should show subcategory screen)
+ */
+export const requiresSubcategorySelection = (serviceKey: string): boolean => {
+  const category = getCategoryByKey(serviceKey);
+  // 'other' goes directly to general request form
+  if (serviceKey === 'other') return false;
+  return category ? category.subcategories.length > 0 : false;
 };
 
 /**
  * Search categories and subcategories
  */
-export const searchServices = (query: string): Array<{category: ServiceCategory, matchedSubs: string[]}> => {
+export const searchServices = (query: string): Array<{category: ServiceCategory, matchedSubs: SubCategory[]}> => {
   const lowerQuery = query.toLowerCase();
-  const results: Array<{category: ServiceCategory, matchedSubs: string[]}> = [];
+  const results: Array<{category: ServiceCategory, matchedSubs: SubCategory[]}> = [];
   
-  for (const category of Object.values(SERVICE_CATEGORIES)) {
+  for (const category of SERVICE_CATEGORIES) {
+    if (category.status === 'coming_soon') continue;
+    
     const categoryMatch = category.label.toLowerCase().includes(lowerQuery);
     const matchedSubs = category.subcategories.filter(sub => 
-      sub.toLowerCase().includes(lowerQuery)
+      sub.label.toLowerCase().includes(lowerQuery)
     );
     
     if (categoryMatch || matchedSubs.length > 0) {
@@ -807,26 +816,11 @@ export const searchServices = (query: string): Array<{category: ServiceCategory,
  * Count total services
  */
 export const getTotalServiceCount = (): { categories: number; subcategories: number } => {
-  const categories = Object.keys(SERVICE_CATEGORIES).length;
-  const subcategories = Object.values(SERVICE_CATEGORIES).reduce(
-    (total, cat) => total + cat.subcategories.length,
-    0
-  );
+  const categories = SERVICE_CATEGORIES.filter(c => c.status !== 'coming_soon').length;
+  const subcategories = SERVICE_CATEGORIES
+    .filter(c => c.status !== 'coming_soon')
+    .reduce((total, cat) => total + cat.subcategories.length, 0);
   return { categories, subcategories };
 };
-
-// ═══════════════════════════════════════════════════════════════
-// STATISTICS (for reference)
-// ═══════════════════════════════════════════════════════════════
-// 
-// Total Categories: 23
-// Total Subcategories: 400+
-// 
-// By Status:
-// - Core: 14 categories
-// - Beta: 7 categories  
-// - Coming Soon: 2 categories
-//
-// ═══════════════════════════════════════════════════════════════
 
 export default SERVICE_CATEGORIES;
