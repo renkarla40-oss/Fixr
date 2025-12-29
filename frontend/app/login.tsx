@@ -49,7 +49,7 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await login(email.trim(), password);
-      // Mark login as successful - navigation will happen in useEffect
+      // Mark login as successful - this will trigger useEffect navigation
       setLoginSuccess(true);
     } catch (error: any) {
       // User-friendly error messages
@@ -66,30 +66,43 @@ export default function LoginScreen() {
     }
   };
 
+  // Navigation function
+  const navigateBasedOnUser = (userData: typeof user) => {
+    if (!userData) return;
+    
+    console.log('Navigating user:', userData.email, 'role:', userData.currentRole, 'isBetaUser:', userData.isBetaUser);
+    
+    // Check if user has beta access
+    if (!userData.isBetaUser) {
+      console.log('Redirecting to beta-gate');
+      router.replace('/beta-gate');
+      return;
+    }
+    
+    // Navigate based on role
+    if (userData.currentRole === 'provider' && userData.isProviderEnabled) {
+      console.log('Redirecting to provider dashboard');
+      router.replace('/(provider)/dashboard');
+    } else if (userData.currentRole === 'provider' && !userData.isProviderEnabled) {
+      console.log('Redirecting to provider setup');
+      router.replace('/provider-setup');
+    } else {
+      console.log('Redirecting to customer home');
+      router.replace('/(customer)/home');
+    }
+  };
+
   // Handle navigation after successful login
   useEffect(() => {
-    // Only navigate if we have a user AND login was successful (not just auth loading complete)
-    if (user && (loginSuccess || !authLoading)) {
-      console.log('Login useEffect triggered - user:', user.email, 'role:', user.currentRole, 'isBetaUser:', user.isBetaUser);
-      
-      // Check if user has beta access
-      if (!user.isBetaUser) {
-        console.log('Redirecting to beta-gate');
-        router.replace('/beta-gate');
-        return;
-      }
-      
-      // Navigate based on role
-      if (user.currentRole === 'provider' && user.isProviderEnabled) {
-        console.log('Redirecting to provider dashboard');
-        router.replace('/(provider)/dashboard');
-      } else if (user.currentRole === 'provider' && !user.isProviderEnabled) {
-        console.log('Redirecting to provider setup');
-        router.replace('/provider-setup');
-      } else {
-        console.log('Redirecting to customer home');
-        router.replace('/(customer)/home');
-      }
+    console.log('Login useEffect - user:', user?.email, 'loginSuccess:', loginSuccess, 'authLoading:', authLoading);
+    
+    // Navigate if login was successful and we have a user
+    if (loginSuccess && user) {
+      navigateBasedOnUser(user);
+    }
+    // Also handle the case where user was already logged in (page refresh)
+    else if (!authLoading && user && !loginSuccess) {
+      navigateBasedOnUser(user);
     }
   }, [user, loginSuccess, authLoading]);
 
