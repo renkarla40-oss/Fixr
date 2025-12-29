@@ -44,8 +44,14 @@ export default function ProviderListScreen() {
   const categoryId = params.category as string;
   const categoryName = params.categoryName as string;
   const subCategory = params.subCategory as string | undefined;
+  const subcategoryKey = params.subcategoryKey as string | undefined;
   const location = params.location as string | undefined;
-  const searchRadiusMiles = params.searchRadiusMiles ? parseInt(params.searchRadiusMiles as string) : 10;
+  // Support both new (km) and legacy (miles) params
+  const searchDistanceKm = params.searchDistanceKm 
+    ? parseInt(params.searchDistanceKm as string) 
+    : params.searchRadiusMiles 
+      ? Math.round(parseInt(params.searchRadiusMiles as string) * 1.60934)
+      : 16;
   const jobDuration = params.jobDuration as string | undefined;
   
   // Check if this is the "Other Services (Beta)" category
