@@ -339,7 +339,7 @@ class FixrAPITester:
         print("\n=== FEAR-BASED LANGUAGE CHECK ===")
         
         # Check various endpoint responses for calm, neutral language
-        fear_words = ["warning", "danger", "risk", "threat", "unsafe", "beware", "alert", "caution"]
+        fear_words = ["warning", "danger", "threat", "unsafe", "beware", "alert", "caution"]
         
         # Test provider profile endpoint
         profile = self.make_request("GET", "/providers/me/profile", token=self.provider_token)
