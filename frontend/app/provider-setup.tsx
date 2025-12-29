@@ -52,12 +52,13 @@ export default function ProviderSetupScreen() {
   
   // Location fields
   const [baseTown, setBaseTown] = useState('');
-  const [travelRadiusMiles, setTravelRadiusMiles] = useState(10);
+  const [travelDistanceKm, setTravelDistanceKm] = useState(DEFAULT_TRAVEL_DISTANCE_KM);
+  const [distanceUnit, setDistanceUnit] = useState<DistanceUnit>(DEFAULT_DISTANCE_UNIT);
   const [travelAnywhere, setTravelAnywhere] = useState(false);
   
   // Town picker modal
   const [showTownPicker, setShowTownPicker] = useState(false);
-  const [showRadiusPicker, setShowRadiusPicker] = useState(false);
+  const [showDistancePicker, setShowDistancePicker] = useState(false);
   const [towns, setTowns] = useState<Town[]>([]);
   const [townSearchQuery, setTownSearchQuery] = useState('');
   const [loadingTowns, setLoadingTowns] = useState(false);
