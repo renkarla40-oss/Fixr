@@ -1208,6 +1208,14 @@ async def create_service_request(
         result = await db.service_requests.insert_one(request_dict)
         request_dict["_id"] = str(result.inserted_id)
         
+        # Ensure new fields have defaults for response
+        request_dict["jobCode"] = request_dict.get("jobCode")
+        request_dict["jobStartedAt"] = request_dict.get("jobStartedAt")
+        request_dict["jobCompletedAt"] = request_dict.get("jobCompletedAt")
+        request_dict["customerReview"] = request_dict.get("customerReview")
+        request_dict["customerRating"] = request_dict.get("customerRating")
+        request_dict["reviewedAt"] = request_dict.get("reviewedAt")
+        
         return ServiceRequestResponse(**request_dict)
     except HTTPException:
         raise
