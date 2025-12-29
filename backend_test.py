@@ -178,15 +178,16 @@ class BackendTester:
         providers = provider_response["data"]
         
         # Find our test provider
+        user_id = user_data.get("id") or user_data.get("_id")
         test_provider = None
         for provider in providers:
-            if provider.get("userId") == user_data.get("id"):
+            if provider.get("userId") == user_id:
                 test_provider = provider
                 break
         
         if not test_provider:
             # Debug: Print available providers to understand the issue
-            print(f"   DEBUG: User ID: {user_data.get('id')}")
+            print(f"   DEBUG: User ID: {user_id}")
             print(f"   DEBUG: Available providers: {len(providers)}")
             for i, provider in enumerate(providers):
                 print(f"   DEBUG: Provider {i}: userId={provider.get('userId')}, name={provider.get('name')}")
