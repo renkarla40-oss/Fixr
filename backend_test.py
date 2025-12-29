@@ -174,7 +174,7 @@ class FixrAPITester:
             self.log_test("Get Provider Profile", False, "Could not get provider profile")
             return False
             
-        provider_db_id = provider_profile["data"]["id"]
+        provider_db_id = provider_profile["data"].get("id") or provider_profile["data"].get("_id")
         
         # 1. Create service request as customer
         service_request = self.make_request("POST", f"/service-requests?provider_id={provider_db_id}", {
