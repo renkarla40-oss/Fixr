@@ -707,6 +707,8 @@ async def get_providers(
         
         # If no job_town specified, return all providers (no location filtering)
         if not job_town:
+            provider["distanceFromJob"] = None
+            provider["isOutsideSelectedArea"] = False
             bucket_a.append({"provider": Provider(**provider), "distance": 0})
             continue
         
@@ -718,6 +720,8 @@ async def get_providers(
         if not provider_base_town:
             # Provider hasn't set base town - skip for location-based search
             if provider_travel_anywhere and include_travel_anywhere:
+                provider["distanceFromJob"] = None
+                provider["isOutsideSelectedArea"] = True
                 bucket_b.append(Provider(**provider))
             continue
         
@@ -730,9 +734,13 @@ async def get_providers(
         
         if is_within_customer_radius and is_within_provider_radius:
             # Add to Bucket A
+            provider["distanceFromJob"] = distance
+            provider["isOutsideSelectedArea"] = False
             bucket_a.append({"provider": Provider(**provider), "distance": distance})
         elif provider_travel_anywhere and include_travel_anywhere:
             # Bucket B: Travel-anywhere provider not in Bucket A
+            provider["distanceFromJob"] = distance
+            provider["isOutsideSelectedArea"] = True
             bucket_b.append(Provider(**provider))
     
     # Sort Bucket A by distance ascending (closest first)
