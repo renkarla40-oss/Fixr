@@ -120,6 +120,11 @@ class ProviderSetup(BaseModel):
     travelRadiusMiles: int = 10
     travelAnywhere: bool = False
 
+# Provider Availability Update Model (Phase 3A)
+class ProviderAvailabilityUpdate(BaseModel):
+    isAcceptingJobs: bool
+    availabilityNote: Optional[str] = None  # max 60 chars
+
 class ServiceRequest(BaseModel):
     service: str
     description: str
