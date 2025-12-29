@@ -137,7 +137,7 @@ export default function ProviderListScreen() {
         category: categoryId,
         subCategory: subCategory || '',
         location: location || '',
-        searchRadiusMiles: searchRadiusMiles.toString(),
+        searchDistanceKm: searchDistanceKm.toString(),
         jobDuration: jobDuration || '',
       },
     });
