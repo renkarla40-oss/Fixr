@@ -924,11 +924,6 @@ class FeedbackRequest(BaseModel):
     providerId: Optional[str] = None
     providerName: Optional[str] = None
 
-# Provider Availability Update Model (Phase 3A)
-class ProviderAvailabilityUpdate(BaseModel):
-    isAcceptingJobs: bool
-    availabilityNote: Optional[str] = None  # max 60 chars
-
 class WaitlistRequest(BaseModel):
     email: EmailStr
     name: Optional[str] = None
