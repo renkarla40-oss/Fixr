@@ -28,13 +28,13 @@ interface Provider {
   bio: string;
   verificationStatus: string;
   baseTown?: string;
-  travelRadiusMiles?: number;
+  travelDistanceKm?: number;
   travelAnywhere?: boolean;
   distanceFromJob?: number;
   isOutsideSelectedArea?: boolean;
   isAcceptingJobs?: boolean;
   availabilityNote?: string;
-  profilePhotoUrl?: string;  // Phase 4: Provider profile photo
+  profilePhotoUrl?: string;
   // Trust badges (Phase 4)
   phoneVerified?: boolean;
   uploadsComplete?: boolean;
