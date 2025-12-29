@@ -21,6 +21,12 @@ from dotenv import load_dotenv
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
+# Create uploads directory for provider photos/IDs
+UPLOADS_DIR = ROOT_DIR / 'uploads'
+UPLOADS_DIR.mkdir(exist_ok=True)
+(UPLOADS_DIR / 'profile_photos').mkdir(exist_ok=True)
+(UPLOADS_DIR / 'government_ids').mkdir(exist_ok=True)
+
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
