@@ -167,7 +167,7 @@ export default function ProviderListScreen() {
   const travelAnywhereProviders = providers.filter(p => p.isOutsideSelectedArea);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={[styles.safeArea, { paddingTop: insets.top }]}>
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity
