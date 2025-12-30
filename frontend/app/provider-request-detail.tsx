@@ -11,6 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   RefreshControl,
+  Keyboard,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,6 +21,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { getServiceLabel } from '../constants/serviceCategories';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+
+// Tab bar height constant - must match the provider _layout.tsx
+const TAB_BAR_BASE_HEIGHT = 60;
 
 interface ServiceRequest {
   _id: string;
@@ -76,6 +80,10 @@ export default function ProviderRequestDetailScreen() {
   const [confirmingArrival, setConfirmingArrival] = useState(false);
 
   const scrollViewRef = useRef<ScrollView>(null);
+  const inputRef = useRef<TextInput>(null);
+
+  // Calculate bottom spacing to clear tab bar + system nav
+  const bottomTabBarHeight = TAB_BAR_BASE_HEIGHT + insets.bottom + (Platform.OS === 'android' ? 20 : 8);
 
   useEffect(() => {
     if (requestId) {
@@ -133,6 +141,7 @@ export default function ProviderRequestDetailScreen() {
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !request?._id) return;
 
+    Keyboard.dismiss();
     setSendingMessage(true);
     try {
       await axios.post(
@@ -339,230 +348,238 @@ export default function ProviderRequestDetailScreen() {
 
   return (
     <View style={[styles.safeArea, { paddingTop: insets.top }]}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
-          </TouchableOpacity>
-          <Text style={styles.title}>Request Details</Text>
-          <View style={styles.backButton} />
-        </View>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+        </TouchableOpacity>
+        <Text style={styles.title}>Request Details</Text>
+        <View style={styles.backButton} />
+      </View>
 
-        {/* Tab Bar */}
-        <View style={styles.tabBar}>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'details' && styles.tabActive]}
-            onPress={() => setActiveTab('details')}
-          >
-            <Ionicons name="document-text-outline" size={18} color={activeTab === 'details' ? '#E53935' : '#666'} />
-            <Text style={[styles.tabText, activeTab === 'details' && styles.tabTextActive]}>Details</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'chat' && styles.tabActive]}
-            onPress={() => setActiveTab('chat')}
-          >
-            <Ionicons name="chatbubbles-outline" size={18} color={activeTab === 'chat' ? '#E53935' : '#666'} />
-            <Text style={[styles.tabText, activeTab === 'chat' && styles.tabTextActive]}>Messages</Text>
-          </TouchableOpacity>
-        </View>
+      {/* Tab Bar */}
+      <View style={styles.tabBar}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'details' && styles.tabActive]}
+          onPress={() => setActiveTab('details')}
+        >
+          <Ionicons name="document-text-outline" size={18} color={activeTab === 'details' ? '#E53935' : '#666'} />
+          <Text style={[styles.tabText, activeTab === 'details' && styles.tabTextActive]}>Details</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'chat' && styles.tabActive]}
+          onPress={() => setActiveTab('chat')}
+        >
+          <Ionicons name="chatbubbles-outline" size={18} color={activeTab === 'chat' ? '#E53935' : '#666'} />
+          <Text style={[styles.tabText, activeTab === 'chat' && styles.tabTextActive]}>Messages</Text>
+        </TouchableOpacity>
+      </View>
 
-        {activeTab === 'details' ? (
-          <ScrollView
-            style={styles.content}
-            contentContainerStyle={styles.contentContainer}
-            showsVerticalScrollIndicator={false}
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-          >
-            {/* Status Banner */}
-            <View style={[styles.statusSection, { backgroundColor: statusInfo.bg }]}>
-              <Ionicons name={statusInfo.icon as any} size={40} color={statusInfo.text} />
-              <Text style={[styles.statusLabel, { color: statusInfo.text }]}>{statusInfo.label}</Text>
-            </View>
+      {activeTab === 'details' ? (
+        <ScrollView
+          style={styles.content}
+          contentContainerStyle={[styles.contentContainer, { paddingBottom: bottomTabBarHeight + 16 }]}
+          showsVerticalScrollIndicator={false}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        >
+          {/* Status Banner */}
+          <View style={[styles.statusSection, { backgroundColor: statusInfo.bg }]}>
+            <Ionicons name={statusInfo.icon as any} size={40} color={statusInfo.text} />
+            <Text style={[styles.statusLabel, { color: statusInfo.text }]}>{statusInfo.label}</Text>
+          </View>
 
-            {/* Job Code Entry (Provider enters code when accepted) */}
-            {request.status === 'accepted' && (
-              <View style={styles.jobCodeSection}>
-                <Text style={styles.jobCodeTitle}>Confirm Your Arrival</Text>
-                <Text style={styles.jobCodeHint}>Enter the 6-digit code from the customer</Text>
-                <View style={styles.jobCodeInputRow}>
-                  <TextInput
-                    style={styles.jobCodeInput}
-                    placeholder="Enter code"
-                    value={jobCodeInput}
-                    onChangeText={setJobCodeInput}
-                    keyboardType="number-pad"
-                    maxLength={6}
-                  />
-                  <TouchableOpacity
-                    style={[styles.confirmButton, (!jobCodeInput.trim() || confirmingArrival) && styles.confirmButtonDisabled]}
-                    onPress={handleConfirmArrival}
-                    disabled={!jobCodeInput.trim() || confirmingArrival}
-                  >
-                    {confirmingArrival ? (
-                      <ActivityIndicator size="small" color="#FFFFFF" />
-                    ) : (
-                      <Text style={styles.confirmButtonText}>Start Job</Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </View>
-            )}
-
-            {/* Complete Job Button (when started) */}
-            {request.status === 'started' && (
-              <TouchableOpacity style={styles.completeJobButton} onPress={handleCompleteJob}>
-                <Ionicons name="checkmark-done" size={20} color="#FFFFFF" />
-                <Text style={styles.completeJobButtonText}>Mark Job as Complete</Text>
-              </TouchableOpacity>
-            )}
-
-            {/* Service Info */}
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Ionicons name="construct" size={20} color="#666" />
-                <Text style={styles.sectionTitle}>Service</Text>
-              </View>
-              <Text style={styles.sectionContent}>{getServiceLabel(request.service)}</Text>
-              {request.subCategory && <Text style={styles.subCategoryText}>{request.subCategory}</Text>}
-            </View>
-
-            {/* Customer Info */}
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Ionicons name="person" size={20} color="#666" />
-                <Text style={styles.sectionTitle}>Customer</Text>
-              </View>
-              <Text style={styles.sectionContent}>{request.customerName}</Text>
-            </View>
-
-            {/* Location */}
-            {(request.jobTown || request.location) && (
-              <View style={styles.section}>
-                <View style={styles.sectionHeader}>
-                  <Ionicons name="location" size={20} color="#666" />
-                  <Text style={styles.sectionTitle}>Location</Text>
-                </View>
-                <Text style={styles.sectionContent}>{request.jobTown || request.location}</Text>
-              </View>
-            )}
-
-            {/* Description */}
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Ionicons name="document-text" size={20} color="#666" />
-                <Text style={styles.sectionTitle}>Description</Text>
-              </View>
-              <Text style={styles.descriptionText}>{request.description}</Text>
-            </View>
-
-            {/* Preferred Date */}
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Ionicons name="calendar" size={20} color="#666" />
-                <Text style={styles.sectionTitle}>Preferred Date & Time</Text>
-              </View>
-              <Text style={styles.sectionContent}>{formatDateTime(request.preferredDateTime)}</Text>
-            </View>
-
-            {/* Request Date */}
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Ionicons name="time" size={20} color="#666" />
-                <Text style={styles.sectionTitle}>Requested On</Text>
-              </View>
-              <Text style={styles.sectionContent}>{formatDate(request.createdAt)}</Text>
-            </View>
-
-            {/* Accept/Decline Buttons (only for pending) */}
-            {request.status === 'pending' && (
-              <View style={[styles.actionButtons, { paddingBottom: Math.max(insets.bottom, 16) }]}>
+          {/* Job Code Entry (Provider enters code when accepted) */}
+          {request.status === 'accepted' && (
+            <View style={styles.jobCodeSection}>
+              <Text style={styles.jobCodeTitle}>Confirm Your Arrival</Text>
+              <Text style={styles.jobCodeHint}>Enter the 6-digit code from the customer</Text>
+              <View style={styles.jobCodeInputRow}>
+                <TextInput
+                  style={styles.jobCodeInput}
+                  placeholder="Enter code"
+                  value={jobCodeInput}
+                  onChangeText={setJobCodeInput}
+                  keyboardType="number-pad"
+                  maxLength={6}
+                />
                 <TouchableOpacity
-                  style={styles.declineButton}
-                  onPress={handleDecline}
-                  disabled={actionLoading}
+                  style={[styles.confirmButton, (!jobCodeInput.trim() || confirmingArrival) && styles.confirmButtonDisabled]}
+                  onPress={handleConfirmArrival}
+                  disabled={!jobCodeInput.trim() || confirmingArrival}
                 >
-                  <Ionicons name="close" size={20} color="#C62828" />
-                  <Text style={styles.declineButtonText}>Decline</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.acceptButton}
-                  onPress={handleAccept}
-                  disabled={actionLoading}
-                >
-                  {actionLoading ? (
+                  {confirmingArrival ? (
                     <ActivityIndicator size="small" color="#FFFFFF" />
                   ) : (
-                    <>
-                      <Ionicons name="checkmark" size={20} color="#FFFFFF" />
-                      <Text style={styles.acceptButtonText}>Accept</Text>
-                    </>
+                    <Text style={styles.confirmButtonText}>Start Job</Text>
                   )}
                 </TouchableOpacity>
               </View>
-            )}
-          </ScrollView>
-        ) : (
-          /* Chat Tab */
-          <View style={styles.chatContainer}>
-            {loadingMessages ? (
-              <View style={styles.centerContent}>
-                <ActivityIndicator size="large" color="#E53935" />
-              </View>
-            ) : messages.length === 0 ? (
-              <View style={styles.emptyChatContainer}>
-                <Ionicons name="chatbubbles-outline" size={48} color="#CCC" />
-                <Text style={styles.emptyChatTitle}>No messages yet</Text>
-                <Text style={styles.emptyChatText}>Keep all job communication in one place</Text>
-              </View>
-            ) : (
-              <ScrollView
-                ref={scrollViewRef}
-                style={styles.messagesContainer}
-                contentContainerStyle={styles.messagesContent}
-                showsVerticalScrollIndicator={false}
-              >
-                {messages.map((msg) => {
-                  const isMine = msg.senderId === user?.id;
-                  return (
-                    <View key={msg._id} style={[styles.messageBubble, isMine ? styles.messageBubbleMine : styles.messageBubbleTheirs]}>
-                      {!isMine && <Text style={styles.messageSender}>{msg.senderName}</Text>}
-                      <Text style={[styles.messageText, isMine && styles.messageTextMine]}>{msg.text}</Text>
-                      <Text style={[styles.messageTime, isMine && styles.messageTimeMine]}>{formatMessageTime(msg.createdAt)}</Text>
-                    </View>
-                  );
-                })}
-              </ScrollView>
-            )}
+            </View>
+          )}
 
-            {/* Message Input */}
-            <View style={[styles.messageInputContainer, { paddingBottom: Math.max(insets.bottom, 12) }]}>
-              <TextInput
-                style={styles.messageInput}
-                placeholder="Type a message..."
-                value={newMessage}
-                onChangeText={setNewMessage}
-                multiline
-                maxLength={1000}
-              />
+          {/* Complete Job Button (when started) */}
+          {request.status === 'started' && (
+            <TouchableOpacity style={styles.completeJobButton} onPress={handleCompleteJob}>
+              <Ionicons name="checkmark-done" size={20} color="#FFFFFF" />
+              <Text style={styles.completeJobButtonText}>Mark Job as Complete</Text>
+            </TouchableOpacity>
+          )}
+
+          {/* Service Info */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="construct" size={20} color="#666" />
+              <Text style={styles.sectionTitle}>Service</Text>
+            </View>
+            <Text style={styles.sectionContent}>{getServiceLabel(request.service)}</Text>
+            {request.subCategory && <Text style={styles.subCategoryText}>{request.subCategory}</Text>}
+          </View>
+
+          {/* Customer Info */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="person" size={20} color="#666" />
+              <Text style={styles.sectionTitle}>Customer</Text>
+            </View>
+            <Text style={styles.sectionContent}>{request.customerName}</Text>
+          </View>
+
+          {/* Location */}
+          {(request.jobTown || request.location) && (
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Ionicons name="location" size={20} color="#666" />
+                <Text style={styles.sectionTitle}>Location</Text>
+              </View>
+              <Text style={styles.sectionContent}>{request.jobTown || request.location}</Text>
+            </View>
+          )}
+
+          {/* Description */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="document-text" size={20} color="#666" />
+              <Text style={styles.sectionTitle}>Description</Text>
+            </View>
+            <Text style={styles.descriptionText}>{request.description}</Text>
+          </View>
+
+          {/* Preferred Date */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="calendar" size={20} color="#666" />
+              <Text style={styles.sectionTitle}>Preferred Date & Time</Text>
+            </View>
+            <Text style={styles.sectionContent}>{formatDateTime(request.preferredDateTime)}</Text>
+          </View>
+
+          {/* Request Date */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="time" size={20} color="#666" />
+              <Text style={styles.sectionTitle}>Requested On</Text>
+            </View>
+            <Text style={styles.sectionContent}>{formatDate(request.createdAt)}</Text>
+          </View>
+
+          {/* Accept/Decline Buttons (only for pending) */}
+          {request.status === 'pending' && (
+            <View style={styles.actionButtons}>
               <TouchableOpacity
-                style={[styles.sendButton, (!newMessage.trim() || sendingMessage) && styles.sendButtonDisabled]}
-                onPress={handleSendMessage}
-                disabled={!newMessage.trim() || sendingMessage}
+                style={styles.declineButton}
+                onPress={handleDecline}
+                disabled={actionLoading}
               >
-                {sendingMessage ? (
+                <Ionicons name="close" size={20} color="#C62828" />
+                <Text style={styles.declineButtonText}>Decline</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.acceptButton}
+                onPress={handleAccept}
+                disabled={actionLoading}
+              >
+                {actionLoading ? (
                   <ActivityIndicator size="small" color="#FFFFFF" />
                 ) : (
-                  <Ionicons name="send" size={20} color="#FFFFFF" />
+                  <>
+                    <Ionicons name="checkmark" size={20} color="#FFFFFF" />
+                    <Text style={styles.acceptButtonText}>Accept</Text>
+                  </>
                 )}
               </TouchableOpacity>
             </View>
+          )}
+        </ScrollView>
+      ) : (
+        /* Chat Tab - Uses KeyboardAvoidingView */
+        <KeyboardAvoidingView
+          style={styles.chatContainer}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        >
+          {loadingMessages ? (
+            <View style={styles.centerContent}>
+              <ActivityIndicator size="large" color="#E53935" />
+            </View>
+          ) : messages.length === 0 ? (
+            <View style={styles.emptyChatContainer}>
+              <Ionicons name="chatbubbles-outline" size={48} color="#CCC" />
+              <Text style={styles.emptyChatTitle}>No messages yet</Text>
+              <Text style={styles.emptyChatText}>Keep all job communication in one place</Text>
+            </View>
+          ) : (
+            <ScrollView
+              ref={scrollViewRef}
+              style={styles.messagesContainer}
+              contentContainerStyle={styles.messagesContent}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+            >
+              {messages.map((msg) => {
+                const isMine = msg.senderId === user?.id;
+                return (
+                  <View key={msg._id} style={[styles.messageBubble, isMine ? styles.messageBubbleMine : styles.messageBubbleTheirs]}>
+                    {!isMine && <Text style={styles.messageSender}>{msg.senderName}</Text>}
+                    <Text style={[styles.messageText, isMine && styles.messageTextMine]}>{msg.text}</Text>
+                    <Text style={[styles.messageTime, isMine && styles.messageTimeMine]}>{formatMessageTime(msg.createdAt)}</Text>
+                  </View>
+                );
+              })}
+            </ScrollView>
+          )}
+
+          {/* Message Input - Fixed at bottom, above tab bar */}
+          <View style={[
+            styles.messageInputContainer, 
+            { 
+              paddingBottom: bottomTabBarHeight + 8,
+            }
+          ]}>
+            <TextInput
+              ref={inputRef}
+              style={styles.messageInput}
+              placeholder="Type a message..."
+              placeholderTextColor="#999"
+              value={newMessage}
+              onChangeText={setNewMessage}
+              multiline
+              maxLength={1000}
+              returnKeyType="default"
+            />
+            <TouchableOpacity
+              style={[styles.sendButton, (!newMessage.trim() || sendingMessage) && styles.sendButtonDisabled]}
+              onPress={handleSendMessage}
+              disabled={!newMessage.trim() || sendingMessage}
+            >
+              {sendingMessage ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <Ionicons name="send" size={20} color="#FFFFFF" />
+              )}
+            </TouchableOpacity>
           </View>
-        )}
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      )}
     </View>
   );
 }
@@ -571,9 +588,6 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-  },
-  container: {
-    flex: 1,
   },
   header: {
     flexDirection: 'row',
@@ -662,7 +676,6 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 16,
-    paddingBottom: 32,
   },
   statusSection: {
     alignItems: 'center',
@@ -879,20 +892,25 @@ const styles = StyleSheet.create({
   },
   messageInputContainer: {
     flexDirection: 'row',
-    padding: 12,
+    paddingHorizontal: 12,
+    paddingTop: 12,
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
     backgroundColor: '#FFFFFF',
     gap: 8,
+    alignItems: 'flex-end',
   },
   messageInput: {
     flex: 1,
     backgroundColor: '#F5F5F5',
     borderRadius: 20,
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingTop: 10,
+    paddingBottom: 10,
     fontSize: 15,
     maxHeight: 100,
+    minHeight: 44,
+    color: '#1A1A1A',
   },
   sendButton: {
     width: 44,
