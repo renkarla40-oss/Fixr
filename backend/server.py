@@ -1360,6 +1360,7 @@ async def accept_service_request(
 ):
     """
     Provider accepts a job request. Generates a job code for arrival confirmation.
+    Valid transition: pending -> accepted
     """
     request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
     if not request:
@@ -1369,6 +1370,10 @@ async def accept_service_request(
     provider = await db.providers.find_one({"userId": current_user.id})
     if not provider or str(provider["_id"]) != request.get("providerId"):
         raise HTTPException(status_code=403, detail="Not authorized to accept this request")
+    
+    # Enforce valid status transition: can only accept pending requests
+    if request.get("status") != "pending":
+        raise HTTPException(status_code=400, detail="This request can no longer be accepted")
     
     # Generate job code for customer to share on arrival
     job_code = generate_job_code()
