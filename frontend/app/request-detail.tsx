@@ -574,27 +574,29 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#7A9BC7',
   },
-  // In Progress Card
+  // In Progress Card - Light blue theme
   inProgressCard: {
-    backgroundColor: '#E3F2FD',
+    backgroundColor: '#EEF6FF',
     borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
+    padding: 14,
+    marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    borderWidth: 1,
+    borderColor: '#C5DFFF',
   },
   inProgressContent: {
     flex: 1,
   },
   inProgressTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
-    color: '#1565C0',
+    color: '#2C5AA0',
   },
   inProgressText: {
-    fontSize: 13,
-    color: '#1976D2',
+    fontSize: 12,
+    color: '#7A9BC7',
     marginTop: 2,
   },
   // Summary Card
