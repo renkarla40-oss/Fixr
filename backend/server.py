@@ -1385,6 +1385,17 @@ async def accept_service_request(
     updated_request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
     updated_request["_id"] = str(updated_request["_id"])
     
+    # Send notification to customer
+    await send_push_notification(
+        user_id=updated_request["customerId"],
+        title="Request Accepted",
+        body=f"Your {updated_request['service']} request was accepted.",
+        data={
+            "type": NotificationType.REQUEST_ACCEPTED,
+            "requestId": str(updated_request["_id"]),
+        }
+    )
+    
     return {"success": True, "message": "Job accepted", "jobCode": job_code}
 
 @api_router.post("/service-requests/{request_id}/confirm-arrival")
