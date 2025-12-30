@@ -44,7 +44,7 @@ class BookingLifecycleTest:
             if response.status_code == 200:
                 data = response.json()
                 self.customer_token = data["token"]
-                self.customer_id = data["user"]["id"]
+                self.customer_id = data["user"]["_id"]
                 self.log(f"✅ Customer authentication successful - ID: {self.customer_id}")
                 return True
             else:
