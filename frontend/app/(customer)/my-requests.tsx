@@ -46,7 +46,11 @@ export default function MyRequestsScreen() {
       });
       setRequests(response.data);
     } catch (error) {
-      console.error('Error fetching requests:', error);
+      // Silent fail for list fetching - don't show error to user
+      // Just log for debugging in dev mode
+      if (__DEV__) {
+        console.warn('Error fetching requests:', error);
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
