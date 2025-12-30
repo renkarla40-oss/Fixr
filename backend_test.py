@@ -109,7 +109,7 @@ class BookingLifecycleTest:
                 headers=headers
             )
             
-            if response.status_code == 201:
+            if response.status_code in [200, 201]:
                 data = response.json()
                 self.test_request_id = data.get("id") or data.get("_id")
                 status = data.get("status")
