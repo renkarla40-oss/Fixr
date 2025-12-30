@@ -100,8 +100,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('AuthContext: Login complete, returning user data');
       return userData;
     } catch (error: any) {
-      console.error('AuthContext: Login error', error.message);
-      throw new Error(error.response?.data?.detail || 'Login failed');
+      // Log for debugging (dev only)
+      if (__DEV__) {
+        console.error('AuthContext: Login error', error);
+      }
+      // Return user-friendly error message - NEVER expose technical details
+      const detail = error.response?.data?.detail;
+      if (detail && typeof detail === 'string' && detail.includes('Invalid')) {
+        throw new Error('Invalid email or password');
+      }
+      throw new Error('Unable to sign in. Please try again.');
     }
   };
 
@@ -129,7 +137,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // New user has NOT seen beta notice
       setBetaNoticeSeenByUser(false);
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || 'Signup failed');
+      // Log for debugging (dev only)
+      if (__DEV__) {
+        console.error('AuthContext: Signup error', error);
+      }
+      // Return user-friendly error message - NEVER expose technical details
+      const detail = error.response?.data?.detail;
+      if (detail && typeof detail === 'string' && detail.includes('already exists')) {
+        throw new Error('An account with this email already exists');
+      }
+      throw new Error('Unable to create account. Please try again.');
     }
   };
 
@@ -150,7 +167,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       );
       setUser(response.data);
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || 'Failed to switch role');
+      // Log for debugging (dev only)
+      if (__DEV__) {
+        console.error('AuthContext: Switch role error', error);
+      }
+      throw new Error('Unable to switch mode. Please try again.');
     }
   };
 
