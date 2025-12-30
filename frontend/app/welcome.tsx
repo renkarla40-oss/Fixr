@@ -114,7 +114,7 @@ export default function WelcomeScreen() {
           <View style={styles.logoSection}>
             <View style={styles.logoContainer}>
               <Image 
-                source={require('../assets/images/fixr-logo-actual.png')} 
+                source={require('../assets/images/fixr-logo.png')} 
                 style={styles.logo}
                 resizeMode="contain"
               />
