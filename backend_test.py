@@ -299,7 +299,7 @@ class BookingLifecycleTest:
             )
             
             if new_request_response.status_code == 201:
-                new_request_id = new_request_response.json()["id"]
+                new_request_id = new_request_response.json().get("id") or new_request_response.json().get("_id")
                 
                 # Test 5b: Try to start a pending request without accepting (should fail)
                 response = self.session.post(
