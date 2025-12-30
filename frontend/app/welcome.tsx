@@ -207,10 +207,10 @@ const styles = StyleSheet.create({
     paddingTop: 56,
   },
   logoContainer: {
-    width: 96,
-    height: 96,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 48,
+    width: 72,
+    height: 72,
+    backgroundColor: 'rgba(255,255,255,0.80)',
+    borderRadius: 36,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
@@ -222,8 +222,8 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   logo: {
-    width: 84,
-    height: 42,
+    width: 56,
+    height: 56,
   },
   contentSection: {
     flex: 1,
