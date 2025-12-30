@@ -781,56 +781,57 @@ const styles = StyleSheet.create({
     marginTop: 2,
     textAlign: 'center',
   },
-  // Job Code Section
+  // Job Code Section - Light blue theme
   jobCodeSection: {
-    backgroundColor: '#FFF8E1',
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: '#F0F8FF',
+    padding: 14,
+    borderRadius: 10,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#FFE082',
+    borderColor: '#D6E9FF',
   },
-  jobCodeTitle: {
-    fontSize: 16,
+  jobCodeLabel: {
+    fontSize: 14,
     fontWeight: '600',
-    color: '#1A1A1A',
-    marginBottom: 4,
+    color: '#2E5BBA',
+    marginBottom: 2,
   },
   jobCodeHint: {
-    fontSize: 13,
-    color: '#666',
-    marginBottom: 12,
+    fontSize: 12,
+    color: '#6B8EC7',
+    marginBottom: 10,
   },
   jobCodeInputRow: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 10,
   },
   jobCodeInput: {
     flex: 1,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#B8D4F0',
     borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 18,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    fontSize: 16,
     textAlign: 'center',
-    letterSpacing: 4,
+    letterSpacing: 2,
+    color: '#2E5BBA',
   },
-  confirmButton: {
-    backgroundColor: '#E53935',
-    paddingHorizontal: 20,
+  startJobButton: {
+    backgroundColor: '#4A90E2',
+    paddingHorizontal: 18,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    minWidth: 100,
+    minWidth: 90,
   },
-  confirmButtonDisabled: {
-    backgroundColor: '#CCCCCC',
+  startJobButtonDisabled: {
+    backgroundColor: '#B8D4F0',
   },
-  confirmButtonText: {
+  startJobButtonText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
   },
   completeJobButton: {
