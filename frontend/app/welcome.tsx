@@ -110,11 +110,11 @@ export default function WelcomeScreen() {
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
         >
-          {/* Logo at top - White background premium version */}
+          {/* Logo at top - White circular background with actual Fixr logo */}
           <View style={styles.logoSection}>
             <View style={styles.logoContainer}>
               <Image 
-                source={require('../assets/images/fixr-logo-white.png')} 
+                source={require('../assets/images/fixr-logo-actual.png')} 
                 style={styles.logo}
                 resizeMode="contain"
               />
@@ -222,8 +222,8 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   logo: {
-    width: 88,
-    height: 88,
+    width: 72,
+    height: 36,
   },
   contentSection: {
     flex: 1,
