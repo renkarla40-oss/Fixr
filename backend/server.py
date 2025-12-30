@@ -1140,6 +1140,8 @@ async def get_my_provider_profile(current_user: User = Depends(get_current_user)
         provider["baseTown"] = None
     if "travelRadiusMiles" not in provider:
         provider["travelRadiusMiles"] = 10
+    if "travelDistanceKm" not in provider:
+        provider["travelDistanceKm"] = 16
     if "travelAnywhere" not in provider:
         provider["travelAnywhere"] = False
     # Add new trust fields defaults
@@ -1151,6 +1153,17 @@ async def get_my_provider_profile(current_user: User = Depends(get_current_user)
         provider["averageRating"] = None
     if "totalReviews" not in provider:
         provider["totalReviews"] = 0
+    # Required fields for Provider model
+    if "bio" not in provider:
+        provider["bio"] = ""
+    if "verificationStatus" not in provider:
+        provider["verificationStatus"] = "pending"
+    if "services" not in provider:
+        provider["services"] = []
+    if "phone" not in provider:
+        provider["phone"] = ""
+    if "name" not in provider:
+        provider["name"] = current_user.name
         
     return Provider(**provider)
 
