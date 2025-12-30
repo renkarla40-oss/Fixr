@@ -366,7 +366,7 @@ class BookingLifecycleTest:
             )
             
             if response.status_code == 201:
-                cancel_request_id = response.json()["id"]
+                cancel_request_id = response.json().get("id") or response.json().get("_id")
                 
                 # Cancel the request
                 cancel_response = self.session.patch(
