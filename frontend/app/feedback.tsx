@@ -63,8 +63,10 @@ export default function FeedbackScreen() {
         [{ text: 'OK', onPress: () => router.back() }]
       );
     } catch (error) {
-      console.error('Error submitting feedback:', error);
-      Alert.alert('Error', 'Failed to submit feedback. Please try again.');
+      if (__DEV__) {
+        console.warn('Error submitting feedback:', error);
+      }
+      Alert.alert('Unable to Submit', 'We couldn\'t send your feedback. Please try again.');
     } finally {
       setLoading(false);
     }

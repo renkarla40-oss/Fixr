@@ -131,7 +131,9 @@ export default function RequestServiceScreen() {
         params: { category: categoryLabel },
       });
     } catch (error: any) {
-      console.error('Error creating request:', error);
+      if (__DEV__) {
+        console.warn('Error creating request:', error);
+      }
       
       // Phase 3A: Check if provider is unavailable
       const errorMessage = error.response?.data?.detail || '';
@@ -141,7 +143,7 @@ export default function RequestServiceScreen() {
       } else {
         Alert.alert(
           'Request Failed',
-          errorMessage || 'Failed to submit service request. Please try again.'
+          'We couldn\'t submit your request. Please try again.'
         );
       }
     } finally {
