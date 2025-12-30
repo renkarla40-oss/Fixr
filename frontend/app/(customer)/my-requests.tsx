@@ -200,8 +200,7 @@ export default function MyRequestsScreen() {
                     <Text
                       style={[styles.statusText, { color: statusColors.text }]}
                     >
-                      {request.status.charAt(0).toUpperCase() +
-                        request.status.slice(1)}
+                      {getStatusLabel(request.status)}
                     </Text>
                   </View>
                 </View>
