@@ -2,12 +2,13 @@ import React, { createContext, useContext, useState, useEffect, useRef, useCallb
 import { Platform, AppState, AppStateStatus } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
+import Constants from 'expo-constants';
 import { useAuth } from './AuthContext';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
-// Configure notification behavior
+// Configure notification behavior - SILENT, no alerts for errors
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -44,43 +45,80 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const responseListener = useRef<Notifications.EventSubscription>();
   const appState = useRef(AppState.currentState);
 
-  // Register for push notifications
-  const registerForPushNotifications = useCallback(async () => {
-    if (!Device.isDevice) {
-      console.log('Push notifications require a physical device');
-      return null;
-    }
-
-    // Check existing permissions
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-
-    // Request permission if not already granted
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-
-    if (finalStatus !== 'granted') {
-      console.log('Push notification permission not granted');
-      return null;
-    }
-
-    // Get the push token
+  // Register for push notifications - COMPLETELY SILENT, never shows errors
+  const registerForPushNotifications = useCallback(async (): Promise<string | null> => {
     try {
-      const tokenData = await Notifications.getExpoPushTokenAsync({
-        projectId: 'your-project-id', // This is fine for development
-      });
-      return tokenData.data;
-    } catch (error) {
-      console.log('Error getting push token:', error);
+      // CRITICAL: Only attempt on physical devices
+      if (!Device.isDevice) {
+        // Simulator/emulator - skip silently
+        return null;
+      }
+
+      // Check if we're in Expo Go (limited push support)
+      const isExpoGo = Constants.appOwnership === 'expo';
+      
+      // Check platform support
+      if (Platform.OS === 'android') {
+        // Setup Android channel silently
+        try {
+          await Notifications.setNotificationChannelAsync('default', {
+            name: 'default',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+          });
+        } catch {
+          // Channel setup failed - continue silently
+        }
+      }
+
+      // Check existing permissions silently
+      let permissionStatus;
+      try {
+        const { status } = await Notifications.getPermissionsAsync();
+        permissionStatus = status;
+      } catch {
+        // Permission check failed - skip push
+        return null;
+      }
+
+      // Request permission if not granted (only once, silently)
+      if (permissionStatus !== 'granted') {
+        try {
+          const { status } = await Notifications.requestPermissionsAsync();
+          permissionStatus = status;
+        } catch {
+          // Permission request failed - skip push silently
+          return null;
+        }
+      }
+
+      // If still not granted, skip silently
+      if (permissionStatus !== 'granted') {
+        return null;
+      }
+
+      // Try to get push token - this can fail in Expo Go
+      try {
+        // For Expo Go, we need projectId from app config
+        const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+        
+        const tokenData = await Notifications.getExpoPushTokenAsync({
+          projectId: projectId || undefined,
+        });
+        return tokenData.data;
+      } catch {
+        // Token retrieval failed (common in Expo Go) - skip silently
+        return null;
+      }
+    } catch {
+      // Any unexpected error - fail silently
       return null;
     }
   }, []);
 
-  // Register push token with backend
+  // Register push token with backend - silent
   const registerTokenWithBackend = useCallback(async (pushToken: string) => {
-    if (!token) return;
+    if (!token || !pushToken) return;
     
     try {
       await axios.post(
@@ -88,13 +126,12 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         { expoPushToken: pushToken },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log('Push token registered with backend');
-    } catch (error) {
-      console.log('Error registering push token:', error);
+    } catch {
+      // Registration failed - silent, in-app notifications still work
     }
   }, [token]);
 
-  // Fetch unread notification count
+  // Fetch unread notification count - silent errors
   const refreshUnreadCount = useCallback(async () => {
     if (!token) return;
     
@@ -103,12 +140,12 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         headers: { Authorization: `Bearer ${token}` },
       });
       setUnreadCount(response.data.unreadCount || 0);
-    } catch (error) {
-      console.log('Error fetching unread count:', error);
+    } catch {
+      // Error fetching count - keep current value
     }
   }, [token]);
 
-  // Mark all notifications as read
+  // Mark all notifications as read - silent errors
   const markAllAsRead = useCallback(async () => {
     if (!token) return;
     
@@ -119,8 +156,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setUnreadCount(0);
-    } catch (error) {
-      console.log('Error marking notifications as read:', error);
+    } catch {
+      // Error marking as read - silent
     }
   }, [token]);
 
@@ -128,7 +165,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   useEffect(() => {
     if (!user || !token) return;
 
-    // Register for push notifications
+    // Register for push notifications (silent)
     registerForPushNotifications().then((pushToken) => {
       if (pushToken) {
         setExpoPushToken(pushToken);
@@ -136,38 +173,35 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       }
     });
 
-    // Setup notification listeners
-    notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
-      setNotification(notification);
-      // Refresh unread count when notification received
-      refreshUnreadCount();
-    });
-
-    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
-      // Handle notification tap - could navigate to relevant screen
-      const data = response.notification.request.content.data;
-      console.log('Notification tapped:', data);
-      // Navigation would be handled here based on data.type and data.requestId
-    });
-
-    // Setup Android notification channel
-    if (Platform.OS === 'android') {
-      Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
+    // Setup notification listeners (safe)
+    try {
+      notificationListener.current = Notifications.addNotificationReceivedListener((notif) => {
+        setNotification(notif);
+        refreshUnreadCount();
       });
+
+      responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
+        // Handle notification tap silently
+        const data = response.notification.request.content.data;
+        // Navigation could be handled here based on data.type
+      });
+    } catch {
+      // Listener setup failed - silent
     }
 
     // Initial fetch of unread count
     refreshUnreadCount();
 
     return () => {
-      if (notificationListener.current) {
-        Notifications.removeNotificationSubscription(notificationListener.current);
-      }
-      if (responseListener.current) {
-        Notifications.removeNotificationSubscription(responseListener.current);
+      try {
+        if (notificationListener.current) {
+          Notifications.removeNotificationSubscription(notificationListener.current);
+        }
+        if (responseListener.current) {
+          Notifications.removeNotificationSubscription(responseListener.current);
+        }
+      } catch {
+        // Cleanup failed - silent
       }
     };
   }, [user, token, registerForPushNotifications, registerTokenWithBackend, refreshUnreadCount]);
@@ -176,7 +210,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
       if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
-        // App has come to the foreground
         refreshUnreadCount();
       }
       appState.current = nextAppState;
