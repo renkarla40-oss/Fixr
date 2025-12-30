@@ -256,6 +256,81 @@ class Provider(BaseModel):
     class Config:
         populate_by_name = True
 
+# ============================================
+# Notification Models (Phase 4)
+# ============================================
+
+class NotificationType:
+    REQUEST_RECEIVED = "request_received"      # Provider: new request
+    REQUEST_ACCEPTED = "request_accepted"      # Customer: provider accepted
+    REQUEST_DECLINED = "request_declined"      # Customer: provider declined
+    JOB_STARTED = "job_started"                # Customer: job started
+    JOB_COMPLETED = "job_completed"            # Customer: job completed
+    NEW_MESSAGE = "new_message"                # Both: new chat message
+
+class Notification(BaseModel):
+    id: str = Field(alias="_id")
+    userId: str                    # Recipient user ID
+    type: str                      # NotificationType value
+    title: str                     # Notification title
+    body: str                      # Notification body
+    data: dict = {}                # Extra data (requestId, etc.)
+    read: bool = False
+    createdAt: datetime = Field(default_factory=datetime.utcnow)
+    
+    class Config:
+        populate_by_name = True
+
+class RegisterPushTokenRequest(BaseModel):
+    expoPushToken: str
+
+class NotificationResponse(BaseModel):
+    success: bool
+    message: str
+
+# Helper function to send push notifications
+import httpx
+
+async def send_push_notification(user_id: str, title: str, body: str, data: dict = None):
+    """Send push notification to a user and create in-app notification"""
+    try:
+        # Create in-app notification
+        notification_doc = {
+            "userId": user_id,
+            "type": data.get("type", "general") if data else "general",
+            "title": title,
+            "body": body,
+            "data": data or {},
+            "read": False,
+            "createdAt": datetime.utcnow(),
+        }
+        await db.notifications.insert_one(notification_doc)
+        
+        # Get user's push token
+        user = await db.users.find_one({"_id": ObjectId(user_id)})
+        if not user or not user.get("expoPushToken"):
+            return  # No push token, only in-app notification created
+        
+        push_token = user["expoPushToken"]
+        
+        # Send via Expo Push API
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "https://exp.host/--/api/v2/push/send",
+                json={
+                    "to": push_token,
+                    "title": title,
+                    "body": body,
+                    "data": data or {},
+                    "sound": "default",
+                },
+                headers={"Content-Type": "application/json"},
+            )
+            if response.status_code != 200:
+                logger.warning(f"Push notification failed: {response.text}")
+    except Exception as e:
+        logger.error(f"Error sending notification: {e}")
+
 # Helper functions
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
