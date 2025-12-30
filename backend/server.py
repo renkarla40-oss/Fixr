@@ -199,7 +199,7 @@ class ServiceRequestResponse(BaseModel):
     preferredDateTime: Optional[datetime] = None
     status: str = "pending"  # pending, accepted, started, completed, cancelled
     customerName: str
-    customerPhone: str
+    customerPhone: Optional[str] = None  # Made optional for legacy records
     providerName: Optional[str] = None  # Can be None for general requests
     isGeneralRequest: bool = False  # Flag for "Other Services" requests
     subCategory: Optional[str] = None  # For handyman sub-categories
