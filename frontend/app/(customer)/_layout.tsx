@@ -3,9 +3,11 @@ import { Platform } from 'react-native';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNotifications } from '../../contexts/NotificationContext';
 
 export default function CustomerLayout() {
   const insets = useSafeAreaInsets();
+  const { unreadCount } = useNotifications();
   
   // Calculate proper bottom padding:
   // - On iOS: use safe area inset (for home indicator)
@@ -78,6 +80,13 @@ export default function CustomerLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="chatbubbles" size={size} color={color} />
           ),
+          tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
+          tabBarBadgeStyle: {
+            backgroundColor: '#E53935',
+            fontSize: 10,
+            minWidth: 18,
+            height: 18,
+          },
         }}
       />
       <Tabs.Screen
