@@ -1411,7 +1411,7 @@ async def confirm_job_arrival(
 ):
     """
     Provider enters the job code from customer to confirm arrival and start the job.
-    Neutral framing: "Confirm you've arrived"
+    Valid transition: accepted -> in_progress
     """
     request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
     if not request:
@@ -1422,16 +1422,20 @@ async def confirm_job_arrival(
     if not provider or str(provider["_id"]) != request.get("providerId"):
         raise HTTPException(status_code=403, detail="Not authorized")
     
+    # Enforce valid status transition: can only start from accepted
+    if request.get("status") != "accepted":
+        raise HTTPException(status_code=400, detail="Job must be accepted before it can be started")
+    
     # Check job code
     if request.get("jobCode") != confirm_data.jobCode:
         raise HTTPException(status_code=400, detail="Incorrect code. Please ask the customer for the correct code.")
     
-    # Mark job as started
+    # Mark job as in_progress (changed from "started" for consistency)
     await db.service_requests.update_one(
         {"_id": ObjectId(request_id)},
         {"$set": {
-            "status": "started",
-            "jobStartedAt": datetime.utcnow()
+            "status": "in_progress",
+            "startedAt": datetime.utcnow()
         }}
     )
     
