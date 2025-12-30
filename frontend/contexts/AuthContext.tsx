@@ -1,7 +1,18 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import Constants from 'expo-constants';
+
+/**
+ * AUTH CONTEXT - STABILITY FIX
+ * 
+ * NO automatic axios calls on mount.
+ * NO side effects at app boot.
+ * 
+ * API calls only happen:
+ * - On explicit login/signup
+ * - On explicit refreshUser call
+ * - AFTER user interaction
+ */
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const BETA_NOTICE_KEY = 'betaNoticeSeen';
@@ -27,6 +38,7 @@ interface AuthContextType {
   switchRole: (role: 'customer' | 'provider') => Promise<void>;
   refreshUser: () => Promise<void>;
   markBetaNoticeSeen: () => Promise<void>;
+  initializeAuth: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -36,74 +48,85 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [betaNoticeSeenByUser, setBetaNoticeSeenByUser] = useState<boolean | null>(null);
+  const [initialized, setInitialized] = useState(false);
 
   // Computed property: show beta notice only when user is a beta user AND hasn't seen it
   const shouldShowBetaNotice = user !== null && user.isBetaUser && betaNoticeSeenByUser === false;
 
+  // Load stored token from AsyncStorage (LOCAL ONLY - no network)
   useEffect(() => {
-    loadStoredAuth();
+    loadStoredToken();
   }, []);
 
-  const loadStoredAuth = async () => {
+  // Load token from storage WITHOUT making API calls
+  const loadStoredToken = async () => {
     try {
       const storedToken = await AsyncStorage.getItem('authToken');
-      
       if (storedToken) {
         setToken(storedToken);
-        await fetchUserAndCheckBeta(storedToken);
       }
-    } catch (error) {
-      console.error('Error loading auth:', error);
+    } catch {
+      // Silent fail - local storage error
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchUserAndCheckBeta = async (authToken: string) => {
+  // Initialize auth - called AFTER splash/welcome transition
+  // This is the ONLY place where we make the initial API call
+  const initializeAuth = useCallback(async () => {
+    if (initialized) return;
+    
+    const storedToken = token || await AsyncStorage.getItem('authToken');
+    if (!storedToken) {
+      setInitialized(true);
+      return;
+    }
+
     try {
       const response = await axios.get(`${BACKEND_URL}/api/auth/me`, {
-        headers: { Authorization: `Bearer ${authToken}` },
+        headers: { Authorization: `Bearer ${storedToken}` },
+        timeout: 10000, // 10 second timeout
       });
       const userData = response.data;
       setUser(userData);
+      setToken(storedToken);
       
       // Check user-specific beta notice flag
       const userBetaKey = `${BETA_NOTICE_KEY}_${userData._id}`;
       const hasSeenNotice = await AsyncStorage.getItem(userBetaKey);
       setBetaNoticeSeenByUser(hasSeenNotice === 'true');
-    } catch (error) {
-      console.error('Error fetching user:', error);
-      await logout();
+    } catch {
+      // Silent fail - network error or invalid token
+      // Clear invalid token
+      await AsyncStorage.removeItem('authToken');
+      setToken(null);
+      setUser(null);
+    } finally {
+      setInitialized(true);
     }
-  };
+  }, [token, initialized]);
 
   const login = async (email: string, password: string): Promise<User> => {
     try {
-      console.log('AuthContext: Starting login for', email);
       const response = await axios.post(`${BACKEND_URL}/api/auth/login`, {
         email,
         password,
-      });
+      }, { timeout: 15000 });
       const { token: newToken, user: userData } = response.data;
       
-      console.log('AuthContext: Login successful, saving token');
       await AsyncStorage.setItem('authToken', newToken);
       setToken(newToken);
       setUser(userData);
-      console.log('AuthContext: User state updated', userData.email, userData.currentRole);
+      setInitialized(true);
       
       // Check if this specific user has seen the beta notice
       const userBetaKey = `${BETA_NOTICE_KEY}_${userData._id}`;
       const hasSeenNotice = await AsyncStorage.getItem(userBetaKey);
       setBetaNoticeSeenByUser(hasSeenNotice === 'true');
       
-      console.log('AuthContext: Login complete, returning user data');
       return userData;
     } catch (error: any) {
-      // Log for debugging (dev only)
-      if (__DEV__) {
-        console.error('AuthContext: Login error', error);
-      }
       // Return user-friendly error message - NEVER expose technical details
       const detail = error.response?.data?.detail;
       if (detail && typeof detail === 'string' && detail.includes('Invalid')) {
@@ -127,20 +150,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         name,
         phone,
         currentRole: role,
-      });
+      }, { timeout: 15000 });
       const { token: newToken, user: userData } = response.data;
       
       await AsyncStorage.setItem('authToken', newToken);
       setToken(newToken);
       setUser(userData);
+      setInitialized(true);
       
       // New user has NOT seen beta notice
       setBetaNoticeSeenByUser(false);
     } catch (error: any) {
-      // Log for debugging (dev only)
-      if (__DEV__) {
-        console.error('AuthContext: Signup error', error);
-      }
       // Return user-friendly error message - NEVER expose technical details
       const detail = error.response?.data?.detail;
       if (detail && typeof detail === 'string' && detail.includes('already exists')) {
@@ -163,21 +183,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await axios.patch(
         `${BACKEND_URL}/api/users/role`,
         { currentRole: role },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` }, timeout: 10000 }
       );
       setUser(response.data);
-    } catch (error: any) {
-      // Log for debugging (dev only)
-      if (__DEV__) {
-        console.error('AuthContext: Switch role error', error);
-      }
+    } catch {
       throw new Error('Unable to switch mode. Please try again.');
     }
   };
 
   const refreshUser = async () => {
-    if (token) {
-      await fetchUserAndCheckBeta(token);
+    if (!token) return;
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+        timeout: 10000,
+      });
+      const userData = response.data;
+      setUser(userData);
+      
+      const userBetaKey = `${BETA_NOTICE_KEY}_${userData._id}`;
+      const hasSeenNotice = await AsyncStorage.getItem(userBetaKey);
+      setBetaNoticeSeenByUser(hasSeenNotice === 'true');
+    } catch {
+      // Silent fail - don't disrupt user
     }
   };
 
@@ -202,6 +230,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         switchRole, 
         refreshUser,
         markBetaNoticeSeen,
+        initializeAuth,
       }}
     >
       {children}
