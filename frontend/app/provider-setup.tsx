@@ -153,10 +153,12 @@ export default function ProviderSetupScreen() {
       // Phase 4: Navigate to phone verification first, then uploads
       router.push('/phone-verification');
     } catch (error: any) {
-      console.error('Error setting up provider:', error);
+      if (__DEV__) {
+        console.warn('Error setting up provider:', error);
+      }
       Alert.alert(
         'Setup Failed',
-        error.response?.data?.detail || 'Failed to complete provider setup. Please try again.'
+        'We couldn\'t complete your setup. Please try again.'
       );
     } finally {
       setLoading(false);
