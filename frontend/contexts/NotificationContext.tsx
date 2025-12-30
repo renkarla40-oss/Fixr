@@ -102,10 +102,12 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         // For Expo Go, we need projectId from app config
         const projectId = Constants.expoConfig?.extra?.eas?.projectId;
         
+        // Wrap in additional try-catch to suppress expo-notifications native errors
         const tokenData = await Notifications.getExpoPushTokenAsync({
           projectId: projectId || undefined,
-        });
-        return tokenData.data;
+        }).catch(() => null);
+        
+        return tokenData?.data || null;
       } catch {
         // Token retrieval failed (common in Expo Go) - skip silently
         return null;
