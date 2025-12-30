@@ -32,6 +32,7 @@ interface ServiceRequest {
 export default function ProviderDashboardScreen() {
   const { token, shouldShowBetaNotice, markBetaNoticeSeen } = useAuth();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
