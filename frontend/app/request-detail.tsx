@@ -293,14 +293,13 @@ export default function RequestDetailScreen() {
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         >
-          {/* JOB CODE CARD - PROMINENT, ABOVE THE FOLD */}
+          {/* JOB CODE CARD - Compact, subtle light blue */}
           {request.status === 'accepted' && request.jobCode && (
             <View style={styles.jobCodeCard}>
-              <View style={styles.jobCodeHeader}>
-                <Ionicons name="key" size={20} color="#F57C00" />
-                <Text style={styles.jobCodeTitle}>Job Code</Text>
-              </View>
-              <Text style={styles.jobCodeValue}>{request.jobCode}</Text>
+              <Text style={styles.jobCodeLabel}>Job Code</Text>
+              <Text style={styles.jobCodeValue}>
+                {request.jobCode.slice(0, 3)} {request.jobCode.slice(3)}
+              </Text>
               <Text style={styles.jobCodeHint}>Share this code when the provider arrives</Text>
             </View>
           )}
