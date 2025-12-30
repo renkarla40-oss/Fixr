@@ -224,9 +224,9 @@ export default function PhoneVerificationScreen() {
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-            <Text style={styles.skipButtonText}>Skip for now</Text>
-          </TouchableOpacity>
+          <Text style={styles.footerNote}>
+            Phone verification helps build trust with customers
+          </Text>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
