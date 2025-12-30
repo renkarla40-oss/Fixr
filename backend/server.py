@@ -1609,6 +1609,29 @@ async def send_job_message(
     result = await db.job_messages.insert_one(msg_dict)
     msg_dict["_id"] = str(result.inserted_id)
     
+    # Send notification to the other party
+    recipient_id = request["providerId"] if is_customer else request["customerId"]
+    
+    # Get provider user ID if recipient is provider
+    if not is_customer:
+        recipient_id = request["customerId"]
+    else:
+        # Get provider's user ID
+        provider_doc = await db.providers.find_one({"_id": ObjectId(request.get("providerId"))})
+        if provider_doc:
+            recipient_id = provider_doc["userId"]
+    
+    if recipient_id:
+        await send_push_notification(
+            user_id=recipient_id,
+            title=f"New message from {current_user.name}",
+            body=message.get("text", "")[:100],
+            data={
+                "type": NotificationType.NEW_MESSAGE,
+                "requestId": request_id,
+            }
+        )
+    
     return {"success": True, "message": msg_dict}
 
 # Service Request Routes
