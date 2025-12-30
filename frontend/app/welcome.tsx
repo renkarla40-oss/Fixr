@@ -110,11 +110,11 @@ export default function WelcomeScreen() {
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
         >
-          {/* Logo at top - enlarged and anchored */}
+          {/* Logo at top - White background premium version */}
           <View style={styles.logoSection}>
             <View style={styles.logoContainer}>
               <Image 
-                source={require('../assets/images/fixr-logo.png')} 
+                source={require('../assets/images/fixr-logo-white.png')} 
                 style={styles.logo}
                 resizeMode="contain"
               />
@@ -207,17 +207,23 @@ const styles = StyleSheet.create({
     paddingTop: 56,
   },
   logoContainer: {
-    width: 88,
-    height: 88,
-    backgroundColor: '#000000',
-    borderRadius: 44,
+    width: 96,
+    height: 96,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 48,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
+    // Subtle shadow for premium feel
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   logo: {
-    width: 62,
-    height: 62,
+    width: 88,
+    height: 88,
   },
   contentSection: {
     flex: 1,
