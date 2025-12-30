@@ -304,10 +304,10 @@ export default function RequestDetailScreen() {
             </View>
           )}
 
-          {/* In Progress Status */}
+          {/* In Progress Status - Light blue theme */}
           {request.status === 'started' && (
             <View style={styles.inProgressCard}>
-              <Ionicons name="play-circle" size={24} color="#1565C0" />
+              <Ionicons name="play-circle" size={22} color="#4A90D9" />
               <View style={styles.inProgressContent}>
                 <Text style={styles.inProgressTitle}>Job In Progress</Text>
                 <Text style={styles.inProgressText}>The provider is working on your request</Text>
