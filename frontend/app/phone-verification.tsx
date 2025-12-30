@@ -384,12 +384,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  skipButton: {
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  skipButtonText: {
-    color: '#666',
-    fontSize: 14,
+  footerNote: {
+    textAlign: 'center',
+    color: '#999',
+    fontSize: 13,
+    marginTop: 4,
   },
 });
