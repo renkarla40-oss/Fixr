@@ -27,6 +27,7 @@ interface ProviderProfile {
   baseTown: string | null;
   travelDistanceKm: number;
   travelAnywhere: boolean;
+  phoneVerified?: boolean;
 }
 
 export default function ProviderProfileScreen() {
