@@ -96,121 +96,115 @@ export default function ProviderDashboardScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Incoming Requests</Text>
-          </View>
-          <View style={styles.centerContent}>
-            <ActivityIndicator size="large" color="#E53935" />
-          </View>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Incoming Requests</Text>
         </View>
-      </SafeAreaView>
+        <View style={styles.centerContent}>
+          <ActivityIndicator size="large" color="#E53935" />
+        </View>
+      </View>
     );
   }
 
   if (requests.length === 0) {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
         <BetaNoticeModal 
           visible={shouldShowBetaNotice} 
           onClose={handleBetaNoticeContinue}
         />
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Incoming Requests</Text>
-          </View>
-          <ScrollView
-            contentContainerStyle={styles.emptyContainer}
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
-          >
-            <Ionicons name="inbox" size={64} color="#CCC" />
-            <Text style={styles.emptyTitle}>No Pending Requests</Text>
-            <Text style={styles.emptySubtitle}>
-              You're all caught up! New service requests
-              {"\n"}will appear here.
-            </Text>
-          </ScrollView>
+        <View style={styles.header}>
+          <Text style={styles.title}>Incoming Requests</Text>
         </View>
-      </SafeAreaView>
+        <ScrollView
+          contentContainerStyle={styles.emptyContainer}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
+          <Ionicons name="inbox" size={64} color="#CCC" />
+          <Text style={styles.emptyTitle}>No Pending Requests</Text>
+          <Text style={styles.emptySubtitle}>
+            You're all caught up! New service requests
+            {"\n"}will appear here.
+          </Text>
+        </ScrollView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <BetaNoticeModal 
         visible={shouldShowBetaNotice} 
         onClose={handleBetaNoticeContinue}
       />
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Incoming Requests</Text>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{requests.length}</Text>
-          </View>
+      <View style={styles.header}>
+        <Text style={styles.title}>Incoming Requests</Text>
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>{requests.length}</Text>
         </View>
-        <ScrollView
-          style={styles.content}
-          contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor="#E53935"
-            />
-          }
-        >
-          {requests.map((request) => (
-            <TouchableOpacity
-              key={request._id}
-              style={[styles.requestCard, request.isGeneralRequest && styles.generalRequestCard]}
-              onPress={() => handleRequestPress(request._id)}
-              activeOpacity={0.7}
-            >
-              <View style={styles.requestHeader}>
-                <View style={styles.categoryContainer}>
-                  <Ionicons name="construct" size={16} color="#666" />
-                  <Text style={styles.categoryText}>
-                    {categoryNames[request.service] || request.service}
-                  </Text>
-                </View>
-                {request.isGeneralRequest ? (
-                  <View style={styles.generalBadge}>
-                    <Text style={styles.generalBadgeText}>GENERAL</Text>
-                  </View>
-                ) : (
-                  <View style={styles.newBadge}>
-                    <Text style={styles.newBadgeText}>NEW</Text>
-                  </View>
-                )}
-              </View>
-
-              <Text style={styles.customerName}>{request.customerName}</Text>
-
-              <Text style={styles.description} numberOfLines={2}>
-                {request.description}
-              </Text>
-
-              <View style={styles.requestFooter}>
-                <View style={styles.dateContainer}>
-                  <Ionicons name="time-outline" size={14} color="#999" />
-                  <Text style={styles.dateText}>
-                    {formatDate(request.createdAt)}
-                  </Text>
-                </View>
-                <View style={styles.actionContainer}>
-                  <Text style={styles.actionText}>Review</Text>
-                  <Ionicons name="chevron-forward" size={20} color="#E53935" />
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
       </View>
-    </SafeAreaView>
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#E53935"
+          />
+        }
+      >
+        {requests.map((request) => (
+          <TouchableOpacity
+            key={request._id}
+            style={[styles.requestCard, request.isGeneralRequest && styles.generalRequestCard]}
+            onPress={() => handleRequestPress(request._id)}
+            activeOpacity={0.7}
+          >
+            <View style={styles.requestHeader}>
+              <View style={styles.categoryContainer}>
+                <Ionicons name="construct" size={16} color="#666" />
+                <Text style={styles.categoryText}>
+                  {categoryNames[request.service] || request.service}
+                </Text>
+              </View>
+              {request.isGeneralRequest ? (
+                <View style={styles.generalBadge}>
+                  <Text style={styles.generalBadgeText}>GENERAL</Text>
+                </View>
+              ) : (
+                <View style={styles.newBadge}>
+                  <Text style={styles.newBadgeText}>NEW</Text>
+                </View>
+              )}
+            </View>
+
+            <Text style={styles.customerName}>{request.customerName}</Text>
+
+            <Text style={styles.description} numberOfLines={2}>
+              {request.description}
+            </Text>
+
+            <View style={styles.requestFooter}>
+              <View style={styles.dateContainer}>
+                <Ionicons name="time-outline" size={14} color="#999" />
+                <Text style={styles.dateText}>
+                  {formatDate(request.createdAt)}
+                </Text>
+              </View>
+              <View style={styles.actionContainer}>
+                <Text style={styles.actionText}>Review</Text>
+                <Ionicons name="chevron-forward" size={20} color="#E53935" />
+              </View>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
   );
 }
 
