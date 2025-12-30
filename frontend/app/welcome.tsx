@@ -110,11 +110,11 @@ export default function WelcomeScreen() {
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
         >
-          {/* Logo at top - White circular background with actual Fixr logo */}
+          {/* Logo at top - White circular background with correct Fixr logo for light backdrop */}
           <View style={styles.logoSection}>
             <View style={styles.logoContainer}>
               <Image 
-                source={require('../assets/images/fixr-logo.png')} 
+                source={require('../assets/images/fixr-logo-welcome.png')} 
                 style={styles.logo}
                 resizeMode="contain"
               />
