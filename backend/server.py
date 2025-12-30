@@ -935,21 +935,6 @@ async def get_provider(provider_id: str, current_user: User = Depends(get_curren
     return Provider(**provider)
 
 # Phase 3A: Provider availability endpoint
-@api_router.get("/providers/me/profile", response_model=Provider)
-async def get_my_provider_profile(current_user: User = Depends(get_current_user)):
-    """Get current user's provider profile"""
-    provider = await db.providers.find_one({"userId": current_user.id})
-    if not provider:
-        raise HTTPException(status_code=404, detail="Provider profile not found")
-    
-    provider["_id"] = str(provider["_id"])
-    # Ensure availability fields have defaults
-    if "isAcceptingJobs" not in provider:
-        provider["isAcceptingJobs"] = True
-    if "availabilityNote" not in provider:
-        provider["availabilityNote"] = None
-    return Provider(**provider)
-
 @api_router.patch("/providers/me/availability", response_model=Provider)
 async def update_provider_availability(
     availability_data: ProviderAvailabilityUpdate,
