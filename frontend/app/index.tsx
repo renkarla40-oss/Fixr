@@ -85,12 +85,14 @@ export default function SplashScreen() {
           },
         ]}
       >
-        {/* White-background Fixr logo - premium feel */}
-        <Image 
-          source={require('../assets/images/fixr-logo-white.png')} 
-          style={styles.logo}
-          resizeMode="contain"
-        />
+        {/* White circular background with Fixr logo - premium feel */}
+        <View style={styles.logoCircle}>
+          <Image 
+            source={require('../assets/images/fixr-logo-actual.png')} 
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        </View>
       </Animated.View>
     </View>
   );
@@ -107,8 +109,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  logoCircle: {
+    width: 180,
+    height: 180,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 90,
+    alignItems: 'center',
+    justifyContent: 'center',
+    // Subtle shadow for premium depth
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+  },
   logo: {
-    width: 280,
-    height: 280,
+    width: 140,
+    height: 70,
   },
 });
