@@ -835,7 +835,7 @@ const styles = StyleSheet.create({
   outsideAreaBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF3E0',
+    backgroundColor: '#EAF3FF',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
@@ -843,7 +843,7 @@ const styles = StyleSheet.create({
   },
   outsideAreaBadgeText: {
     fontSize: 12,
-    color: '#F57C00',
+    color: '#4A7DC4',
   },
   distanceBadge: {
     flexDirection: 'row',

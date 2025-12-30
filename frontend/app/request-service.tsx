@@ -204,7 +204,7 @@ export default function RequestServiceScreen() {
 
             {isGeneralRequest && (
               <View style={styles.betaNotice}>
-                <Ionicons name="information-circle" size={20} color="#F57C00" />
+                <Ionicons name="information-circle" size={20} color="#4A7DC4" />
                 <Text style={styles.betaNoticeText}>
                   Use this option if your service doesn't fit the listed categories. Availability may be limited during beta.
                 </Text>
@@ -467,17 +467,17 @@ const styles = StyleSheet.create({
   betaNotice: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: '#FFF8E1',
+    backgroundColor: '#EAF3FF',
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#FFE082',
+    borderColor: '#BBD7FF',
     gap: 12,
   },
   betaNoticeText: {
     flex: 1,
     fontSize: 14,
-    color: '#E65100',
+    color: '#4A7DC4',
     lineHeight: 20,
   },
   footer: {

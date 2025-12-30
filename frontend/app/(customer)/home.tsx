@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     right: 8,
-    backgroundColor: '#FFF3E0',
+    backgroundColor: '#EAF3FF',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
@@ -210,6 +210,6 @@ const styles = StyleSheet.create({
   betaBadgeText: {
     fontSize: 9,
     fontWeight: '700',
-    color: '#F57C00',
+    color: '#4A7DC4',
   },
 });
