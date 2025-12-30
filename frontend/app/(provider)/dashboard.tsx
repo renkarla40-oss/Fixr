@@ -209,10 +209,6 @@ export default function ProviderDashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
