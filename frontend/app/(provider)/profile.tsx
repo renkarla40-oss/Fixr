@@ -463,6 +463,27 @@ const styles = StyleSheet.create({
     color: '#666',
     fontWeight: '600',
   },
+  badgesRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
+  verifiedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F5E9',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    gap: 4,
+  },
+  verifiedText: {
+    fontSize: 13,
+    color: '#4CAF50',
+    fontWeight: '600',
+  },
   section: {
     paddingHorizontal: 24,
     paddingTop: 24,
