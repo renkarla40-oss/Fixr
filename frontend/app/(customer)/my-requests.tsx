@@ -77,8 +77,12 @@ export default function MyRequestsScreen() {
     switch (status) {
       case 'accepted':
         return { bg: '#E8F5E9', text: '#2E7D32' };
+      case 'started':
+        return { bg: '#EEF6FF', text: '#2C5AA0' };
       case 'declined':
         return { bg: '#FFEBEE', text: '#C62828' };
+      case 'completed':
+        return { bg: '#F3E5F5', text: '#7B1FA2' };
       default:
         return { bg: '#FFF3E0', text: '#F57C00' };
     }
