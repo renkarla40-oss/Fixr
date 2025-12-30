@@ -545,40 +545,34 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 16,
   },
-  // JOB CODE CARD - Prominent display
+  // JOB CODE CARD - Compact, subtle light blue
   jobCodeCard: {
-    backgroundColor: '#FFF8E1',
+    backgroundColor: '#EEF6FF',
     borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 2,
-    borderColor: '#FFB300',
+    padding: 14,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#C5DFFF',
     alignItems: 'center',
   },
-  jobCodeHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 8,
-  },
-  jobCodeTitle: {
-    fontSize: 14,
+  jobCodeLabel: {
+    fontSize: 11,
     fontWeight: '600',
-    color: '#F57C00',
+    color: '#5B8BD4',
     textTransform: 'uppercase',
     letterSpacing: 1,
+    marginBottom: 4,
   },
   jobCodeValue: {
-    fontSize: 36,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#E65100',
-    letterSpacing: 8,
-    marginBottom: 8,
+    color: '#2C5AA0',
+    letterSpacing: 4,
+    marginBottom: 6,
   },
   jobCodeHint: {
-    fontSize: 13,
-    color: '#666',
-    textAlign: 'center',
+    fontSize: 12,
+    color: '#7A9BC7',
   },
   // In Progress Card
   inProgressCard: {
