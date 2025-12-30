@@ -122,11 +122,6 @@ export default function PhoneVerificationScreen() {
     await handleSendOtp();
   };
 
-  const handleSkip = () => {
-    // For beta, allow skipping phone verification
-    router.push('/provider-uploads');
-  };
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
