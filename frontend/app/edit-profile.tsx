@@ -57,8 +57,10 @@ export default function EditProfileScreen() {
         [{ text: 'OK', onPress: () => router.back() }]
       );
     } catch (error: any) {
-      console.error('Error updating profile:', error);
-      Alert.alert('Error', error.response?.data?.detail || 'Failed to update profile. Please try again.');
+      if (__DEV__) {
+        console.warn('Error updating profile:', error);
+      }
+      Alert.alert('Update Failed', 'We couldn\'t save your changes. Please try again.');
     } finally {
       setLoading(false);
     }
