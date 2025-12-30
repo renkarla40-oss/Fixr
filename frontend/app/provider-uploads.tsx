@@ -122,8 +122,10 @@ export default function ProviderUploadsScreen() {
         await uploadImage(type, asset.base64 || '', asset.uri);
       }
     } catch (error) {
-      console.error('Image picker error:', error);
-      Alert.alert('Error', 'Failed to pick image. Please try again.');
+      if (__DEV__) {
+        console.warn('Image picker error:', error);
+      }
+      Alert.alert('Unable to Select Image', 'We couldn\'t access your photos. Please try again.');
     }
   };
 
@@ -182,10 +184,12 @@ export default function ProviderUploadsScreen() {
         await refreshUser();
       }
     } catch (error: any) {
-      console.error('Upload error:', error);
+      if (__DEV__) {
+        console.warn('Upload error:', error);
+      }
       Alert.alert(
         'Upload Failed',
-        'Failed to upload image. Please try again.',
+        'We couldn\'t upload your image. Please check your connection and try again.',
         [{ text: 'OK' }]
       );
     } finally {
@@ -206,8 +210,10 @@ export default function ProviderUploadsScreen() {
       await refreshUser();
       router.replace('/(provider)/dashboard');
     } catch (error) {
-      console.error('Error completing setup:', error);
-      Alert.alert('Error', 'Failed to complete setup. Please try again.');
+      if (__DEV__) {
+        console.warn('Error completing setup:', error);
+      }
+      Alert.alert('Setup Incomplete', 'We couldn\'t complete your setup. Please try again.');
     } finally {
       setCompleting(false);
     }
