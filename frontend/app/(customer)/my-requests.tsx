@@ -81,14 +81,30 @@ export default function MyRequestsScreen() {
     switch (status) {
       case 'accepted':
         return { bg: '#E8F5E9', text: '#2E7D32' };
+      case 'in_progress':
       case 'started':
         return { bg: '#EEF6FF', text: '#2C5AA0' };
       case 'declined':
         return { bg: '#FFEBEE', text: '#C62828' };
       case 'completed':
         return { bg: '#F3E5F5', text: '#7B1FA2' };
+      case 'cancelled':
+        return { bg: '#FFF3E0', text: '#E65100' };
       default:
         return { bg: '#EAF3FF', text: '#4A7DC4' };
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'pending': return 'Pending';
+      case 'accepted': return 'Accepted';
+      case 'in_progress': return 'In Progress';
+      case 'started': return 'In Progress';
+      case 'completed': return 'Completed';
+      case 'declined': return 'Declined';
+      case 'cancelled': return 'Cancelled';
+      default: return status.charAt(0).toUpperCase() + status.slice(1);
     }
   };
 
