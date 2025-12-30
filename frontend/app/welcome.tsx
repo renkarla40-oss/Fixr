@@ -222,8 +222,8 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   logo: {
-    width: 56,
-    height: 56,
+    width: 64,
+    height: 64,
   },
   contentSection: {
     flex: 1,
