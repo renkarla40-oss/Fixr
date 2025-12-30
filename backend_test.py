@@ -66,7 +66,7 @@ class BookingLifecycleTest:
             if response.status_code == 200:
                 data = response.json()
                 self.provider_token = data["token"]
-                provider_user_id = data["user"]["id"]
+                provider_user_id = data["user"]["_id"]
                 
                 # Get provider profile to get provider ID
                 headers = {"Authorization": f"Bearer {self.provider_token}"}
@@ -74,7 +74,7 @@ class BookingLifecycleTest:
                 
                 if profile_response.status_code == 200:
                     provider_data = profile_response.json()
-                    self.provider_id = provider_data["id"]
+                    self.provider_id = provider_data["_id"]
                     self.log(f"✅ Provider authentication successful - ID: {self.provider_id}")
                     return True
                 else:
