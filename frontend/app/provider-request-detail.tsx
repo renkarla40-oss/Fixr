@@ -444,29 +444,30 @@ export default function ProviderRequestDetailScreen() {
               </View>
             </View>
 
-            {/* Job Code Entry (Provider enters code when accepted) */}
+            {/* Job Code Entry - Compact, subtle light blue */}
             {request.status === 'accepted' && (
               <View style={styles.jobCodeSection}>
-                <Text style={styles.jobCodeTitle}>Confirm Your Arrival</Text>
-                <Text style={styles.jobCodeHint}>Enter the 6-digit code from the customer</Text>
+                <Text style={styles.jobCodeLabel}>Enter Job Code</Text>
+                <Text style={styles.jobCodeHint}>Ask the customer for the 6-digit code</Text>
                 <View style={styles.jobCodeInputRow}>
                   <TextInput
                     style={styles.jobCodeInput}
-                    placeholder="Enter code"
+                    placeholder="000 000"
+                    placeholderTextColor="#A0C4E8"
                     value={jobCodeInput}
                     onChangeText={setJobCodeInput}
                     keyboardType="number-pad"
                     maxLength={6}
                   />
                   <TouchableOpacity
-                    style={[styles.confirmButton, (!jobCodeInput.trim() || confirmingArrival) && styles.confirmButtonDisabled]}
+                    style={[styles.startJobButton, (!jobCodeInput.trim() || confirmingArrival) && styles.startJobButtonDisabled]}
                     onPress={handleConfirmArrival}
                     disabled={!jobCodeInput.trim() || confirmingArrival}
                   >
                     {confirmingArrival ? (
                       <ActivityIndicator size="small" color="#FFFFFF" />
                     ) : (
-                      <Text style={styles.confirmButtonText}>Start Job</Text>
+                      <Text style={styles.startJobButtonText}>Start Job</Text>
                     )}
                   </TouchableOpacity>
                 </View>
