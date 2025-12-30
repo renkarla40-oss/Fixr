@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://fixr-services.preview.emergentagent.com/api"
+BASE_URL = "https://fixr-chat.preview.emergentagent.com/api"
 
 # Test credentials
 CUSTOMER_EMAIL = "customer@test.com"
