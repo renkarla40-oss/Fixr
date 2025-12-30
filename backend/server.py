@@ -197,7 +197,7 @@ class ServiceRequestResponse(BaseModel):
     service: str
     description: str
     preferredDateTime: Optional[datetime] = None
-    status: str = "pending"  # pending, accepted, started, completed, cancelled
+    status: str = "pending"  # pending, accepted, declined, in_progress, completed, cancelled
     customerName: str
     customerPhone: Optional[str] = None  # Made optional for legacy records
     providerName: Optional[str] = None  # Can be None for general requests
@@ -208,10 +208,15 @@ class ServiceRequestResponse(BaseModel):
     searchRadiusMiles: int = 10  # Customer's search radius
     jobDuration: Optional[str] = None  # Estimated job duration
     createdAt: datetime
+    # Lifecycle timestamps (Phase 5)
+    acceptedAt: Optional[datetime] = None  # When provider accepted
+    startedAt: Optional[datetime] = None  # When job started (in_progress)
+    completedAt: Optional[datetime] = None  # When job completed
+    cancelledAt: Optional[datetime] = None  # When cancelled
+    cancelledBy: Optional[str] = None  # "customer" or "provider"
+    declinedAt: Optional[datetime] = None  # When provider declined
     # Job confirmation code (Phase 4 - Trust)
     jobCode: Optional[str] = None  # 6-digit code for job start confirmation
-    jobStartedAt: Optional[datetime] = None  # When provider entered correct code
-    jobCompletedAt: Optional[datetime] = None  # When job was marked complete
     # Review fields (Phase 4 - Trust)
     customerReview: Optional[str] = None  # Customer's review text (max 500 chars)
     customerRating: Optional[int] = None  # 1-5 stars
