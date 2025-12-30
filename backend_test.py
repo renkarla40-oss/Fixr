@@ -111,7 +111,7 @@ class BookingLifecycleTest:
             
             if response.status_code == 201:
                 data = response.json()
-                self.test_request_id = data["id"]
+                self.test_request_id = data.get("id") or data.get("_id")
                 status = data.get("status")
                 
                 if status == "pending":
