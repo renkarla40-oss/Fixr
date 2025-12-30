@@ -86,8 +86,18 @@ export default function SplashScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Dark gradient overlay for depth */}
-      <View style={styles.gradientOverlay} />
+      {/* Subtle glow behind logo for visibility */}
+      <Animated.View
+        style={[
+          styles.glowContainer,
+          {
+            transform: [{ scale: combinedScale }],
+            opacity: opacityAnim,
+          },
+        ]}
+      >
+        <View style={styles.glow} />
+      </Animated.View>
       
       <Animated.View
         style={[
@@ -112,14 +122,20 @@ export default function SplashScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1A1A1A', // Dark charcoal - bold and premium
+    backgroundColor: '#1C1C1E', // Dark charcoal - iOS system dark
     alignItems: 'center',
     justifyContent: 'center',
   },
-  gradientOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    // Subtle radial effect - slightly lighter in center
-    backgroundColor: 'transparent',
+  glowContainer: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  glow: {
+    width: 280,
+    height: 160,
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    borderRadius: 80,
   },
   logoWrapper: {
     alignItems: 'center',
