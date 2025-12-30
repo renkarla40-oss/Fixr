@@ -155,8 +155,16 @@ export default function ProviderProfileScreen() {
             <Text style={styles.name}>{user?.name}</Text>
             <Text style={styles.email}>{user?.email}</Text>
             <Text style={styles.phone}>{user?.phone}</Text>
-            <View style={styles.roleBadge}>
-              <Text style={styles.roleText}>Provider</Text>
+            <View style={styles.badgesRow}>
+              <View style={styles.roleBadge}>
+                <Text style={styles.roleText}>Provider</Text>
+              </View>
+              {providerProfile?.phoneVerified && (
+                <View style={styles.verifiedBadge}>
+                  <Ionicons name="checkmark-circle" size={14} color="#4CAF50" />
+                  <Text style={styles.verifiedText}>Phone verified</Text>
+                </View>
+              )}
             </View>
           </View>
 
