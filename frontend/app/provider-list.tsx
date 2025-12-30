@@ -784,7 +784,7 @@ const styles = StyleSheet.create({
   ratingBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF8E1',
+    backgroundColor: '#FEF3C7',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
@@ -792,7 +792,7 @@ const styles = StyleSheet.create({
   },
   ratingBadgeText: {
     fontSize: 12,
-    color: '#FFA000',
+    color: '#B45309',
     fontWeight: '500',
   },
   availabilityNoteContainer: {
