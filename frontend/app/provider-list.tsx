@@ -314,7 +314,7 @@ export default function ProviderListScreen() {
                       <Ionicons 
                         name={provider.verificationStatus === 'verified' ? 'checkmark-circle' : 'time-outline'} 
                         size={14} 
-                        color={provider.verificationStatus === 'verified' ? '#2E7D32' : '#F57C00'} 
+                        color={provider.verificationStatus === 'verified' ? '#2E7D32' : '#4A7DC4'} 
                       />
                       <Text
                         style={[
@@ -396,7 +396,7 @@ export default function ProviderListScreen() {
                   
                   {provider.isOutsideSelectedArea && (
                     <View style={styles.outsideAreaBadge}>
-                      <Ionicons name="car-outline" size={12} color="#F57C00" />
+                      <Ionicons name="car-outline" size={12} color="#4A7DC4" />
                       <Text style={styles.outsideAreaBadgeText}>Outside selected area</Text>
                     </View>
                   )}
@@ -705,7 +705,7 @@ const styles = StyleSheet.create({
     color: '#2E7D32',
   },
   statusTextPending: {
-    color: '#F57C00',
+    color: '#4A7DC4',
   },
   badgeContainer: {
     flexDirection: 'row',
@@ -792,7 +792,7 @@ const styles = StyleSheet.create({
   },
   ratingBadgeText: {
     fontSize: 12,
-    color: '#F57C00',
+    color: '#FFA000',
     fontWeight: '500',
   },
   availabilityNoteContainer: {

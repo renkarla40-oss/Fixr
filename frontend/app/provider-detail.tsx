@@ -207,7 +207,7 @@ export default function ProviderDetailScreen() {
                   color={
                     provider.verificationStatus === 'verified'
                       ? '#2E7D32'
-                      : '#F57C00'
+                      : '#4A7DC4'
                   }
                 />
                 <Text
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#E8F5E9',
   },
   pendingBadge: {
-    backgroundColor: '#FFF3E0',
+    backgroundColor: '#EAF3FF',
   },
   verificationText: {
     fontSize: 14,
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
     color: '#2E7D32',
   },
   pendingText: {
-    color: '#F57C00',
+    color: '#4A7DC4',
   },
   section: {
     paddingVertical: 24,
