@@ -129,7 +129,7 @@ export default function ProviderInboxScreen() {
       case 'started': return '#2196F3';
       case 'completed': return '#9C27B0';
       case 'declined': return '#F44336';
-      default: return '#FF9800';
+      default: return '#4A7DC4';
     }
   };
 

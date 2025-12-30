@@ -84,7 +84,7 @@ export default function MyRequestsScreen() {
       case 'completed':
         return { bg: '#F3E5F5', text: '#7B1FA2' };
       default:
-        return { bg: '#FFF3E0', text: '#F57C00' };
+        return { bg: '#EAF3FF', text: '#4A7DC4' };
     }
   };
 

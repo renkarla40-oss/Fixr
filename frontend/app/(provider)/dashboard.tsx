@@ -303,14 +303,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   newBadge: {
-    backgroundColor: '#FFF3E0',
+    backgroundColor: '#EAF3FF',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 4,
   },
   newBadgeText: {
     fontSize: 11,
-    color: '#F57C00',
+    color: '#4A7DC4',
     fontWeight: 'bold',
   },
   generalRequestCard: {

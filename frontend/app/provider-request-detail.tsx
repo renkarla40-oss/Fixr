@@ -296,7 +296,7 @@ export default function ProviderRequestDetailScreen() {
       case 'declined':
         return { bg: '#FFEBEE', text: '#C62828', icon: 'close-circle', label: 'Declined' };
       default:
-        return { bg: '#FFF3E0', text: '#F57C00', icon: 'time', label: 'Pending Review' };
+        return { bg: '#EAF3FF', text: '#4A7DC4', icon: 'time', label: 'Pending Review' };
     }
   };
 
