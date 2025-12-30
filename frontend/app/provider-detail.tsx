@@ -53,7 +53,10 @@ export default function ProviderDetailScreen() {
       );
       setProvider(response.data);
     } catch (error) {
-      console.error('Error fetching provider:', error);
+      if (__DEV__) {
+        console.warn('Error fetching provider:', error);
+      }
+      // Silent fail - will show empty state
     } finally {
       setLoading(false);
     }

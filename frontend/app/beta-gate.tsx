@@ -41,8 +41,10 @@ export default function BetaGateScreen() {
 
       setSubmitted(true);
     } catch (error: any) {
-      console.error('Error joining waitlist:', error);
-      Alert.alert('Error', 'Failed to join waitlist. Please try again.');
+      if (__DEV__) {
+        console.warn('Error joining waitlist:', error);
+      }
+      Alert.alert('Unable to Join', 'We couldn\'t add you to the waitlist. Please try again.');
     } finally {
       setLoading(false);
     }

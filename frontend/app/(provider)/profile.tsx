@@ -87,8 +87,10 @@ export default function ProviderProfileScreen() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
     } catch (error: any) {
-      console.error('Error saving availability:', error);
-      Alert.alert('Error', 'Failed to update availability settings. Please try again.');
+      if (__DEV__) {
+        console.warn('Error saving availability:', error);
+      }
+      Alert.alert('Unable to Save', 'We couldn\'t update your availability. Please try again.');
       // Revert on error
       setIsAcceptingJobs(!accepting);
     } finally {

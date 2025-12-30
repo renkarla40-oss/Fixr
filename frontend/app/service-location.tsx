@@ -81,8 +81,10 @@ export default function ServiceLocationScreen() {
       });
       setTowns(response.data);
     } catch (error) {
-      console.error('Error fetching towns:', error);
-      // Fallback to hardcoded list if API fails
+      if (__DEV__) {
+        console.warn('Error fetching towns:', error);
+      }
+      // Fallback to hardcoded list if API fails - no error shown to user
       setTowns([
         { key: 'port_of_spain', label: 'Port of Spain', region: 'north' },
         { key: 'san_fernando', label: 'San Fernando', region: 'south' },
