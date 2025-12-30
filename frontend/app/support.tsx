@@ -54,8 +54,10 @@ export default function SupportScreen() {
         [{ text: 'OK', onPress: () => router.back() }]
       );
     } catch (error) {
-      console.error('Error submitting support request:', error);
-      Alert.alert('Error', 'Failed to submit request. Please try again.');
+      if (__DEV__) {
+        console.warn('Error submitting support request:', error);
+      }
+      Alert.alert('Unable to Submit', 'We couldn\'t send your request. Please try again.');
     } finally {
       setLoading(false);
     }

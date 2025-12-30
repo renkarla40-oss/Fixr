@@ -116,8 +116,10 @@ export default function ProviderDetailScreen() {
         [{ text: 'OK' }]
       );
     } catch (error) {
-      console.error('Error submitting report:', error);
-      Alert.alert('Error', 'Failed to submit report. Please try again.');
+      if (__DEV__) {
+        console.warn('Error submitting report:', error);
+      }
+      Alert.alert('Unable to Submit', 'We couldn\'t send your report. Please try again.');
     } finally {
       setReporting(false);
     }
