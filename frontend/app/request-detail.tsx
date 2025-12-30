@@ -403,6 +403,14 @@ export default function RequestDetailScreen() {
               <Text style={styles.infoValue}>{formatDate(request.createdAt)}</Text>
             </View>
           </View>
+
+          {/* Cancel Button - Only shown for pending or accepted requests */}
+          {canCancel && (
+            <TouchableOpacity style={styles.cancelButton} onPress={handleCancelRequest}>
+              <Ionicons name="close-circle-outline" size={20} color="#E53935" />
+              <Text style={styles.cancelButtonText}>Cancel Request</Text>
+            </TouchableOpacity>
+          )}
         </ScrollView>
       ) : (
         /* Chat Tab */
