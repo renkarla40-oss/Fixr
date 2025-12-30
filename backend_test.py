@@ -365,7 +365,7 @@ class BookingLifecycleTest:
                 headers=customer_headers
             )
             
-            if response.status_code == 201:
+            if response.status_code in [200, 201]:
                 cancel_request_id = response.json().get("id") or response.json().get("_id")
                 
                 # Cancel the request
