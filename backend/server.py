@@ -1430,6 +1430,17 @@ async def confirm_job_arrival(
         }}
     )
     
+    # Send notification to customer
+    await send_push_notification(
+        user_id=request["customerId"],
+        title="Job Started",
+        body=f"Your {request['service']} job has started.",
+        data={
+            "type": NotificationType.JOB_STARTED,
+            "requestId": str(request["_id"]),
+        }
+    )
+    
     return {"success": True, "message": "Job started successfully"}
 
 @api_router.patch("/service-requests/{request_id}/complete")
