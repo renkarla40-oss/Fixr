@@ -263,7 +263,6 @@ export default function ProviderRequestDetailScreen() {
       weekday: 'short',
       month: 'short',
       day: 'numeric',
-      year: 'numeric',
     });
   };
 
@@ -273,7 +272,6 @@ export default function ProviderRequestDetailScreen() {
     return date.toLocaleString('en-US', {
       month: 'short',
       day: 'numeric',
-      year: 'numeric',
       hour: 'numeric',
       minute: '2-digit',
     });
@@ -298,7 +296,7 @@ export default function ProviderRequestDetailScreen() {
       case 'declined':
         return { bg: '#FFEBEE', text: '#C62828', icon: 'close-circle', label: 'Declined' };
       default:
-        return { bg: '#FFF3E0', text: '#F57C00', icon: 'time', label: 'Pending' };
+        return { bg: '#FFF3E0', text: '#F57C00', icon: 'time', label: 'Pending Review' };
     }
   };
 
@@ -345,15 +343,23 @@ export default function ProviderRequestDetailScreen() {
   }
 
   const statusInfo = getStatusInfo(request.status);
+  const isPending = request.status === 'pending';
 
   return (
     <View style={[styles.safeArea, { paddingTop: insets.top }]}>
-      {/* Header */}
+      {/* Header with compact status badge */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
         </TouchableOpacity>
-        <Text style={styles.title}>Request Details</Text>
+        <View style={styles.headerCenter}>
+          <Text style={styles.title}>Request Details</Text>
+          {/* Compact status badge in header */}
+          <View style={[styles.statusBadge, { backgroundColor: statusInfo.bg }]}>
+            <Ionicons name={statusInfo.icon as any} size={12} color={statusInfo.text} />
+            <Text style={[styles.statusBadgeText, { color: statusInfo.text }]}>{statusInfo.label}</Text>
+          </View>
+        </View>
         <View style={styles.backButton} />
       </View>
 
@@ -376,121 +382,115 @@ export default function ProviderRequestDetailScreen() {
       </View>
 
       {activeTab === 'details' ? (
-        <ScrollView
-          style={styles.content}
-          contentContainerStyle={[styles.contentContainer, { paddingBottom: bottomTabBarHeight + 16 }]}
-          showsVerticalScrollIndicator={false}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        >
-          {/* Status Banner */}
-          <View style={[styles.statusSection, { backgroundColor: statusInfo.bg }]}>
-            <Ionicons name={statusInfo.icon as any} size={40} color={statusInfo.text} />
-            <Text style={[styles.statusLabel, { color: statusInfo.text }]}>{statusInfo.label}</Text>
-          </View>
+        <View style={styles.detailsContainer}>
+          <ScrollView
+            style={styles.content}
+            contentContainerStyle={[
+              styles.contentContainer, 
+              { paddingBottom: isPending ? 100 : bottomTabBarHeight + 16 }
+            ]}
+            showsVerticalScrollIndicator={false}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          >
+            {/* Customer & Service Summary Card - TOP PRIORITY INFO */}
+            <View style={styles.summaryCard}>
+              <View style={styles.summaryRow}>
+                <Ionicons name="person" size={20} color="#E53935" />
+                <View style={styles.summaryContent}>
+                  <Text style={styles.summaryLabel}>Customer</Text>
+                  <Text style={styles.summaryValue}>{request.customerName}</Text>
+                </View>
+              </View>
+              <View style={styles.summaryDivider} />
+              <View style={styles.summaryRow}>
+                <Ionicons name="construct" size={20} color="#E53935" />
+                <View style={styles.summaryContent}>
+                  <Text style={styles.summaryLabel}>Service</Text>
+                  <Text style={styles.summaryValue}>{getServiceLabel(request.service)}</Text>
+                  {request.subCategory && <Text style={styles.subCategoryText}>{request.subCategory}</Text>}
+                </View>
+              </View>
+              {(request.jobTown || request.location) && (
+                <>
+                  <View style={styles.summaryDivider} />
+                  <View style={styles.summaryRow}>
+                    <Ionicons name="location" size={20} color="#E53935" />
+                    <View style={styles.summaryContent}>
+                      <Text style={styles.summaryLabel}>Location</Text>
+                      <Text style={styles.summaryValue}>{request.jobTown || request.location}</Text>
+                    </View>
+                  </View>
+                </>
+              )}
+            </View>
 
-          {/* Job Code Entry (Provider enters code when accepted) */}
-          {request.status === 'accepted' && (
-            <View style={styles.jobCodeSection}>
-              <Text style={styles.jobCodeTitle}>Confirm Your Arrival</Text>
-              <Text style={styles.jobCodeHint}>Enter the 6-digit code from the customer</Text>
-              <View style={styles.jobCodeInputRow}>
-                <TextInput
-                  style={styles.jobCodeInput}
-                  placeholder="Enter code"
-                  value={jobCodeInput}
-                  onChangeText={setJobCodeInput}
-                  keyboardType="number-pad"
-                  maxLength={6}
-                />
-                <TouchableOpacity
-                  style={[styles.confirmButton, (!jobCodeInput.trim() || confirmingArrival) && styles.confirmButtonDisabled]}
-                  onPress={handleConfirmArrival}
-                  disabled={!jobCodeInput.trim() || confirmingArrival}
-                >
-                  {confirmingArrival ? (
-                    <ActivityIndicator size="small" color="#FFFFFF" />
-                  ) : (
-                    <Text style={styles.confirmButtonText}>Start Job</Text>
-                  )}
-                </TouchableOpacity>
+            {/* Description */}
+            <View style={styles.descriptionCard}>
+              <Text style={styles.descriptionLabel}>Job Description</Text>
+              <Text style={styles.descriptionText}>{request.description}</Text>
+            </View>
+
+            {/* Schedule Info */}
+            <View style={styles.infoRow}>
+              <View style={styles.infoItem}>
+                <Ionicons name="calendar-outline" size={16} color="#666" />
+                <Text style={styles.infoLabel}>Preferred</Text>
+                <Text style={styles.infoValue}>{formatDateTime(request.preferredDateTime)}</Text>
+              </View>
+              <View style={styles.infoItem}>
+                <Ionicons name="time-outline" size={16} color="#666" />
+                <Text style={styles.infoLabel}>Requested</Text>
+                <Text style={styles.infoValue}>{formatDate(request.createdAt)}</Text>
               </View>
             </View>
-          )}
 
-          {/* Complete Job Button (when started) */}
-          {request.status === 'started' && (
-            <TouchableOpacity style={styles.completeJobButton} onPress={handleCompleteJob}>
-              <Ionicons name="checkmark-done" size={20} color="#FFFFFF" />
-              <Text style={styles.completeJobButtonText}>Mark Job as Complete</Text>
-            </TouchableOpacity>
-          )}
-
-          {/* Service Info */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Ionicons name="construct" size={20} color="#666" />
-              <Text style={styles.sectionTitle}>Service</Text>
-            </View>
-            <Text style={styles.sectionContent}>{getServiceLabel(request.service)}</Text>
-            {request.subCategory && <Text style={styles.subCategoryText}>{request.subCategory}</Text>}
-          </View>
-
-          {/* Customer Info */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Ionicons name="person" size={20} color="#666" />
-              <Text style={styles.sectionTitle}>Customer</Text>
-            </View>
-            <Text style={styles.sectionContent}>{request.customerName}</Text>
-          </View>
-
-          {/* Location */}
-          {(request.jobTown || request.location) && (
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Ionicons name="location" size={20} color="#666" />
-                <Text style={styles.sectionTitle}>Location</Text>
+            {/* Job Code Entry (Provider enters code when accepted) */}
+            {request.status === 'accepted' && (
+              <View style={styles.jobCodeSection}>
+                <Text style={styles.jobCodeTitle}>Confirm Your Arrival</Text>
+                <Text style={styles.jobCodeHint}>Enter the 6-digit code from the customer</Text>
+                <View style={styles.jobCodeInputRow}>
+                  <TextInput
+                    style={styles.jobCodeInput}
+                    placeholder="Enter code"
+                    value={jobCodeInput}
+                    onChangeText={setJobCodeInput}
+                    keyboardType="number-pad"
+                    maxLength={6}
+                  />
+                  <TouchableOpacity
+                    style={[styles.confirmButton, (!jobCodeInput.trim() || confirmingArrival) && styles.confirmButtonDisabled]}
+                    onPress={handleConfirmArrival}
+                    disabled={!jobCodeInput.trim() || confirmingArrival}
+                  >
+                    {confirmingArrival ? (
+                      <ActivityIndicator size="small" color="#FFFFFF" />
+                    ) : (
+                      <Text style={styles.confirmButtonText}>Start Job</Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
               </View>
-              <Text style={styles.sectionContent}>{request.jobTown || request.location}</Text>
-            </View>
-          )}
+            )}
 
-          {/* Description */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Ionicons name="document-text" size={20} color="#666" />
-              <Text style={styles.sectionTitle}>Description</Text>
-            </View>
-            <Text style={styles.descriptionText}>{request.description}</Text>
-          </View>
+            {/* Complete Job Button (when started) */}
+            {request.status === 'started' && (
+              <TouchableOpacity style={styles.completeJobButton} onPress={handleCompleteJob}>
+                <Ionicons name="checkmark-done" size={20} color="#FFFFFF" />
+                <Text style={styles.completeJobButtonText}>Mark Job as Complete</Text>
+              </TouchableOpacity>
+            )}
+          </ScrollView>
 
-          {/* Preferred Date */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Ionicons name="calendar" size={20} color="#666" />
-              <Text style={styles.sectionTitle}>Preferred Date & Time</Text>
-            </View>
-            <Text style={styles.sectionContent}>{formatDateTime(request.preferredDateTime)}</Text>
-          </View>
-
-          {/* Request Date */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Ionicons name="time" size={20} color="#666" />
-              <Text style={styles.sectionTitle}>Requested On</Text>
-            </View>
-            <Text style={styles.sectionContent}>{formatDate(request.createdAt)}</Text>
-          </View>
-
-          {/* Accept/Decline Buttons (only for pending) */}
-          {request.status === 'pending' && (
-            <View style={styles.actionButtons}>
+          {/* FIXED ACTION BUTTONS AT BOTTOM - Only for pending requests */}
+          {isPending && (
+            <View style={[styles.fixedActionBar, { paddingBottom: bottomTabBarHeight + 8 }]}>
               <TouchableOpacity
                 style={styles.declineButton}
                 onPress={handleDecline}
                 disabled={actionLoading}
               >
-                <Ionicons name="close" size={20} color="#C62828" />
+                <Ionicons name="close" size={22} color="#C62828" />
                 <Text style={styles.declineButtonText}>Decline</Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -502,14 +502,14 @@ export default function ProviderRequestDetailScreen() {
                   <ActivityIndicator size="small" color="#FFFFFF" />
                 ) : (
                   <>
-                    <Ionicons name="checkmark" size={20} color="#FFFFFF" />
-                    <Text style={styles.acceptButtonText}>Accept</Text>
+                    <Ionicons name="checkmark" size={22} color="#FFFFFF" />
+                    <Text style={styles.acceptButtonText}>Accept Job</Text>
                   </>
                 )}
               </TouchableOpacity>
             </View>
           )}
-        </ScrollView>
+        </View>
       ) : (
         /* Chat Tab - Uses KeyboardAvoidingView */
         <KeyboardAvoidingView
@@ -549,12 +549,7 @@ export default function ProviderRequestDetailScreen() {
           )}
 
           {/* Message Input - Fixed at bottom, above tab bar */}
-          <View style={[
-            styles.messageInputContainer, 
-            { 
-              paddingBottom: bottomTabBarHeight + 8,
-            }
-          ]}>
+          <View style={[styles.messageInputContainer, { paddingBottom: bottomTabBarHeight + 8 }]}>
             <TextInput
               ref={inputRef}
               style={styles.messageInput}
@@ -598,6 +593,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
   },
+  headerCenter: {
+    alignItems: 'center',
+  },
   backButton: {
     width: 44,
     height: 44,
@@ -608,6 +606,20 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#1A1A1A',
+  },
+  // Compact status badge in header
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    marginTop: 4,
+    gap: 4,
+  },
+  statusBadgeText: {
+    fontSize: 11,
+    fontWeight: '600',
   },
   centerContent: {
     flex: 1,
@@ -671,28 +683,109 @@ const styles = StyleSheet.create({
     color: '#E53935',
     fontWeight: '600',
   },
+  detailsContainer: {
+    flex: 1,
+  },
   content: {
     flex: 1,
   },
   contentContainer: {
     padding: 16,
   },
-  statusSection: {
-    alignItems: 'center',
-    padding: 24,
+  // Summary Card - Customer & Service info
+  summaryCard: {
+    backgroundColor: '#FAFAFA',
     borderRadius: 12,
-    marginBottom: 20,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#EEEEEE',
   },
-  statusLabel: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginTop: 8,
+  summaryRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
   },
+  summaryContent: {
+    flex: 1,
+  },
+  summaryLabel: {
+    fontSize: 11,
+    color: '#999',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  summaryValue: {
+    fontSize: 16,
+    color: '#1A1A1A',
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  summaryDivider: {
+    height: 1,
+    backgroundColor: '#E0E0E0',
+    marginVertical: 12,
+  },
+  subCategoryText: {
+    fontSize: 13,
+    color: '#E53935',
+    marginTop: 2,
+  },
+  // Description Card
+  descriptionCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  descriptionLabel: {
+    fontSize: 11,
+    color: '#999',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 8,
+  },
+  descriptionText: {
+    fontSize: 15,
+    color: '#1A1A1A',
+    lineHeight: 22,
+  },
+  // Info Row
+  infoRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 16,
+  },
+  infoItem: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 8,
+    padding: 12,
+    alignItems: 'center',
+  },
+  infoLabel: {
+    fontSize: 11,
+    color: '#999',
+    fontWeight: '500',
+    marginTop: 4,
+  },
+  infoValue: {
+    fontSize: 13,
+    color: '#1A1A1A',
+    fontWeight: '600',
+    marginTop: 2,
+    textAlign: 'center',
+  },
+  // Job Code Section
   jobCodeSection: {
     backgroundColor: '#FFF8E1',
     padding: 16,
     borderRadius: 12,
-    marginBottom: 20,
+    marginBottom: 16,
     borderWidth: 1,
     borderColor: '#FFE082',
   },
@@ -746,7 +839,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
     padding: 16,
     borderRadius: 12,
-    marginBottom: 20,
+    marginBottom: 16,
     gap: 8,
   },
   completeJobButtonText: {
@@ -754,43 +847,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  section: {
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-  },
-  sectionHeader: {
+  // FIXED ACTION BAR - Primary CTA area
+  fixedActionBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 8,
-  },
-  sectionTitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#999',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  sectionContent: {
-    fontSize: 16,
-    color: '#1A1A1A',
-    fontWeight: '500',
-  },
-  subCategoryText: {
-    fontSize: 14,
-    color: '#E53935',
-    marginTop: 4,
-  },
-  descriptionText: {
-    fontSize: 15,
-    color: '#1A1A1A',
-    lineHeight: 22,
-  },
-  actionButtons: {
-    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingTop: 12,
     gap: 12,
-    marginTop: 24,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+    // Shadow for elevation
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 8,
   },
   declineButton: {
     flex: 1,
@@ -800,30 +875,31 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
     borderColor: '#C62828',
-    paddingVertical: 14,
+    paddingVertical: 16,
     borderRadius: 12,
     gap: 8,
   },
   declineButtonText: {
     color: '#C62828',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   acceptButton: {
-    flex: 1,
+    flex: 1.5,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#4CAF50',
-    paddingVertical: 14,
+    paddingVertical: 16,
     borderRadius: 12,
     gap: 8,
   },
   acceptButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
   },
+  // Chat styles
   chatContainer: {
     flex: 1,
   },
