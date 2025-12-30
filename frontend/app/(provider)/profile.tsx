@@ -130,7 +130,7 @@ export default function ProviderProfileScreen() {
       await switchRole('customer');
       router.replace('/(customer)/home');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to switch to customer mode');
+      Alert.alert('Unable to Switch', 'We couldn\'t switch to customer mode right now. Please try again.');
     } finally {
       setSwitching(false);
     }

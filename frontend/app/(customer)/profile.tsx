@@ -53,7 +53,7 @@ export default function ProfileScreen() {
         router.push('/provider-setup');
       }
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to switch to provider mode');
+      Alert.alert('Unable to Switch', 'We couldn\'t switch to provider mode right now. Please try again.');
     } finally {
       setSwitching(false);
     }
