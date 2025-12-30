@@ -1459,6 +1459,7 @@ async def complete_service_request(
 ):
     """
     Provider marks the job as completed.
+    Valid transition: in_progress -> completed
     """
     request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
     if not request:
@@ -1469,12 +1470,17 @@ async def complete_service_request(
     if not provider or str(provider["_id"]) != request.get("providerId"):
         raise HTTPException(status_code=403, detail="Not authorized")
     
+    # Enforce valid status transition: can only complete from in_progress
+    current_status = request.get("status")
+    if current_status != "in_progress" and current_status != "started":
+        raise HTTPException(status_code=400, detail="Job must be in progress before it can be completed")
+    
     # Mark job as completed
     await db.service_requests.update_one(
         {"_id": ObjectId(request_id)},
         {"$set": {
             "status": "completed",
-            "jobCompletedAt": datetime.utcnow()
+            "completedAt": datetime.utcnow()
         }}
     )
     
@@ -1482,6 +1488,17 @@ async def complete_service_request(
     await db.providers.update_one(
         {"_id": provider["_id"]},
         {"$inc": {"completedJobsCount": 1}}
+    )
+    
+    # Send notification to customer
+    await send_push_notification(
+        user_id=request["customerId"],
+        title="Job Completed",
+        body=f"Your {request['service']} job has been completed.",
+        data={
+            "type": NotificationType.JOB_COMPLETED,
+            "requestId": str(request["_id"]),
+        }
     )
     
     return {"success": True, "message": "Job marked as complete"}
