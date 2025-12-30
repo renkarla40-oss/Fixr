@@ -1846,20 +1846,34 @@ async def get_service_requests(current_user: User = Depends(get_current_user)):
 
 @api_router.patch("/service-requests/{request_id}/decline", response_model=ServiceRequestResponse)
 async def decline_request(request_id: str, current_user: User = Depends(get_current_user)):
+    """
+    Provider declines a request.
+    Valid transition: pending -> declined
+    """
+    request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    # Verify the current user is the provider
+    provider = await db.providers.find_one({"userId": current_user.id})
+    if not provider or str(provider["_id"]) != request.get("providerId"):
+        raise HTTPException(status_code=403, detail="Not authorized to decline this request")
+    
+    # Enforce valid status transition: can only decline pending requests
+    if request.get("status") != "pending":
+        raise HTTPException(status_code=400, detail="This request can no longer be declined")
+    
     await db.service_requests.update_one(
         {"_id": ObjectId(request_id)},
-        {"$set": {"status": "declined"}}
+        {"$set": {"status": "declined", "declinedAt": datetime.utcnow()}}
     )
     
     updated_request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
-    if not updated_request:
-        raise HTTPException(status_code=404, detail="Request not found")
-    
     updated_request["_id"] = str(updated_request["_id"])
     # Ensure new fields have defaults
     updated_request["jobCode"] = updated_request.get("jobCode")
-    updated_request["jobStartedAt"] = updated_request.get("jobStartedAt")
-    updated_request["jobCompletedAt"] = updated_request.get("jobCompletedAt")
+    updated_request["startedAt"] = updated_request.get("startedAt")
+    updated_request["completedAt"] = updated_request.get("completedAt")
     updated_request["customerReview"] = updated_request.get("customerReview")
     updated_request["customerRating"] = updated_request.get("customerRating")
     updated_request["reviewedAt"] = updated_request.get("reviewedAt")
@@ -1876,6 +1890,66 @@ async def decline_request(request_id: str, current_user: User = Depends(get_curr
     )
     
     return ServiceRequestResponse(**updated_request)
+
+@api_router.patch("/service-requests/{request_id}/cancel")
+async def cancel_request(request_id: str, current_user: User = Depends(get_current_user)):
+    """
+    Customer or provider cancels a request.
+    Valid transitions: pending -> cancelled, accepted -> cancelled
+    Cannot cancel after in_progress or completed.
+    """
+    request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    # Verify the current user is either the customer or the provider
+    is_customer = request["customerId"] == current_user.id
+    provider = await db.providers.find_one({"userId": current_user.id})
+    is_provider = provider and str(provider["_id"]) == request.get("providerId")
+    
+    if not is_customer and not is_provider:
+        raise HTTPException(status_code=403, detail="Not authorized to cancel this request")
+    
+    # Enforce valid status transition: cannot cancel after in_progress or completed
+    current_status = request.get("status")
+    if current_status in ["in_progress", "started", "completed"]:
+        raise HTTPException(status_code=400, detail="This job cannot be cancelled as it has already started or completed")
+    
+    if current_status in ["cancelled", "declined"]:
+        raise HTTPException(status_code=400, detail="This request has already been cancelled or declined")
+    
+    await db.service_requests.update_one(
+        {"_id": ObjectId(request_id)},
+        {"$set": {
+            "status": "cancelled",
+            "cancelledAt": datetime.utcnow(),
+            "cancelledBy": "customer" if is_customer else "provider"
+        }}
+    )
+    
+    # Determine who to notify
+    if is_customer and request.get("providerId"):
+        # Customer cancelled - notify provider
+        provider_user = await db.providers.find_one({"_id": ObjectId(request["providerId"])})
+        if provider_user:
+            notify_user_id = provider_user.get("userId")
+            if notify_user_id:
+                await send_push_notification(
+                    user_id=notify_user_id,
+                    title="Request Cancelled",
+                    body=f"A {request['service']} request was cancelled by the customer.",
+                    data={"type": "request_cancelled", "requestId": str(request["_id"])}
+                )
+    elif is_provider:
+        # Provider cancelled - notify customer
+        await send_push_notification(
+            user_id=request["customerId"],
+            title="Request Cancelled",
+            body=f"Your {request['service']} request was cancelled by the provider.",
+            data={"type": "request_cancelled", "requestId": str(request["_id"])}
+        )
+    
+    return {"success": True, "message": "Request cancelled"}
 
 # ============================================
 # Notification Endpoints (Phase 4)
