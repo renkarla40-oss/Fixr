@@ -289,12 +289,15 @@ export default function ProviderRequestDetailScreen() {
     switch (status) {
       case 'accepted':
         return { bg: '#E8F5E9', text: '#2E7D32', icon: 'checkmark-circle', label: 'Accepted' };
+      case 'in_progress':
       case 'started':
         return { bg: '#E3F2FD', text: '#1565C0', icon: 'play-circle', label: 'In Progress' };
       case 'completed':
         return { bg: '#F3E5F5', text: '#7B1FA2', icon: 'checkmark-done-circle', label: 'Completed' };
       case 'declined':
         return { bg: '#FFEBEE', text: '#C62828', icon: 'close-circle', label: 'Declined' };
+      case 'cancelled':
+        return { bg: '#FFF3E0', text: '#E65100', icon: 'close-circle-outline', label: 'Cancelled' };
       default:
         return { bg: '#EAF3FF', text: '#4A7DC4', icon: 'time', label: 'Pending Review' };
     }
