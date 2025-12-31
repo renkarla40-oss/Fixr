@@ -41,6 +41,8 @@ export default function WelcomeScreen() {
   useEffect(() => {
     console.log('Welcome useEffect - loading:', loading, 'user:', user?.email, 'shouldShowBetaNotice:', shouldShowBetaNotice);
     
+    // Only redirect if we have a valid user with a token
+    // After logout, user will be null, so no redirect happens
     if (!loading && user) {
       if (!user.isBetaUser) {
         console.log('Welcome: Redirecting to beta-gate');
