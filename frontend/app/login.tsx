@@ -48,6 +48,7 @@ export default function LoginScreen() {
     }
 
     setLoading(true);
+    setHasAttemptedLogin(true); // Mark that user is logging in through this form
     try {
       // Login returns the user data directly - use it for immediate navigation
       const userData = await login(email.trim(), password);
@@ -66,6 +67,7 @@ export default function LoginScreen() {
         Alert.alert('Sign In Failed', 'Something went wrong. Please try again later.');
       }
       setLoading(false);
+      setHasAttemptedLogin(false); // Reset on failure
     }
   };
 
