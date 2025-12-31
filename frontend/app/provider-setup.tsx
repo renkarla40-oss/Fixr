@@ -26,16 +26,9 @@ import {
   DEFAULT_TRAVEL_DISTANCE_KM,
   getDistanceLabel,
 } from '../constants/distanceUtils';
+import { getDisplayableCategories, ServiceCategory } from '../constants/serviceCategories';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
-
-const serviceOptions = [
-  { id: 'electrical', name: 'Electrical', icon: 'flash' },
-  { id: 'plumbing', name: 'Plumbing', icon: 'water' },
-  { id: 'ac', name: 'AC Repair', icon: 'snow' },
-  { id: 'cleaning', name: 'Cleaning', icon: 'sparkles' },
-  { id: 'handyman', name: 'Handyman', icon: 'hammer' },
-];
 
 interface Town {
   key: string;
