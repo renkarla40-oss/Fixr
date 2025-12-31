@@ -498,15 +498,15 @@ const styles = StyleSheet.create({
   servicesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    gap: 10,
   },
   serviceCard: {
-    width: '48%',
+    width: '31%',
     backgroundColor: '#F8F9FA',
     borderRadius: 12,
-    padding: 16,
+    padding: 12,
     alignItems: 'center',
-    minHeight: 110,
+    minHeight: 100,
     justifyContent: 'center',
     borderWidth: 2,
     borderColor: 'transparent',
@@ -515,11 +515,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF5F5',
     borderColor: '#E53935',
   },
+  serviceCardBeta: {
+    opacity: 0.9,
+  },
+  serviceIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#FFF5F5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 6,
+  },
+  serviceIconContainerSelected: {
+    backgroundColor: '#E53935',
+  },
   serviceIcon: {
     marginBottom: 8,
   },
   serviceName: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
     color: '#666',
     textAlign: 'center',
@@ -529,8 +544,22 @@ const styles = StyleSheet.create({
   },
   checkmark: {
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: 4,
+    right: 4,
+  },
+  betaBadge: {
+    position: 'absolute',
+    top: 4,
+    left: 4,
+    backgroundColor: '#EAF3FF',
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  betaBadgeText: {
+    fontSize: 8,
+    fontWeight: '700',
+    color: '#4A7DC4',
   },
   labelRow: {
     flexDirection: 'row',
