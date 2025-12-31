@@ -186,37 +186,45 @@ export default function ProviderSetupScreen() {
             <Text style={styles.label}>
               Services You Offer <Text style={styles.required}>*</Text>
             </Text>
-            <Text style={styles.hint}>Select all that apply</Text>
+            <Text style={styles.hint}>Select all services you can provide</Text>
             <View style={styles.servicesGrid}>
-              {serviceOptions.map((service) => {
-                const isSelected = selectedServices.includes(service.id);
+              {serviceCategories.map((category) => {
+                const isSelected = selectedServices.includes(category.serviceKey);
                 return (
                   <TouchableOpacity
-                    key={service.id}
+                    key={category.serviceKey}
                     style={[
                       styles.serviceCard,
                       isSelected && styles.serviceCardSelected,
+                      category.status === 'beta' && styles.serviceCardBeta,
                     ]}
-                    onPress={() => toggleService(service.id)}
+                    onPress={() => toggleService(category.serviceKey)}
                     activeOpacity={0.7}
                   >
-                    <Ionicons
-                      name={service.icon as any}
-                      size={28}
-                      color={isSelected ? '#E53935' : '#666'}
-                      style={styles.serviceIcon}
-                    />
+                    <View style={[styles.serviceIconContainer, isSelected && styles.serviceIconContainerSelected]}>
+                      <Ionicons
+                        name={category.icon as any}
+                        size={24}
+                        color={isSelected ? '#FFFFFF' : '#E53935'}
+                      />
+                    </View>
                     <Text
                       style={[
                         styles.serviceName,
                         isSelected && styles.serviceNameSelected,
                       ]}
+                      numberOfLines={2}
                     >
-                      {service.name}
+                      {category.label}
                     </Text>
                     {isSelected && (
                       <View style={styles.checkmark} pointerEvents="none">
-                        <Ionicons name="checkmark-circle" size={24} color="#E53935" />
+                        <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                      </View>
+                    )}
+                    {category.status === 'beta' && (
+                      <View style={styles.betaBadge}>
+                        <Text style={styles.betaBadgeText}>BETA</Text>
                       </View>
                     )}
                   </TouchableOpacity>
