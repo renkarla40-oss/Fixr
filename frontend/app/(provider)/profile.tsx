@@ -29,6 +29,10 @@ interface ProviderProfile {
   travelDistanceKm: number;
   travelAnywhere: boolean;
   phoneVerified?: boolean;
+  profilePhotoUrl?: string | null;
+  governmentIdFrontUrl?: string | null;
+  governmentIdBackUrl?: string | null;
+  services?: string[];
 }
 
 export default function ProviderProfileScreen() {
