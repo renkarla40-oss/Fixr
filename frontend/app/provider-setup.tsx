@@ -193,6 +193,23 @@ export default function ProviderSetupScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      {/* Header with Logout */}
+      <View style={styles.topHeader}>
+        <View style={styles.topHeaderSpacer} />
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={handleLogout}
+          disabled={loggingOut}
+          activeOpacity={0.7}
+        >
+          {loggingOut ? (
+            <ActivityIndicator size="small" color="#E53935" />
+          ) : (
+            <Text style={styles.logoutButtonText}>Log out</Text>
+          )}
+        </TouchableOpacity>
+      </View>
+
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
