@@ -95,16 +95,21 @@ export default function LoginScreen() {
     }
   };
 
-  // Handle the case where user is already logged in (page refresh or direct navigation)
+  // Handle the case where user successfully logged in via this form
+  // ONLY redirect if they logged in through this form (hasAttemptedLogin is true)
+  // This prevents the redirect loop when users navigate to login after logout
   useEffect(() => {
-    console.log('Login useEffect - user:', user?.email, 'authLoading:', authLoading);
+    console.log('Login useEffect - user:', user?.email, 'authLoading:', authLoading, 'hasAttemptedLogin:', hasAttemptedLogin);
     
-    // If auth is done loading and we have a user, redirect them
-    if (!authLoading && user) {
-      console.log('User already logged in, redirecting...');
+    // Only auto-redirect if:
+    // 1. Auth is done loading
+    // 2. We have a user
+    // 3. The user logged in through THIS form (not navigating back after logout)
+    if (!authLoading && user && hasAttemptedLogin) {
+      console.log('User logged in via form, redirecting...');
       navigateBasedOnUser(user);
     }
-  }, [user, authLoading]);
+  }, [user, authLoading, hasAttemptedLogin]);
 
   return (
     <KeyboardAvoidingView
