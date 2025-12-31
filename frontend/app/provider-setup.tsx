@@ -43,6 +43,9 @@ export default function ProviderSetupScreen() {
   const [bio, setBio] = useState('');
   const [loading, setLoading] = useState(false);
   
+  // Get full service catalog (same as customer side)
+  const serviceCategories = getDisplayableCategories();
+  
   // Location fields
   const [baseTown, setBaseTown] = useState('');
   const [travelDistanceKm, setTravelDistanceKm] = useState(DEFAULT_TRAVEL_DISTANCE_KM);
