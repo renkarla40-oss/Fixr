@@ -157,7 +157,18 @@ export default function ProviderProfileScreen() {
         >
           <View style={styles.profileSection}>
             <View style={styles.avatarContainer}>
-              <Ionicons name="person" size={48} color="#666" />
+              {providerProfile?.profilePhotoUrl ? (
+                <Image
+                  source={{ 
+                    uri: providerProfile.profilePhotoUrl.startsWith('/') 
+                      ? `${BACKEND_URL}${providerProfile.profilePhotoUrl}` 
+                      : providerProfile.profilePhotoUrl 
+                  }}
+                  style={styles.avatarImage}
+                />
+              ) : (
+                <Ionicons name="person" size={48} color="#666" />
+              )}
             </View>
             <Text style={styles.name}>{user?.name}</Text>
             <Text style={styles.email}>{user?.email}</Text>
@@ -170,6 +181,12 @@ export default function ProviderProfileScreen() {
                 <View style={styles.verifiedBadge}>
                   <Ionicons name="checkmark-circle" size={14} color="#4CAF50" />
                   <Text style={styles.verifiedText}>Phone verified</Text>
+                </View>
+              )}
+              {providerProfile?.governmentIdFrontUrl && providerProfile?.governmentIdBackUrl && (
+                <View style={styles.verifiedBadge}>
+                  <Ionicons name="shield-checkmark" size={14} color="#4CAF50" />
+                  <Text style={styles.verifiedText}>ID uploaded</Text>
                 </View>
               )}
             </View>
