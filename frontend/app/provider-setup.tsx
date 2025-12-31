@@ -38,10 +38,38 @@ interface Town {
 
 export default function ProviderSetupScreen() {
   const router = useRouter();
-  const { token, refreshUser } = useAuth();
+  const { token, refreshUser, logout } = useAuth();
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [bio, setBio] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Log Out',
+      'Are you sure you want to log out? You can continue setup later.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Log Out',
+          style: 'destructive',
+          onPress: async () => {
+            setLoggingOut(true);
+            try {
+              await logout();
+              router.replace('/welcome');
+            } catch (error) {
+              if (__DEV__) {
+                console.warn('Logout error:', error);
+              }
+            } finally {
+              setLoggingOut(false);
+            }
+          },
+        },
+      ]
+    );
+  };
   
   // Get full service catalog (same as customer side)
   const serviceCategories = getDisplayableCategories();
