@@ -96,11 +96,20 @@ export default function RequestDetailScreen() {
 
   useEffect(() => {
     if (activeTab === 'chat' && request) {
+      // Mark messages as read when opening chat tab
+      setLastReadAt(new Date().toISOString());
+      setHasUnreadMessages(false);
       fetchMessages();
       
       // Start polling every 2 seconds when chat is active
       pollingIntervalRef.current = setInterval(() => {
         fetchMessagesQuietly();
+      }, 2000);
+    } else if (activeTab === 'details' && request) {
+      // Poll for unread messages while on details tab
+      checkForUnreadMessages();
+      unreadPollingRef.current = setInterval(() => {
+        checkForUnreadMessages();
       }, 2000);
     }
     
@@ -109,6 +118,10 @@ export default function RequestDetailScreen() {
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
         pollingIntervalRef.current = null;
+      }
+      if (unreadPollingRef.current) {
+        clearInterval(unreadPollingRef.current);
+        unreadPollingRef.current = null;
       }
     };
   }, [activeTab, request?._id]);
