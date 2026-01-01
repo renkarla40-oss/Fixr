@@ -196,7 +196,7 @@ export default function ProviderRequestDetailScreen() {
 
   // Check for unread messages while on Details tab
   const checkForUnreadMessages = async () => {
-    if (!request?._id || !user?.id) return;
+    if (!request?._id || !user?._id) return;
     
     try {
       const response = await axios.get(`${BACKEND_URL}/api/service-requests/${request._id}/messages`, {
@@ -205,7 +205,7 @@ export default function ProviderRequestDetailScreen() {
       const allMessages: Message[] = response.data.messages || [];
       
       // Find messages from the OTHER user (customer) that are newer than lastReadAt
-      const otherUserMessages = allMessages.filter(msg => msg.senderId !== user.id);
+      const otherUserMessages = allMessages.filter(msg => msg.senderId !== user._id);
       
       if (otherUserMessages.length > 0) {
         const latestOtherMessage = otherUserMessages[otherUserMessages.length - 1];
