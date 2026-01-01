@@ -81,6 +81,7 @@ export default function ProviderRequestDetailScreen() {
 
   const scrollViewRef = useRef<ScrollView>(null);
   const inputRef = useRef<TextInput>(null);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Calculate bottom spacing to clear tab bar + system nav
   const bottomTabBarHeight = TAB_BAR_BASE_HEIGHT + insets.bottom + (Platform.OS === 'android' ? 20 : 8);
