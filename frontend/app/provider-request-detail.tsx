@@ -98,7 +98,20 @@ export default function ProviderRequestDetailScreen() {
   useEffect(() => {
     if (activeTab === 'chat' && request) {
       fetchMessages();
+      
+      // Start polling every 2 seconds when chat is active
+      pollingIntervalRef.current = setInterval(() => {
+        fetchMessagesQuietly();
+      }, 2000);
     }
+    
+    // Cleanup polling on tab change or unmount
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+      }
+    };
   }, [activeTab, request?._id]);
 
   const fetchRequestDetail = async () => {
