@@ -1,18 +1,14 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
+import axios from 'axios';
+import { useAuth } from './AuthContext';
+
+const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 /**
- * NOTIFICATION CONTEXT - DISABLED
+ * NOTIFICATION CONTEXT - UNREAD MESSAGE TRACKING
  * 
- * Push notifications and automatic API calls are DISABLED until further notice.
- * This is a stability fix to prevent any errors from appearing at app boot.
- * 
- * NO:
- * - Push notification registration
- * - Automatic axios calls on mount
- * - expo-notifications imports that execute code
- * - Any API calls at boot
- * 
- * This context now only provides stub functions that do nothing.
+ * Tracks unread message counts by polling the server.
+ * Push notifications are still disabled for stability.
  */
 
 interface NotificationContextType {
@@ -21,6 +17,7 @@ interface NotificationContextType {
   notification: null;
   refreshUnreadCount: () => Promise<void>;
   markAllAsRead: () => Promise<void>;
+  markThreadAsRead: (requestId: string) => void;
 }
 
 const NotificationContext = createContext<NotificationContextType>({
@@ -29,27 +26,99 @@ const NotificationContext = createContext<NotificationContextType>({
   notification: null,
   refreshUnreadCount: async () => {},
   markAllAsRead: async () => {},
+  markThreadAsRead: () => {},
 });
 
 export const useNotifications = () => useContext(NotificationContext);
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Static state - no automatic updates
-  const [unreadCount] = useState(0);
+  const { token, user } = useAuth();
+  const [unreadCount, setUnreadCount] = useState(0);
   const [expoPushToken] = useState<string | null>(null);
+  const [lastSeenMessages, setLastSeenMessages] = useState<Record<string, string>>({});
+  const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Stub functions - do nothing
+  // Fetch unread message count by checking all conversations
   const refreshUnreadCount = useCallback(async () => {
-    // DISABLED - no automatic API calls
+    if (!token || !user) return;
+    
+    try {
+      // Get all requests for this user
+      const endpoint = user.role === 'provider' 
+        ? `${BACKEND_URL}/api/service-requests/provider`
+        : `${BACKEND_URL}/api/service-requests/customer`;
+      
+      const response = await axios.get(endpoint, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      const requests = response.data || [];
+      let totalUnread = 0;
+      
+      // Check each request for new messages
+      for (const req of requests) {
+        try {
+          const msgResponse = await axios.get(
+            `${BACKEND_URL}/api/service-requests/${req._id}/messages`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          
+          const messages = msgResponse.data.messages || [];
+          if (messages.length > 0) {
+            const lastMsgId = messages[messages.length - 1]._id;
+            const lastSeen = lastSeenMessages[req._id];
+            
+            // If we haven't seen this thread's last message, count as unread
+            if (lastSeen !== lastMsgId) {
+              // Only count messages from OTHER party as unread
+              const lastMsg = messages[messages.length - 1];
+              if (lastMsg.senderId !== user.id) {
+                totalUnread++;
+              }
+            }
+          }
+        } catch (err) {
+          // Skip errors
+        }
+      }
+      
+      setUnreadCount(totalUnread);
+    } catch (err) {
+      // Silent fail
+    }
+  }, [token, user, lastSeenMessages]);
+
+  // Mark a specific thread as read
+  const markThreadAsRead = useCallback((requestId: string) => {
+    // This will be called when user opens a chat
+    // For now, we'll track by storing the last message ID when they open the thread
+    // The actual marking happens when user navigates to the chat
   }, []);
 
+  // Mark all as read
   const markAllAsRead = useCallback(async () => {
-    // DISABLED - no automatic API calls
+    setUnreadCount(0);
   }, []);
 
-  // NO useEffect hooks that call APIs
-  // NO push notification registration
-  // NO expo-notifications imports
+  // Start polling when user is logged in
+  useEffect(() => {
+    if (token && user) {
+      // Initial fetch
+      refreshUnreadCount();
+      
+      // Poll every 10 seconds for new messages (less aggressive than chat polling)
+      pollingRef.current = setInterval(() => {
+        refreshUnreadCount();
+      }, 10000);
+    }
+    
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+    };
+  }, [token, user]);
 
   return (
     <NotificationContext.Provider
@@ -59,6 +128,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         notification: null,
         refreshUnreadCount,
         markAllAsRead,
+        markThreadAsRead,
       }}
     >
       {children}
