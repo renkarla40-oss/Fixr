@@ -152,6 +152,32 @@ export default function ProviderRequestDetailScreen() {
     }
   };
 
+  // Quiet fetch for polling - no loading state, merge by ID to prevent duplicates
+  const fetchMessagesQuietly = async () => {
+    if (!request?._id) return;
+    
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/service-requests/${request._id}/messages`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const newMessages = response.data.messages || [];
+      
+      // Only update if there are new messages (compare by length and last message ID)
+      setMessages(prev => {
+        if (newMessages.length !== prev.length || 
+            (newMessages.length > 0 && prev.length > 0 && 
+             newMessages[newMessages.length - 1]._id !== prev[prev.length - 1]._id)) {
+          // Scroll to end when new messages arrive
+          setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
+          return newMessages;
+        }
+        return prev;
+      });
+    } catch (err) {
+      // Silent fail for polling
+    }
+  };
+
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !request?._id) return;
 
