@@ -2183,7 +2183,7 @@ async def seed_canonical_accounts():
             hashed_password = pwd_context.hash(account["password"])
             user_doc = {
                 "email": account["email"],
-                "hashedPassword": hashed_password,
+                "password": hashed_password,  # Use 'password' to match login function
                 "name": account["name"],
                 "phone": account["phone"],
                 "currentRole": account["currentRole"],
