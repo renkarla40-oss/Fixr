@@ -178,17 +178,36 @@ export default function RequestDetailScreen() {
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !request?._id) return;
 
+    const messageText = newMessage.trim();
     Keyboard.dismiss();
+    
+    // OPTIMISTIC UI: Add message immediately to local state
+    const optimisticMessage: Message = {
+      _id: `temp_${Date.now()}`,
+      senderId: user?.id || '',
+      senderName: user?.name || 'You',
+      senderRole: 'customer',
+      text: messageText,
+      createdAt: new Date().toISOString(),
+    };
+    
+    setMessages(prev => [...prev, optimisticMessage]);
+    setNewMessage('');
+    setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 50);
+    
     setSendingMessage(true);
     try {
       await axios.post(
         `${BACKEND_URL}/api/service-requests/${request._id}/messages`,
-        { text: newMessage.trim() },
+        { text: messageText },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setNewMessage('');
-      fetchMessages();
+      // Refetch to get server-confirmed message (replaces optimistic one)
+      fetchMessagesQuietly();
     } catch (err) {
+      // On error, remove optimistic message and restore input
+      setMessages(prev => prev.filter(m => m._id !== optimisticMessage._id));
+      setNewMessage(messageText);
       Alert.alert('Error', 'Failed to send message. Please try again.');
     } finally {
       setSendingMessage(false);
