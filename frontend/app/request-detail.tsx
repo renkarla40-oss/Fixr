@@ -191,6 +191,39 @@ export default function RequestDetailScreen() {
     }
   };
 
+  // Check for unread messages while on Details tab
+  const checkForUnreadMessages = async () => {
+    if (!request?._id || !user?.id) return;
+    
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/service-requests/${request._id}/messages`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const allMessages: Message[] = response.data.messages || [];
+      
+      // Find messages from the OTHER user that are newer than lastReadAt
+      const otherUserMessages = allMessages.filter(msg => msg.senderId !== user.id);
+      
+      if (otherUserMessages.length > 0) {
+        const latestOtherMessage = otherUserMessages[otherUserMessages.length - 1];
+        
+        // If no lastReadAt, any message from other user is unread
+        // If lastReadAt exists, check if latest message is newer
+        if (!lastReadAt) {
+          setHasUnreadMessages(true);
+        } else {
+          const lastReadTime = new Date(lastReadAt).getTime();
+          const messageTime = new Date(latestOtherMessage.createdAt).getTime();
+          setHasUnreadMessages(messageTime > lastReadTime);
+        }
+      } else {
+        setHasUnreadMessages(false);
+      }
+    } catch (err) {
+      // Silent fail
+    }
+  };
+
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !request?._id) return;
 
