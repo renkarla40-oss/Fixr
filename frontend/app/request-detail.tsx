@@ -697,6 +697,20 @@ const styles = StyleSheet.create({
     color: '#E53935',
     fontWeight: '600',
   },
+  tabIconContainer: {
+    position: 'relative',
+  },
+  unreadBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -6,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#E53935',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+  },
   content: {
     flex: 1,
   },
