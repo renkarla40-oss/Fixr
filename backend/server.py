@@ -2019,6 +2019,115 @@ async def mark_all_notifications_read(current_user: User = Depends(get_current_u
     )
     return {"success": True}
 
+# ============================================
+# DEV ONLY: RESET DEMO DATA ENDPOINT
+# ============================================
+@api_router.post("/dev/reset-demo-data")
+async def reset_demo_data():
+    """
+    DEV ONLY: Reset all demo data between the two canonical test accounts.
+    - Clears all service requests
+    - Clears all messages
+    - Clears all job codes
+    - Clears all notifications
+    - Keeps the two canonical accounts intact
+    - Reseeds one predictable test request
+    """
+    logger.info("=" * 50)
+    logger.info("DEV: RESETTING DEMO DATA")
+    logger.info("=" * 50)
+    
+    # Delete all service requests
+    result = await db.service_requests.delete_many({})
+    logger.info(f"Deleted {result.deleted_count} service requests")
+    
+    # Delete all messages
+    result = await db.job_messages.delete_many({})
+    logger.info(f"Deleted {result.deleted_count} messages")
+    
+    # Delete all notifications
+    result = await db.notifications.delete_many({})
+    logger.info(f"Deleted {result.deleted_count} notifications")
+    
+    # Get the canonical user IDs
+    customer = await db.users.find_one({"email": "customer@test.com"})
+    provider = await db.users.find_one({"email": "provider@test.com"})
+    
+    if not customer or not provider:
+        raise HTTPException(status_code=500, detail="Canonical accounts not found. Restart the server.")
+    
+    customer_id = str(customer["_id"])
+    provider_id = str(provider["_id"])
+    
+    # Get provider profile
+    provider_profile = await db.providers.find_one({"userId": provider_id})
+    provider_profile_id = str(provider_profile["_id"]) if provider_profile else None
+    
+    # Create one predictable test request
+    job_code = "123456"  # Predictable code for testing
+    test_request = {
+        "customerId": customer_id,
+        "customerName": customer["name"],
+        "customerPhone": customer["phone"],
+        "providerId": provider_id,
+        "providerName": provider["name"],
+        "providerProfileId": provider_profile_id,
+        "serviceCategory": "plumbing",
+        "serviceSubcategory": "Leak Detection & Repair",
+        "description": "CHAT TEST - Kitchen sink is leaking under the cabinet. Need urgent repair.",
+        "preferredDate": (datetime.utcnow() + timedelta(days=1)).isoformat(),
+        "preferredTime": "morning",
+        "town": "Port of Spain",
+        "status": "accepted",
+        "jobCode": job_code,
+        "createdAt": datetime.utcnow(),
+        "updatedAt": datetime.utcnow(),
+        "acceptedAt": datetime.utcnow(),
+        "startedAt": None,
+        "completedAt": None,
+        "cancelledAt": None,
+    }
+    result = await db.service_requests.insert_one(test_request)
+    request_id = str(result.inserted_id)
+    logger.info(f"✅ Created test request: {request_id}")
+    
+    # Add two test messages for chat testing
+    messages = [
+        {
+            "requestId": request_id,
+            "senderId": provider_id,
+            "senderName": provider["name"],
+            "senderRole": "provider",
+            "text": "Hi! I've accepted your request. When would be a good time to come by?",
+            "createdAt": datetime.utcnow() - timedelta(minutes=5),
+        },
+        {
+            "requestId": request_id,
+            "senderId": customer_id,
+            "senderName": customer["name"],
+            "senderRole": "customer",
+            "text": "Tomorrow morning works great. The leak is getting worse so please come early if possible!",
+            "createdAt": datetime.utcnow() - timedelta(minutes=2),
+        }
+    ]
+    await db.job_messages.insert_many(messages)
+    logger.info(f"✅ Created {len(messages)} test messages")
+    
+    logger.info("=" * 50)
+    logger.info("DEMO DATA RESET COMPLETE")
+    logger.info(f"Test request ID: {request_id}")
+    logger.info(f"Job code: {job_code}")
+    logger.info("=" * 50)
+    
+    return {
+        "success": True,
+        "message": "Demo data reset complete",
+        "testRequestId": request_id,
+        "jobCode": job_code,
+        "customerEmail": "customer@test.com",
+        "providerEmail": "provider@test.com",
+    }
+
 # Include the router
 app.include_router(api_router)
 
