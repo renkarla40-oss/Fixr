@@ -82,6 +82,11 @@ export default function ProviderRequestDetailScreen() {
   // Job code entry
   const [jobCodeInput, setJobCodeInput] = useState('');
   const [confirmingArrival, setConfirmingArrival] = useState(false);
+  
+  // Completion OTP entry
+  const [completionOtpInput, setCompletionOtpInput] = useState('');
+  const [showCompletionOtpInput, setShowCompletionOtpInput] = useState(false);
+  const [completingJob, setCompletingJob] = useState(false);
 
   const scrollViewRef = useRef<ScrollView>(null);
   const inputRef = useRef<TextInput>(null);
