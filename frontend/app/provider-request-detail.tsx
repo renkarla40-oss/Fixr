@@ -100,6 +100,8 @@ export default function ProviderRequestDetailScreen() {
   }, [requestId]);
 
   useEffect(() => {
+    console.log('Tab/Request effect triggered:', { activeTab, hasRequest: !!request, hasUser: !!user?._id });
+    
     if (activeTab === 'chat' && request) {
       // Mark messages as read when opening chat tab
       setHasUnreadMessages(false);
@@ -116,6 +118,7 @@ export default function ProviderRequestDetailScreen() {
       }, 2000);
     } else if (activeTab === 'details' && request) {
       // Poll for unread messages while on details tab
+      console.log('Starting unread check for details tab');
       checkForUnreadMessages();
       unreadPollingRef.current = setInterval(() => {
         checkForUnreadMessages();
