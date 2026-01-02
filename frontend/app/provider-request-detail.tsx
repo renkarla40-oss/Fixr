@@ -719,31 +719,38 @@ export default function ProviderRequestDetailScreen() {
             </ScrollView>
           )}
 
-          {/* Message Input - Fixed at bottom, above tab bar */}
-          <View style={[styles.messageInputContainer, { paddingBottom: bottomTabBarHeight + 8 }]}>
-            <TextInput
-              ref={inputRef}
-              style={styles.messageInput}
-              placeholder="Type a message..."
-              placeholderTextColor="#999"
-              value={newMessage}
-              onChangeText={setNewMessage}
-              multiline
-              maxLength={1000}
-              returnKeyType="default"
-            />
-            <TouchableOpacity
-              style={[styles.sendButton, (!newMessage.trim() || sendingMessage) && styles.sendButtonDisabled]}
-              onPress={handleSendMessage}
-              disabled={!newMessage.trim() || sendingMessage}
-            >
-              {sendingMessage ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
-              ) : (
-                <Ionicons name="send" size={20} color="#FFFFFF" />
-              )}
-            </TouchableOpacity>
-          </View>
+          {/* Message Input or Read-Only Banner */}
+          {request.status === 'completed' ? (
+            <View style={[styles.chatClosedBanner, { paddingBottom: bottomTabBarHeight + 8 }]}>
+              <Ionicons name="lock-closed" size={16} color="#666" />
+              <Text style={styles.chatClosedText}>Chat closed — job completed.</Text>
+            </View>
+          ) : (
+            <View style={[styles.messageInputContainer, { paddingBottom: bottomTabBarHeight + 8 }]}>
+              <TextInput
+                ref={inputRef}
+                style={styles.messageInput}
+                placeholder="Type a message..."
+                placeholderTextColor="#999"
+                value={newMessage}
+                onChangeText={setNewMessage}
+                multiline
+                maxLength={1000}
+                returnKeyType="default"
+              />
+              <TouchableOpacity
+                style={[styles.sendButton, (!newMessage.trim() || sendingMessage) && styles.sendButtonDisabled]}
+                onPress={handleSendMessage}
+                disabled={!newMessage.trim() || sendingMessage}
+              >
+                {sendingMessage ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Ionicons name="send" size={20} color="#FFFFFF" />
+                )}
+              </TouchableOpacity>
+            </View>
+          )}
         </KeyboardAvoidingView>
       )}
     </View>
