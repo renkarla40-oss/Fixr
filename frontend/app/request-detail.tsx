@@ -220,6 +220,7 @@ export default function RequestDetailScreen() {
       
       // Find messages from the OTHER user that are newer than lastReadAt
       const otherUserMessages = allMessages.filter(msg => msg.senderId !== user._id);
+      console.log('checkForUnreadMessages:', { otherUserMessages: otherUserMessages.length, lastReadAt });
       
       if (otherUserMessages.length > 0) {
         const latestOtherMessage = otherUserMessages[otherUserMessages.length - 1];
@@ -227,11 +228,14 @@ export default function RequestDetailScreen() {
         // If no lastReadAt, any message from other user is unread
         // If lastReadAt exists, check if latest message is newer
         if (!lastReadAt) {
+          console.log('Setting hasUnreadMessages to TRUE (no lastReadAt)');
           setHasUnreadMessages(true);
         } else {
           const lastReadTime = new Date(lastReadAt).getTime();
           const messageTime = new Date(latestOtherMessage.createdAt).getTime();
-          setHasUnreadMessages(messageTime > lastReadTime);
+          const isUnread = messageTime > lastReadTime;
+          console.log('Comparing times:', { messageTime, lastReadTime, isUnread });
+          setHasUnreadMessages(isUnread);
         }
       } else {
         setHasUnreadMessages(false);
