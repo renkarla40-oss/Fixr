@@ -1435,12 +1435,17 @@ async def confirm_job_arrival(
     if request.get("jobCode") != confirm_data.jobCode:
         raise HTTPException(status_code=400, detail="Incorrect code. Please ask the customer for the correct code.")
     
-    # Mark job as in_progress (changed from "started" for consistency)
+    # Generate completion OTP (6-digit code)
+    import random
+    completion_otp = str(random.randint(100000, 999999))
+    
+    # Mark job as in_progress and set completion OTP
     await db.service_requests.update_one(
         {"_id": ObjectId(request_id)},
         {"$set": {
             "status": "in_progress",
-            "startedAt": datetime.utcnow()
+            "startedAt": datetime.utcnow(),
+            "completionOtp": completion_otp
         }}
     )
     
