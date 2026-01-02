@@ -133,7 +133,7 @@ export default function ProviderRequestDetailScreen() {
         unreadPollingRef.current = null;
       }
     };
-  }, [activeTab, request?._id, user?._id]);
+  }, [activeTab, request, user?._id]);
 
   // Mark all messages from the other user (customer) as seen
   const markMessagesAsSeen = async () => {
