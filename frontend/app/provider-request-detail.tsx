@@ -670,7 +670,7 @@ export default function ProviderRequestDetailScreen() {
               keyboardShouldPersistTaps="handled"
             >
               {messages.map((msg) => {
-                const isMine = msg.senderId === user?.id;
+                const isMine = msg.senderId === user?._id;
                 return (
                   <View key={msg._id} style={[styles.messageBubble, isMine ? styles.messageBubbleMine : styles.messageBubbleTheirs]}>
                     {!isMine && <Text style={styles.messageSender}>{msg.senderName}</Text>}
