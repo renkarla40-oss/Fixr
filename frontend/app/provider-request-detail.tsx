@@ -621,12 +621,59 @@ export default function ProviderRequestDetailScreen() {
               </View>
             )}
 
-            {/* Complete Job Button (when started) */}
-            {request.status === 'started' && (
-              <TouchableOpacity style={styles.completeJobButton} onPress={handleCompleteJob}>
-                <Ionicons name="checkmark-done" size={20} color="#FFFFFF" />
-                <Text style={styles.completeJobButtonText}>Mark Job as Complete</Text>
-              </TouchableOpacity>
+            {/* Finish Job Button and OTP Input (when in_progress) */}
+            {(request.status === 'in_progress' || request.status === 'started') && (
+              <View style={styles.finishJobSection}>
+                {!showCompletionOtpInput ? (
+                  <TouchableOpacity style={styles.finishJobButton} onPress={handleCompleteJob}>
+                    <Ionicons name="checkmark-done-circle" size={22} color="#FFFFFF" />
+                    <Text style={styles.finishJobButtonText}>Finish Job</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <View style={styles.completionOtpSection}>
+                    <View style={styles.completionOtpHeader}>
+                      <Ionicons name="key" size={20} color="#4CAF50" />
+                      <Text style={styles.completionOtpTitle}>Enter Completion OTP</Text>
+                    </View>
+                    <Text style={styles.completionOtpHint}>Ask the customer for the 6-digit completion code</Text>
+                    <TextInput
+                      style={styles.completionOtpInput}
+                      placeholder="Enter 6-digit OTP"
+                      placeholderTextColor="#999"
+                      value={completionOtpInput}
+                      onChangeText={setCompletionOtpInput}
+                      keyboardType="number-pad"
+                      maxLength={6}
+                      textAlign="center"
+                    />
+                    <View style={styles.completionOtpButtons}>
+                      <TouchableOpacity 
+                        style={styles.cancelOtpButton}
+                        onPress={() => {
+                          setShowCompletionOtpInput(false);
+                          setCompletionOtpInput('');
+                        }}
+                      >
+                        <Text style={styles.cancelOtpButtonText}>Cancel</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity 
+                        style={[styles.confirmCompletionButton, completionOtpInput.length !== 6 && styles.buttonDisabled]}
+                        onPress={handleConfirmCompletion}
+                        disabled={completionOtpInput.length !== 6 || completingJob}
+                      >
+                        {completingJob ? (
+                          <ActivityIndicator size="small" color="#FFFFFF" />
+                        ) : (
+                          <>
+                            <Ionicons name="checkmark" size={18} color="#FFFFFF" />
+                            <Text style={styles.confirmCompletionButtonText}>Confirm Completion</Text>
+                          </>
+                        )}
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
+              </View>
             )}
           </ScrollView>
 
