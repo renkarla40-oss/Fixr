@@ -808,6 +808,39 @@ const styles = StyleSheet.create({
     letterSpacing: 4,
     marginBottom: 6,
   },
+  // COMPLETION OTP CARD - Green theme
+  completionOtpCard: {
+    backgroundColor: '#E8F5E9',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#A5D6A7',
+    alignItems: 'center',
+  },
+  completionOtpHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  completionOtpTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#2E7D32',
+  },
+  completionOtpValue: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#1B5E20',
+    letterSpacing: 6,
+    marginBottom: 6,
+  },
+  completionOtpHint: {
+    fontSize: 12,
+    color: '#558B2F',
+    textAlign: 'center',
+  },
   jobCodeHint: {
     fontSize: 12,
     color: '#7A9BC7',
