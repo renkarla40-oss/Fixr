@@ -77,7 +77,6 @@ export default function RequestDetailScreen() {
   const [sendingMessage, setSendingMessage] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
-  const [lastReadAt, setLastReadAt] = useState<string | null>(null);
   
   const scrollViewRef = useRef<ScrollView>(null);
   const inputRef = useRef<TextInput>(null);
