@@ -1758,6 +1758,10 @@ async def create_service_request(
                     detail="Provider unavailable. This Fixr isn't accepting new jobs right now. Please choose another provider."
                 )
             
+            # Get provider's user info for name
+            provider_user = await db.users.find_one({"_id": ObjectId(provider["userId"])})
+            provider_name = provider_user["name"] if provider_user else provider.get("name", "Provider")
+            
             request_dict = {
                 "customerId": current_user.id,
                 "providerId": provider_id,
@@ -1767,7 +1771,7 @@ async def create_service_request(
                 "status": "pending",
                 "customerName": current_user.name,
                 "customerPhone": current_user.phone,
-                "providerName": provider["name"],
+                "providerName": provider_name,
                 "isGeneralRequest": False,
                 "subCategory": request_data.subCategory,
                 "location": request_data.location,
