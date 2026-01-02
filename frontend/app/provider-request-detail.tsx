@@ -357,32 +357,35 @@ export default function ProviderRequestDetailScreen() {
     }
   };
 
-  const handleCompleteJob = async () => {
-    if (!request?._id) return;
-
-    Alert.alert(
-      'Complete Job',
-      'Mark this job as completed?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Complete',
-          onPress: async () => {
-            try {
-              await axios.patch(
-                `${BACKEND_URL}/api/service-requests/${request._id}/complete`,
-                {},
-                { headers: { Authorization: `Bearer ${token}` } }
-              );
-              Alert.alert('Success', 'Job marked as complete!');
-              fetchRequestDetail();
-            } catch (err) {
-              Alert.alert('Error', 'Failed to complete job. Please try again.');
-            }
-          },
-        },
-      ]
-    );
+  const handleCompleteJob = () => {
+    // Show OTP input section instead of completing directly
+    setShowCompletionOtpInput(true);
+    setCompletionOtpInput('');
+  };
+  
+  const handleConfirmCompletion = async () => {
+    if (!request?._id || !completionOtpInput.trim()) return;
+    
+    setCompletingJob(true);
+    try {
+      await axios.patch(
+        `${BACKEND_URL}/api/service-requests/${request._id}/complete`,
+        { completionOtp: completionOtpInput.trim() },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      Alert.alert('Success', 'Job completed successfully!', [
+        { text: 'OK', onPress: () => {
+          setShowCompletionOtpInput(false);
+          setCompletionOtpInput('');
+          fetchRequestDetail();
+        }}
+      ]);
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.detail || 'Failed to complete job. Please try again.';
+      Alert.alert('Error', errorMessage);
+    } finally {
+      setCompletingJob(false);
+    }
   };
 
   const onRefresh = () => {
