@@ -511,7 +511,9 @@ export default function ProviderRequestDetailScreen() {
         >
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Ionicons name="chatbubbles-outline" size={18} color={activeTab === 'chat' ? '#E53935' : '#666'} />
-            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#FF0000', marginLeft: 2 }} />
+            {hasUnreadMessages && activeTab !== 'chat' && (
+              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#E53935', marginLeft: 2 }} />
+            )}
           </View>
           <Text style={[styles.tabText, activeTab === 'chat' && styles.tabTextActive]}>Messages</Text>
         </TouchableOpacity>
