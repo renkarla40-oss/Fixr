@@ -1627,14 +1627,17 @@ async def send_job_message(
     if not is_customer and not is_provider:
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    # Create message
+    # Create message with delivery tracking
+    now = datetime.utcnow()
     msg_dict = {
         "requestId": request_id,
         "senderId": current_user.id,
         "senderName": current_user.name,
         "senderRole": "provider" if is_provider else "customer",
         "text": message.get("text", "")[:1000],  # Limit message length
-        "createdAt": datetime.utcnow()
+        "createdAt": now,
+        "deliveredAt": now,  # Set delivered immediately on save (simplified for Phase 5A)
+        "seenAt": None,  # Will be set when recipient opens Messages tab
     }
     
     result = await db.job_messages.insert_one(msg_dict)
