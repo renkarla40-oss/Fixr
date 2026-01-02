@@ -54,6 +54,8 @@ interface Message {
   senderRole: 'customer' | 'provider';
   text: string;
   createdAt: string;
+  deliveredAt?: string;
+  seenAt?: string;
 }
 
 type TabType = 'details' | 'chat';
