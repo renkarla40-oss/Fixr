@@ -990,6 +990,22 @@ const styles = StyleSheet.create({
   secondTick: {
     marginLeft: -8,
   },
+  chatClosedBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+    backgroundColor: '#F5F5F5',
+    gap: 8,
+  },
+  chatClosedText: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+  },
   messageInputContainer: {
     flexDirection: 'row',
     paddingHorizontal: 12,
