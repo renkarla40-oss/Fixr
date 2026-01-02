@@ -509,10 +509,10 @@ export default function ProviderRequestDetailScreen() {
           style={[styles.tab, activeTab === 'chat' && styles.tabActive]}
           onPress={() => setActiveTab('chat')}
         >
-          <View style={styles.tabIconContainer}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Ionicons name="chatbubbles-outline" size={18} color={activeTab === 'chat' ? '#E53935' : '#666'} />
             {hasUnreadMessages && activeTab !== 'chat' && (
-              <View style={styles.unreadBadge} />
+              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#E53935', marginLeft: 2 }} />
             )}
           </View>
           <Text style={[styles.tabText, activeTab === 'chat' && styles.tabTextActive]}>Messages</Text>
