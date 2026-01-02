@@ -253,7 +253,7 @@ export default function ProviderRequestDetailScreen() {
     // OPTIMISTIC UI: Add message immediately to local state
     const optimisticMessage: Message = {
       _id: `temp_${Date.now()}`,
-      senderId: user?.id || '',
+      senderId: user?._id || '',
       senderName: user?.name || 'You',
       senderRole: 'provider',
       text: messageText,
