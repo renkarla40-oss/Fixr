@@ -2146,6 +2146,7 @@ async def reset_demo_data():
     logger.info(f"✅ Created test request: {request_id}")
     
     # Add two test messages for chat testing
+    now = datetime.utcnow()
     messages = [
         {
             "requestId": request_id,
@@ -2153,7 +2154,9 @@ async def reset_demo_data():
             "senderName": provider["name"],
             "senderRole": "provider",
             "text": "Hi! I've accepted your request. When would be a good time to come by?",
-            "createdAt": datetime.utcnow() - timedelta(minutes=5),
+            "createdAt": now - timedelta(minutes=5),
+            "deliveredAt": now - timedelta(minutes=5),
+            "seenAt": None,
         },
         {
             "requestId": request_id,
@@ -2161,7 +2164,9 @@ async def reset_demo_data():
             "senderName": customer["name"],
             "senderRole": "customer",
             "text": "Tomorrow morning works great. The leak is getting worse so please come early if possible!",
-            "createdAt": datetime.utcnow() - timedelta(minutes=2),
+            "createdAt": now - timedelta(minutes=2),
+            "deliveredAt": now - timedelta(minutes=2),
+            "seenAt": None,
         }
     ]
     await db.job_messages.insert_many(messages)
