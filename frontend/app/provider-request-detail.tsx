@@ -77,7 +77,6 @@ export default function ProviderRequestDetailScreen() {
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
-  const [lastReadAt, setLastReadAt] = useState<string | null>(null);
 
   // Job code entry
   const [jobCodeInput, setJobCodeInput] = useState('');
