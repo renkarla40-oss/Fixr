@@ -99,10 +99,13 @@ export default function RequestDetailScreen() {
   useEffect(() => {
     if (activeTab === 'chat' && request) {
       // Mark messages as read when opening chat tab
-      setLastReadAt(new Date().toISOString());
       setHasUnreadMessages(false);
       fetchMessages();
-      markMessagesAsSeen(); // Call API to mark messages as seen
+      // Mark messages as seen on server, then refresh to get updated seenAt
+      markMessagesAsSeen().then(() => {
+        // Refresh messages to show updated seen status (blue ticks)
+        fetchMessagesQuietly();
+      });
       
       // Start polling every 2 seconds when chat is active
       pollingIntervalRef.current = setInterval(() => {
