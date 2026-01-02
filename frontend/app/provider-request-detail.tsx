@@ -867,18 +867,17 @@ const styles = StyleSheet.create({
   },
   tabIconContainer: {
     position: 'relative',
-    overflow: 'visible',
-  },
-  messageTabLabel: {
-    flexDirection: 'row',
-    alignItems: 'center',
   },
   unreadBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -6,
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#FF0000',
-    marginLeft: 4,
+    backgroundColor: '#E53935',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
   },
   detailsContainer: {
     flex: 1,
