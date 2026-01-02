@@ -573,7 +573,30 @@ export default function RequestDetailScreen() {
                   <View key={msg._id} style={[styles.messageBubble, isMine ? styles.messageBubbleMine : styles.messageBubbleTheirs]}>
                     {!isMine && <Text style={styles.messageSender}>{msg.senderName}</Text>}
                     <Text style={[styles.messageText, isMine && styles.messageTextMine]}>{msg.text}</Text>
-                    <Text style={[styles.messageTime, isMine && styles.messageTimeMine]}>{formatMessageTime(msg.createdAt)}</Text>
+                    <View style={styles.messageFooter}>
+                      <Text style={[styles.messageTime, isMine && styles.messageTimeMine]}>{formatMessageTime(msg.createdAt)}</Text>
+                      {/* Read indicators - only for messages I sent */}
+                      {isMine && (
+                        <View style={styles.tickContainer}>
+                          {msg.seenAt ? (
+                            // Blue double tick - Seen
+                            <View style={styles.ticksRow}>
+                              <Ionicons name="checkmark" size={14} color="#4FC3F7" />
+                              <Ionicons name="checkmark" size={14} color="#4FC3F7" style={styles.secondTick} />
+                            </View>
+                          ) : msg.deliveredAt ? (
+                            // Grey double tick - Delivered
+                            <View style={styles.ticksRow}>
+                              <Ionicons name="checkmark" size={14} color="rgba(255,255,255,0.6)" />
+                              <Ionicons name="checkmark" size={14} color="rgba(255,255,255,0.6)" style={styles.secondTick} />
+                            </View>
+                          ) : (
+                            // Single tick - Sent
+                            <Ionicons name="checkmark" size={14} color="rgba(255,255,255,0.6)" />
+                          )}
+                        </View>
+                      )}
+                    </View>
                   </View>
                 );
               })}
