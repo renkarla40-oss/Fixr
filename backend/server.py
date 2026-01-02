@@ -2069,7 +2069,7 @@ async def reset_demo_data():
         "customerId": customer_id,
         "customerName": customer["name"],
         "customerPhone": customer["phone"],
-        "providerId": provider_id,
+        "providerId": provider_profile_id,  # Use provider PROFILE ID (matches backend query)
         "providerName": provider["name"],
         "providerProfileId": provider_profile_id,
         "service": "Plumbing",  # Use 'service' to match the response model
