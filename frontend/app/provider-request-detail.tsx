@@ -216,7 +216,10 @@ export default function ProviderRequestDetailScreen() {
   // Check for unread messages while on Details tab
   // Uses server-side seenAt field for accurate unread detection
   const checkForUnreadMessages = async () => {
-    if (!request?._id || !user?._id) return;
+    if (!request?._id || !user?._id) {
+      console.log('checkForUnreadMessages: early return', { requestId: request?._id, userId: user?._id });
+      return;
+    }
     
     try {
       const response = await axios.get(`${BACKEND_URL}/api/service-requests/${request._id}/messages`, {
@@ -229,8 +232,15 @@ export default function ProviderRequestDetailScreen() {
         msg.senderId !== user._id && !msg.seenAt
       );
       
+      console.log('checkForUnreadMessages:', { 
+        totalMessages: allMessages.length, 
+        unseenCount: unseenMessages.length,
+        hasUnread: unseenMessages.length > 0 
+      });
+      
       setHasUnreadMessages(unseenMessages.length > 0);
     } catch (err) {
+      console.log('checkForUnreadMessages error:', err);
       // Silent fail
     }
   };
