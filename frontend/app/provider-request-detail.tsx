@@ -215,6 +215,7 @@ export default function ProviderRequestDetailScreen() {
   };
 
   // Check for unread messages while on Details tab
+  // Uses server-side seenAt field for accurate unread detection
   const checkForUnreadMessages = async () => {
     if (!request?._id || !user?._id) return;
     
@@ -224,24 +225,12 @@ export default function ProviderRequestDetailScreen() {
       });
       const allMessages: Message[] = response.data.messages || [];
       
-      // Find messages from the OTHER user (customer) that are newer than lastReadAt
-      const otherUserMessages = allMessages.filter(msg => msg.senderId !== user._id);
+      // Find messages from the OTHER user (customer) that haven't been seen (seenAt is null)
+      const unseenMessages = allMessages.filter(msg => 
+        msg.senderId !== user._id && !msg.seenAt
+      );
       
-      if (otherUserMessages.length > 0) {
-        const latestOtherMessage = otherUserMessages[otherUserMessages.length - 1];
-        
-        // If no lastReadAt, any message from other user is unread
-        // If lastReadAt exists, check if latest message is newer
-        if (!lastReadAt) {
-          setHasUnreadMessages(true);
-        } else {
-          const lastReadTime = new Date(lastReadAt).getTime();
-          const messageTime = new Date(latestOtherMessage.createdAt).getTime();
-          setHasUnreadMessages(messageTime > lastReadTime);
-        }
-      } else {
-        setHasUnreadMessages(false);
-      }
+      setHasUnreadMessages(unseenMessages.length > 0);
     } catch (err) {
       // Silent fail
     }
