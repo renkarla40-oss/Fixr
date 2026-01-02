@@ -522,13 +522,13 @@ export default function ProviderRequestDetailScreen() {
           style={[styles.tab, activeTab === 'chat' && styles.tabActive]}
           onPress={() => setActiveTab('chat')}
         >
-          <View style={styles.tabIconContainer}>
-            <Ionicons name="chatbubbles-outline" size={18} color={activeTab === 'chat' ? '#E53935' : '#666'} />
+          <Ionicons name="chatbubbles-outline" size={18} color={activeTab === 'chat' ? '#E53935' : '#666'} />
+          <View style={styles.messageTabLabel}>
+            <Text style={[styles.tabText, activeTab === 'chat' && styles.tabTextActive]}>Messages</Text>
             {hasUnreadMessages && activeTab !== 'chat' && (
               <View style={styles.unreadBadge} />
             )}
           </View>
-          <Text style={[styles.tabText, activeTab === 'chat' && styles.tabTextActive]}>Messages</Text>
         </TouchableOpacity>
       </View>
 
