@@ -1668,6 +1668,48 @@ async def send_job_message(
     
     return {"success": True, "message": msg_dict}
 
+@api_router.patch("/service-requests/{request_id}/messages/seen")
+async def mark_messages_as_seen(
+    request_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Mark all messages from the other user as seen for the current user.
+    Called when user opens the Messages tab.
+    """
+    request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    # Verify user is part of this request
+    is_customer = request["customerId"] == current_user.id
+    provider = await db.providers.find_one({"userId": current_user.id})
+    is_provider = provider and str(provider["_id"]) == request.get("providerId")
+    
+    if not is_customer and not is_provider:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Mark all messages from the OTHER user as seen
+    # If I'm customer, mark provider messages as seen
+    # If I'm provider, mark customer messages as seen
+    other_role = "provider" if is_customer else "customer"
+    
+    now = datetime.utcnow()
+    result = await db.job_messages.update_many(
+        {
+            "requestId": request_id,
+            "senderRole": other_role,
+            "seenAt": None  # Only update messages not yet seen
+        },
+        {"$set": {"seenAt": now}}
+    )
+    
+    return {
+        "success": True,
+        "markedCount": result.modified_count,
+        "seenAt": now.isoformat()
+    }
+
 # Service Request Routes
 @api_router.post("/service-requests", response_model=ServiceRequestResponse)
 async def create_service_request(
