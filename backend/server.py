@@ -1619,6 +1619,10 @@ async def send_job_message(
     if not request:
         raise HTTPException(status_code=404, detail="Request not found")
     
+    # Block messaging after job completion
+    if request.get("status") == "completed":
+        raise HTTPException(status_code=403, detail="Chat is read-only after job completion.")
+    
     # Verify user is part of this request
     is_customer = request["customerId"] == current_user.id
     provider = await db.providers.find_one({"userId": current_user.id})
