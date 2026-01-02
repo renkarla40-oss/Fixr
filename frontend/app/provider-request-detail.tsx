@@ -106,6 +106,7 @@ export default function ProviderRequestDetailScreen() {
       setLastReadAt(new Date().toISOString());
       setHasUnreadMessages(false);
       fetchMessages();
+      markMessagesAsSeen(); // Call API to mark messages as seen
       
       // Start polling every 2 seconds when chat is active
       pollingIntervalRef.current = setInterval(() => {
@@ -131,6 +132,20 @@ export default function ProviderRequestDetailScreen() {
       }
     };
   }, [activeTab, request?._id]);
+
+  // Mark all messages from the other user (customer) as seen
+  const markMessagesAsSeen = async () => {
+    if (!request?._id) return;
+    try {
+      await axios.patch(
+        `${BACKEND_URL}/api/service-requests/${request._id}/messages/seen`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    } catch (err) {
+      // Silent fail - not critical
+    }
+  };
 
   const fetchRequestDetail = async () => {
     try {
