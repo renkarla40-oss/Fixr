@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -17,9 +17,19 @@ import BetaNoticeModal from '../../components/BetaNoticeModal';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
+interface Message {
+  _id: string;
+  senderId: string;
+  senderRole: string;
+  text: string;
+  createdAt: string;
+}
+
 interface ServiceRequest {
   _id: string;
   service: string;
+  serviceSubcategory?: string;
+  subCategory?: string;
   description: string;
   customerName: string;
   customerPhone: string;
@@ -27,39 +37,99 @@ interface ServiceRequest {
   createdAt: string;
   preferredDateTime?: string;
   isGeneralRequest?: boolean;
+  jobTown?: string;
+  location?: string;
+  // For unread tracking
+  hasUnreadMessages?: boolean;
+  lastMessage?: Message;
 }
 
-export default function ProviderDashboardScreen() {
-  const { token, shouldShowBetaNotice, markBetaNoticeSeen } = useAuth();
+// Status priority for sorting
+const STATUS_PRIORITY: { [key: string]: number } = {
+  'pending': 0,
+  'accepted': 1,
+  'in_progress': 2,
+  'completed': 3,
+  'cancelled': 4,
+  'declined': 5,
+};
+
+export default function ProviderMyJobsScreen() {
+  const { token, user, shouldShowBetaNotice, markBetaNoticeSeen } = useAuth();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [requests, setRequests] = useState<ServiceRequest[]>([]);
+  const [jobs, setJobs] = useState<ServiceRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    fetchRequests();
+    fetchJobs();
+    
+    // Poll for updates every 3 seconds
+    pollingRef.current = setInterval(() => {
+      fetchJobsQuietly();
+    }, 3000);
+    
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+      }
+    };
   }, []);
 
   const handleBetaNoticeContinue = async () => {
     await markBetaNoticeSeen();
   };
 
-  const fetchRequests = async () => {
+  const fetchJobs = async () => {
     try {
       const response = await axios.get(`${BACKEND_URL}/api/service-requests`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      // Filter only pending requests for dashboard
-      const pendingRequests = response.data.filter(
-        (req: ServiceRequest) => req.status === 'pending'
+      
+      const allJobs = response.data || [];
+      
+      // Fetch messages for each job to check for unread
+      const jobsWithMessages = await Promise.all(
+        allJobs.map(async (job: ServiceRequest) => {
+          try {
+            const msgResponse = await axios.get(
+              `${BACKEND_URL}/api/service-requests/${job._id}/messages`,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+            const messages = msgResponse.data.messages || [];
+            const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+            
+            // Check if there are unread messages from customer
+            const customerMessages = messages.filter((m: Message) => m.senderRole === 'customer');
+            const hasUnread = customerMessages.length > 0 && 
+              customerMessages[customerMessages.length - 1].senderId !== user?._id;
+            
+            return {
+              ...job,
+              hasUnreadMessages: hasUnread,
+              lastMessage,
+            };
+          } catch {
+            return { ...job, hasUnreadMessages: false };
+          }
+        })
       );
-      setRequests(pendingRequests);
+      
+      // Sort by status priority
+      jobsWithMessages.sort((a, b) => {
+        const priorityA = STATUS_PRIORITY[a.status] ?? 99;
+        const priorityB = STATUS_PRIORITY[b.status] ?? 99;
+        if (priorityA !== priorityB) return priorityA - priorityB;
+        // Secondary sort by date (newest first)
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+      
+      setJobs(jobsWithMessages);
     } catch (error) {
-      // Silent fail for list fetching - don't show error to user
-      // Just log for debugging in dev mode
       if (__DEV__) {
-        console.warn('Error fetching requests:', error);
+        console.warn('Error fetching jobs:', error);
       }
     } finally {
       setLoading(false);
@@ -67,25 +137,77 @@ export default function ProviderDashboardScreen() {
     }
   };
 
-  const onRefresh = () => {
-    setRefreshing(true);
-    fetchRequests();
+  const fetchJobsQuietly = async () => {
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/service-requests`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      const allJobs = response.data || [];
+      
+      // Quick check for messages
+      const jobsWithMessages = await Promise.all(
+        allJobs.map(async (job: ServiceRequest) => {
+          try {
+            const msgResponse = await axios.get(
+              `${BACKEND_URL}/api/service-requests/${job._id}/messages`,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+            const messages = msgResponse.data.messages || [];
+            const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+            const customerMessages = messages.filter((m: Message) => m.senderRole === 'customer');
+            const hasUnread = customerMessages.length > 0 && 
+              customerMessages[customerMessages.length - 1].senderId !== user?._id;
+            
+            return { ...job, hasUnreadMessages: hasUnread, lastMessage };
+          } catch {
+            return { ...job, hasUnreadMessages: false };
+          }
+        })
+      );
+      
+      jobsWithMessages.sort((a, b) => {
+        const priorityA = STATUS_PRIORITY[a.status] ?? 99;
+        const priorityB = STATUS_PRIORITY[b.status] ?? 99;
+        if (priorityA !== priorityB) return priorityA - priorityB;
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+      
+      setJobs(jobsWithMessages);
+    } catch {
+      // Silent fail
+    }
   };
 
-  const handleRequestPress = (requestId: string) => {
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchJobs();
+  };
+
+  const handleJobPress = (jobId: string) => {
     router.push({
       pathname: '/provider-request-detail',
-      params: { requestId },
+      params: { requestId: jobId },
     });
   };
 
-  const categoryNames: { [key: string]: string } = {
-    electrical: 'Electrical',
-    plumbing: 'Plumbing',
-    ac: 'AC Repair',
-    cleaning: 'Cleaning',
-    handyman: 'Handyman',
-    other: 'Other Services (Beta)',
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return { label: 'Pending Review', color: '#4A7DC4', bgColor: '#EAF3FF' };
+      case 'accepted':
+        return { label: 'Accepted', color: '#4CAF50', bgColor: '#E8F5E9' };
+      case 'in_progress':
+        return { label: 'In Progress', color: '#FF9800', bgColor: '#FFF3E0' };
+      case 'completed':
+        return { label: 'Completed', color: '#9C27B0', bgColor: '#F3E5F5' };
+      case 'cancelled':
+        return { label: 'Cancelled', color: '#F44336', bgColor: '#FFEBEE' };
+      case 'declined':
+        return { label: 'Declined', color: '#757575', bgColor: '#F5F5F5' };
+      default:
+        return { label: status, color: '#666', bgColor: '#F5F5F5' };
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -98,11 +220,24 @@ export default function ProviderDashboardScreen() {
     });
   };
 
+  const getServiceDisplay = (job: ServiceRequest) => {
+    const service = job.service || 'Service';
+    const subcategory = job.serviceSubcategory || job.subCategory;
+    if (subcategory) {
+      return `${service} • ${subcategory}`;
+    }
+    return service;
+  };
+
+  const getLocationDisplay = (job: ServiceRequest) => {
+    return job.jobTown || job.location || 'Location not specified';
+  };
+
   if (loading) {
     return (
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.header}>
-          <Text style={styles.title}>Incoming Requests</Text>
+          <Text style={styles.title}>My Jobs</Text>
         </View>
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color="#E53935" />
@@ -111,7 +246,7 @@ export default function ProviderDashboardScreen() {
     );
   }
 
-  if (requests.length === 0) {
+  if (jobs.length === 0) {
     return (
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <BetaNoticeModal 
@@ -119,7 +254,7 @@ export default function ProviderDashboardScreen() {
           onClose={handleBetaNoticeContinue}
         />
         <View style={styles.header}>
-          <Text style={styles.title}>Incoming Requests</Text>
+          <Text style={styles.title}>My Jobs</Text>
         </View>
         <ScrollView
           contentContainerStyle={styles.emptyContainer}
@@ -127,11 +262,11 @@ export default function ProviderDashboardScreen() {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
         >
-          <Ionicons name="inbox" size={64} color="#CCC" />
-          <Text style={styles.emptyTitle}>No Pending Requests</Text>
+          <Ionicons name="briefcase-outline" size={64} color="#CCC" />
+          <Text style={styles.emptyTitle}>No Jobs Yet</Text>
           <Text style={styles.emptySubtitle}>
-            You're all caught up! New service requests
-            {"\n"}will appear here.
+            When customers request your services,
+            {"\n"}their jobs will appear here.
           </Text>
         </ScrollView>
       </View>
@@ -145,9 +280,9 @@ export default function ProviderDashboardScreen() {
         onClose={handleBetaNoticeContinue}
       />
       <View style={styles.header}>
-        <Text style={styles.title}>Incoming Requests</Text>
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>{requests.length}</Text>
+        <Text style={styles.title}>My Jobs</Text>
+        <View style={styles.countBadge}>
+          <Text style={styles.countText}>{jobs.length}</Text>
         </View>
       </View>
       <ScrollView
@@ -162,51 +297,63 @@ export default function ProviderDashboardScreen() {
           />
         }
       >
-        {requests.map((request) => (
-          <TouchableOpacity
-            key={request._id}
-            style={[styles.requestCard, request.isGeneralRequest && styles.generalRequestCard]}
-            onPress={() => handleRequestPress(request._id)}
-            activeOpacity={0.7}
-          >
-            <View style={styles.requestHeader}>
-              <View style={styles.categoryContainer}>
-                <Ionicons name="construct" size={16} color="#666" />
-                <Text style={styles.categoryText}>
-                  {categoryNames[request.service] || request.service}
-                </Text>
-              </View>
-              {request.isGeneralRequest ? (
-                <View style={styles.generalBadge}>
-                  <Text style={styles.generalBadgeText}>GENERAL</Text>
+        {jobs.map((job) => {
+          const statusBadge = getStatusBadge(job.status);
+          
+          return (
+            <TouchableOpacity
+              key={job._id}
+              style={styles.jobCard}
+              onPress={() => handleJobPress(job._id)}
+              activeOpacity={0.7}
+            >
+              {/* Header: Service + Status Badge */}
+              <View style={styles.jobHeader}>
+                <View style={styles.serviceContainer}>
+                  <Ionicons name="construct" size={16} color="#666" />
+                  <Text style={styles.serviceText} numberOfLines={1}>
+                    {getServiceDisplay(job)}
+                  </Text>
                 </View>
-              ) : (
-                <View style={styles.newBadge}>
-                  <Text style={styles.newBadgeText}>NEW</Text>
+                <View style={[styles.statusBadge, { backgroundColor: statusBadge.bgColor }]}>
+                  <Text style={[styles.statusText, { color: statusBadge.color }]}>
+                    {statusBadge.label}
+                  </Text>
                 </View>
-              )}
-            </View>
-
-            <Text style={styles.customerName}>{request.customerName}</Text>
-
-            <Text style={styles.description} numberOfLines={2}>
-              {request.description}
-            </Text>
-
-            <View style={styles.requestFooter}>
-              <View style={styles.dateContainer}>
-                <Ionicons name="time-outline" size={14} color="#999" />
-                <Text style={styles.dateText}>
-                  {formatDate(request.createdAt)}
-                </Text>
               </View>
-              <View style={styles.actionContainer}>
-                <Text style={styles.actionText}>Review</Text>
-                <Ionicons name="chevron-forward" size={20} color="#E53935" />
+
+              {/* Customer Name + Unread Indicator */}
+              <View style={styles.customerRow}>
+                <Text style={styles.customerName}>{job.customerName}</Text>
+                {job.hasUnreadMessages && (
+                  <View style={styles.unreadDot} />
+                )}
               </View>
-            </View>
-          </TouchableOpacity>
-        ))}
+
+              {/* Location */}
+              <View style={styles.locationRow}>
+                <Ionicons name="location-outline" size={14} color="#999" />
+                <Text style={styles.locationText}>{getLocationDisplay(job)}</Text>
+              </View>
+
+              {/* Footer: Date + Action */}
+              <View style={styles.jobFooter}>
+                <View style={styles.dateContainer}>
+                  <Ionicons name="time-outline" size={14} color="#999" />
+                  <Text style={styles.dateText}>
+                    {formatDate(job.createdAt)}
+                  </Text>
+                </View>
+                <View style={styles.actionContainer}>
+                  <Text style={styles.actionText}>
+                    {job.status === 'pending' ? 'Review' : 'View'}
+                  </Text>
+                  <Ionicons name="chevron-forward" size={20} color="#E53935" />
+                </View>
+              </View>
+            </TouchableOpacity>
+          );
+        })}
       </ScrollView>
     </View>
   );
@@ -232,18 +379,18 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
     flex: 1,
   },
-  badge: {
-    backgroundColor: '#E53935',
+  countBadge: {
+    backgroundColor: '#F5F5F5',
     borderRadius: 12,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 4,
-    minWidth: 28,
+    minWidth: 32,
     alignItems: 'center',
   },
-  badgeText: {
-    color: '#FFFFFF',
+  countText: {
+    color: '#666',
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   centerContent: {
     flex: 1,
@@ -276,9 +423,9 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 16,
-    gap: 16,
+    gap: 12,
   },
-  requestCard: {
+  jobCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
@@ -290,65 +437,70 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
-  requestHeader: {
+  jobHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 10,
   },
-  categoryContainer: {
+  serviceContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    flex: 1,
+    marginRight: 12,
   },
-  categoryText: {
+  serviceText: {
     fontSize: 14,
     color: '#666',
     fontWeight: '600',
+    flex: 1,
   },
-  newBadge: {
-    backgroundColor: '#EAF3FF',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
   },
-  newBadgeText: {
+  statusText: {
     fontSize: 11,
-    color: '#4A7DC4',
     fontWeight: 'bold',
+    textTransform: 'uppercase',
   },
-  generalRequestCard: {
-    borderColor: '#7C4DFF',
-    borderWidth: 1.5,
-    backgroundColor: '#FAFAFE',
-  },
-  generalBadge: {
-    backgroundColor: '#EDE7F6',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  generalBadgeText: {
-    fontSize: 11,
-    color: '#7C4DFF',
-    fontWeight: 'bold',
+  customerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
   },
   customerName: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#1A1A1A',
-    marginBottom: 8,
+    flex: 1,
   },
-  description: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
+  unreadDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#E53935',
+    marginLeft: 8,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     marginBottom: 12,
   },
-  requestFooter: {
+  locationText: {
+    fontSize: 13,
+    color: '#999',
+  },
+  jobFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
   },
   dateContainer: {
     flexDirection: 'row',
