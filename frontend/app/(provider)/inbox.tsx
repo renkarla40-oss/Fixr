@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,166 +8,199 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axios from 'axios';
 import { useAuth } from '../../contexts/AuthContext';
-import { getServiceLabel } from '../../constants/serviceCategories';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
-interface Conversation {
+interface Message {
+  _id: string;
+  senderId: string;
+  senderName: string;
+  senderRole: string;
+  text: string;
+  createdAt: string;
+}
+
+interface JobWithMessages {
   requestId: string;
   service: string;
+  serviceSubcategory?: string;
   customerName: string;
   status: string;
-  lastMessage?: {
-    text: string;
-    senderRole: string;
-    createdAt: string;
-  };
-  unreadCount: number;
+  jobTown?: string;
+  lastMessage: Message;
+  hasUnread: boolean;
+  messageCount: number;
 }
 
 export default function ProviderInboxScreen() {
   const router = useRouter();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const insets = useSafeAreaInsets();
   
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [jobsWithMessages, setJobsWithMessages] = useState<JobWithMessages[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
-  const fetchConversations = useCallback(async () => {
+  const fetchJobsWithMessages = useCallback(async (showLoading = true) => {
+    if (showLoading) setLoading(true);
+    
     try {
-      // Fetch all provider requests that have messages
-      const response = await axios.get(`${BACKEND_URL}/api/service-requests/provider`, {
+      // Fetch all provider's jobs
+      const response = await axios.get(`${BACKEND_URL}/api/service-requests`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
-      const requests = response.data || [];
+      const allJobs = response.data || [];
+      const jobsWithMsgs: JobWithMessages[] = [];
       
-      // Fetch messages for each request and build conversation list
-      const conversationsWithMessages: Conversation[] = [];
-      
-      for (const req of requests) {
+      // Check each job for messages
+      for (const job of allJobs) {
         try {
           const msgResponse = await axios.get(
-            `${BACKEND_URL}/api/service-requests/${req._id}/messages`,
+            `${BACKEND_URL}/api/service-requests/${job._id}/messages`,
             { headers: { Authorization: `Bearer ${token}` } }
           );
           
-          const messages = msgResponse.data.messages || [];
+          const messages: Message[] = msgResponse.data.messages || [];
           
-          // Only include requests that have messages or are in active status
-          if (messages.length > 0 || ['pending', 'accepted', 'started'].includes(req.status)) {
-            const lastMsg = messages.length > 0 ? messages[messages.length - 1] : null;
+          // Only include jobs that have messages
+          if (messages.length > 0) {
+            const lastMessage = messages[messages.length - 1];
             
-            conversationsWithMessages.push({
-              requestId: req._id,
-              service: req.service,
-              customerName: req.customerName || 'Customer',
-              status: req.status,
-              lastMessage: lastMsg ? {
-                text: lastMsg.text,
-                senderRole: lastMsg.senderRole,
-                createdAt: lastMsg.createdAt,
-              } : undefined,
-              unreadCount: 0, // TODO: implement read tracking
+            // Check for unread (last message from customer)
+            const hasUnread = lastMessage.senderRole === 'customer';
+            
+            jobsWithMsgs.push({
+              requestId: job._id,
+              service: job.service,
+              serviceSubcategory: job.serviceSubcategory || job.subCategory,
+              customerName: job.customerName || 'Customer',
+              status: job.status,
+              jobTown: job.jobTown || job.location,
+              lastMessage,
+              hasUnread,
+              messageCount: messages.length,
             });
           }
-        } catch (err) {
-          // Skip if error fetching messages
+        } catch {
+          // Skip jobs with message fetch errors
         }
       }
       
       // Sort by most recent message
-      conversationsWithMessages.sort((a, b) => {
-        const dateA = a.lastMessage?.createdAt ? new Date(a.lastMessage.createdAt).getTime() : 0;
-        const dateB = b.lastMessage?.createdAt ? new Date(b.lastMessage.createdAt).getTime() : 0;
+      jobsWithMsgs.sort((a, b) => {
+        const dateA = new Date(a.lastMessage.createdAt).getTime();
+        const dateB = new Date(b.lastMessage.createdAt).getTime();
         return dateB - dateA;
       });
       
-      setConversations(conversationsWithMessages);
+      setJobsWithMessages(jobsWithMsgs);
     } catch (err) {
-      console.log('Error fetching conversations');
+      if (__DEV__) {
+        console.warn('Error fetching inbox:', err);
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [token]);
+  }, [token, user]);
 
+  // Initial fetch and polling setup
   useEffect(() => {
-    fetchConversations();
-  }, [fetchConversations]);
+    fetchJobsWithMessages();
+    
+    // Poll every 3 seconds for real-time updates
+    pollingRef.current = setInterval(() => {
+      fetchJobsWithMessages(false);
+    }, 3000);
+    
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+      }
+    };
+  }, []);
+
+  // Refresh when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      fetchJobsWithMessages(false);
+    }, [fetchJobsWithMessages])
+  );
 
   const onRefresh = () => {
     setRefreshing(true);
-    fetchConversations();
+    fetchJobsWithMessages();
   };
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
     
-    if (diffDays === 0) {
-      return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-    } else if (diffDays === 1) {
-      return 'Yesterday';
-    } else if (diffDays < 7) {
-      return date.toLocaleDateString('en-US', { weekday: 'short' });
-    } else {
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    }
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m`;
+    if (diffHours < 24) return `${diffHours}h`;
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return date.toLocaleDateString('en-US', { weekday: 'short' });
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'accepted': return '#4CAF50';
-      case 'started': return '#2196F3';
-      case 'completed': return '#9C27B0';
-      case 'declined': return '#F44336';
-      default: return '#4A7DC4';
-    }
+  const handleJobPress = (requestId: string) => {
+    router.push({ 
+      pathname: '/provider-request-detail', 
+      params: { requestId, openChat: 'true' } 
+    });
   };
 
-  const renderConversation = ({ item }: { item: Conversation }) => (
+  const renderJobItem = ({ item }: { item: JobWithMessages }) => (
     <TouchableOpacity
-      style={styles.conversationItem}
-      onPress={() => router.push({ pathname: '/provider-request-detail', params: { requestId: item.requestId } })}
+      style={[styles.jobItem, item.hasUnread && styles.jobItemUnread]}
+      onPress={() => handleJobPress(item.requestId)}
       activeOpacity={0.7}
     >
+      {/* Avatar */}
       <View style={styles.avatar}>
         <Ionicons name="person" size={24} color="#666" />
       </View>
       
-      <View style={styles.conversationContent}>
-        <View style={styles.conversationHeader}>
-          <Text style={styles.customerName} numberOfLines={1}>{item.customerName}</Text>
-          {item.lastMessage && (
-            <Text style={styles.timestamp}>{formatTime(item.lastMessage.createdAt)}</Text>
-          )}
+      {/* Content */}
+      <View style={styles.jobContent}>
+        {/* Header: Name + Time */}
+        <View style={styles.jobHeader}>
+          <Text style={[styles.customerName, item.hasUnread && styles.textBold]} numberOfLines={1}>
+            {item.customerName}
+          </Text>
+          <Text style={styles.timestamp}>{formatTime(item.lastMessage.createdAt)}</Text>
         </View>
         
+        {/* Service */}
         <Text style={styles.serviceName} numberOfLines={1}>
-          {getServiceLabel(item.service)}
+          {item.service}{item.serviceSubcategory ? ` • ${item.serviceSubcategory}` : ''}
         </Text>
         
-        {item.lastMessage ? (
-          <Text style={styles.lastMessage} numberOfLines={1}>
-            {item.lastMessage.senderRole === 'provider' ? 'You: ' : ''}
-            {item.lastMessage.text}
-          </Text>
-        ) : (
-          <Text style={styles.noMessages}>No messages yet</Text>
-        )}
+        {/* Last Message Preview */}
+        <Text style={[styles.lastMessage, item.hasUnread && styles.textBold]} numberOfLines={1}>
+          {item.lastMessage.senderRole === 'provider' ? 'You: ' : ''}
+          {item.lastMessage.text}
+        </Text>
       </View>
       
-      <View style={styles.statusIndicator}>
-        <View style={[styles.statusDot, { backgroundColor: getStatusColor(item.status) }]} />
-      </View>
+      {/* Unread Badge */}
+      {item.hasUnread && (
+        <View style={styles.unreadBadge}>
+          <View style={styles.unreadDot} />
+        </View>
+      )}
       
       <Ionicons name="chevron-forward" size={20} color="#CCC" />
     </TouchableOpacity>
@@ -190,22 +223,30 @@ export default function ProviderInboxScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <Text style={styles.title}>Inbox</Text>
+        {jobsWithMessages.length > 0 && (
+          <View style={styles.countBadge}>
+            <Text style={styles.countText}>{jobsWithMessages.length}</Text>
+          </View>
+        )}
       </View>
       
-      {conversations.length === 0 ? (
+      {jobsWithMessages.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Ionicons name="chatbubbles-outline" size={64} color="#CCC" />
-          <Text style={styles.emptyTitle}>No Conversations</Text>
-          <Text style={styles.emptyText}>Your messages with customers will appear here</Text>
+          <Text style={styles.emptyTitle}>No Messages</Text>
+          <Text style={styles.emptyText}>
+            Messages from your jobs will appear here.
+            {"\n"}Start by accepting a job request.
+          </Text>
         </View>
       ) : (
         <FlatList
-          data={conversations}
-          renderItem={renderConversation}
+          data={jobsWithMessages}
+          renderItem={renderJobItem}
           keyExtractor={(item) => item.requestId}
           contentContainerStyle={styles.listContent}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#E53935" />
           }
           ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
@@ -220,6 +261,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
@@ -229,6 +272,20 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#1A1A1A',
+    flex: 1,
+  },
+  countBadge: {
+    backgroundColor: '#F5F5F5',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    minWidth: 32,
+    alignItems: 'center',
+  },
+  countText: {
+    color: '#666',
+    fontSize: 14,
+    fontWeight: '600',
   },
   centerContent: {
     flex: 1,
@@ -252,15 +309,20 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 8,
     textAlign: 'center',
+    lineHeight: 22,
   },
   listContent: {
     paddingVertical: 8,
   },
-  conversationItem: {
+  jobItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 14,
+    backgroundColor: '#FFFFFF',
+  },
+  jobItemUnread: {
+    backgroundColor: '#FFF8F8',
   },
   avatar: {
     width: 50,
@@ -271,10 +333,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 12,
   },
-  conversationContent: {
+  jobContent: {
     flex: 1,
   },
-  conversationHeader: {
+  jobHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -282,9 +344,12 @@ const styles = StyleSheet.create({
   },
   customerName: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#1A1A1A',
     flex: 1,
+  },
+  textBold: {
+    fontWeight: '700',
   },
   timestamp: {
     fontSize: 12,
@@ -300,18 +365,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
-  noMessages: {
-    fontSize: 14,
-    color: '#999',
-    fontStyle: 'italic',
-  },
-  statusIndicator: {
+  unreadBadge: {
     marginRight: 8,
+    justifyContent: 'center',
   },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+  unreadDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#E53935',
   },
   separator: {
     height: 1,
