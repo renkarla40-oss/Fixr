@@ -44,6 +44,7 @@ interface ServiceRequest {
   jobCode?: string;
   jobStartedAt?: string;
   jobCompletedAt?: string;
+  completionOtp?: string;
 }
 
 interface Message {
