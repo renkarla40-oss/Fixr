@@ -966,6 +966,23 @@ const styles = StyleSheet.create({
   messageTimeMine: {
     color: 'rgba(255,255,255,0.7)',
   },
+  messageFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    marginTop: 4,
+    gap: 4,
+  },
+  tickContainer: {
+    marginLeft: 4,
+  },
+  ticksRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  secondTick: {
+    marginLeft: -8,
+  },
   messageInputContainer: {
     flexDirection: 'row',
     paddingHorizontal: 12,
