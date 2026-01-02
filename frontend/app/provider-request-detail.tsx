@@ -436,7 +436,7 @@ export default function ProviderRequestDetailScreen() {
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
           </TouchableOpacity>
-          <Text style={styles.title}>Request Details</Text>
+          <Text style={styles.title}>Job Details</Text>
           <View style={styles.backButton} />
         </View>
         <View style={styles.centerContent}>
@@ -455,7 +455,7 @@ export default function ProviderRequestDetailScreen() {
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
           </TouchableOpacity>
-          <Text style={styles.title}>Request Details</Text>
+          <Text style={styles.title}>Job Details</Text>
           <View style={styles.backButton} />
         </View>
         <View style={styles.centerContent}>
@@ -481,7 +481,7 @@ export default function ProviderRequestDetailScreen() {
           <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
-          <Text style={styles.title}>Request Details</Text>
+          <Text style={styles.title}>Job Details</Text>
           {/* Compact status badge in header */}
           <View style={[styles.statusBadge, { backgroundColor: statusInfo.bg }]}>
             <Ionicons name={statusInfo.icon as any} size={12} color={statusInfo.text} />
