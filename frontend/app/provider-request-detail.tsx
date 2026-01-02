@@ -525,9 +525,12 @@ export default function ProviderRequestDetailScreen() {
           <Ionicons name="chatbubbles-outline" size={18} color={activeTab === 'chat' ? '#E53935' : '#666'} />
           <View style={styles.messageTabLabel}>
             <Text style={[styles.tabText, activeTab === 'chat' && styles.tabTextActive]}>Messages</Text>
-            {hasUnreadMessages && activeTab !== 'chat' && (
-              <View style={styles.unreadBadge} />
-            )}
+            {(() => {
+              console.log('Badge render check:', { hasUnreadMessages, activeTab, shouldShow: hasUnreadMessages && activeTab !== 'chat' });
+              return hasUnreadMessages && activeTab !== 'chat' ? (
+                <View style={styles.unreadBadge} />
+              ) : null;
+            })()}
           </View>
         </TouchableOpacity>
       </View>
