@@ -58,9 +58,9 @@ export default function ProviderLayout() {
       <Tabs.Screen
         name="dashboard"
         options={{
-          title: 'Requests',
+          title: 'My Jobs',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="list" size={size} color={color} />
+            <Ionicons name="briefcase" size={size} color={color} />
           ),
         }}
       />
