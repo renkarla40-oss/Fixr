@@ -129,7 +129,7 @@ export default function RequestDetailScreen() {
         unreadPollingRef.current = null;
       }
     };
-  }, [activeTab, request?._id, user?._id]);
+  }, [activeTab, request, user?._id]);
 
   // Mark all messages from the other user as seen
   const markMessagesAsSeen = async () => {
