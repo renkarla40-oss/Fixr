@@ -1465,10 +1465,11 @@ async def confirm_job_arrival(
 @api_router.patch("/service-requests/{request_id}/complete")
 async def complete_service_request(
     request_id: str,
+    completion_data: dict,
     current_user: User = Depends(get_current_user)
 ):
     """
-    Provider marks the job as completed.
+    Provider marks the job as completed by entering the completion OTP.
     Valid transition: in_progress -> completed
     """
     request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
@@ -1484,6 +1485,16 @@ async def complete_service_request(
     current_status = request.get("status")
     if current_status != "in_progress" and current_status != "started":
         raise HTTPException(status_code=400, detail="Job must be in progress before it can be completed")
+    
+    # Verify completion OTP
+    submitted_otp = completion_data.get("completionOtp", "").strip()
+    stored_otp = request.get("completionOtp")
+    
+    if not submitted_otp:
+        raise HTTPException(status_code=400, detail="Completion OTP is required")
+    
+    if submitted_otp != stored_otp:
+        raise HTTPException(status_code=400, detail="Incorrect completion code. Please ask the customer for the correct code.")
     
     # Mark job as completed
     await db.service_requests.update_one(
@@ -1511,7 +1522,7 @@ async def complete_service_request(
         }
     )
     
-    return {"success": True, "message": "Job marked as complete"}
+    return {"success": True, "message": "Job completed successfully"}
 
 # ============================================
 # Phase 4: Review System Endpoints
