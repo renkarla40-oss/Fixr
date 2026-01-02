@@ -867,6 +867,7 @@ const styles = StyleSheet.create({
   },
   tabIconContainer: {
     position: 'relative',
+    overflow: 'visible',
   },
   unreadBadge: {
     position: 'absolute',
