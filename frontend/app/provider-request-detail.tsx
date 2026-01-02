@@ -246,6 +246,12 @@ export default function ProviderRequestDetailScreen() {
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !request?._id) return;
+    
+    // Prevent sending if job is completed
+    if (request.status === 'completed') {
+      Alert.alert('Chat Closed', 'Chat is read-only after job completion.');
+      return;
+    }
 
     const messageText = newMessage.trim();
     Keyboard.dismiss();
@@ -273,11 +279,19 @@ export default function ProviderRequestDetailScreen() {
       );
       // Refetch to get server-confirmed message (replaces optimistic one)
       fetchMessagesQuietly();
-    } catch (err) {
+    } catch (err: any) {
       // On error, remove optimistic message and restore input
       setMessages(prev => prev.filter(m => m._id !== optimisticMessage._id));
       setNewMessage(messageText);
-      Alert.alert('Error', 'Failed to send message. Please try again.');
+      
+      // Handle 403 - chat closed after job completion
+      if (err.response?.status === 403) {
+        Alert.alert('Chat Closed', 'Chat is read-only after job completion.');
+        // Refetch request to update status
+        fetchRequestDetail();
+      } else {
+        Alert.alert('Error', 'Failed to send message. Please try again.');
+      }
     } finally {
       setSendingMessage(false);
     }
