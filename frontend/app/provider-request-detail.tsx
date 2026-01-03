@@ -378,13 +378,11 @@ export default function ProviderRequestDetailScreen() {
         { completionOtp: completionOtpInput.trim() },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      Alert.alert('Success', 'Job completed successfully!', [
-        { text: 'OK', onPress: () => {
-          setShowCompletionOtpInput(false);
-          setCompletionOtpInput('');
-          fetchRequestDetail();
-        }}
-      ]);
+      // Immediately re-fetch to update local state with latest from DB
+      setShowCompletionOtpInput(false);
+      setCompletionOtpInput('');
+      await fetchRequestDetail();
+      Alert.alert('Success', 'Job completed successfully!');
     } catch (err: any) {
       const errorMessage = err.response?.data?.detail || 'Failed to complete job. Please try again.';
       Alert.alert('Error', errorMessage);
