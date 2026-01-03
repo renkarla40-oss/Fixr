@@ -205,7 +205,9 @@ export default function ProviderInboxScreen() {
           <Text style={[styles.customerName, item.hasUnread && styles.textBold]} numberOfLines={1}>
             {item.customerName}
           </Text>
-          <Text style={styles.timestamp}>{formatTime(item.lastMessage.createdAt)}</Text>
+          {item.lastMessage && (
+            <Text style={styles.timestamp}>{formatTime(item.lastMessage.createdAt)}</Text>
+          )}
         </View>
         
         {/* Service */}
@@ -214,10 +216,14 @@ export default function ProviderInboxScreen() {
         </Text>
         
         {/* Last Message Preview */}
-        <Text style={[styles.lastMessage, item.hasUnread && styles.textBold]} numberOfLines={1}>
-          {item.lastMessage.senderRole === 'provider' ? 'You: ' : ''}
-          {item.lastMessage.text}
-        </Text>
+        {item.lastMessage ? (
+          <Text style={[styles.lastMessage, item.hasUnread && styles.textBold]} numberOfLines={1}>
+            {item.lastMessage.senderRole === 'provider' ? 'You: ' : ''}
+            {item.lastMessage.text}
+          </Text>
+        ) : (
+          <Text style={styles.noMessageText}>No messages yet</Text>
+        )}
       </View>
       
       {/* Unread Badge */}
@@ -229,6 +235,24 @@ export default function ProviderInboxScreen() {
       
       <Ionicons name="chevron-forward" size={20} color="#CCC" />
     </TouchableOpacity>
+  );
+
+  // Debug banner component
+  const renderDebugBanner = () => (
+    <View style={styles.debugBanner}>
+      <Text style={styles.debugTitle}>DEBUG INFO</Text>
+      <Text style={styles.debugText}>Jobs loaded: {debugInfo.jobsLoaded}</Text>
+      <Text style={styles.debugText}>Jobs with messages: {debugInfo.jobsWithMessages}</Text>
+      <Text style={styles.debugText}>Threads rendered: {debugInfo.threadsRendered}</Text>
+      {debugInfo.errors.length > 0 && (
+        <>
+          <Text style={styles.debugError}>Errors:</Text>
+          {debugInfo.errors.map((err, i) => (
+            <Text key={i} style={styles.debugError}>• {err}</Text>
+          ))}
+        </>
+      )}
+    </View>
   );
 
   if (loading) {
