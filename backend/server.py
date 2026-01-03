@@ -990,16 +990,28 @@ async def get_providers(
             test_provider = await db.providers.find_one({"userId": str(test_provider_user["_id"])})
             if test_provider:
                 test_provider["_id"] = str(test_provider["_id"])
+                # Get name and phone from user record
+                test_provider["name"] = test_provider_user.get("name", "Test Provider")
+                test_provider["phone"] = test_provider_user.get("phone", "+1234567890")
                 # Ensure all required fields have defaults
+                test_provider.setdefault("services", ["Plumbing", "Electrical", "Cleaning", "Handyman"])
+                test_provider.setdefault("bio", "Canonical test provider for development testing")
+                test_provider.setdefault("verificationStatus", "verified")
+                test_provider.setdefault("setupComplete", True)
                 test_provider.setdefault("baseTown", None)
                 test_provider.setdefault("travelDistanceKm", 16)
-                test_provider.setdefault("travelAnywhere", False)
+                test_provider.setdefault("travelAnywhere", True)
                 test_provider.setdefault("isAcceptingJobs", True)
                 test_provider.setdefault("availabilityNote", None)
                 test_provider.setdefault("profilePhotoUrl", None)
                 test_provider.setdefault("governmentIdFrontUrl", None)
                 test_provider.setdefault("governmentIdBackUrl", None)
-                test_provider.setdefault("uploadsComplete", False)
+                test_provider.setdefault("uploadsComplete", True)
+                test_provider.setdefault("phoneVerified", True)
+                test_provider.setdefault("completedJobsCount", 0)
+                test_provider.setdefault("averageRating", None)
+                test_provider.setdefault("totalReviews", 0)
+                test_provider.setdefault("riskFlags", [])
                 test_provider["distanceFromJob"] = None
                 test_provider["isOutsideSelectedArea"] = False
                 result = [Provider(**test_provider)]
