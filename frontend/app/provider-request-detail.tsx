@@ -682,7 +682,7 @@ export default function ProviderRequestDetailScreen() {
 
           {/* FIXED ACTION BUTTONS AT BOTTOM - Only for pending requests */}
           {isPending && (
-            <View style={[styles.fixedActionBar, { paddingBottom: bottomTabBarHeight + 8 }]}>
+            <View style={[styles.fixedActionBar, { paddingBottom: insets.bottom + 12 }]}>
               <TouchableOpacity
                 style={styles.declineButton}
                 onPress={handleDecline}
@@ -771,12 +771,12 @@ export default function ProviderRequestDetailScreen() {
 
           {/* Message Input or Read-Only Banner */}
           {request.status === 'completed' ? (
-            <View style={[styles.chatClosedBanner, { paddingBottom: bottomTabBarHeight + 8 }]}>
+            <View style={[styles.chatClosedBanner, { paddingBottom: insets.bottom + 12 }]}>
               <Ionicons name="lock-closed" size={16} color="#666" />
               <Text style={styles.chatClosedText}>Chat closed — job completed.</Text>
             </View>
           ) : (
-            <View style={[styles.messageInputContainer, { paddingBottom: bottomTabBarHeight + 8 }]}>
+            <View style={[styles.messageInputContainer, { paddingBottom: insets.bottom + 12 }]}>
               <TextInput
                 ref={inputRef}
                 style={styles.messageInput}
