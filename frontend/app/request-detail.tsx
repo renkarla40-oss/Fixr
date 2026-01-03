@@ -184,6 +184,30 @@ export default function RequestDetailScreen() {
     }
   };
 
+  // Quiet fetch for polling - no loading state, only updates if status changed
+  const fetchRequestDetailQuietly = async () => {
+    if (!requestId) return;
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/service-requests/${requestId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const newData = response.data;
+      // Only update if status or key fields changed
+      setRequest(prev => {
+        if (!prev) return newData;
+        if (prev.status !== newData.status || 
+            prev.completionOtp !== newData.completionOtp ||
+            prev.jobStartedAt !== newData.jobStartedAt ||
+            prev.jobCompletedAt !== newData.jobCompletedAt) {
+          return newData;
+        }
+        return prev;
+      });
+    } catch (err) {
+      // Silent fail for polling
+    }
+  };
+
   const fetchMessages = async () => {
     if (!request?._id) return;
     
