@@ -184,7 +184,7 @@ export default function RequestDetailScreen() {
     }
   };
 
-  // Quiet fetch for polling - no loading state, only updates if status changed
+  // Quiet fetch for polling - no loading state, updates on any change
   const fetchRequestDetailQuietly = async () => {
     if (!requestId) return;
     try {
@@ -192,17 +192,8 @@ export default function RequestDetailScreen() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const newData = response.data;
-      // Only update if status or key fields changed
-      setRequest(prev => {
-        if (!prev) return newData;
-        if (prev.status !== newData.status || 
-            prev.completionOtp !== newData.completionOtp ||
-            prev.jobStartedAt !== newData.jobStartedAt ||
-            prev.jobCompletedAt !== newData.jobCompletedAt) {
-          return newData;
-        }
-        return prev;
-      });
+      // Always update state with fresh data from server (single source of truth)
+      setRequest(newData);
     } catch (err) {
       // Silent fail for polling
     }
