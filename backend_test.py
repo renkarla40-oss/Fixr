@@ -118,61 +118,23 @@ def test_message_read_functionality():
     customer_headers = get_auth_headers(customer_token)
     provider_headers = get_auth_headers(provider_token)
     
-    # Step 3: Get provider ID and create a service request assigned to that provider
-    print("\n2️⃣ Setting up service request...")
+    # Step 3: Use the test request created by demo reset
+    print("\n2️⃣ Using existing test service request...")
     try:
-        # First try to get the provider profile, if it fails, set up the provider
-        provider_response = make_request("GET", "/providers/me/profile", headers=provider_headers)
-        
-        if provider_response.status_code == 404:
-            # Provider profile doesn't exist, create it
-            print("📋 Provider profile not found, creating provider setup...")
-            setup_response = make_request("POST", "/users/provider-setup", {
-                "services": ["Plumbing", "Electrical"],
-                "bio": "Test provider for message testing",
-                "baseTown": "Port of Spain",
-                "travelDistanceKm": 16,
-                "travelAnywhere": False
-            }, provider_headers)
+        # Get the test request ID from the reset response
+        reset_response = make_request("POST", "/dev/reset-demo-data")
+        if reset_response.status_code == 200:
+            reset_data = reset_response.json()
+            service_request_id = reset_data.get("testRequestId")
             
-            if setup_response.status_code != 200:
-                result.failure("Provider Setup", f"Status: {setup_response.status_code}, Response: {setup_response.text}")
+            if service_request_id:
+                result.success("Retrieved Test Service Request ID")
+                print(f"📋 Using Service Request ID: {service_request_id}")
+            else:
+                result.failure("Get Test Request ID", "Test request ID not found in reset response")
                 return result
-            
-            result.success("Created Provider Setup")
-            
-            # Try to get profile again
-            provider_response = make_request("GET", "/providers/me/profile", headers=provider_headers)
-        
-        if provider_response.status_code != 200:
-            result.failure("Get Provider Profile", f"Status: {provider_response.status_code}, Response: {provider_response.text}")
-            return result
-        
-        provider_data = provider_response.json()
-        provider_id = provider_data.get("_id") or provider_data.get("id")
-        
-        if not provider_id:
-            result.failure("Get Provider ID", "Provider ID not found in profile response")
-            return result
-        
-        result.success("Retrieved Provider ID")
-        print(f"📋 Provider ID: {provider_id}")
-        
-        # Create service request assigned to this provider
-        create_response = make_request("POST", f"/service-requests?provider_id={provider_id}", {
-            "service": "Plumbing",
-            "description": "Test plumbing service for message testing",
-            "preferredDateTime": datetime.utcnow().isoformat(),
-            "jobTown": "Port of Spain",
-            "searchDistanceKm": 16
-        }, customer_headers)
-        
-        service_request_id = None
-        if create_response.status_code == 200:
-            service_request_id = create_response.json()["_id"]
-            result.success("Created New Service Request")
         else:
-            result.failure("Create Service Request", f"Status: {create_response.status_code}, Response: {create_response.text}")
+            result.failure("Get Test Request", f"Status: {reset_response.status_code}, Response: {reset_response.text}")
             return result
             
     except Exception as e:
