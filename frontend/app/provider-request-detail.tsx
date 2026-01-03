@@ -145,13 +145,13 @@ export default function ProviderRequestDetailScreen() {
     };
   }, [activeTab, request, user?._id]);
 
-  // Mark all messages from the other user (customer) as seen
-  const markMessagesAsSeen = async () => {
+  // Mark all messages from the other user (customer) as read
+  const markMessagesAsRead = async () => {
     if (!request?._id) return;
     try {
-      await axios.patch(
-        `${BACKEND_URL}/api/service-requests/${request._id}/messages/seen`,
-        {},
+      await axios.post(
+        `${BACKEND_URL}/api/messages/mark-read`,
+        { jobId: request._id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
     } catch (err) {
