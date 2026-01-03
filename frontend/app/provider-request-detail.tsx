@@ -328,10 +328,11 @@ export default function ProviderRequestDetailScreen() {
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      // Immediately re-fetch to update local state with latest from DB
+      await fetchRequestDetail();
       Alert.alert(
         'Success',
-        `Request ${action === 'accept' ? 'accepted' : 'declined'} successfully!`,
-        [{ text: 'OK', onPress: () => fetchRequestDetail() }]
+        `Request ${action === 'accept' ? 'accepted' : 'declined'} successfully!`
       );
     } catch (err) {
       Alert.alert('Error', `Failed to ${action} request. Please try again.`);
