@@ -23,6 +23,7 @@ interface Message {
   senderRole: string;
   text: string;
   createdAt: string;
+  readAt?: string;
 }
 
 interface JobWithMessages {
@@ -32,9 +33,17 @@ interface JobWithMessages {
   customerName: string;
   status: string;
   jobTown?: string;
-  lastMessage: Message;
+  lastMessage?: Message;
   hasUnread: boolean;
   messageCount: number;
+}
+
+// Debug state for troubleshooting
+interface DebugInfo {
+  jobsLoaded: number;
+  jobsWithMessages: number;
+  threadsRendered: number;
+  errors: string[];
 }
 
 export default function ProviderInboxScreen() {
@@ -45,10 +54,12 @@ export default function ProviderInboxScreen() {
   const [jobsWithMessages, setJobsWithMessages] = useState<JobWithMessages[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<DebugInfo>({ jobsLoaded: 0, jobsWithMessages: 0, threadsRendered: 0, errors: [] });
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchJobsWithMessages = useCallback(async (showLoading = true) => {
     if (showLoading) setLoading(true);
+    const errors: string[] = [];
     
     try {
       // Fetch all provider's jobs
@@ -58,6 +69,7 @@ export default function ProviderInboxScreen() {
       
       const allJobs = response.data || [];
       const jobsWithMsgs: JobWithMessages[] = [];
+      let jobsWithMsgCount = 0;
       
       // Check each job for messages
       for (const job of allJobs) {
@@ -69,44 +81,55 @@ export default function ProviderInboxScreen() {
           
           const messages: Message[] = msgResponse.data.messages || [];
           
+          if (messages.length > 0) {
+            jobsWithMsgCount++;
+          }
+          
           // Include ALL jobs that have messages (including completed for dispute/verification)
           // Also include active jobs even without messages
           const isActiveJob = ['pending', 'accepted', 'started', 'in_progress'].includes(job.status);
           if (messages.length > 0 || isActiveJob) {
-            const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+            const lastMessage = messages.length > 0 ? messages[messages.length - 1] : undefined;
             
             // Check for unread (last message from customer and not read)
-            const hasUnread = lastMessage ? lastMessage.senderRole === 'customer' && !lastMessage.readAt : false;
+            const hasUnread = lastMessage ? (lastMessage.senderRole === 'customer' && !lastMessage.readAt) : false;
             
             jobsWithMsgs.push({
               requestId: job._id,
-              service: job.service,
+              service: job.service || 'Unknown Service',
               serviceSubcategory: job.serviceSubcategory || job.subCategory,
               customerName: job.customerName || 'Customer',
               status: job.status,
               jobTown: job.jobTown || job.location,
-              lastMessage: lastMessage || undefined,
+              lastMessage,
               hasUnread,
               messageCount: messages.length,
             });
           }
-        } catch {
-          // Skip jobs with message fetch errors
+        } catch (msgErr: any) {
+          errors.push(`Job ${job._id}: ${msgErr.message || 'Failed to fetch messages'}`);
         }
       }
       
-      // Sort by most recent message
+      // Sort by most recent message (jobs without messages go to the end)
       jobsWithMsgs.sort((a, b) => {
-        const dateA = new Date(a.lastMessage.createdAt).getTime();
-        const dateB = new Date(b.lastMessage.createdAt).getTime();
+        const dateA = a.lastMessage ? new Date(a.lastMessage.createdAt).getTime() : 0;
+        const dateB = b.lastMessage ? new Date(b.lastMessage.createdAt).getTime() : 0;
         return dateB - dateA;
       });
       
       setJobsWithMessages(jobsWithMsgs);
-    } catch (err) {
-      if (__DEV__) {
-        console.warn('Error fetching inbox:', err);
-      }
+      setDebugInfo({
+        jobsLoaded: allJobs.length,
+        jobsWithMessages: jobsWithMsgCount,
+        threadsRendered: jobsWithMsgs.length,
+        errors,
+      });
+    } catch (err: any) {
+      const errorMsg = err.message || 'Unknown error fetching jobs';
+      errors.push(`Main fetch: ${errorMsg}`);
+      setDebugInfo(prev => ({ ...prev, errors }));
+      console.warn('Error fetching inbox:', err);
     } finally {
       setLoading(false);
       setRefreshing(false);
