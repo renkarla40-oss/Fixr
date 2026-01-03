@@ -276,10 +276,10 @@ def test_message_read_functionality():
     # Step 8: Test edge cases
     print("\n7️⃣ Testing edge cases...")
     
-    # Test with invalid jobId
+    # Test with invalid jobId (but valid ObjectId format)
     try:
         response = make_request("POST", "/messages/mark-read", {
-            "jobId": "invalid_job_id"
+            "jobId": "507f1f77bcf86cd799439011"  # Valid ObjectId format but non-existent
         }, provider_headers)
         
         if response.status_code == 404:
