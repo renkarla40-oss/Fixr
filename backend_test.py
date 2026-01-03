@@ -110,8 +110,29 @@ def test_message_read_functionality():
     # Step 3: Get provider ID and create a service request assigned to that provider
     print("\n2️⃣ Setting up service request...")
     try:
-        # First get the provider ID
+        # First try to get the provider profile, if it fails, set up the provider
         provider_response = make_request("GET", "/providers/me/profile", headers=provider_headers)
+        
+        if provider_response.status_code == 404:
+            # Provider profile doesn't exist, create it
+            print("📋 Provider profile not found, creating provider setup...")
+            setup_response = make_request("POST", "/users/provider-setup", {
+                "services": ["Plumbing", "Electrical"],
+                "bio": "Test provider for message testing",
+                "baseTown": "Port of Spain",
+                "travelDistanceKm": 16,
+                "travelAnywhere": False
+            }, provider_headers)
+            
+            if setup_response.status_code != 200:
+                result.failure("Provider Setup", f"Status: {setup_response.status_code}, Response: {setup_response.text}")
+                return result
+            
+            result.success("Created Provider Setup")
+            
+            # Try to get profile again
+            provider_response = make_request("GET", "/providers/me/profile", headers=provider_headers)
+        
         if provider_response.status_code != 200:
             result.failure("Get Provider Profile", f"Status: {provider_response.status_code}, Response: {provider_response.text}")
             return result
