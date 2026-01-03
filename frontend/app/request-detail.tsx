@@ -56,7 +56,7 @@ interface Message {
   text: string;
   createdAt: string;
   deliveredAt?: string;
-  seenAt?: string;
+  readAt?: string;
 }
 
 type TabType = 'details' | 'chat';
