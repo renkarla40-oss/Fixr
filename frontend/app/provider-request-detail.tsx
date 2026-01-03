@@ -114,9 +114,9 @@ export default function ProviderRequestDetailScreen() {
       // Mark messages as read when opening chat tab
       setHasUnreadMessages(false);
       fetchMessages();
-      // Mark messages as seen on server, then refresh to get updated seenAt
-      markMessagesAsSeen().then(() => {
-        // Refresh messages to show updated seen status (blue ticks)
+      // Mark messages as read on server, then refresh to get updated readAt
+      markMessagesAsRead().then(() => {
+        // Refresh messages to show updated read status (blue ticks)
         fetchMessagesQuietly();
       });
       
