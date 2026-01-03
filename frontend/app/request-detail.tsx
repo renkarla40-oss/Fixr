@@ -89,29 +89,26 @@ export default function RequestDetailScreen() {
   // Calculate bottom spacing to clear tab bar + system nav
   const bottomTabBarHeight = TAB_BAR_BASE_HEIGHT + insets.bottom + (Platform.OS === 'android' ? 20 : 8);
 
-  // Quiet fetch for status polling - defined before useFocusEffect
-  const fetchRequestDetailQuietly = useCallback(async () => {
-    if (!requestId || !token) return;
-    try {
-      const response = await axios.get(`${BACKEND_URL}/api/service-requests/${requestId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      // Always update with fresh data from server (single source of truth)
-      setRequest(response.data);
-    } catch (err) {
-      // Silent fail for polling
-    }
-  }, [requestId, token]);
-
   // Refetch on screen focus to get latest status from database
   useFocusEffect(
     useCallback(() => {
+      // Quiet fetch function for polling
+      const pollRequestStatus = async () => {
+        if (!requestId || !token) return;
+        try {
+          const response = await axios.get(`${BACKEND_URL}/api/service-requests/${requestId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setRequest(response.data);
+        } catch (err) {
+          // Silent fail for polling
+        }
+      };
+
       if (requestId) {
         fetchRequestDetail();
-        // Start polling for status updates (for OTP actions by provider)
-        statusPollingRef.current = setInterval(() => {
-          fetchRequestDetailQuietly();
-        }, 3000);
+        // Start polling for status updates every 3 seconds (for OTP actions by provider)
+        statusPollingRef.current = setInterval(pollRequestStatus, 3000);
       } else {
         setError('No request ID provided');
         setLoading(false);
@@ -124,7 +121,7 @@ export default function RequestDetailScreen() {
           statusPollingRef.current = null;
         }
       };
-    }, [requestId, token, fetchRequestDetailQuietly])
+    }, [requestId, token])
   );
 
   useEffect(() => {
