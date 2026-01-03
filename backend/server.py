@@ -1741,8 +1741,8 @@ async def send_job_message(
         "senderRole": "provider" if is_provider else "customer",
         "text": message.get("text", "")[:1000],  # Limit message length
         "createdAt": now,
-        "deliveredAt": now,  # Set delivered immediately on save (simplified for Phase 5A)
-        "seenAt": None,  # Will be set when recipient opens Messages tab
+        "deliveredAt": now,  # Set delivered immediately on save
+        "readAt": None,  # Will be set when recipient opens Messages tab
     }
     
     result = await db.job_messages.insert_one(msg_dict)
