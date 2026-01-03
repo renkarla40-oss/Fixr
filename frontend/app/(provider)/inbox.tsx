@@ -90,7 +90,6 @@ export default function ProviderInboxScreen() {
               messageCount: messages.length,
             });
           }
-          }
         } catch {
           // Skip jobs with message fetch errors
         }
