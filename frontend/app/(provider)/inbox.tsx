@@ -69,12 +69,14 @@ export default function ProviderInboxScreen() {
           
           const messages: Message[] = msgResponse.data.messages || [];
           
-          // Only include jobs that have messages
-          if (messages.length > 0) {
-            const lastMessage = messages[messages.length - 1];
+          // Include ALL jobs that have messages (including completed for dispute/verification)
+          // Also include active jobs even without messages
+          const isActiveJob = ['pending', 'accepted', 'started', 'in_progress'].includes(job.status);
+          if (messages.length > 0 || isActiveJob) {
+            const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
             
-            // Check for unread (last message from customer)
-            const hasUnread = lastMessage.senderRole === 'customer';
+            // Check for unread (last message from customer and not read)
+            const hasUnread = lastMessage ? lastMessage.senderRole === 'customer' && !lastMessage.readAt : false;
             
             jobsWithMsgs.push({
               requestId: job._id,
@@ -83,10 +85,11 @@ export default function ProviderInboxScreen() {
               customerName: job.customerName || 'Customer',
               status: job.status,
               jobTown: job.jobTown || job.location,
-              lastMessage,
+              lastMessage: lastMessage || undefined,
               hasUnread,
               messageCount: messages.length,
             });
+          }
           }
         } catch {
           // Skip jobs with message fetch errors
