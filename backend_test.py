@@ -121,20 +121,22 @@ def test_message_read_functionality():
     # Step 3: Use the test request created by demo reset
     print("\n2️⃣ Using existing test service request...")
     try:
-        # Get the test request ID from the reset response
-        reset_response = make_request("POST", "/dev/reset-demo-data")
-        if reset_response.status_code == 200:
-            reset_data = reset_response.json()
-            service_request_id = reset_data.get("testRequestId")
-            
-            if service_request_id:
+        # The reset was already called in step 0, so we can get the existing test request
+        # Let's get the service requests to find the test request
+        response = make_request("GET", "/service-requests", headers=customer_headers)
+        
+        service_request_id = None
+        if response.status_code == 200:
+            requests_data = response.json()
+            if requests_data and len(requests_data) > 0:
+                service_request_id = requests_data[0]["_id"]
                 result.success("Retrieved Test Service Request ID")
                 print(f"📋 Using Service Request ID: {service_request_id}")
             else:
-                result.failure("Get Test Request ID", "Test request ID not found in reset response")
+                result.failure("Get Test Request", "No service requests found after reset")
                 return result
         else:
-            result.failure("Get Test Request", f"Status: {reset_response.status_code}, Response: {reset_response.text}")
+            result.failure("Get Service Requests", f"Status: {response.status_code}, Response: {response.text}")
             return result
             
     except Exception as e:
