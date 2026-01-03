@@ -198,21 +198,6 @@ export default function RequestDetailScreen() {
     }
   };
 
-  // Quiet fetch for polling - no loading state, updates on any change
-  const fetchRequestDetailQuietly = async () => {
-    if (!requestId) return;
-    try {
-      const response = await axios.get(`${BACKEND_URL}/api/service-requests/${requestId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const newData = response.data;
-      // Always update state with fresh data from server (single source of truth)
-      setRequest(newData);
-    } catch (err) {
-      // Silent fail for polling
-    }
-  };
-
   const fetchMessages = async () => {
     if (!request?._id) return;
     
