@@ -432,4 +432,30 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
     marginLeft: 78,
   },
+  noMessageText: {
+    fontSize: 14,
+    color: '#999',
+    fontStyle: 'italic',
+  },
+  debugBanner: {
+    backgroundColor: '#FFF3CD',
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#FFECB5',
+  },
+  debugTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#856404',
+    marginBottom: 4,
+  },
+  debugText: {
+    fontSize: 12,
+    color: '#856404',
+  },
+  debugError: {
+    fontSize: 12,
+    color: '#DC3545',
+    marginTop: 2,
+  },
 });
