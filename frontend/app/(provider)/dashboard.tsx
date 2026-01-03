@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
@@ -63,20 +64,23 @@ export default function ProviderMyJobsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    fetchJobs();
-    
-    // Poll for updates every 3 seconds
-    pollingRef.current = setInterval(() => {
-      fetchJobsQuietly();
-    }, 3000);
-    
-    return () => {
-      if (pollingRef.current) {
-        clearInterval(pollingRef.current);
-      }
-    };
-  }, []);
+  // Refetch on screen focus to get latest status
+  useFocusEffect(
+    useCallback(() => {
+      fetchJobs();
+      
+      // Poll for updates every 3 seconds
+      pollingRef.current = setInterval(() => {
+        fetchJobsQuietly();
+      }, 3000);
+      
+      return () => {
+        if (pollingRef.current) {
+          clearInterval(pollingRef.current);
+        }
+      };
+    }, [token])
+  );
 
   const handleBetaNoticeContinue = async () => {
     await markBetaNoticeSeen();
