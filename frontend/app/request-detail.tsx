@@ -88,6 +88,20 @@ export default function RequestDetailScreen() {
   // Calculate bottom spacing to clear tab bar + system nav
   const bottomTabBarHeight = TAB_BAR_BASE_HEIGHT + insets.bottom + (Platform.OS === 'android' ? 20 : 8);
 
+  // Quiet fetch for status polling - defined before useFocusEffect
+  const fetchRequestDetailQuietly = useCallback(async () => {
+    if (!requestId || !token) return;
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/service-requests/${requestId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // Always update with fresh data from server (single source of truth)
+      setRequest(response.data);
+    } catch (err) {
+      // Silent fail for polling
+    }
+  }, [requestId, token]);
+
   // Refetch on screen focus to get latest status from database
   useFocusEffect(
     useCallback(() => {
@@ -109,7 +123,7 @@ export default function RequestDetailScreen() {
           statusPollingRef.current = null;
         }
       };
-    }, [requestId, token])
+    }, [requestId, token, fetchRequestDetailQuietly])
   );
 
   useEffect(() => {
