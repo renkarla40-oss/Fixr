@@ -279,8 +279,8 @@ export default function ProviderInboxScreen() {
         )}
       </View>
       
-      {/* Debug Banner - Always visible for troubleshooting */}
-      {renderDebugBanner()}
+      {/* Debug Banner - Only visible in development mode */}
+      {__DEV__ && renderDebugBanner()}
       
       {jobsWithMessages.length === 0 ? (
         <View style={styles.emptyContainer}>
