@@ -83,6 +83,7 @@ export default function RequestDetailScreen() {
   const inputRef = useRef<TextInput>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const unreadPollingRef = useRef<NodeJS.Timeout | null>(null);
+  const statusPollingRef = useRef<NodeJS.Timeout | null>(null);
 
   // Calculate bottom spacing to clear tab bar + system nav
   const bottomTabBarHeight = TAB_BAR_BASE_HEIGHT + insets.bottom + (Platform.OS === 'android' ? 20 : 8);
@@ -92,10 +93,22 @@ export default function RequestDetailScreen() {
     useCallback(() => {
       if (requestId) {
         fetchRequestDetail();
+        // Start polling for status updates (for OTP actions by provider)
+        statusPollingRef.current = setInterval(() => {
+          fetchRequestDetailQuietly();
+        }, 3000);
       } else {
         setError('No request ID provided');
         setLoading(false);
       }
+      
+      // Cleanup on blur
+      return () => {
+        if (statusPollingRef.current) {
+          clearInterval(statusPollingRef.current);
+          statusPollingRef.current = null;
+        }
+      };
     }, [requestId, token])
   );
 
