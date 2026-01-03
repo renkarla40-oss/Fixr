@@ -219,6 +219,21 @@ backend:
         agent: "testing"
         comment: "✅ VERIFIED: Complete booking lifecycle working correctly. All 6 tests passed: (1) Service request creation with pending status, (2) Provider accepts request generating job code, (3) Provider enters job code to start work (accepted → in_progress), (4) Provider completes job (in_progress → completed), (5) Invalid transitions properly blocked, (6) Cancellation endpoint working (pending → cancelled). All status transitions and validations working as expected."
 
+  - task: "Message read status tracking"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented message read status tracking with deliveredAt and readAt timestamps, and POST /api/messages/mark-read endpoint for marking messages as read by jobId."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Message read status tracking working correctly. All 18 tests passed: (1) POST /api/messages/mark-read endpoint accepts jobId and marks messages as read, (2) Message creation sets deliveredAt timestamp and readAt as null, (3) Message retrieval includes deliveredAt and readAt fields, (4) Mark-read functionality updates readAt timestamp for messages from other user, (5) Edge cases handled properly (invalid jobId returns 404, missing jobId returns 400). All message delivery and read tracking features working as expected."
+
 frontend:
   - task: "Provider uploads screen"
     implemented: true
