@@ -67,13 +67,14 @@ export default function ProviderRequestDetailScreen() {
   const { token, user } = useAuth();
   const insets = useSafeAreaInsets();
   const requestId = params.requestId as string;
+  const openChat = params.openChat === 'true';
 
   const [request, setRequest] = useState<ServiceRequest | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabType>('details');
+  const [activeTab, setActiveTab] = useState<TabType>(openChat ? 'chat' : 'details');
   const [newMessage, setNewMessage] = useState('');
   const [sendingMessage, setSendingMessage] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
