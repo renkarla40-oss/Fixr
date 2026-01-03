@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """
-Backend Testing for Fixr App - Phase 5: Complete Booking Lifecycle
-Tests the complete service request status flow and transitions.
+Backend API Testing for Message Read Status Features
+Tests the new POST /api/messages/mark-read endpoint and message delivery/read tracking
 """
 
 import requests
 import json
 import sys
 from datetime import datetime
+from typing import Dict, Any, Optional
 
-# Backend URL from frontend .env
+# Backend URL from environment
 BACKEND_URL = "https://status-updater-3.preview.emergentagent.com/api"
 
 # Test credentials
@@ -18,445 +19,319 @@ CUSTOMER_PASSWORD = "password123"
 PROVIDER_EMAIL = "provider@test.com"
 PROVIDER_PASSWORD = "password123"
 
-class BookingLifecycleTest:
+class TestResult:
     def __init__(self):
-        self.customer_token = None
-        self.provider_token = None
-        self.customer_id = None
-        self.provider_id = None
-        self.test_request_id = None
-        self.job_code = None
-        self.session = requests.Session()
-        self.session.headers.update({'Content-Type': 'application/json'})
-        
-    def log(self, message, status="INFO"):
-        timestamp = datetime.now().strftime("%H:%M:%S")
-        print(f"[{timestamp}] {status}: {message}")
-        
-    def authenticate_customer(self):
-        """Authenticate customer and get token"""
-        try:
-            response = self.session.post(f"{BACKEND_URL}/auth/login", json={
-                "email": CUSTOMER_EMAIL,
-                "password": CUSTOMER_PASSWORD
-            })
-            
-            if response.status_code == 200:
-                data = response.json()
-                self.customer_token = data["token"]
-                self.customer_id = data["user"]["_id"]
-                self.log(f"✅ Customer authentication successful - ID: {self.customer_id}")
-                return True
-            else:
-                self.log(f"❌ Customer authentication failed: {response.status_code} - {response.text}", "ERROR")
-                return False
-                
-        except Exception as e:
-            self.log(f"❌ Customer authentication error: {str(e)}", "ERROR")
-            return False
-            
-    def authenticate_provider(self):
-        """Authenticate provider and get token"""
-        try:
-            response = self.session.post(f"{BACKEND_URL}/auth/login", json={
-                "email": PROVIDER_EMAIL,
-                "password": PROVIDER_PASSWORD
-            })
-            
-            if response.status_code == 200:
-                data = response.json()
-                self.provider_token = data["token"]
-                provider_user_id = data["user"]["_id"]
-                
-                # Get provider profile to get provider ID
-                headers = {"Authorization": f"Bearer {self.provider_token}"}
-                profile_response = self.session.get(f"{BACKEND_URL}/providers/me/profile", headers=headers)
-                
-                if profile_response.status_code == 200:
-                    provider_data = profile_response.json()
-                    self.provider_id = provider_data["_id"]
-                    self.log(f"✅ Provider authentication successful - ID: {self.provider_id}")
-                    return True
-                else:
-                    self.log(f"❌ Failed to get provider profile: {profile_response.status_code}", "ERROR")
-                    return False
-            else:
-                self.log(f"❌ Provider authentication failed: {response.status_code} - {response.text}", "ERROR")
-                return False
-                
-        except Exception as e:
-            self.log(f"❌ Provider authentication error: {str(e)}", "ERROR")
-            return False
-            
-    def create_service_request(self):
-        """Test 1: Create a new service request (should be pending)"""
-        try:
-            headers = {"Authorization": f"Bearer {self.customer_token}"}
-            
-            request_data = {
-                "service": "plumbing",
-                "description": "Kitchen sink is leaking and needs repair",
-                "preferredDateTime": "2024-01-15T10:00:00Z",
-                "jobTown": "Port of Spain",
-                "searchDistanceKm": 16,
-                "jobDuration": "1-2 hours"
-            }
-            
-            # Add provider ID to make it a direct request
-            response = self.session.post(
-                f"{BACKEND_URL}/service-requests?provider_id={self.provider_id}", 
-                json=request_data, 
-                headers=headers
-            )
-            
-            if response.status_code in [200, 201]:
-                data = response.json()
-                self.test_request_id = data.get("id") or data.get("_id")
-                status = data.get("status")
-                
-                if status == "pending":
-                    self.log(f"✅ TEST 1 PASSED: Service request created with status 'pending' - ID: {self.test_request_id}")
-                    return True
-                else:
-                    self.log(f"❌ TEST 1 FAILED: Expected status 'pending', got '{status}'", "ERROR")
-                    return False
-            else:
-                self.log(f"❌ TEST 1 FAILED: Request creation failed: {response.status_code} - {response.text}", "ERROR")
-                return False
-                
-        except Exception as e:
-            self.log(f"❌ TEST 1 ERROR: {str(e)}", "ERROR")
-            return False
-            
-    def provider_accepts_request(self):
-        """Test 2: Provider accepts request (pending → accepted)"""
-        try:
-            headers = {"Authorization": f"Bearer {self.provider_token}"}
-            
-            response = self.session.patch(
-                f"{BACKEND_URL}/service-requests/{self.test_request_id}/accept",
-                headers=headers
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                success = data.get("success")
-                self.job_code = data.get("jobCode")
-                
-                if success and self.job_code:
-                    self.log(f"✅ TEST 2 PASSED: Provider accepted request, job code generated: {self.job_code}")
-                    
-                    # Verify status changed to accepted
-                    detail_response = self.session.get(
-                        f"{BACKEND_URL}/service-requests/{self.test_request_id}",
-                        headers=headers
-                    )
-                    
-                    if detail_response.status_code == 200:
-                        detail_data = detail_response.json()
-                        if detail_data.get("status") == "accepted":
-                            self.log("✅ Status correctly updated to 'accepted'")
-                            return True
-                        else:
-                            self.log(f"❌ Status not updated correctly: {detail_data.get('status')}", "ERROR")
-                            return False
-                    else:
-                        self.log(f"❌ Failed to verify status: {detail_response.status_code}", "ERROR")
-                        return False
-                else:
-                    self.log(f"❌ TEST 2 FAILED: Missing success or job code in response", "ERROR")
-                    return False
-            else:
-                self.log(f"❌ TEST 2 FAILED: Accept request failed: {response.status_code} - {response.text}", "ERROR")
-                return False
-                
-        except Exception as e:
-            self.log(f"❌ TEST 2 ERROR: {str(e)}", "ERROR")
-            return False
-            
-    def provider_enters_job_code(self):
-        """Test 3: Provider enters job code (accepted → in_progress)"""
-        try:
-            headers = {"Authorization": f"Bearer {self.provider_token}"}
-            
-            response = self.session.post(
-                f"{BACKEND_URL}/service-requests/{self.test_request_id}/confirm-arrival",
-                json={"jobCode": self.job_code},
-                headers=headers
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                success = data.get("success")
-                
-                if success:
-                    self.log("✅ TEST 3 PASSED: Job code confirmed, job started")
-                    
-                    # Verify status changed to in_progress
-                    detail_response = self.session.get(
-                        f"{BACKEND_URL}/service-requests/{self.test_request_id}",
-                        headers=headers
-                    )
-                    
-                    if detail_response.status_code == 200:
-                        detail_data = detail_response.json()
-                        if detail_data.get("status") == "in_progress":
-                            self.log("✅ Status correctly updated to 'in_progress'")
-                            return True
-                        else:
-                            self.log(f"❌ Status not updated correctly: {detail_data.get('status')}", "ERROR")
-                            return False
-                    else:
-                        self.log(f"❌ Failed to verify status: {detail_response.status_code}", "ERROR")
-                        return False
-                else:
-                    self.log(f"❌ TEST 3 FAILED: Job code confirmation failed", "ERROR")
-                    return False
-            else:
-                self.log(f"❌ TEST 3 FAILED: Confirm arrival failed: {response.status_code} - {response.text}", "ERROR")
-                return False
-                
-        except Exception as e:
-            self.log(f"❌ TEST 3 ERROR: {str(e)}", "ERROR")
-            return False
-            
-    def provider_completes_job(self):
-        """Test 4: Provider completes job (in_progress → completed)"""
-        try:
-            headers = {"Authorization": f"Bearer {self.provider_token}"}
-            
-            response = self.session.patch(
-                f"{BACKEND_URL}/service-requests/{self.test_request_id}/complete",
-                headers=headers
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                success = data.get("success")
-                
-                if success:
-                    self.log("✅ TEST 4 PASSED: Job completed successfully")
-                    
-                    # Verify status changed to completed
-                    detail_response = self.session.get(
-                        f"{BACKEND_URL}/service-requests/{self.test_request_id}",
-                        headers=headers
-                    )
-                    
-                    if detail_response.status_code == 200:
-                        detail_data = detail_response.json()
-                        if detail_data.get("status") == "completed":
-                            self.log("✅ Status correctly updated to 'completed'")
-                            return True
-                        else:
-                            self.log(f"❌ Status not updated correctly: {detail_data.get('status')}", "ERROR")
-                            return False
-                    else:
-                        self.log(f"❌ Failed to verify status: {detail_response.status_code}", "ERROR")
-                        return False
-                else:
-                    self.log(f"❌ TEST 4 FAILED: Job completion failed", "ERROR")
-                    return False
-            else:
-                self.log(f"❌ TEST 4 FAILED: Complete job failed: {response.status_code} - {response.text}", "ERROR")
-                return False
-                
-        except Exception as e:
-            self.log(f"❌ TEST 4 ERROR: {str(e)}", "ERROR")
-            return False
-            
-    def test_invalid_transitions(self):
-        """Test 5: Test invalid transitions (should be blocked)"""
-        try:
-            headers = {"Authorization": f"Bearer {self.provider_token}"}
-            customer_headers = {"Authorization": f"Bearer {self.customer_token}"}
-            test_results = []
-            
-            # Test 5a: Try to accept a completed request (should fail)
-            response = self.session.patch(
-                f"{BACKEND_URL}/service-requests/{self.test_request_id}/accept",
-                headers=headers
-            )
-            
-            if response.status_code == 400:
-                self.log("✅ TEST 5a PASSED: Cannot accept completed request (correctly blocked)")
-                test_results.append(True)
-            else:
-                self.log(f"❌ TEST 5a FAILED: Should not be able to accept completed request: {response.status_code}", "ERROR")
-                test_results.append(False)
-                
-            # Create a new request for remaining invalid transition tests
-            new_request_data = {
-                "service": "electrical",
-                "description": "Test request for invalid transitions",
-                "jobTown": "San Juan"
-            }
-            
-            new_request_response = self.session.post(
-                f"{BACKEND_URL}/service-requests?provider_id={self.provider_id}",
-                json=new_request_data,
-                headers=customer_headers
-            )
-            
-            if new_request_response.status_code in [200, 201]:
-                new_request_id = new_request_response.json().get("id") or new_request_response.json().get("_id")
-                
-                # Test 5b: Try to start a pending request without accepting (should fail)
-                response = self.session.post(
-                    f"{BACKEND_URL}/service-requests/{new_request_id}/confirm-arrival",
-                    json={"jobCode": "123456"},
-                    headers=headers
-                )
-                
-                if response.status_code == 400:
-                    self.log("✅ TEST 5b PASSED: Cannot start pending request without accepting (correctly blocked)")
-                    test_results.append(True)
-                else:
-                    self.log(f"❌ TEST 5b FAILED: Should not be able to start pending request: {response.status_code}", "ERROR")
-                    test_results.append(False)
-                    
-                # Test 5c: Try to complete a pending request (should fail)
-                response = self.session.patch(
-                    f"{BACKEND_URL}/service-requests/{new_request_id}/complete",
-                    headers=headers
-                )
-                
-                if response.status_code == 400:
-                    self.log("✅ TEST 5c PASSED: Cannot complete pending request (correctly blocked)")
-                    test_results.append(True)
-                else:
-                    self.log(f"❌ TEST 5c FAILED: Should not be able to complete pending request: {response.status_code}", "ERROR")
-                    test_results.append(False)
-                    
-            # Test 5d: Try to cancel a completed request (should fail)
-            response = self.session.patch(
-                f"{BACKEND_URL}/service-requests/{self.test_request_id}/cancel",
-                headers=customer_headers
-            )
-            
-            if response.status_code == 400:
-                self.log("✅ TEST 5d PASSED: Cannot cancel completed request (correctly blocked)")
-                test_results.append(True)
-            else:
-                self.log(f"❌ TEST 5d FAILED: Should not be able to cancel completed request: {response.status_code}", "ERROR")
-                test_results.append(False)
-                
-            return all(test_results)
-            
-        except Exception as e:
-            self.log(f"❌ TEST 5 ERROR: {str(e)}", "ERROR")
-            return False
-            
-    def test_cancel_endpoint(self):
-        """Test 6: Test cancel endpoint (pending → cancelled)"""
-        try:
-            # Create a new request for cancellation test
-            customer_headers = {"Authorization": f"Bearer {self.customer_token}"}
-            
-            request_data = {
-                "service": "handyman",
-                "description": "Test request for cancellation",
-                "jobTown": "Chaguanas"
-            }
-            
-            response = self.session.post(
-                f"{BACKEND_URL}/service-requests?provider_id={self.provider_id}",
-                json=request_data,
-                headers=customer_headers
-            )
-            
-            if response.status_code in [200, 201]:
-                cancel_request_id = response.json().get("id") or response.json().get("_id")
-                
-                # Cancel the request
-                cancel_response = self.session.patch(
-                    f"{BACKEND_URL}/service-requests/{cancel_request_id}/cancel",
-                    headers=customer_headers
-                )
-                
-                if cancel_response.status_code == 200:
-                    # Verify status changed to cancelled
-                    detail_response = self.session.get(
-                        f"{BACKEND_URL}/service-requests/{cancel_request_id}",
-                        headers=customer_headers
-                    )
-                    
-                    if detail_response.status_code == 200:
-                        detail_data = detail_response.json()
-                        if detail_data.get("status") == "cancelled":
-                            self.log("✅ TEST 6 PASSED: Request cancelled successfully, status updated to 'cancelled'")
-                            return True
-                        else:
-                            self.log(f"❌ TEST 6 FAILED: Status not updated to cancelled: {detail_data.get('status')}", "ERROR")
-                            return False
-                    else:
-                        self.log(f"❌ TEST 6 FAILED: Failed to verify cancellation status: {detail_response.status_code}", "ERROR")
-                        return False
-                else:
-                    self.log(f"❌ TEST 6 FAILED: Cancel request failed: {cancel_response.status_code} - {cancel_response.text}", "ERROR")
-                    return False
-            else:
-                self.log(f"❌ TEST 6 FAILED: Failed to create request for cancellation test: {response.status_code}", "ERROR")
-                return False
-                
-        except Exception as e:
-            self.log(f"❌ TEST 6 ERROR: {str(e)}", "ERROR")
-            return False
-            
-    def run_all_tests(self):
-        """Run complete booking lifecycle test suite"""
-        self.log("🚀 Starting Complete Booking Lifecycle Tests (Phase 5)")
-        self.log("=" * 60)
-        
-        # Authentication
-        if not self.authenticate_customer():
-            return False
-            
-        if not self.authenticate_provider():
-            return False
-            
-        self.log("=" * 60)
-        
-        # Test sequence
-        tests = [
-            ("Create Service Request (pending)", self.create_service_request),
-            ("Provider Accepts (pending → accepted)", self.provider_accepts_request),
-            ("Provider Enters Job Code (accepted → in_progress)", self.provider_enters_job_code),
-            ("Provider Completes Job (in_progress → completed)", self.provider_completes_job),
-            ("Test Invalid Transitions (should be blocked)", self.test_invalid_transitions),
-            ("Test Cancel Endpoint (pending → cancelled)", self.test_cancel_endpoint)
-        ]
-        
-        passed_tests = 0
-        total_tests = len(tests)
-        
-        for test_name, test_func in tests:
-            self.log(f"\n🧪 Running: {test_name}")
-            if test_func():
-                passed_tests += 1
-            else:
-                self.log(f"❌ {test_name} FAILED", "ERROR")
-                
-        self.log("=" * 60)
-        self.log(f"📊 TEST RESULTS: {passed_tests}/{total_tests} tests passed")
-        
-        if passed_tests == total_tests:
-            self.log("🎉 ALL TESTS PASSED - Complete booking lifecycle working correctly!")
-            return True
+        self.passed = 0
+        self.failed = 0
+        self.errors = []
+    
+    def success(self, test_name: str):
+        self.passed += 1
+        print(f"✅ {test_name}")
+    
+    def failure(self, test_name: str, error: str):
+        self.failed += 1
+        self.errors.append(f"{test_name}: {error}")
+        print(f"❌ {test_name}: {error}")
+    
+    def summary(self):
+        total = self.passed + self.failed
+        print(f"\n📊 Test Results: {self.passed}/{total} passed")
+        if self.errors:
+            print("\n🔍 Failures:")
+            for error in self.errors:
+                print(f"  - {error}")
+        return self.failed == 0
+
+def make_request(method: str, endpoint: str, data: Dict[Any, Any] = None, headers: Dict[str, str] = None) -> requests.Response:
+    """Make HTTP request with error handling"""
+    url = f"{BACKEND_URL}{endpoint}"
+    try:
+        if method.upper() == "GET":
+            response = requests.get(url, headers=headers, timeout=30)
+        elif method.upper() == "POST":
+            response = requests.post(url, json=data, headers=headers, timeout=30)
+        elif method.upper() == "PATCH":
+            response = requests.patch(url, json=data, headers=headers, timeout=30)
         else:
-            self.log(f"⚠️  {total_tests - passed_tests} tests failed - Issues found in booking lifecycle", "ERROR")
-            return False
+            raise ValueError(f"Unsupported method: {method}")
+        return response
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Request failed: {e}")
+        raise
+
+def login_user(email: str, password: str) -> Optional[str]:
+    """Login user and return auth token"""
+    try:
+        response = make_request("POST", "/auth/login", {
+            "email": email,
+            "password": password
+        })
+        
+        if response.status_code == 200:
+            data = response.json()
+            return data.get("token")
+        else:
+            print(f"❌ Login failed for {email}: {response.status_code} - {response.text}")
+            return None
+    except Exception as e:
+        print(f"❌ Login error for {email}: {e}")
+        return None
+
+def get_auth_headers(token: str) -> Dict[str, str]:
+    """Get authorization headers"""
+    return {"Authorization": f"Bearer {token}"}
+
+def test_message_read_functionality():
+    """Test the complete message read functionality"""
+    result = TestResult()
+    
+    print("🧪 Testing Message Read Status Features")
+    print("=" * 50)
+    
+    # Step 1: Login as customer
+    print("\n1️⃣ Authenticating users...")
+    customer_token = login_user(CUSTOMER_EMAIL, CUSTOMER_PASSWORD)
+    if not customer_token:
+        result.failure("Customer Authentication", "Failed to login customer")
+        return result
+    result.success("Customer Authentication")
+    
+    # Step 2: Login as provider
+    provider_token = login_user(PROVIDER_EMAIL, PROVIDER_PASSWORD)
+    if not provider_token:
+        result.failure("Provider Authentication", "Failed to login provider")
+        return result
+    result.success("Provider Authentication")
+    
+    customer_headers = get_auth_headers(customer_token)
+    provider_headers = get_auth_headers(provider_token)
+    
+    # Step 3: Get or create a service request
+    print("\n2️⃣ Setting up service request...")
+    try:
+        # First try to get existing requests
+        response = make_request("GET", "/service-requests", headers=customer_headers)
+        
+        service_request_id = None
+        if response.status_code == 200:
+            requests_data = response.json()
+            if requests_data and len(requests_data) > 0:
+                service_request_id = requests_data[0]["_id"]
+                result.success("Found Existing Service Request")
+            else:
+                # Create new service request
+                create_response = make_request("POST", "/service-requests", {
+                    "service": "Plumbing",
+                    "description": "Test plumbing service for message testing",
+                    "preferredDateTime": datetime.utcnow().isoformat(),
+                    "jobTown": "Port of Spain",
+                    "searchDistanceKm": 16
+                }, customer_headers)
+                
+                if create_response.status_code == 200:
+                    service_request_id = create_response.json()["_id"]
+                    result.success("Created New Service Request")
+                else:
+                    result.failure("Create Service Request", f"Status: {create_response.status_code}, Response: {create_response.text}")
+                    return result
+        else:
+            result.failure("Get Service Requests", f"Status: {response.status_code}, Response: {response.text}")
+            return result
+            
+    except Exception as e:
+        result.failure("Service Request Setup", str(e))
+        return result
+    
+    if not service_request_id:
+        result.failure("Service Request Setup", "No service request ID available")
+        return result
+    
+    print(f"📋 Using Service Request ID: {service_request_id}")
+    
+    # Step 4: Send a message as customer
+    print("\n3️⃣ Testing message creation...")
+    try:
+        message_text = f"Test message from customer at {datetime.utcnow().isoformat()}"
+        response = make_request("POST", f"/service-requests/{service_request_id}/messages", {
+            "text": message_text
+        }, customer_headers)
+        
+        if response.status_code == 200:
+            message_data = response.json()
+            if message_data.get("success") and "message" in message_data:
+                msg = message_data["message"]
+                
+                # Verify deliveredAt is set
+                if msg.get("deliveredAt"):
+                    result.success("Message Creation - deliveredAt Set")
+                else:
+                    result.failure("Message Creation - deliveredAt", "deliveredAt not set on message creation")
+                
+                # Verify readAt is null
+                if msg.get("readAt") is None:
+                    result.success("Message Creation - readAt Null")
+                else:
+                    result.failure("Message Creation - readAt", f"readAt should be null but got: {msg.get('readAt')}")
+                
+                result.success("Message Creation")
+            else:
+                result.failure("Message Creation", f"Invalid response structure: {message_data}")
+        else:
+            result.failure("Message Creation", f"Status: {response.status_code}, Response: {response.text}")
+            
+    except Exception as e:
+        result.failure("Message Creation", str(e))
+    
+    # Step 5: Verify message retrieval shows deliveredAt and readAt fields
+    print("\n4️⃣ Testing message retrieval...")
+    try:
+        response = make_request("GET", f"/service-requests/{service_request_id}/messages", headers=provider_headers)
+        
+        if response.status_code == 200:
+            messages_data = response.json()
+            messages = messages_data.get("messages", [])
+            
+            if messages:
+                latest_message = messages[-1]  # Get the latest message
+                
+                # Check deliveredAt field exists
+                if "deliveredAt" in latest_message:
+                    result.success("Message Retrieval - deliveredAt Field Present")
+                else:
+                    result.failure("Message Retrieval - deliveredAt", "deliveredAt field missing from message")
+                
+                # Check readAt field exists (should be null)
+                if "readAt" in latest_message:
+                    if latest_message["readAt"] is None:
+                        result.success("Message Retrieval - readAt Field Present (null)")
+                    else:
+                        result.failure("Message Retrieval - readAt", f"readAt should be null but got: {latest_message['readAt']}")
+                else:
+                    result.failure("Message Retrieval - readAt", "readAt field missing from message")
+                
+                result.success("Message Retrieval")
+            else:
+                result.failure("Message Retrieval", "No messages found")
+        else:
+            result.failure("Message Retrieval", f"Status: {response.status_code}, Response: {response.text}")
+            
+    except Exception as e:
+        result.failure("Message Retrieval", str(e))
+    
+    # Step 6: Test POST /api/messages/mark-read endpoint
+    print("\n5️⃣ Testing POST /api/messages/mark-read endpoint...")
+    try:
+        response = make_request("POST", "/messages/mark-read", {
+            "jobId": service_request_id
+        }, provider_headers)
+        
+        if response.status_code == 200:
+            mark_read_data = response.json()
+            
+            # Verify response structure
+            if mark_read_data.get("success"):
+                result.success("Mark Read - Success Response")
+            else:
+                result.failure("Mark Read - Success", "success field not true")
+            
+            # Verify markedCount field
+            if "markedCount" in mark_read_data:
+                result.success("Mark Read - markedCount Field Present")
+            else:
+                result.failure("Mark Read - markedCount", "markedCount field missing")
+            
+            # Verify readAt field
+            if "readAt" in mark_read_data:
+                result.success("Mark Read - readAt Field Present")
+            else:
+                result.failure("Mark Read - readAt", "readAt field missing")
+            
+            result.success("Mark Read Endpoint")
+        else:
+            result.failure("Mark Read Endpoint", f"Status: {response.status_code}, Response: {response.text}")
+            
+    except Exception as e:
+        result.failure("Mark Read Endpoint", str(e))
+    
+    # Step 7: Verify messages are now marked as read
+    print("\n6️⃣ Verifying messages marked as read...")
+    try:
+        response = make_request("GET", f"/service-requests/{service_request_id}/messages", headers=provider_headers)
+        
+        if response.status_code == 200:
+            messages_data = response.json()
+            messages = messages_data.get("messages", [])
+            
+            if messages:
+                # Check if customer messages (sent by customer, received by provider) are now marked as read
+                customer_messages = [msg for msg in messages if msg.get("senderRole") == "customer"]
+                
+                if customer_messages:
+                    latest_customer_msg = customer_messages[-1]
+                    if latest_customer_msg.get("readAt") is not None:
+                        result.success("Message Read Verification - readAt Set")
+                    else:
+                        result.failure("Message Read Verification", "readAt still null after mark-read call")
+                else:
+                    result.failure("Message Read Verification", "No customer messages found to verify")
+                
+                result.success("Message Read Verification")
+            else:
+                result.failure("Message Read Verification", "No messages found for verification")
+        else:
+            result.failure("Message Read Verification", f"Status: {response.status_code}, Response: {response.text}")
+            
+    except Exception as e:
+        result.failure("Message Read Verification", str(e))
+    
+    # Step 8: Test edge cases
+    print("\n7️⃣ Testing edge cases...")
+    
+    # Test with invalid jobId
+    try:
+        response = make_request("POST", "/messages/mark-read", {
+            "jobId": "invalid_job_id"
+        }, provider_headers)
+        
+        if response.status_code == 404:
+            result.success("Edge Case - Invalid jobId Returns 404")
+        else:
+            result.failure("Edge Case - Invalid jobId", f"Expected 404 but got {response.status_code}")
+            
+    except Exception as e:
+        result.failure("Edge Case - Invalid jobId", str(e))
+    
+    # Test with missing jobId
+    try:
+        response = make_request("POST", "/messages/mark-read", {}, provider_headers)
+        
+        if response.status_code == 400:
+            result.success("Edge Case - Missing jobId Returns 400")
+        else:
+            result.failure("Edge Case - Missing jobId", f"Expected 400 but got {response.status_code}")
+            
+    except Exception as e:
+        result.failure("Edge Case - Missing jobId", str(e))
+    
+    return result
 
 def main():
     """Main test execution"""
-    tester = BookingLifecycleTest()
-    success = tester.run_all_tests()
+    print("🚀 Starting Backend Message Read Status Tests")
+    print(f"🔗 Backend URL: {BACKEND_URL}")
+    print(f"📧 Test Credentials: {CUSTOMER_EMAIL} / {PROVIDER_EMAIL}")
+    
+    result = test_message_read_functionality()
+    
+    print("\n" + "=" * 50)
+    success = result.summary()
     
     if success:
-        print("\n✅ PHASE 5 BOOKING LIFECYCLE: ALL TESTS PASSED")
+        print("🎉 All tests passed!")
         sys.exit(0)
     else:
-        print("\n❌ PHASE 5 BOOKING LIFECYCLE: SOME TESTS FAILED")
+        print("💥 Some tests failed!")
         sys.exit(1)
 
 if __name__ == "__main__":
