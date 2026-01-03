@@ -89,6 +89,17 @@ def test_message_read_functionality():
     print("🧪 Testing Message Read Status Features")
     print("=" * 50)
     
+    # Step 0: Reset demo data to ensure clean state
+    print("\n0️⃣ Resetting demo data...")
+    try:
+        reset_response = make_request("POST", "/dev/reset-demo-data")
+        if reset_response.status_code == 200:
+            result.success("Demo Data Reset")
+        else:
+            result.failure("Demo Data Reset", f"Status: {reset_response.status_code}, Response: {reset_response.text}")
+    except Exception as e:
+        result.failure("Demo Data Reset", str(e))
+    
     # Step 1: Login as customer
     print("\n1️⃣ Authenticating users...")
     customer_token = login_user(CUSTOMER_EMAIL, CUSTOMER_PASSWORD)
