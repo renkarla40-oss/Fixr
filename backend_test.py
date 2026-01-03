@@ -107,11 +107,27 @@ def test_message_read_functionality():
     customer_headers = get_auth_headers(customer_token)
     provider_headers = get_auth_headers(provider_token)
     
-    # Step 3: Create a new service request for testing
+    # Step 3: Get provider ID and create a service request assigned to that provider
     print("\n2️⃣ Setting up service request...")
     try:
-        # Always create a new service request to ensure it's in pending status
-        create_response = make_request("POST", "/service-requests", {
+        # First get the provider ID
+        provider_response = make_request("GET", "/providers/me/profile", headers=provider_headers)
+        if provider_response.status_code != 200:
+            result.failure("Get Provider Profile", f"Status: {provider_response.status_code}, Response: {provider_response.text}")
+            return result
+        
+        provider_data = provider_response.json()
+        provider_id = provider_data.get("_id") or provider_data.get("id")
+        
+        if not provider_id:
+            result.failure("Get Provider ID", "Provider ID not found in profile response")
+            return result
+        
+        result.success("Retrieved Provider ID")
+        print(f"📋 Provider ID: {provider_id}")
+        
+        # Create service request assigned to this provider
+        create_response = make_request("POST", f"/service-requests?provider_id={provider_id}", {
             "service": "Plumbing",
             "description": "Test plumbing service for message testing",
             "preferredDateTime": datetime.utcnow().isoformat(),
