@@ -601,8 +601,8 @@ export default function RequestDetailScreen() {
                       {/* Read indicators - only for messages I sent */}
                       {isMine && (
                         <View style={styles.tickContainer}>
-                          {msg.seenAt ? (
-                            // Blue double tick - Seen
+                          {msg.readAt ? (
+                            // Blue double tick - Read
                             <View style={styles.ticksRow}>
                               <Ionicons name="checkmark" size={14} color="#4FC3F7" />
                               <Ionicons name="checkmark" size={14} color="#4FC3F7" style={styles.secondTick} />
