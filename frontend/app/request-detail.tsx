@@ -89,40 +89,44 @@ export default function RequestDetailScreen() {
   // Calculate bottom spacing to clear tab bar + system nav
   const bottomTabBarHeight = TAB_BAR_BASE_HEIGHT + insets.bottom + (Platform.OS === 'android' ? 20 : 8);
 
-  // Refetch on screen focus to get latest status from database
+  // Fetch request detail on mount and screen focus
   useFocusEffect(
     useCallback(() => {
-      // Quiet fetch function for polling
-      const pollRequestStatus = async () => {
-        if (!requestId || !token) return;
-        try {
-          const response = await axios.get(`${BACKEND_URL}/api/service-requests/${requestId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          setRequest(response.data);
-        } catch (err) {
-          // Silent fail for polling
-        }
-      };
-
       if (requestId) {
         fetchRequestDetail();
-        // Start polling for status updates every 3 seconds (for OTP actions by provider)
-        statusPollingRef.current = setInterval(pollRequestStatus, 3000);
       } else {
         setError('No request ID provided');
         setLoading(false);
       }
-      
-      // Cleanup on blur
-      return () => {
-        if (statusPollingRef.current) {
-          clearInterval(statusPollingRef.current);
-          statusPollingRef.current = null;
-        }
-      };
     }, [requestId, token])
   );
+
+  // CRITICAL: Continuous status polling - runs independently of tabs
+  // This ensures customer sees OTP completion updates in real-time
+  useEffect(() => {
+    if (!requestId || !token) return;
+
+    const pollRequestStatus = async () => {
+      try {
+        const response = await axios.get(`${BACKEND_URL}/api/service-requests/${requestId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setRequest(response.data);
+      } catch (err) {
+        // Silent fail for polling
+      }
+    };
+
+    // Poll every 3 seconds for status updates
+    statusPollingRef.current = setInterval(pollRequestStatus, 3000);
+
+    return () => {
+      if (statusPollingRef.current) {
+        clearInterval(statusPollingRef.current);
+        statusPollingRef.current = null;
+      }
+    };
+  }, [requestId, token]);
 
   useEffect(() => {
     if (activeTab === 'chat' && request) {
