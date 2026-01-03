@@ -279,6 +279,9 @@ export default function ProviderInboxScreen() {
         )}
       </View>
       
+      {/* Debug Banner - Always visible for troubleshooting */}
+      {renderDebugBanner()}
+      
       {jobsWithMessages.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Ionicons name="chatbubbles-outline" size={64} color="#CCC" />
