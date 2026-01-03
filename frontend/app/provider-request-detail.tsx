@@ -97,14 +97,17 @@ export default function ProviderRequestDetailScreen() {
   // Calculate bottom spacing to clear tab bar + system nav
   const bottomTabBarHeight = TAB_BAR_BASE_HEIGHT + insets.bottom + (Platform.OS === 'android' ? 20 : 8);
 
-  useEffect(() => {
-    if (requestId) {
-      fetchRequestDetail();
-    } else {
-      setError('No request ID provided');
-      setLoading(false);
-    }
-  }, [requestId]);
+  // Refetch on screen focus to get latest status from database
+  useFocusEffect(
+    useCallback(() => {
+      if (requestId) {
+        fetchRequestDetail();
+      } else {
+        setError('No request ID provided');
+        setLoading(false);
+      }
+    }, [requestId, token])
+  );
 
   useEffect(() => {
     if (activeTab === 'chat' && request) {
