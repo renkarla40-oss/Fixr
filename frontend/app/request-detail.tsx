@@ -42,8 +42,9 @@ interface ServiceRequest {
   location?: string;
   jobTown?: string;
   jobCode?: string;
-  jobStartedAt?: string;
-  jobCompletedAt?: string;
+  startedAt?: string;
+  completedAt?: string;
+  completionOtp?: string;
   customerRating?: number;
   customerReview?: string;
 }
