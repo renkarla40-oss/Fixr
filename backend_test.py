@@ -107,36 +107,24 @@ def test_message_read_functionality():
     customer_headers = get_auth_headers(customer_token)
     provider_headers = get_auth_headers(provider_token)
     
-    # Step 3: Get or create a service request
+    # Step 3: Create a new service request for testing
     print("\n2️⃣ Setting up service request...")
     try:
-        # First try to get existing requests
-        response = make_request("GET", "/service-requests", headers=customer_headers)
+        # Always create a new service request to ensure it's in pending status
+        create_response = make_request("POST", "/service-requests", {
+            "service": "Plumbing",
+            "description": "Test plumbing service for message testing",
+            "preferredDateTime": datetime.utcnow().isoformat(),
+            "jobTown": "Port of Spain",
+            "searchDistanceKm": 16
+        }, customer_headers)
         
         service_request_id = None
-        if response.status_code == 200:
-            requests_data = response.json()
-            if requests_data and len(requests_data) > 0:
-                service_request_id = requests_data[0]["_id"]
-                result.success("Found Existing Service Request")
-            else:
-                # Create new service request
-                create_response = make_request("POST", "/service-requests", {
-                    "service": "Plumbing",
-                    "description": "Test plumbing service for message testing",
-                    "preferredDateTime": datetime.utcnow().isoformat(),
-                    "jobTown": "Port of Spain",
-                    "searchDistanceKm": 16
-                }, customer_headers)
-                
-                if create_response.status_code == 200:
-                    service_request_id = create_response.json()["_id"]
-                    result.success("Created New Service Request")
-                else:
-                    result.failure("Create Service Request", f"Status: {create_response.status_code}, Response: {create_response.text}")
-                    return result
+        if create_response.status_code == 200:
+            service_request_id = create_response.json()["_id"]
+            result.success("Created New Service Request")
         else:
-            result.failure("Get Service Requests", f"Status: {response.status_code}, Response: {response.text}")
+            result.failure("Create Service Request", f"Status: {create_response.status_code}, Response: {create_response.text}")
             return result
             
     except Exception as e:
