@@ -1779,8 +1779,9 @@ async def mark_messages_as_seen(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Mark all messages from the other user as seen for the current user.
+    Mark all messages from the other user as seen/read for the current user.
     Called when user opens the Messages tab.
+    Sets readAt timestamp for messages where recipientId == currentUserId and readAt is null.
     """
     request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
     if not request:
@@ -1794,9 +1795,9 @@ async def mark_messages_as_seen(
     if not is_customer and not is_provider:
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    # Mark all messages from the OTHER user as seen
-    # If I'm customer, mark provider messages as seen
-    # If I'm provider, mark customer messages as seen
+    # Mark all messages from the OTHER user as read
+    # If I'm customer, mark provider messages as read (messages I received)
+    # If I'm provider, mark customer messages as read (messages I received)
     other_role = "provider" if is_customer else "customer"
     
     now = datetime.utcnow()
@@ -1804,15 +1805,63 @@ async def mark_messages_as_seen(
         {
             "requestId": request_id,
             "senderRole": other_role,
-            "seenAt": None  # Only update messages not yet seen
+            "readAt": None  # Only update messages not yet read
         },
-        {"$set": {"seenAt": now}}
+        {"$set": {"readAt": now}}
     )
     
     return {
         "success": True,
         "markedCount": result.modified_count,
-        "seenAt": now.isoformat()
+        "readAt": now.isoformat()
+    }
+
+# New endpoint for marking messages as read (job/thread scoped)
+@api_router.post("/messages/mark-read")
+async def mark_messages_read(
+    body: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Mark all messages as read for a specific job thread.
+    Sets readAt for messages where recipientId == currentUserId and readAt == null.
+    
+    Request body:
+    - jobId: The service request ID for the thread
+    """
+    job_id = body.get("jobId")
+    if not job_id:
+        raise HTTPException(status_code=400, detail="jobId is required")
+    
+    request = await db.service_requests.find_one({"_id": ObjectId(job_id)})
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    # Verify user is part of this request
+    is_customer = request["customerId"] == current_user.id
+    provider = await db.providers.find_one({"userId": current_user.id})
+    is_provider = provider and str(provider["_id"]) == request.get("providerId")
+    
+    if not is_customer and not is_provider:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Mark all messages from the OTHER user as read
+    other_role = "provider" if is_customer else "customer"
+    
+    now = datetime.utcnow()
+    result = await db.job_messages.update_many(
+        {
+            "requestId": job_id,
+            "senderRole": other_role,
+            "readAt": None  # Only update messages not yet read
+        },
+        {"$set": {"readAt": now}}
+    )
+    
+    return {
+        "success": True,
+        "markedCount": result.modified_count,
+        "readAt": now.isoformat()
     }
 
 # Service Request Routes
