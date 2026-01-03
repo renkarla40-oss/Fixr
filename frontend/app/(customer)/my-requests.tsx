@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
@@ -35,9 +36,12 @@ export default function MyRequestsScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    fetchRequests();
-  }, []);
+  // Refetch on screen focus to get latest status
+  useFocusEffect(
+    useCallback(() => {
+      fetchRequests();
+    }, [token])
+  );
 
   const fetchRequests = async () => {
     try {
