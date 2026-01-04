@@ -1535,4 +1535,77 @@ const styles = StyleSheet.create({
     width: SCREEN_WIDTH,
     height: SCREEN_WIDTH * 1.2,
   },
+  // Quote card styles for customer
+  quoteCard: {
+    backgroundColor: '#F8FFF8',
+    marginHorizontal: 16,
+    marginBottom: 12,
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#C8E6C9',
+  },
+  quoteCardPaid: {
+    backgroundColor: '#E8F5E9',
+    borderColor: '#A5D6A7',
+  },
+  quoteCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    gap: 8,
+  },
+  quoteCardTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#388E3C',
+    flex: 1,
+  },
+  quoteStatusBadge: {
+    backgroundColor: '#FFF3E0',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  quoteStatusText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#F57C00',
+  },
+  quoteCardServiceTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    marginBottom: 4,
+  },
+  quoteCardDescription: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+  },
+  quoteCardAmount: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#2E7D32',
+    marginBottom: 12,
+  },
+  quoteCardAmountPaid: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#2E7D32',
+  },
+  acceptPayButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#4CAF50',
+    paddingVertical: 14,
+    borderRadius: 10,
+    gap: 8,
+  },
+  acceptPayButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
 });
