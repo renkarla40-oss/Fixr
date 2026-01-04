@@ -368,12 +368,11 @@ async def test_confirm_arrival_from_accepted_status(results, customer_token, pro
                 "description": "Test electrical service for accepted status workflow",
                 "preferredDateTime": datetime.now().isoformat(),
                 "jobTown": "San Fernando",
-                "searchDistanceKm": 20,
-                "provider_id": provider_id
+                "searchDistanceKm": 20
             }
             
             response = await client.post(
-                f"{API_BASE}/service-requests",
+                f"{API_BASE}/service-requests?provider_id={provider_id}",
                 headers=await get_auth_headers(customer_token),
                 json=request_data
             )
