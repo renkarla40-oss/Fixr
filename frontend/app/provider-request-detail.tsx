@@ -1819,6 +1819,22 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '500',
   },
+  paymentConfirmedBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#E8F5E9',
+    marginHorizontal: 16,
+    marginBottom: 8,
+    paddingVertical: 10,
+    borderRadius: 8,
+    gap: 8,
+  },
+  paymentConfirmedText: {
+    color: '#2E7D32',
+    fontSize: 13,
+    fontWeight: '500',
+  },
   quoteModalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
