@@ -1338,6 +1338,15 @@ const styles = StyleSheet.create({
     width: SCREEN_WIDTH * 0.55,
     height: SCREEN_WIDTH * 0.55,
     borderRadius: 12,
+    backgroundColor: '#E0E0E0',
+  },
+  imageOverlay: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    borderRadius: 12,
+    padding: 4,
   },
   fullScreenImageContainer: {
     flex: 1,
