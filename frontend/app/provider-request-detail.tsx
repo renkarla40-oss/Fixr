@@ -1015,12 +1015,10 @@ export default function ProviderRequestDetailScreen() {
           )}
 
           {/* Message Input or Read-Only Banner */}
-          {request.status === 'completed' || request.status === 'paid' ? (
+          {request.status === 'completed' ? (
             <View style={[styles.chatClosedBanner, { paddingBottom: insets.bottom + 12 }]}>
               <Ionicons name="lock-closed" size={16} color="#666" />
-              <Text style={styles.chatClosedText}>
-                {request.status === 'paid' ? 'Payment secured — ready to start!' : 'Chat closed — job completed.'}
-              </Text>
+              <Text style={styles.chatClosedText}>Chat closed — job completed.</Text>
             </View>
           ) : (
             <View style={{ paddingBottom: insets.bottom + 12 }}>
@@ -1039,6 +1037,13 @@ export default function ProviderRequestDetailScreen() {
                 <View style={styles.quotePendingBanner}>
                   <Ionicons name="time-outline" size={16} color="#F57C00" />
                   <Text style={styles.quotePendingText}>Quote sent • Waiting for customer to pay</Text>
+                </View>
+              )}
+              {/* Payment Confirmed Banner */}
+              {request.status === 'paid' && (
+                <View style={styles.paymentConfirmedBanner}>
+                  <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
+                  <Text style={styles.paymentConfirmedText}>Payment secured! Enter job code to start.</Text>
                 </View>
               )}
               <View style={styles.messageInputContainer}>
