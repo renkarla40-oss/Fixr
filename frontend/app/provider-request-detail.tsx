@@ -821,10 +821,12 @@ export default function ProviderRequestDetailScreen() {
               </View>
             </View>
 
-            {/* Job Code Entry - Compact, subtle light blue */}
-            {request.status === 'accepted' && (
+            {/* Job Code Entry - Show for accepted and paid status */}
+            {(request.status === 'accepted' || request.status === 'paid') && (
               <View style={styles.jobCodeSection}>
-                <Text style={styles.jobCodeLabel}>Enter Job Code</Text>
+                <Text style={styles.jobCodeLabel}>
+                  {request.status === 'paid' ? 'Payment Received! Start Job' : 'Enter Job Code'}
+                </Text>
                 <Text style={styles.jobCodeHint}>Ask the customer for the 6-digit code</Text>
                 <View style={styles.jobCodeInputRow}>
                   <TextInput
