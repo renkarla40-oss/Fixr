@@ -279,15 +279,35 @@ export default function ProviderRequestDetailScreen() {
       });
       const newMessages = response.data.messages || [];
       
-      // Only update if there are new messages (compare by length and last message ID)
+      // Only update if there are actual content changes (not just readAt updates)
       setMessages(prev => {
-        if (newMessages.length !== prev.length || 
-            (newMessages.length > 0 && prev.length > 0 && 
-             newMessages[newMessages.length - 1]._id !== prev[prev.length - 1]._id)) {
-          // Scroll to end when new messages arrive
+        // Different count = definitely update
+        if (newMessages.length !== prev.length) {
           setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
           return newMessages;
         }
+        
+        // Same count - check if last message IDs match
+        if (newMessages.length > 0 && prev.length > 0) {
+          const lastNewId = newMessages[newMessages.length - 1]._id;
+          const lastPrevId = prev[prev.length - 1]._id;
+          if (lastNewId !== lastPrevId) {
+            setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
+            return newMessages;
+          }
+        }
+        
+        // Check for readAt updates only (for blue ticks) - update quietly without scroll
+        const hasReadAtChanges = newMessages.some((newMsg, idx) => {
+          const prevMsg = prev[idx];
+          return prevMsg && newMsg.readAt !== prevMsg.readAt;
+        });
+        
+        if (hasReadAtChanges) {
+          return newMessages;
+        }
+        
+        // No changes - keep previous array reference to prevent re-render
         return prev;
       });
     } catch (err) {
