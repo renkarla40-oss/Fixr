@@ -417,12 +417,11 @@ async def test_confirm_arrival_invalid_statuses(results, customer_token, provide
                 "description": "Test cleaning service for invalid status testing",
                 "preferredDateTime": datetime.now().isoformat(),
                 "jobTown": "Chaguanas",
-                "searchDistanceKm": 20,
-                "provider_id": provider_id
+                "searchDistanceKm": 20
             }
             
             response = await client.post(
-                f"{API_BASE}/service-requests",
+                f"{API_BASE}/service-requests?provider_id={provider_id}",
                 headers=await get_auth_headers(customer_token),
                 json=request_data
             )
