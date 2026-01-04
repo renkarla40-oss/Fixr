@@ -121,12 +121,11 @@ async def test_post_payment_workflow():
                 "preferredDateTime": datetime.now().isoformat(),
                 "jobTown": "Port of Spain",
                 "searchDistanceKm": 20,
-                "jobDuration": "1-2 hours",
-                "provider_id": provider_id
+                "jobDuration": "1-2 hours"
             }
             
             response = await client.post(
-                f"{API_BASE}/service-requests",
+                f"{API_BASE}/service-requests?provider_id={provider_id}",
                 headers=await get_auth_headers(customer_token),
                 json=request_data
             )
