@@ -658,6 +658,8 @@ export default function ProviderRequestDetailScreen() {
     switch (status) {
       case 'accepted':
         return { bg: '#E8F5E9', text: '#2E7D32', icon: 'checkmark-circle', label: 'Accepted' };
+      case 'paid':
+        return { bg: '#E8F5E9', text: '#2E7D32', icon: 'card', label: 'Paid' };
       case 'in_progress':
       case 'started':
         return { bg: '#E3F2FD', text: '#1565C0', icon: 'play-circle', label: 'In Progress' };
