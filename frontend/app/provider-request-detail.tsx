@@ -455,6 +455,74 @@ export default function ProviderRequestDetailScreen() {
     );
   };
 
+  // Quote functions
+  const fetchQuote = async () => {
+    if (!request?._id) return;
+    try {
+      const response = await axios.get(
+        `${BACKEND_URL}/api/quotes/by-request/${request._id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.data.quote) {
+        setCurrentQuote(response.data.quote);
+      }
+    } catch (err) {
+      // No quote yet - that's fine
+    }
+  };
+
+  const handleSendQuote = async () => {
+    if (!request?._id || !quoteTitle.trim() || !quoteAmount) return;
+    
+    const amount = parseFloat(quoteAmount);
+    if (isNaN(amount) || amount <= 0) {
+      Alert.alert('Invalid Amount', 'Please enter a valid amount.');
+      return;
+    }
+    
+    setSendingQuote(true);
+    try {
+      // Create the quote
+      const createResponse = await axios.post(
+        `${BACKEND_URL}/api/quotes`,
+        {
+          requestId: request._id,
+          title: quoteTitle.trim(),
+          description: quoteDescription.trim(),
+          amount: amount,
+          currency: 'TTD',
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      const quoteId = createResponse.data.quote._id;
+      
+      // Send the quote
+      const sendResponse = await axios.post(
+        `${BACKEND_URL}/api/quotes/${quoteId}/send`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      setCurrentQuote(sendResponse.data.quote);
+      setShowQuoteModal(false);
+      setQuoteTitle('');
+      setQuoteDescription('');
+      setQuoteAmount('');
+      
+      // Refresh request and messages
+      fetchRequestDetail();
+      fetchMessagesQuietly();
+      
+      Alert.alert('Success', 'Quote sent to customer!');
+    } catch (err: any) {
+      const errorMsg = err.response?.data?.detail || 'Failed to send quote.';
+      Alert.alert('Error', errorMsg);
+    } finally {
+      setSendingQuote(false);
+    }
+  };
+
   const handleAccept = () => {
     Alert.alert(
       'Accept Request',
