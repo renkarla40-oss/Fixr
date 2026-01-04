@@ -969,6 +969,19 @@ export default function RequestDetailScreen() {
                   <Text style={styles.quoteCardAmountPaid}>${currentQuote.amount.toFixed(2)} {currentQuote.currency}</Text>
                 </View>
               )}
+              {/* Status Banners */}
+              {request.status === 'paid' && (
+                <View style={styles.statusBannerPaid}>
+                  <Ionicons name="time-outline" size={16} color="#2E7D32" />
+                  <Text style={styles.statusBannerPaidText}>Payment received! Waiting for provider to start.</Text>
+                </View>
+              )}
+              {(request.status === 'in_progress' || request.status === 'started') && (
+                <View style={styles.statusBannerInProgress}>
+                  <Ionicons name="construct" size={16} color="#1565C0" />
+                  <Text style={styles.statusBannerInProgressText}>Job in progress</Text>
+                </View>
+              )}
               <View style={styles.messageInputContainer}>
                 {/* Image upload button */}
                 <TouchableOpacity
