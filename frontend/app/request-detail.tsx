@@ -1361,11 +1361,17 @@ const styles = StyleSheet.create({
   imageBubble: {
     padding: 4,
   },
-  chatImage: {
+  imageContainer: {
     width: SCREEN_WIDTH * 0.55,
     height: SCREEN_WIDTH * 0.55,
     borderRadius: 12,
+    overflow: 'hidden',
     backgroundColor: '#E0E0E0',
+  },
+  chatImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 12,
   },
   imageOverlay: {
     position: 'absolute',
