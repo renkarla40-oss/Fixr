@@ -106,6 +106,10 @@ export default function RequestDetailScreen() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
   
+  // Quote state
+  const [currentQuote, setCurrentQuote] = useState<Quote | null>(null);
+  const [processingPayment, setProcessingPayment] = useState(false);
+  
   const scrollViewRef = useRef<ScrollView>(null);
   const inputRef = useRef<TextInput>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
