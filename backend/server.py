@@ -1513,9 +1513,10 @@ async def confirm_job_arrival(
     if not provider or str(provider["_id"]) != request.get("providerId"):
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    # Enforce valid status transition: can only start from accepted
-    if request.get("status") != "accepted":
-        raise HTTPException(status_code=400, detail="Job must be accepted before it can be started")
+    # Enforce valid status transition: can only start from accepted or paid
+    current_status = request.get("status")
+    if current_status not in ["accepted", "paid"]:
+        raise HTTPException(status_code=400, detail="Job must be accepted (or paid) before it can be started")
     
     # Check job code
     if request.get("jobCode") != confirm_data.jobCode:
