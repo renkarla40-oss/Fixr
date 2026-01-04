@@ -307,7 +307,47 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
+backend:
+  - task: "Post-payment workflow fix - confirm-arrival accepts 'paid' status"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Fixed POST /api/service-requests/{id}/confirm-arrival to allow starting job from both 'accepted' AND 'paid' status. Previously it only accepted 'accepted' status, which blocked the workflow after a customer paid for a quote."
+
 agent_communication:
+  - agent: "main"
+    message: |
+      CRITICAL FIX: Post-payment workflow restoration.
+      
+      **Problem:** After a customer paid for a quote, the request status changed to 'paid', but the provider could not start the job because the confirm-arrival endpoint only allowed status='accepted'.
+      
+      **Fixes Applied:**
+      1. Backend (server.py): Modified confirm-arrival endpoint to accept both 'accepted' and 'paid' statuses
+      2. Frontend (request-detail.tsx): Customer now sees job code when status is 'accepted' OR 'paid'
+      3. Frontend (provider-request-detail.tsx): Already had the fix to show "Start Job" for 'paid' status
+      4. Both files: Added 'paid' status to getStatusInfo() for proper badge display
+      
+      **Please test the following workflow:**
+      1. Login as provider (provider@test.com / password123)
+      2. Create a new service request as customer OR use existing accepted request
+      3. As provider: Send a quote
+      4. As customer: Accept & Pay (sandbox)
+      5. **VERIFY:** Customer sees "Paid" status badge and job code
+      6. **VERIFY:** Provider sees "Paid" status badge and "Start Job" button
+      7. As provider: Enter job code and click "Start Job"
+      8. **VERIFY:** Status changes to "In Progress" on both sides
+      9. As provider: Click "Finish Job" and enter completion OTP
+      10. **VERIFY:** Status changes to "Completed" on both sides
+      
+      Test credentials:
+      - Customer: customer@test.com / password123
+      - Provider: provider@test.com / password123
   - agent: "main"
     message: |
       Implemented Phase 3A: Provider Availability + Workload Control. Please test:
