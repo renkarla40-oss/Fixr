@@ -58,12 +58,29 @@ interface Message {
   senderId: string;
   senderName: string;
   senderRole: 'customer' | 'provider';
-  type?: 'text' | 'image';
+  type?: 'text' | 'image' | 'quote' | 'payment';
   text?: string;
   imageUrl?: string;
+  quoteId?: string;
   createdAt: string;
   deliveredAt?: string;
   readAt?: string;
+}
+
+interface Quote {
+  _id: string;
+  requestId: string;
+  customerId: string;
+  providerId: string;
+  title: string;
+  description: string;
+  amount: number;
+  currency: string;
+  status: 'DRAFT' | 'SENT' | 'ACCEPTED' | 'PAID' | 'VOID';
+  createdAt: string;
+  sentAt?: string;
+  acceptedAt?: string;
+  paidAt?: string;
 }
 
 type TabType = 'details' | 'chat';
@@ -89,6 +106,14 @@ export default function ProviderRequestDetailScreen() {
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
+
+  // Quote state
+  const [currentQuote, setCurrentQuote] = useState<Quote | null>(null);
+  const [showQuoteModal, setShowQuoteModal] = useState(false);
+  const [quoteTitle, setQuoteTitle] = useState('');
+  const [quoteDescription, setQuoteDescription] = useState('');
+  const [quoteAmount, setQuoteAmount] = useState('');
+  const [sendingQuote, setSendingQuote] = useState(false);
 
   // Job code entry
   const [jobCodeInput, setJobCodeInput] = useState('');
