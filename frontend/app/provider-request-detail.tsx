@@ -128,6 +128,7 @@ export default function ProviderRequestDetailScreen() {
   const inputRef = useRef<TextInput>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const unreadPollingRef = useRef<NodeJS.Timeout | null>(null);
+  const statusPollingRef = useRef<NodeJS.Timeout | null>(null);
 
   // Calculate bottom spacing to clear tab bar + system nav
   const bottomTabBarHeight = TAB_BAR_BASE_HEIGHT + insets.bottom + (Platform.OS === 'android' ? 20 : 8);
@@ -143,6 +144,33 @@ export default function ProviderRequestDetailScreen() {
       }
     }, [requestId, token])
   );
+
+  // CRITICAL: Continuous status polling - runs independently of tabs
+  // This ensures provider sees payment confirmation in real-time
+  useEffect(() => {
+    if (!requestId || !token) return;
+
+    const pollRequestStatus = async () => {
+      try {
+        const response = await axios.get(`${BACKEND_URL}/api/service-requests/${requestId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setRequest(response.data);
+      } catch (err) {
+        // Silent fail for polling
+      }
+    };
+
+    // Poll every 3 seconds for status updates
+    statusPollingRef.current = setInterval(pollRequestStatus, 3000);
+
+    return () => {
+      if (statusPollingRef.current) {
+        clearInterval(statusPollingRef.current);
+        statusPollingRef.current = null;
+      }
+    };
+  }, [requestId, token]);
 
   // Fetch messages when request loads and we're on chat tab
   useEffect(() => {
