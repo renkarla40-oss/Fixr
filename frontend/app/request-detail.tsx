@@ -781,12 +781,15 @@ export default function RequestDetailScreen() {
                   <View key={msg._id} style={[styles.messageBubble, isMine ? styles.messageBubbleMine : styles.messageBubbleTheirs, isImage && styles.imageBubble]}>
                     {!isMine && <Text style={styles.messageSender}>{msg.senderName}</Text>}
                     {isImage ? (
-                      <TouchableOpacity onPress={() => setFullScreenImage(imageUri)}>
+                      <TouchableOpacity 
+                        style={styles.imageContainer} 
+                        onPress={() => setFullScreenImage(imageUri)}
+                        activeOpacity={0.9}
+                      >
                         <Image
                           source={{ uri: imageUri }}
                           style={styles.chatImage}
                           resizeMode="cover"
-                          onError={(e) => console.log('Image load error:', e.nativeEvent.error, imageUri)}
                         />
                         <View style={styles.imageOverlay}>
                           <Ionicons name="expand-outline" size={20} color="rgba(255,255,255,0.8)" />
