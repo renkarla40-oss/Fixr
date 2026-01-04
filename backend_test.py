@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 # Backend URL from environment
-BACKEND_URL = "https://status-updater-3.preview.emergentagent.com/api"
+BACKEND_URL = "https://fixflow-project.preview.emergentagent.com/api"
 
 # Test credentials
 CUSTOMER_EMAIL = "customer@test.com"
