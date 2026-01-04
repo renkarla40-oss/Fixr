@@ -310,15 +310,18 @@ test_plan:
 backend:
   - task: "Post-payment workflow fix - confirm-arrival accepts 'paid' status"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Fixed POST /api/service-requests/{id}/confirm-arrival to allow starting job from both 'accepted' AND 'paid' status. Previously it only accepted 'accepted' status, which blocked the workflow after a customer paid for a quote."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Post-payment workflow fix working correctly. All 18 tests passed: (1) Provider and customer authentication successful, (2) Provider profile retrieval working, (3) Service request creation with provider assignment, (4) Provider accepts request generating job code, (5) Quote creation and sending workflow, (6) Customer accepts and pays quote (sandbox), (7) Request status correctly changes to 'paid', (8) 🔥 CRITICAL TEST PASSED: Provider can start job from 'paid' status using confirm-arrival endpoint, (9) Status transitions correctly to 'in_progress', (10) Job completion workflow working, (11) Final status 'completed', (12) Confirm-arrival still works from 'accepted' status (existing behavior preserved), (13) Confirm-arrival properly rejects invalid statuses. The fix allows providers to start jobs after customers have paid for quotes, resolving the critical workflow blocker."
 
 agent_communication:
   - agent: "main"
