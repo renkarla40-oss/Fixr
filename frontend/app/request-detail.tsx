@@ -751,17 +751,22 @@ export default function RequestDetailScreen() {
             >
               {messages.map((msg) => {
                 const isMine = msg.senderId === user?._id;
-                const isImage = msg.type === 'image' && msg.imageUrl;
+                const isImage = (msg.type === 'image' || msg.imageUrl) && msg.imageUrl;
+                const imageUri = isImage ? `${BACKEND_URL}${msg.imageUrl}` : '';
                 return (
                   <View key={msg._id} style={[styles.messageBubble, isMine ? styles.messageBubbleMine : styles.messageBubbleTheirs, isImage && styles.imageBubble]}>
                     {!isMine && <Text style={styles.messageSender}>{msg.senderName}</Text>}
                     {isImage ? (
-                      <TouchableOpacity onPress={() => setFullScreenImage(`${BACKEND_URL}${msg.imageUrl}`)}>
+                      <TouchableOpacity onPress={() => setFullScreenImage(imageUri)}>
                         <Image
-                          source={{ uri: `${BACKEND_URL}${msg.imageUrl}` }}
+                          source={{ uri: imageUri }}
                           style={styles.chatImage}
                           resizeMode="cover"
+                          onError={(e) => console.log('Image load error:', e.nativeEvent.error, imageUri)}
                         />
+                        <View style={styles.imageOverlay}>
+                          <Ionicons name="expand-outline" size={20} color="rgba(255,255,255,0.8)" />
+                        </View>
                       </TouchableOpacity>
                     ) : (
                       <Text style={[styles.messageText, isMine && styles.messageTextMine]}>{msg.text}</Text>
