@@ -380,7 +380,7 @@ async def test_confirm_arrival_from_accepted_status(results, customer_token, pro
             )
             
             if response.status_code == 200:
-                request_id = response.json()["id"]
+                request_id = response.json().get("id") or response.json().get("_id")
                 
                 # Provider accepts
                 response = await client.patch(
