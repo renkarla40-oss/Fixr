@@ -430,7 +430,7 @@ async def test_confirm_arrival_invalid_statuses(results, customer_token, provide
             )
             
             if response.status_code == 200:
-                request_id = response.json()["id"]
+                request_id = response.json().get("id") or response.json().get("_id")
                 
                 # Try to start job from 'pending' status (should fail)
                 response = await client.post(
