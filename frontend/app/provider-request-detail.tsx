@@ -1013,47 +1013,68 @@ export default function ProviderRequestDetailScreen() {
           )}
 
           {/* Message Input or Read-Only Banner */}
-          {request.status === 'completed' ? (
+          {request.status === 'completed' || request.status === 'paid' ? (
             <View style={[styles.chatClosedBanner, { paddingBottom: insets.bottom + 12 }]}>
               <Ionicons name="lock-closed" size={16} color="#666" />
-              <Text style={styles.chatClosedText}>Chat closed — job completed.</Text>
+              <Text style={styles.chatClosedText}>
+                {request.status === 'paid' ? 'Payment secured — ready to start!' : 'Chat closed — job completed.'}
+              </Text>
             </View>
           ) : (
-            <View style={[styles.messageInputContainer, { paddingBottom: insets.bottom + 12 }]}>
-              {/* Image upload button */}
-              <TouchableOpacity
-                style={styles.imagePickerButton}
-                onPress={showImageOptions}
-                disabled={uploadingImage}
-              >
-                {uploadingImage ? (
-                  <ActivityIndicator size="small" color="#E53935" />
-                ) : (
-                  <Ionicons name="camera" size={24} color="#E53935" />
-                )}
-              </TouchableOpacity>
-              <TextInput
-                ref={inputRef}
-                style={styles.messageInput}
-                placeholder="Type a message..."
-                placeholderTextColor="#999"
-                value={newMessage}
-                onChangeText={setNewMessage}
-                multiline
-                maxLength={1000}
-                returnKeyType="default"
-              />
-              <TouchableOpacity
-                style={[styles.sendButton, (!newMessage.trim() || sendingMessage) && styles.sendButtonDisabled]}
-                onPress={handleSendMessage}
-                disabled={!newMessage.trim() || sendingMessage}
-              >
-                {sendingMessage ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
-                ) : (
-                  <Ionicons name="send" size={20} color="#FFFFFF" />
-                )}
-              </TouchableOpacity>
+            <View style={{ paddingBottom: insets.bottom + 12 }}>
+              {/* Send Quote Button - only for accepted status before payment */}
+              {(request.status === 'accepted' || request.status === 'awaiting_payment') && (!currentQuote || currentQuote.status === 'VOID') && (
+                <TouchableOpacity
+                  style={styles.sendQuoteButton}
+                  onPress={() => setShowQuoteModal(true)}
+                >
+                  <Ionicons name="document-text" size={20} color="#FFFFFF" />
+                  <Text style={styles.sendQuoteButtonText}>Send Quote</Text>
+                </TouchableOpacity>
+              )}
+              {/* Quote Status Banner */}
+              {currentQuote && currentQuote.status === 'SENT' && (
+                <View style={styles.quotePendingBanner}>
+                  <Ionicons name="time-outline" size={16} color="#F57C00" />
+                  <Text style={styles.quotePendingText}>Quote sent • Waiting for customer to pay</Text>
+                </View>
+              )}
+              <View style={styles.messageInputContainer}>
+                {/* Image upload button */}
+                <TouchableOpacity
+                  style={styles.imagePickerButton}
+                  onPress={showImageOptions}
+                  disabled={uploadingImage}
+                >
+                  {uploadingImage ? (
+                    <ActivityIndicator size="small" color="#E53935" />
+                  ) : (
+                    <Ionicons name="camera" size={24} color="#E53935" />
+                  )}
+                </TouchableOpacity>
+                <TextInput
+                  ref={inputRef}
+                  style={styles.messageInput}
+                  placeholder="Type a message..."
+                  placeholderTextColor="#999"
+                  value={newMessage}
+                  onChangeText={setNewMessage}
+                  multiline
+                  maxLength={1000}
+                  returnKeyType="default"
+                />
+                <TouchableOpacity
+                  style={[styles.sendButton, (!newMessage.trim() || sendingMessage) && styles.sendButtonDisabled]}
+                  onPress={handleSendMessage}
+                  disabled={!newMessage.trim() || sendingMessage}
+                >
+                  {sendingMessage ? (
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  ) : (
+                    <Ionicons name="send" size={20} color="#FFFFFF" />
+                  )}
+                </TouchableOpacity>
+              </View>
             </View>
           )}
         </KeyboardAvoidingView>
