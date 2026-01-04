@@ -81,7 +81,8 @@ async def test_post_payment_workflow():
         print("\n📋 Step 1: Provider Authentication")
         try:
             provider_token, provider_user = await login_user(PROVIDER_EMAIL, PROVIDER_PASSWORD)
-            results.add_test("Provider Login", True, f"Provider ID: {provider_user['id']}")
+            provider_user_id = provider_user.get('id') or provider_user.get('_id')
+            results.add_test("Provider Login", True, f"Provider ID: {provider_user_id}")
         except Exception as e:
             results.add_test("Provider Login", False, str(e))
             return results
