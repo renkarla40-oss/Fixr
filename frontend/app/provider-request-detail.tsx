@@ -284,7 +284,7 @@ export default function ProviderRequestDetailScreen() {
       setMessages(prev => {
         // Different count = definitely update
         if (newMessages.length !== prev.length) {
-          setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
+          setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
           return newMessages;
         }
         
@@ -293,13 +293,13 @@ export default function ProviderRequestDetailScreen() {
           const lastNewId = newMessages[newMessages.length - 1]._id;
           const lastPrevId = prev[prev.length - 1]._id;
           if (lastNewId !== lastPrevId) {
-            setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
+            setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
             return newMessages;
           }
         }
         
         // Check for readAt updates only (for blue ticks) - update quietly without scroll
-        const hasReadAtChanges = newMessages.some((newMsg, idx) => {
+        const hasReadAtChanges = newMessages.some((newMsg: Message, idx: number) => {
           const prevMsg = prev[idx];
           return prevMsg && newMsg.readAt !== prevMsg.readAt;
         });
