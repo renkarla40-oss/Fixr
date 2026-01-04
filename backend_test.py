@@ -133,7 +133,7 @@ async def test_post_payment_workflow():
             
             if response.status_code == 200:
                 request_response = response.json()
-                request_id = request_response["id"]
+                request_id = request_response.get("id") or request_response.get("_id")
                 results.add_test("Create Service Request", True, f"Request ID: {request_id}")
             else:
                 results.add_test("Create Service Request", False, f"Status: {response.status_code} - {response.text}")
