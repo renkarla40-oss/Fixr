@@ -1707,6 +1707,53 @@ async def get_job_messages(
     
     return {"messages": messages}
 
+# Chat Image Upload Endpoint
+@api_router.post("/uploads/chat-image")
+async def upload_chat_image(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Upload an image for chat messages.
+    Returns the URL to access the uploaded image.
+    """
+    # Validate file type
+    allowed_types = ["image/jpeg", "image/png", "image/gif", "image/webp"]
+    if file.content_type not in allowed_types:
+        raise HTTPException(status_code=400, detail="Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.")
+    
+    # Generate unique filename
+    file_ext = file.filename.split(".")[-1] if "." in file.filename else "jpg"
+    unique_filename = f"{uuid.uuid4()}.{file_ext}"
+    file_path = UPLOADS_DIR / "chat_images" / unique_filename
+    
+    # Save file
+    try:
+        contents = await file.read()
+        # Limit file size to 10MB
+        if len(contents) > 10 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="File size exceeds 10MB limit.")
+        
+        with open(file_path, "wb") as f:
+            f.write(contents)
+        
+        # Return the URL to access the image
+        image_url = f"/api/uploads/chat_images/{unique_filename}"
+        return {"success": True, "imageUrl": image_url}
+    except Exception as e:
+        logger.error(f"Failed to save chat image: {e}")
+        raise HTTPException(status_code=500, detail="Failed to upload image")
+
+# Serve chat images
+@api_router.get("/uploads/chat_images/{filename}")
+async def get_chat_image(filename: str):
+    """Serve uploaded chat images."""
+    from fastapi.responses import FileResponse
+    file_path = UPLOADS_DIR / "chat_images" / filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Image not found")
+    return FileResponse(file_path)
+
 @api_router.post("/service-requests/{request_id}/messages")
 async def send_job_message(
     request_id: str,
@@ -1715,6 +1762,7 @@ async def send_job_message(
 ):
     """
     Send a message within a job. No phone numbers exposed.
+    Supports text and image messages.
     Framing: "Keep all job communication in one place"
     """
     request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
@@ -1733,6 +1781,11 @@ async def send_job_message(
     if not is_customer and not is_provider:
         raise HTTPException(status_code=403, detail="Not authorized")
     
+    # Determine message type
+    msg_type = message.get("type", "text")
+    if msg_type not in ["text", "image"]:
+        msg_type = "text"
+    
     # Create message with delivery tracking
     now = datetime.utcnow()
     msg_dict = {
@@ -1740,7 +1793,9 @@ async def send_job_message(
         "senderId": current_user.id,
         "senderName": current_user.name,
         "senderRole": "provider" if is_provider else "customer",
-        "text": message.get("text", "")[:1000],  # Limit message length
+        "type": msg_type,
+        "text": message.get("text", "")[:1000] if msg_type == "text" else message.get("text", ""),
+        "imageUrl": message.get("imageUrl") if msg_type == "image" else None,
         "createdAt": now,
         "deliveredAt": now,  # Set delivered immediately on save
         "readAt": None,  # Will be set when recipient opens Messages tab
@@ -1761,11 +1816,14 @@ async def send_job_message(
         if provider_doc:
             recipient_id = provider_doc["userId"]
     
+    # Notification body based on message type
+    notification_body = "📷 Sent an image" if msg_type == "image" else message.get("text", "")[:100]
+    
     if recipient_id:
         await send_push_notification(
             user_id=recipient_id,
             title=f"New message from {current_user.name}",
-            body=message.get("text", "")[:100],
+            body=notification_body,
             data={
                 "type": NotificationType.NEW_MESSAGE,
                 "requestId": request_id,
