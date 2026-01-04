@@ -363,7 +363,7 @@ export default function ProviderRequestDetailScreen() {
     
     setMessages(prev => [...prev, optimisticMessage]);
     setNewMessage('');
-    setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 50);
+    setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 50);
     
     setSendingMessage(true);
     try {
