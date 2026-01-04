@@ -867,10 +867,21 @@ export default function ProviderRequestDetailScreen() {
             >
               {messages.map((msg) => {
                 const isMine = msg.senderId === user?._id;
+                const isImage = msg.type === 'image' && msg.imageUrl;
                 return (
-                  <View key={msg._id} style={[styles.messageBubble, isMine ? styles.messageBubbleMine : styles.messageBubbleTheirs]}>
+                  <View key={msg._id} style={[styles.messageBubble, isMine ? styles.messageBubbleMine : styles.messageBubbleTheirs, isImage && styles.imageBubble]}>
                     {!isMine && <Text style={styles.messageSender}>{msg.senderName}</Text>}
-                    <Text style={[styles.messageText, isMine && styles.messageTextMine]}>{msg.text}</Text>
+                    {isImage ? (
+                      <TouchableOpacity onPress={() => setFullScreenImage(`${BACKEND_URL}${msg.imageUrl}`)}>
+                        <Image
+                          source={{ uri: `${BACKEND_URL}${msg.imageUrl}` }}
+                          style={styles.chatImage}
+                          resizeMode="cover"
+                        />
+                      </TouchableOpacity>
+                    ) : (
+                      <Text style={[styles.messageText, isMine && styles.messageTextMine]}>{msg.text}</Text>
+                    )}
                     <View style={styles.messageFooter}>
                       <Text style={[styles.messageTime, isMine && styles.messageTimeMine]}>{formatMessageTime(msg.createdAt)}</Text>
                       {/* Read indicators - only for messages I sent */}
@@ -909,6 +920,18 @@ export default function ProviderRequestDetailScreen() {
             </View>
           ) : (
             <View style={[styles.messageInputContainer, { paddingBottom: insets.bottom + 12 }]}>
+              {/* Image upload button */}
+              <TouchableOpacity
+                style={styles.imagePickerButton}
+                onPress={showImageOptions}
+                disabled={uploadingImage}
+              >
+                {uploadingImage ? (
+                  <ActivityIndicator size="small" color="#E53935" />
+                ) : (
+                  <Ionicons name="camera" size={24} color="#E53935" />
+                )}
+              </TouchableOpacity>
               <TextInput
                 ref={inputRef}
                 style={styles.messageInput}
