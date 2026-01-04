@@ -1923,6 +1923,230 @@ async def mark_messages_read(
         "readAt": now.isoformat()
     }
 
+# ============================================
+# QUOTE / INVOICE ENDPOINTS (Sandbox Payment)
+# ============================================
+
+class QuoteStatus:
+    DRAFT = "DRAFT"
+    SENT = "SENT"
+    ACCEPTED = "ACCEPTED"
+    PAID = "PAID"
+    VOID = "VOID"
+
+@api_router.post("/quotes")
+async def create_quote(
+    quote_data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """Provider creates a quote for a job."""
+    request_id = quote_data.get("requestId")
+    if not request_id:
+        raise HTTPException(status_code=400, detail="requestId is required")
+    
+    # Verify provider owns this request
+    request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    provider = await db.providers.find_one({"userId": current_user.id})
+    if not provider or str(provider["_id"]) != request.get("providerId"):
+        raise HTTPException(status_code=403, detail="Only the assigned provider can create quotes")
+    
+    now = datetime.utcnow()
+    quote = {
+        "requestId": request_id,
+        "customerId": request["customerId"],
+        "providerId": str(provider["_id"]),
+        "providerUserId": current_user.id,
+        "title": quote_data.get("title", "Service Quote"),
+        "description": quote_data.get("description", ""),
+        "amount": float(quote_data.get("amount", 0)),
+        "currency": quote_data.get("currency", "TTD"),
+        "status": QuoteStatus.DRAFT,
+        "createdAt": now,
+        "sentAt": None,
+        "acceptedAt": None,
+        "paidAt": None,
+    }
+    
+    result = await db.quotes.insert_one(quote)
+    quote["_id"] = str(result.inserted_id)
+    
+    return {"success": True, "quote": quote}
+
+@api_router.post("/quotes/{quote_id}/send")
+async def send_quote(
+    quote_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Provider sends the quote to customer. Changes status to SENT."""
+    quote = await db.quotes.find_one({"_id": ObjectId(quote_id)})
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    
+    # Verify sender is the provider
+    if quote.get("providerUserId") != current_user.id:
+        raise HTTPException(status_code=403, detail="Only the quote creator can send it")
+    
+    if quote["status"] not in [QuoteStatus.DRAFT, QuoteStatus.SENT]:
+        raise HTTPException(status_code=400, detail=f"Cannot send quote with status {quote['status']}")
+    
+    now = datetime.utcnow()
+    await db.quotes.update_one(
+        {"_id": ObjectId(quote_id)},
+        {"$set": {"status": QuoteStatus.SENT, "sentAt": now}}
+    )
+    
+    # Update request status to AWAITING_PAYMENT
+    await db.service_requests.update_one(
+        {"_id": ObjectId(quote["requestId"])},
+        {"$set": {"status": "awaiting_payment", "updatedAt": now}}
+    )
+    
+    # Send a system message in chat about the quote
+    request = await db.service_requests.find_one({"_id": ObjectId(quote["requestId"])})
+    provider = await db.providers.find_one({"_id": ObjectId(quote["providerId"])})
+    provider_name = "Provider"
+    if provider:
+        provider_user = await db.users.find_one({"_id": ObjectId(provider["userId"])})
+        if provider_user:
+            provider_name = provider_user.get("name", "Provider")
+    
+    quote_message = {
+        "requestId": quote["requestId"],
+        "senderId": current_user.id,
+        "senderName": provider_name,
+        "senderRole": "provider",
+        "type": "quote",
+        "text": f"Quote sent: {quote['title']} - ${quote['amount']:.2f} {quote['currency']}",
+        "quoteId": quote_id,
+        "createdAt": now,
+        "deliveredAt": now,
+        "readAt": None,
+    }
+    await db.job_messages.insert_one(quote_message)
+    
+    updated_quote = await db.quotes.find_one({"_id": ObjectId(quote_id)})
+    updated_quote["_id"] = str(updated_quote["_id"])
+    
+    return {"success": True, "quote": updated_quote}
+
+@api_router.get("/quotes/by-request/{request_id}")
+async def get_quote_by_request(
+    request_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get the latest quote for a request."""
+    # Verify user is part of this request
+    request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    is_customer = request["customerId"] == current_user.id
+    provider = await db.providers.find_one({"userId": current_user.id})
+    is_provider = provider and str(provider["_id"]) == request.get("providerId")
+    
+    if not is_customer and not is_provider:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Get the latest quote for this request
+    quote = await db.quotes.find_one(
+        {"requestId": request_id},
+        sort=[("createdAt", -1)]
+    )
+    
+    if quote:
+        quote["_id"] = str(quote["_id"])
+    
+    return {"quote": quote}
+
+@api_router.post("/quotes/{quote_id}/accept")
+async def accept_quote(
+    quote_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Customer accepts the quote."""
+    quote = await db.quotes.find_one({"_id": ObjectId(quote_id)})
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    
+    # Verify accepter is the customer
+    if quote.get("customerId") != current_user.id:
+        raise HTTPException(status_code=403, detail="Only the customer can accept quotes")
+    
+    if quote["status"] != QuoteStatus.SENT:
+        raise HTTPException(status_code=400, detail=f"Cannot accept quote with status {quote['status']}")
+    
+    now = datetime.utcnow()
+    await db.quotes.update_one(
+        {"_id": ObjectId(quote_id)},
+        {"$set": {"status": QuoteStatus.ACCEPTED, "acceptedAt": now}}
+    )
+    
+    updated_quote = await db.quotes.find_one({"_id": ObjectId(quote_id)})
+    updated_quote["_id"] = str(updated_quote["_id"])
+    
+    return {"success": True, "quote": updated_quote}
+
+@api_router.post("/quotes/{quote_id}/sandbox-pay")
+async def sandbox_pay_quote(
+    quote_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Customer completes sandbox payment. Sets quote to PAID and job to PAID/READY_TO_START."""
+    quote = await db.quotes.find_one({"_id": ObjectId(quote_id)})
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    
+    # Verify payer is the customer
+    if quote.get("customerId") != current_user.id:
+        raise HTTPException(status_code=403, detail="Only the customer can pay quotes")
+    
+    if quote["status"] not in [QuoteStatus.SENT, QuoteStatus.ACCEPTED]:
+        raise HTTPException(status_code=400, detail=f"Cannot pay quote with status {quote['status']}")
+    
+    now = datetime.utcnow()
+    
+    # Update quote to PAID
+    await db.quotes.update_one(
+        {"_id": ObjectId(quote_id)},
+        {"$set": {
+            "status": QuoteStatus.PAID, 
+            "paidAt": now,
+            "acceptedAt": quote.get("acceptedAt") or now
+        }}
+    )
+    
+    # Update request/job status to PAID (ready to start)
+    await db.service_requests.update_one(
+        {"_id": ObjectId(quote["requestId"])},
+        {"$set": {"status": "paid", "updatedAt": now, "paidAt": now}}
+    )
+    
+    # Send a system message in chat about payment
+    customer = await db.users.find_one({"_id": ObjectId(current_user.id)})
+    customer_name = customer.get("name", "Customer") if customer else "Customer"
+    
+    payment_message = {
+        "requestId": quote["requestId"],
+        "senderId": current_user.id,
+        "senderName": customer_name,
+        "senderRole": "customer",
+        "type": "payment",
+        "text": f"Payment confirmed: ${quote['amount']:.2f} {quote['currency']} (Sandbox)",
+        "quoteId": quote_id,
+        "createdAt": now,
+        "deliveredAt": now,
+        "readAt": None,
+    }
+    await db.job_messages.insert_one(payment_message)
+    
+    updated_quote = await db.quotes.find_one({"_id": ObjectId(quote_id)})
+    updated_quote["_id"] = str(updated_quote["_id"])
+    
+    return {"success": True, "quote": updated_quote, "message": "Payment confirmed (sandbox)"}
+
 # Service Request Routes
 @api_router.post("/service-requests", response_model=ServiceRequestResponse)
 async def create_service_request(
