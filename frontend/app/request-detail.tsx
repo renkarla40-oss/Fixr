@@ -493,11 +493,79 @@ export default function RequestDetailScreen() {
     );
   };
 
+  // Quote functions for customer
+  const fetchQuote = async () => {
+    if (!request?._id) return;
+    try {
+      const response = await axios.get(
+        `${BACKEND_URL}/api/quotes/by-request/${request._id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.data.quote) {
+        setCurrentQuote(response.data.quote);
+      }
+    } catch (err) {
+      // No quote yet - that's fine
+    }
+  };
+
+  const handleAcceptAndPay = async () => {
+    if (!currentQuote) return;
+    
+    Alert.alert(
+      'Confirm Payment',
+      `Pay $${currentQuote.amount.toFixed(2)} ${currentQuote.currency} for "${currentQuote.title}"?\n\n(Sandbox - No real charge)`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Pay Now', 
+          onPress: processPayment,
+          style: 'default'
+        },
+      ]
+    );
+  };
+
+  const processPayment = async () => {
+    if (!currentQuote) return;
+    
+    setProcessingPayment(true);
+    try {
+      // Accept the quote first
+      await axios.post(
+        `${BACKEND_URL}/api/quotes/${currentQuote._id}/accept`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      // Then process sandbox payment
+      const payResponse = await axios.post(
+        `${BACKEND_URL}/api/quotes/${currentQuote._id}/sandbox-pay`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      setCurrentQuote(payResponse.data.quote);
+      
+      // Refresh request and messages
+      fetchRequestDetail();
+      fetchMessagesQuietly();
+      
+      Alert.alert('Payment Successful', 'Your payment has been confirmed (sandbox). The provider can now start the job!');
+    } catch (err: any) {
+      const errorMsg = err.response?.data?.detail || 'Payment failed. Please try again.';
+      Alert.alert('Error', errorMsg);
+    } finally {
+      setProcessingPayment(false);
+    }
+  };
+
   const onRefresh = () => {
     setRefreshing(true);
     fetchRequestDetail();
     if (activeTab === 'chat') {
       fetchMessages();
+      fetchQuote();
     }
   };
 
