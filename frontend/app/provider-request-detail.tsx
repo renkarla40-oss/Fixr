@@ -12,16 +12,21 @@ import {
   Platform,
   RefreshControl,
   Keyboard,
+  Image,
+  Modal,
+  Dimensions,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import { getServiceLabel } from '../constants/serviceCategories';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 // Tab bar height constant - must match the provider _layout.tsx
 const TAB_BAR_BASE_HEIGHT = 60;
