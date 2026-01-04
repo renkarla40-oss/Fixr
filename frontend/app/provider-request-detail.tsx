@@ -1082,11 +1082,39 @@ export default function ProviderRequestDetailScreen() {
                   <Text style={styles.quotePendingText}>Quote sent • Waiting for customer to pay</Text>
                 </View>
               )}
-              {/* Payment Confirmed Banner */}
+              {/* Payment Confirmed - Inline Job Code Entry */}
               {request.status === 'paid' && (
-                <View style={styles.paymentConfirmedBanner}>
-                  <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
-                  <Text style={styles.paymentConfirmedText}>Payment secured! Enter job code to start.</Text>
+                <View style={styles.paidJobCodeSection}>
+                  <View style={styles.paidJobCodeHeader}>
+                    <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                    <Text style={styles.paidJobCodeTitle}>Payment Secured!</Text>
+                  </View>
+                  <Text style={styles.paidJobCodeHint}>Ask the customer for the 6-digit code to start</Text>
+                  <View style={styles.paidJobCodeInputRow}>
+                    <TextInput
+                      style={styles.paidJobCodeInput}
+                      placeholder="000000"
+                      placeholderTextColor="#A5D6A7"
+                      value={jobCodeInput}
+                      onChangeText={setJobCodeInput}
+                      keyboardType="number-pad"
+                      maxLength={6}
+                    />
+                    <TouchableOpacity
+                      style={[styles.paidStartJobButton, (!jobCodeInput.trim() || confirmingArrival) && styles.paidStartJobButtonDisabled]}
+                      onPress={handleConfirmArrival}
+                      disabled={!jobCodeInput.trim() || confirmingArrival}
+                    >
+                      {confirmingArrival ? (
+                        <ActivityIndicator size="small" color="#FFFFFF" />
+                      ) : (
+                        <>
+                          <Ionicons name="play" size={18} color="#FFFFFF" />
+                          <Text style={styles.paidStartJobButtonText}>Start Job</Text>
+                        </>
+                      )}
+                    </TouchableOpacity>
+                  </View>
                 </View>
               )}
               <View style={styles.messageInputContainer}>
