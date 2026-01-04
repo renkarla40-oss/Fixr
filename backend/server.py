@@ -26,6 +26,7 @@ UPLOADS_DIR = ROOT_DIR / 'uploads'
 UPLOADS_DIR.mkdir(exist_ok=True)
 (UPLOADS_DIR / 'profile_photos').mkdir(exist_ok=True)
 (UPLOADS_DIR / 'government_ids').mkdir(exist_ok=True)
+(UPLOADS_DIR / 'chat_images').mkdir(exist_ok=True)
 
 # Setup logging
 logging.basicConfig(
