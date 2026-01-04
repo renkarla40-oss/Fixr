@@ -280,6 +280,7 @@ export default function ProviderRequestDetailScreen() {
       senderId: user?._id || '',
       senderName: user?.name || 'You',
       senderRole: 'provider',
+      type: 'text',
       text: messageText,
       createdAt: new Date().toISOString(),
     };
@@ -292,7 +293,7 @@ export default function ProviderRequestDetailScreen() {
     try {
       await axios.post(
         `${BACKEND_URL}/api/service-requests/${request._id}/messages`,
-        { text: messageText },
+        { type: 'text', text: messageText },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       // Refetch to get server-confirmed message (replaces optimistic one)
@@ -313,6 +314,120 @@ export default function ProviderRequestDetailScreen() {
     } finally {
       setSendingMessage(false);
     }
+  };
+
+  // Image picker and upload for provider
+  const handlePickImage = async () => {
+    if (request?.status === 'completed') {
+      Alert.alert('Chat Closed', 'Chat is read-only after job completion.');
+      return;
+    }
+
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissionResult.granted) {
+      Alert.alert('Permission Required', 'Please allow access to your photo library.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.8,
+      base64: false,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      uploadAndSendImage(result.assets[0].uri);
+    }
+  };
+
+  const handleTakePhoto = async () => {
+    if (request?.status === 'completed') {
+      Alert.alert('Chat Closed', 'Chat is read-only after job completion.');
+      return;
+    }
+
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permissionResult.granted) {
+      Alert.alert('Permission Required', 'Please allow access to your camera.');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      quality: 0.8,
+      base64: false,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      uploadAndSendImage(result.assets[0].uri);
+    }
+  };
+
+  const uploadAndSendImage = async (imageUri: string) => {
+    if (!request?._id) return;
+    
+    setUploadingImage(true);
+    try {
+      const formData = new FormData();
+      const filename = imageUri.split('/').pop() || 'photo.jpg';
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : 'image/jpeg';
+      
+      formData.append('file', {
+        uri: imageUri,
+        name: filename,
+        type,
+      } as any);
+
+      const uploadResponse = await axios.post(
+        `${BACKEND_URL}/api/uploads/chat-image`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      const imageUrl = uploadResponse.data.imageUrl;
+
+      await axios.post(
+        `${BACKEND_URL}/api/service-requests/${request._id}/messages`,
+        { type: 'image', imageUrl },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      fetchMessagesQuietly();
+      setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
+    } catch (err: any) {
+      console.log('Image upload error:', err);
+      if (err.response?.status === 403) {
+        Alert.alert('Chat Closed', 'Chat is read-only after job completion.');
+      } else {
+        Alert.alert('Error', 'Failed to upload image. Please try again.');
+      }
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const showImageOptions = () => {
+    if (request?.status === 'completed') {
+      Alert.alert('Chat Closed', 'Chat is read-only after job completion.');
+      return;
+    }
+    
+    Alert.alert(
+      'Send Photo',
+      'Choose an option',
+      [
+        { text: 'Take Photo', onPress: handleTakePhoto },
+        { text: 'Choose from Library', onPress: handlePickImage },
+        { text: 'Cancel', style: 'cancel' },
+      ]
+    );
   };
 
   const handleAccept = () => {
