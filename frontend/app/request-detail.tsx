@@ -86,6 +86,8 @@ export default function RequestDetailScreen() {
   const [sendingMessage, setSendingMessage] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
   
   const scrollViewRef = useRef<ScrollView>(null);
   const inputRef = useRef<TextInput>(null);
