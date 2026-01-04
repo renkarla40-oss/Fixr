@@ -743,14 +743,18 @@ export default function RequestDetailScreen() {
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         >
-          {/* JOB CODE CARD - Compact, subtle light blue */}
-          {request.status === 'accepted' && request.jobCode && (
+          {/* JOB CODE CARD - Compact, subtle light blue - show for accepted or paid status */}
+          {(request.status === 'accepted' || request.status === 'paid') && request.jobCode && (
             <View style={styles.jobCodeCard}>
               <Text style={styles.jobCodeLabel}>Job Code</Text>
               <Text style={styles.jobCodeValue}>
                 {request.jobCode.slice(0, 3)} {request.jobCode.slice(3)}
               </Text>
-              <Text style={styles.jobCodeHint}>Share this code when the provider arrives</Text>
+              <Text style={styles.jobCodeHint}>
+                {request.status === 'paid' 
+                  ? 'Payment received! Share this code when provider arrives' 
+                  : 'Share this code when the provider arrives'}
+              </Text>
             </View>
           )}
 
