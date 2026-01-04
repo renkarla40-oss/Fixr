@@ -59,12 +59,29 @@ interface Message {
   senderId: string;
   senderName: string;
   senderRole: 'customer' | 'provider';
-  type?: 'text' | 'image';
+  type?: 'text' | 'image' | 'quote' | 'payment';
   text?: string;
   imageUrl?: string;
+  quoteId?: string;
   createdAt: string;
   deliveredAt?: string;
   readAt?: string;
+}
+
+interface Quote {
+  _id: string;
+  requestId: string;
+  customerId: string;
+  providerId: string;
+  title: string;
+  description: string;
+  amount: number;
+  currency: string;
+  status: 'DRAFT' | 'SENT' | 'ACCEPTED' | 'PAID' | 'VOID';
+  createdAt: string;
+  sentAt?: string;
+  acceptedAt?: string;
+  paidAt?: string;
 }
 
 type TabType = 'details' | 'chat';
