@@ -994,8 +994,21 @@ export default function ProviderRequestDetailScreen() {
             >
               {messages.map((msg) => {
                 const isMine = msg.senderId === user?._id;
+                const isSystem = msg.type === 'system' || msg.senderRole === 'system';
                 const isImage = (msg.type === 'image' || msg.imageUrl) && msg.imageUrl;
                 const imageUri = isImage ? `${BACKEND_URL}${msg.imageUrl}` : '';
+                
+                // Render system messages with special centered styling
+                if (isSystem) {
+                  return (
+                    <View key={msg._id} style={styles.systemMessageContainer}>
+                      <View style={styles.systemMessageBubble}>
+                        <Text style={styles.systemMessageText}>{msg.text}</Text>
+                      </View>
+                    </View>
+                  );
+                }
+                
                 return (
                   <View key={msg._id} style={[styles.messageBubble, isMine ? styles.messageBubbleMine : styles.messageBubbleTheirs, isImage && styles.imageBubble]}>
                     {!isMine && <Text style={styles.messageSender}>{msg.senderName}</Text>}
