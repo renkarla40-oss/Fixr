@@ -1739,6 +1739,26 @@ const styles = StyleSheet.create({
   secondTick: {
     marginLeft: -8,
   },
+  // System message styles - centered completion notice
+  systemMessageContainer: {
+    alignItems: 'center',
+    marginVertical: 16,
+    paddingHorizontal: 20,
+  },
+  systemMessageBubble: {
+    backgroundColor: '#F0F4F8',
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderWidth: 1,
+    borderColor: '#E0E7EF',
+  },
+  systemMessageText: {
+    fontSize: 14,
+    color: '#5A6978',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
   chatClosedBanner: {
     flexDirection: 'row',
     alignItems: 'center',
