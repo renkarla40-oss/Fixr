@@ -209,16 +209,35 @@ export default function RequestDetailScreen() {
     }
   };
 
-  const fetchMessages = async () => {
+  const fetchMessages = async (showLoading = true) => {
     if (!request?._id) return;
     
-    setLoadingMessages(true);
+    // Only show loading on first fetch, not on subsequent polls
+    if (showLoading && messages.length === 0) {
+      setLoadingMessages(true);
+    }
     try {
       const response = await axios.get(`${BACKEND_URL}/api/service-requests/${request._id}/messages`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setMessages(response.data.messages || []);
-      setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
+      const newMessages: Message[] = response.data.messages || [];
+      
+      // Only update state if there's an actual change in message count or IDs
+      setMessages(prev => {
+        // If count changed, definitely update
+        if (newMessages.length !== prev.length) {
+          setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
+          return newMessages;
+        }
+        // If count is same, check if any message IDs changed (new messages replacing old)
+        const prevIds = prev.map(m => m._id).join(',');
+        const newIds = newMessages.map(m => m._id).join(',');
+        if (prevIds !== newIds) {
+          return newMessages;
+        }
+        // Same messages - don't update state to prevent re-render
+        return prev;
+      });
     } catch (err) {
       console.log('Messages fetch error');
     } finally {
@@ -226,7 +245,7 @@ export default function RequestDetailScreen() {
     }
   };
 
-  // Quiet fetch for polling - no loading state, merge by ID to prevent duplicates
+  // Quiet fetch for polling - no loading state, only updates on real changes
   const fetchMessagesQuietly = async () => {
     if (!request?._id) return;
     
@@ -234,17 +253,22 @@ export default function RequestDetailScreen() {
       const response = await axios.get(`${BACKEND_URL}/api/service-requests/${request._id}/messages`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const newMessages = response.data.messages || [];
+      const newMessages: Message[] = response.data.messages || [];
       
-      // Only update if there are new messages (compare by length and last message ID)
+      // Only update if message count changed (new message arrived)
+      // Don't update just because readAt changed - that causes unnecessary re-renders
       setMessages(prev => {
-        if (newMessages.length !== prev.length || 
-            (newMessages.length > 0 && prev.length > 0 && 
-             newMessages[newMessages.length - 1]._id !== prev[prev.length - 1]._id)) {
-          // Scroll to end when new messages arrive
+        if (newMessages.length !== prev.length) {
+          // New message arrived - update and scroll
           setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
           return newMessages;
         }
+        // Check if last message ID changed (edge case: message was deleted/replaced)
+        if (newMessages.length > 0 && prev.length > 0 && 
+            newMessages[newMessages.length - 1]._id !== prev[prev.length - 1]._id) {
+          return newMessages;
+        }
+        // No structural change - keep current state
         return prev;
       });
     } catch (err) {
