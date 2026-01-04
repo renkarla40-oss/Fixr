@@ -920,16 +920,14 @@ export default function RequestDetailScreen() {
           )}
 
           {/* Message Input or Read-Only Banner */}
-          {request.status === 'completed' || request.status === 'paid' ? (
+          {request.status === 'completed' ? (
             <View style={[styles.chatClosedBanner, { paddingBottom: insets.bottom + 12 }]}>
               <Ionicons name="lock-closed" size={16} color="#666" />
-              <Text style={styles.chatClosedText}>
-                {request.status === 'paid' ? 'Payment confirmed — provider will start soon!' : 'Chat closed — job completed.'}
-              </Text>
+              <Text style={styles.chatClosedText}>Chat closed — job completed.</Text>
             </View>
           ) : (
             <View style={{ paddingBottom: insets.bottom + 12 }}>
-              {/* Quote Card - Show when there's a quote */}
+              {/* Quote Card - Show when there's a quote pending */}
               {currentQuote && currentQuote.status === 'SENT' && (
                 <View style={styles.quoteCard}>
                   <View style={styles.quoteCardHeader}>
