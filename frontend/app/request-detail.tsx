@@ -12,16 +12,21 @@ import {
   Alert,
   RefreshControl,
   Keyboard,
+  Image,
+  Modal,
+  Dimensions,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import { getServiceLabel } from '../constants/serviceCategories';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 // Tab bar height constant - must match the customer _layout.tsx
 const TAB_BAR_BASE_HEIGHT = 60;
@@ -54,7 +59,9 @@ interface Message {
   senderId: string;
   senderName: string;
   senderRole: 'customer' | 'provider';
-  text: string;
+  type?: 'text' | 'image';
+  text?: string;
+  imageUrl?: string;
   createdAt: string;
   deliveredAt?: string;
   readAt?: string;
