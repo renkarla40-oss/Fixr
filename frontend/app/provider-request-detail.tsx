@@ -262,7 +262,7 @@ export default function ProviderRequestDetailScreen() {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMessages(response.data.messages || []);
-      setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
+      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
     } catch (err) {
       console.log('Messages fetch error');
     } finally {
@@ -476,7 +476,7 @@ export default function ProviderRequestDetailScreen() {
       );
 
       fetchMessagesQuietly();
-      setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
+      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
     } catch (err: any) {
       console.log('Image upload error:', err);
       if (err.response?.status === 403) {
