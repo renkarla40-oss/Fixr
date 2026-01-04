@@ -91,7 +91,8 @@ async def test_post_payment_workflow():
         print("\n📋 Step 2: Customer Authentication")
         try:
             customer_token, customer_user = await login_user(CUSTOMER_EMAIL, CUSTOMER_PASSWORD)
-            results.add_test("Customer Login", True, f"Customer ID: {customer_user['id']}")
+            customer_user_id = customer_user.get('id') or customer_user.get('_id')
+            results.add_test("Customer Login", True, f"Customer ID: {customer_user_id}")
         except Exception as e:
             results.add_test("Customer Login", False, str(e))
             return results
