@@ -2231,6 +2231,7 @@ async def create_service_request(
                 "isGeneralRequest": False,
                 "subCategory": request_data.subCategory,
                 "location": request_data.location,
+                "jobTown": request_data.jobTown,
                 "createdAt": datetime.utcnow(),
             }
         
