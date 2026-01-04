@@ -1592,6 +1592,28 @@ async def complete_service_request(
         }}
     )
     
+    # Add system completion message to chat (only once)
+    # Check if completion message already exists to prevent duplicates
+    existing_completion_msg = await db.job_messages.find_one({
+        "requestId": request_id,
+        "type": "system",
+        "text": {"$regex": "job is now complete"}
+    })
+    
+    if not existing_completion_msg:
+        completion_message = {
+            "requestId": request_id,
+            "senderId": "system",
+            "senderName": "System",
+            "senderRole": "system",
+            "type": "system",
+            "text": "✅ This job is now complete. Chat is now closed.",
+            "createdAt": datetime.utcnow(),
+            "deliveredAt": datetime.utcnow(),
+            "readAt": datetime.utcnow(),  # System messages are always "read"
+        }
+        await db.job_messages.insert_one(completion_message)
+    
     # Update provider's completed jobs count
     await db.providers.update_one(
         {"_id": provider["_id"]},
