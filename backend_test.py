@@ -106,7 +106,7 @@ async def test_post_payment_workflow():
             )
             if response.status_code == 200:
                 provider_profile = response.json()
-                provider_id = provider_profile["id"]
+                provider_id = provider_profile.get("id") or provider_profile.get("_id")
                 results.add_test("Get Provider Profile", True, f"Provider ID: {provider_id}")
             else:
                 results.add_test("Get Provider Profile", False, f"Status: {response.status_code}")
