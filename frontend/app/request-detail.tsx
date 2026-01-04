@@ -163,6 +163,7 @@ export default function RequestDetailScreen() {
       // Mark messages as read when opening chat tab
       setHasUnreadMessages(false);
       fetchMessages();
+      fetchQuote(); // Fetch latest quote for customer
       // Mark messages as read on server, then refresh to get updated readAt
       markMessagesAsRead().then(() => {
         // Refresh messages to show updated read status (blue ticks)
@@ -172,6 +173,7 @@ export default function RequestDetailScreen() {
       // Start polling every 2 seconds when chat is active
       pollingIntervalRef.current = setInterval(() => {
         fetchMessagesQuietly();
+        fetchQuote(); // Poll for quote updates too
       }, 2000);
     } else if (activeTab === 'details' && request) {
       // Poll for unread messages while on details tab
