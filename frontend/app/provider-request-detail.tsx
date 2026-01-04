@@ -58,7 +58,9 @@ interface Message {
   senderId: string;
   senderName: string;
   senderRole: 'customer' | 'provider';
-  text: string;
+  type?: 'text' | 'image';
+  text?: string;
+  imageUrl?: string;
   createdAt: string;
   deliveredAt?: string;
   readAt?: string;
@@ -85,6 +87,8 @@ export default function ProviderRequestDetailScreen() {
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
 
   // Job code entry
   const [jobCodeInput, setJobCodeInput] = useState('');
