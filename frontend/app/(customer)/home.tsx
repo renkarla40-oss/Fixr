@@ -77,22 +77,25 @@ const pricingInsights = [
   },
 ];
 
-// Inspiration Content - non-interactive display only
+// Inspiration Content - each links to inspiration detail page
 const inspirationContent = [
   {
     id: '1',
     title: '10 Ways to Improve Your Home',
     image: 'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=400',
+    topic: 'home-improvement',
   },
   {
     id: '2',
     title: 'Energy Saving Tips',
     image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',
+    topic: 'energy-saving',
   },
   {
     id: '3',
     title: 'Outdoor Living Ideas',
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400',
+    topic: 'outdoor-living',
   },
 ];
 
