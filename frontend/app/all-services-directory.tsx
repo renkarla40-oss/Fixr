@@ -18,13 +18,12 @@ import {
 } from '../constants/serviceCategories';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const COLUMN_COUNT = 3;
-const COLUMN_WIDTH = (SCREEN_WIDTH - 48) / COLUMN_COUNT; // 16px padding each side + 8px gaps
+const COLUMN_COUNT = 2; // 2 columns for better mobile readability
 
 // Get all displayable categories
 const allCategories = getDisplayableCategories();
 
-// Split categories into 3 columns for balanced display
+// Split categories into 2 columns for balanced display
 const splitIntoColumns = (categories: ServiceCategory[], columns: number): ServiceCategory[][] => {
   const result: ServiceCategory[][] = Array.from({ length: columns }, () => []);
   
