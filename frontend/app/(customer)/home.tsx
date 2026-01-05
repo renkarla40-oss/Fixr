@@ -8,7 +8,6 @@ import {
   SafeAreaView,
   Image,
   Dimensions,
-  TextInput,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -26,7 +25,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 // Get all displayable categories (excludes 'coming_soon')
 const categories = getDisplayableCategories();
 
-// Popular Projects Data
+// Popular Projects Data - each links to a specific category
 const popularProjects = [
   {
     id: '1',
@@ -58,7 +57,27 @@ const popularProjects = [
   },
 ];
 
-// Inspiration Content
+// Pricing Insights - each links to relevant service category
+const pricingInsights = [
+  {
+    id: '1',
+    title: 'Plumbing Services',
+    subtitle: 'Average cost in Trinidad',
+    price: '$150 - $500',
+    icon: 'water-outline',
+    category: 'plumbing',
+  },
+  {
+    id: '2',
+    title: 'Electrical Work',
+    subtitle: 'Most common repairs',
+    price: '$100 - $400',
+    icon: 'flash-outline',
+    category: 'electrical',
+  },
+];
+
+// Inspiration Content - non-interactive display only
 const inspirationContent = [
   {
     id: '1',
@@ -77,24 +96,6 @@ const inspirationContent = [
   },
 ];
 
-// Pricing Insights
-const pricingInsights = [
-  {
-    id: '1',
-    title: 'Plumbing Services',
-    subtitle: 'Average cost in Trinidad',
-    price: '$150 - $500',
-    icon: 'water-outline',
-  },
-  {
-    id: '2',
-    title: 'Electrical Work',
-    subtitle: 'Most common repairs',
-    price: '$100 - $400',
-    icon: 'flash-outline',
-  },
-];
-
 export default function CustomerHomeScreen() {
   const router = useRouter();
   const { user, shouldShowBetaNotice, markBetaNoticeSeen } = useAuth();
@@ -103,8 +104,8 @@ export default function CustomerHomeScreen() {
     await markBetaNoticeSeen();
   };
 
+  // Navigate to a specific category
   const handleCategoryPress = (category: ServiceCategory) => {
-    // 'Other Services' goes directly to custom request form (no provider search)
     if (category.serviceKey === 'other') {
       router.push({
         pathname: '/request-service',
@@ -118,14 +119,12 @@ export default function CustomerHomeScreen() {
       return;
     }
 
-    // Categories with subcategories go to subcategory selection
     if (requiresSubcategorySelection(category.serviceKey)) {
       router.push({
         pathname: '/subcategory-screen',
         params: { serviceKey: category.serviceKey },
       });
     } else {
-      // Categories without subcategories go directly to location
       router.push({
         pathname: '/service-location',
         params: {
@@ -136,27 +135,40 @@ export default function CustomerHomeScreen() {
     }
   };
 
+  // Navigate to category by serviceKey string
+  const navigateToCategory = (serviceKey: string) => {
+    const category = categories.find(c => c.serviceKey === serviceKey);
+    if (category) {
+      handleCategoryPress(category);
+    }
+  };
+
+  // Search bar - acts as "Service Finder", scrolls to All Services section
   const handleSearchPress = () => {
-    // Navigate to first category or search - maintaining existing flow
+    // Route to a general category selection - electrical is most common
     router.push({
       pathname: '/subcategory-screen',
       params: { serviceKey: 'electrical' },
     });
   };
 
+  // Popular Projects - navigate to related service category
   const handleProjectPress = (project: typeof popularProjects[0]) => {
-    const category = categories.find(c => c.serviceKey === project.category);
-    if (category) {
-      handleCategoryPress(category);
-    }
+    navigateToCategory(project.category);
   };
 
-  const handleGetPricesPress = () => {
-    // Navigate to first category - maintaining existing flow
+  // Get Free Quotes CTA - navigate to category selection (first category)
+  const handleGetQuotesPress = () => {
+    // Navigate to electrical as it's the first and most common
     router.push({
       pathname: '/subcategory-screen',
-      params: { serviceKey: 'plumbing' },
+      params: { serviceKey: 'electrical' },
     });
+  };
+
+  // Pricing Guide cards - navigate to relevant service category
+  const handlePricingPress = (insight: typeof pricingInsights[0]) => {
+    navigateToCategory(insight.category);
   };
 
   return (
@@ -177,21 +189,22 @@ export default function CustomerHomeScreen() {
             colors={['#FFF5F5', '#FFFFFF']}
             style={styles.heroGradient}
           >
-            <Text style={styles.greeting}>Hello, {user?.name?.split(' ')[0] || 'there'}!</Text>
             <Text style={styles.heroTitle}>What do you need{'\n'}help with today?</Text>
             
+            {/* Search Bar - Acts as Service Finder */}
             <TouchableOpacity 
               style={styles.searchBar}
               onPress={handleSearchPress}
               activeOpacity={0.9}
             >
               <Ionicons name="search-outline" size={20} color="#999" />
-              <Text style={styles.searchPlaceholder}>Search for a service...</Text>
+              <Text style={styles.searchPlaceholder}>Browse services by category</Text>
+              <Ionicons name="chevron-forward" size={18} color="#CCC" />
             </TouchableOpacity>
           </LinearGradient>
         </View>
 
-        {/* ===== BROWSE BY CATEGORY ===== */}
+        {/* ===== BROWSE BY CATEGORY (Horizontal) ===== */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Browse by Category</Text>
           <ScrollView 
@@ -260,13 +273,10 @@ export default function CustomerHomeScreen() {
           </View>
         </View>
 
-        {/* ===== POPULAR PROJECTS CAROUSEL ===== */}
+        {/* ===== POPULAR PROJECTS CAROUSEL (All Tappable) ===== */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Popular Projects</Text>
-            <TouchableOpacity>
-              <Text style={styles.seeAllText}>See all</Text>
-            </TouchableOpacity>
+            <Text style={styles.sectionTitleInline}>Popular Projects</Text>
           </View>
           <ScrollView 
             horizontal 
@@ -294,6 +304,10 @@ export default function CustomerHomeScreen() {
                   <Text style={styles.projectTitle}>{project.title}</Text>
                   <Text style={styles.projectPrice}>{project.price}</Text>
                 </LinearGradient>
+                {/* Tap indicator */}
+                <View style={styles.projectTapHint}>
+                  <Ionicons name="arrow-forward-circle" size={24} color="rgba(255,255,255,0.9)" />
+                </View>
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -313,44 +327,49 @@ export default function CustomerHomeScreen() {
             </View>
             <TouchableOpacity 
               style={styles.ctaButton}
-              onPress={handleGetPricesPress}
+              onPress={handleGetQuotesPress}
               activeOpacity={0.8}
             >
               <LinearGradient
                 colors={['#E53935', '#C62828']}
                 style={styles.ctaButtonGradient}
               >
-                <Text style={styles.ctaButtonText}>Get Free Quotes</Text>
+                <Text style={styles.ctaButtonText}>Browse Services</Text>
                 <Ionicons name="arrow-forward" size={18} color="#FFF" />
               </LinearGradient>
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* ===== PRICING INSIGHTS ===== */}
+        {/* ===== PRICING GUIDE (All Tappable) ===== */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Pricing Guide</Text>
           <View style={styles.pricingGrid}>
             {pricingInsights.map((insight) => (
-              <View key={insight.id} style={styles.pricingCard}>
+              <TouchableOpacity 
+                key={insight.id} 
+                style={styles.pricingCard}
+                onPress={() => handlePricingPress(insight)}
+                activeOpacity={0.7}
+              >
                 <View style={styles.pricingIconContainer}>
                   <Ionicons name={insight.icon as any} size={24} color="#E53935" />
                 </View>
                 <Text style={styles.pricingTitle}>{insight.title}</Text>
                 <Text style={styles.pricingSubtitle}>{insight.subtitle}</Text>
                 <Text style={styles.pricingValue}>{insight.price}</Text>
-              </View>
+                <View style={styles.pricingTapHint}>
+                  <Text style={styles.pricingTapText}>View services →</Text>
+                </View>
+              </TouchableOpacity>
             ))}
           </View>
         </View>
 
-        {/* ===== INSPIRATION SECTION ===== */}
+        {/* ===== INSPIRATION SECTION (Visual Only - Not Interactive) ===== */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Home Inspiration</Text>
-            <TouchableOpacity>
-              <Text style={styles.seeAllText}>Explore</Text>
-            </TouchableOpacity>
+            <Text style={styles.sectionTitleInline}>Home Inspiration</Text>
           </View>
           <ScrollView 
             horizontal 
@@ -358,10 +377,9 @@ export default function CustomerHomeScreen() {
             contentContainerStyle={styles.carouselContent}
           >
             {inspirationContent.map((item) => (
-              <TouchableOpacity
+              <View
                 key={item.id}
                 style={styles.inspirationCard}
-                activeOpacity={0.9}
               >
                 <Image
                   source={{ uri: item.image }}
@@ -371,9 +389,10 @@ export default function CustomerHomeScreen() {
                 <View style={styles.inspirationOverlay}>
                   <Text style={styles.inspirationTitle}>{item.title}</Text>
                 </View>
-              </TouchableOpacity>
+              </View>
             ))}
           </ScrollView>
+          <Text style={styles.inspirationNote}>Tips & ideas for your next project</Text>
         </View>
 
         {/* Bottom Spacing */}
@@ -401,13 +420,8 @@ const styles = StyleSheet.create({
   },
   heroGradient: {
     paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingTop: 20,
     paddingBottom: 24,
-  },
-  greeting: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 4,
   },
   heroTitle: {
     fontSize: 28,
@@ -431,8 +445,9 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   searchPlaceholder: {
+    flex: 1,
     fontSize: 16,
-    color: '#999',
+    color: '#666',
   },
 
   // ===== SECTIONS =====
@@ -453,10 +468,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 16,
   },
-  seeAllText: {
-    fontSize: 14,
-    color: '#E53935',
-    fontWeight: '600',
+  sectionTitleInline: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1A1A1A',
   },
 
   // ===== CATEGORY CHIPS (Horizontal) =====
@@ -556,7 +571,7 @@ const styles = StyleSheet.create({
     color: '#4A7DC4',
   },
 
-  // ===== PROJECT CARDS (Carousel) =====
+  // ===== PROJECT CARDS (Carousel - All Tappable) =====
   carouselContent: {
     paddingHorizontal: 16,
     gap: 16,
@@ -590,6 +605,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255,255,255,0.9)',
     fontWeight: '500',
+  },
+  projectTapHint: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
   },
 
   // ===== CTA CARD =====
@@ -649,7 +669,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
 
-  // ===== PRICING CARDS =====
+  // ===== PRICING CARDS (All Tappable) =====
   pricingGrid: {
     flexDirection: 'row',
     paddingHorizontal: 16,
@@ -690,15 +710,27 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: '#E53935',
+    marginBottom: 8,
+  },
+  pricingTapHint: {
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+    paddingTop: 8,
+  },
+  pricingTapText: {
+    fontSize: 12,
+    color: '#E53935',
+    fontWeight: '600',
   },
 
-  // ===== INSPIRATION CARDS =====
+  // ===== INSPIRATION CARDS (Visual Only - No Tap) =====
   inspirationCard: {
     width: SCREEN_WIDTH * 0.6,
     height: 140,
     borderRadius: 16,
     overflow: 'hidden',
     backgroundColor: '#E0E0E0',
+    // No shadow = visually passive
   },
   inspirationImage: {
     width: '100%',
@@ -716,5 +748,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#FFFFFF',
+  },
+  inspirationNote: {
+    fontSize: 12,
+    color: '#999',
+    textAlign: 'center',
+    marginTop: 12,
+    fontStyle: 'italic',
   },
 });
