@@ -146,13 +146,9 @@ export default function CustomerHomeScreen() {
     }
   };
 
-  // Search bar - acts as "Service Finder", scrolls to All Services section
+  // Search bar - opens All Services Directory
   const handleSearchPress = () => {
-    // Route to a general category selection - electrical is most common
-    router.push({
-      pathname: '/subcategory-screen',
-      params: { serviceKey: 'electrical' },
-    });
+    router.push('/all-services-directory');
   };
 
   // Popular Projects - navigate to related service category
@@ -160,13 +156,9 @@ export default function CustomerHomeScreen() {
     navigateToCategory(project.category);
   };
 
-  // Get Free Quotes CTA - navigate to category selection (first category)
+  // Browse Services CTA - opens All Services Directory
   const handleGetQuotesPress = () => {
-    // Navigate to electrical as it's the first and most common
-    router.push({
-      pathname: '/subcategory-screen',
-      params: { serviceKey: 'electrical' },
-    });
+    router.push('/all-services-directory');
   };
 
   // Pricing Guide cards - navigate to relevant service category
