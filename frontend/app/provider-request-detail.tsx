@@ -262,7 +262,7 @@ export default function ProviderRequestDetailScreen() {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMessages(response.data.messages || []);
-      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+      
     } catch (err) {
       console.log('Messages fetch error');
     } finally {
@@ -284,7 +284,7 @@ export default function ProviderRequestDetailScreen() {
       setMessages(prev => {
         // Different count = definitely update
         if (newMessages.length !== prev.length) {
-          setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+          
           return newMessages;
         }
         
@@ -293,7 +293,7 @@ export default function ProviderRequestDetailScreen() {
           const lastNewId = newMessages[newMessages.length - 1]._id;
           const lastPrevId = prev[prev.length - 1]._id;
           if (lastNewId !== lastPrevId) {
-            setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+            
             return newMessages;
           }
         }
@@ -363,7 +363,7 @@ export default function ProviderRequestDetailScreen() {
     
     setMessages(prev => [...prev, optimisticMessage]);
     setNewMessage('');
-    setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 50);
+    
     
     setSendingMessage(true);
     try {
@@ -476,7 +476,7 @@ export default function ProviderRequestDetailScreen() {
       );
 
       fetchMessagesQuietly();
-      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+      
     } catch (err: any) {
       console.log('Image upload error:', err);
       if (err.response?.status === 403) {
@@ -1014,7 +1014,7 @@ export default function ProviderRequestDetailScreen() {
               contentContainerStyle={styles.messagesContent}
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
-              onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
+              
               initialNumToRender={20}
               maxToRenderPerBatch={10}
               windowSize={10}
