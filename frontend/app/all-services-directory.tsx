@@ -141,7 +141,7 @@ export default function AllServicesDirectoryScreen() {
         </Text>
       </View>
 
-      {/* 3-Column Directory */}
+      {/* 2-Column Directory */}
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[
