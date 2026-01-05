@@ -39,7 +39,7 @@ const popularProjects = [
     title: 'Cleaning',
     price: 'From $150',
     image: 'https://customer-assets.emergentagent.com/job_02b87b3e-0772-4b24-8d3f-89ddeca1c0b1/artifacts/yp24dhlb_pexels-karola-g-4239031-cleaning.jpg',
-    category: 'home_cleaning',
+    category: 'cleaning',
   },
   {
     id: '3',
@@ -53,7 +53,7 @@ const popularProjects = [
     title: 'AC Installation',
     price: 'From $1,200',
     image: 'https://customer-assets.emergentagent.com/job_02b87b3e-0772-4b24-8d3f-89ddeca1c0b1/artifacts/qi80xi8p_pexels-jose-andres-pacheco-cortes-3641213-5463576.jpg',
-    category: 'hvac',
+    category: 'ac_hvac',
   },
 ];
 
