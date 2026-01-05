@@ -249,18 +249,17 @@ export default function MyRequestsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F8F9FA',
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F8F9FA',
   },
   header: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    backgroundColor: '#F8F9FA',
   },
   title: {
     fontSize: 28,
@@ -302,10 +301,13 @@ const styles = StyleSheet.create({
   },
   requestCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 16,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
   },
   requestHeader: {
     flexDirection: 'row',
@@ -316,7 +318,7 @@ const styles = StyleSheet.create({
   categoryContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
   },
   categoryText: {
     fontSize: 14,
@@ -326,7 +328,7 @@ const styles = StyleSheet.create({
   statusBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: 8,
   },
   statusText: {
     fontSize: 12,
@@ -336,7 +338,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#E53935',
     fontWeight: '500',
-    marginBottom: 4,
+    marginBottom: 8,
   },
   providerName: {
     fontSize: 18,
@@ -348,13 +350,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     lineHeight: 20,
-    marginBottom: 12,
+    marginBottom: 16,
   },
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginBottom: 12,
+    gap: 8,
+    marginBottom: 16,
   },
   locationText: {
     fontSize: 13,
@@ -369,7 +371,7 @@ const styles = StyleSheet.create({
   dateContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
   },
   dateText: {
     fontSize: 12,
