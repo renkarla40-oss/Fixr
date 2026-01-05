@@ -174,6 +174,14 @@ export default function CustomerHomeScreen() {
     navigateToCategory(insight.category);
   };
 
+  // Inspiration cards - navigate to inspiration detail page
+  const handleInspirationPress = (item: typeof inspirationContent[0]) => {
+    router.push({
+      pathname: '/inspiration-detail',
+      params: { topic: item.topic },
+    });
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <BetaNoticeModal 
