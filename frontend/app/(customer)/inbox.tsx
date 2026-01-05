@@ -218,13 +218,12 @@ export default function CustomerInboxScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F8F9FA',
   },
   header: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    backgroundColor: '#F8F9FA',
   },
   title: {
     fontSize: 28,
@@ -256,12 +255,21 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingVertical: 8,
+    paddingHorizontal: 16,
+    gap: 8,
   },
   conversationItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
   },
   avatar: {
     width: 50,
@@ -270,7 +278,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 16,
   },
   conversationContent: {
     flex: 1,
@@ -279,7 +287,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   providerName: {
     fontSize: 16,
@@ -295,7 +303,7 @@ const styles = StyleSheet.create({
   serviceName: {
     fontSize: 13,
     color: '#E53935',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   lastMessage: {
     fontSize: 14,
@@ -315,8 +323,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   separator: {
-    height: 1,
-    backgroundColor: '#F0F0F0',
-    marginLeft: 78,
+    height: 0,
   },
 });
