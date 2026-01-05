@@ -377,7 +377,7 @@ export default function CustomerHomeScreen() {
           </View>
         </View>
 
-        {/* ===== INSPIRATION SECTION (Visual Only - Not Interactive) ===== */}
+        {/* ===== INSPIRATION SECTION (All Tappable) ===== */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitleInline}>Home Inspiration</Text>
@@ -388,9 +388,11 @@ export default function CustomerHomeScreen() {
             contentContainerStyle={styles.carouselContent}
           >
             {inspirationContent.map((item) => (
-              <View
+              <TouchableOpacity
                 key={item.id}
                 style={styles.inspirationCard}
+                onPress={() => handleInspirationPress(item)}
+                activeOpacity={0.9}
               >
                 <Image
                   source={{ uri: item.image }}
@@ -400,10 +402,13 @@ export default function CustomerHomeScreen() {
                 <View style={styles.inspirationOverlay}>
                   <Text style={styles.inspirationTitle}>{item.title}</Text>
                 </View>
-              </View>
+                {/* Tap indicator */}
+                <View style={styles.inspirationTapHint}>
+                  <Ionicons name="book-outline" size={18} color="rgba(255,255,255,0.9)" />
+                </View>
+              </TouchableOpacity>
             ))}
           </ScrollView>
-          <Text style={styles.inspirationNote}>Tips & ideas for your next project</Text>
         </View>
 
         {/* Bottom Spacing */}
