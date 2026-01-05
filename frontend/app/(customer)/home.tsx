@@ -739,14 +739,18 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  // ===== INSPIRATION CARDS (Visual Only - No Tap) =====
+  // ===== INSPIRATION CARDS (All Tappable) =====
   inspirationCard: {
     width: SCREEN_WIDTH * 0.6,
     height: 140,
     borderRadius: 16,
     overflow: 'hidden',
     backgroundColor: '#E0E0E0',
-    // No shadow = visually passive
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
   },
   inspirationImage: {
     width: '100%',
@@ -758,18 +762,16 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 12,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   inspirationTitle: {
     fontSize: 14,
     fontWeight: '600',
     color: '#FFFFFF',
   },
-  inspirationNote: {
-    fontSize: 12,
-    color: '#999',
-    textAlign: 'center',
-    marginTop: 12,
-    fontStyle: 'italic',
+  inspirationTapHint: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
   },
 });
