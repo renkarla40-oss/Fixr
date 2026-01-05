@@ -125,7 +125,7 @@ export default function ProviderRequestDetailScreen() {
   const [showCompletionOtpInput, setShowCompletionOtpInput] = useState(false);
   const [completingJob, setCompletingJob] = useState(false);
 
-  const flatListRef = useRef<FlatList>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
   const inputRef = useRef<TextInput>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const unreadPollingRef = useRef<NodeJS.Timeout | null>(null);
