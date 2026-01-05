@@ -992,20 +992,14 @@ export default function ProviderRequestDetailScreen() {
               <Text style={styles.emptyChatText}>Keep all job communication in one place</Text>
             </View>
           ) : (
-            <FlatList
-              ref={flatListRef}
-              data={messages}
-              keyExtractor={(item) => item._id}
+            <ScrollView
+              ref={scrollViewRef}
               style={styles.messagesContainer}
               contentContainerStyle={styles.messagesContent}
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
-              
-              initialNumToRender={20}
-              maxToRenderPerBatch={10}
-              windowSize={10}
-              removeClippedSubviews={false}
-              renderItem={({ item: msg }) => {
+            >
+              {messages.map((msg) => {
                 const isMine = msg.senderId === user?._id;
                 const isSystem = msg.type === 'system' || msg.senderRole === 'system';
                 const isImage = (msg.type === 'image' || msg.imageUrl) && msg.imageUrl;
@@ -1014,7 +1008,7 @@ export default function ProviderRequestDetailScreen() {
                 // Render system messages with special centered styling
                 if (isSystem) {
                   return (
-                    <View style={styles.systemMessageContainer}>
+                    <View key={msg._id} style={styles.systemMessageContainer}>
                       <View style={styles.systemMessageBubble}>
                         <Text style={styles.systemMessageText}>{msg.text}</Text>
                       </View>
@@ -1023,18 +1017,15 @@ export default function ProviderRequestDetailScreen() {
                 }
                 
                 return (
-                  <View style={[styles.messageBubble, isMine ? styles.messageBubbleMine : styles.messageBubbleTheirs, isImage && styles.imageBubble]}>
+                  <View key={msg._id} style={[styles.messageBubble, isMine ? styles.messageBubbleMine : styles.messageBubbleTheirs, isImage && styles.imageBubble]}>
                     {!isMine && <Text style={styles.messageSender}>{msg.senderName}</Text>}
                     {isImage ? (
                       <TouchableOpacity onPress={() => setFullScreenImage(imageUri)}>
-                        <View style={styles.chatImageContainer}>
-                          <Image
-                            source={{ uri: imageUri }}
-                            style={styles.chatImage}
-                            resizeMode="cover"
-                            onError={(e) => console.log('Image load error:', e.nativeEvent.error, imageUri)}
-                          />
-                        </View>
+                        <Image
+                          source={{ uri: imageUri }}
+                          style={styles.chatImage}
+                          resizeMode="cover"
+                        />
                         <View style={styles.imageOverlay}>
                           <Ionicons name="expand-outline" size={20} color="rgba(255,255,255,0.8)" />
                         </View>
@@ -1068,8 +1059,8 @@ export default function ProviderRequestDetailScreen() {
                     </View>
                   </View>
                 );
-              }}
-            />
+              })}
+            </ScrollView>
           )}
 
           {/* Message Input or Read-Only Banner */}
