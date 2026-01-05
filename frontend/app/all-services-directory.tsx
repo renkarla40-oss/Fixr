@@ -72,7 +72,7 @@ export default function AllServicesDirectoryScreen() {
       <View style={styles.categoryHeader}>
         <Ionicons
           name={category.icon as any}
-          size={14}
+          size={16}
           color="#E53935"
           style={styles.categoryIcon}
         />
