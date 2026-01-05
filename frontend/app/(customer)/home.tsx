@@ -719,13 +719,13 @@ const styles = StyleSheet.create({
   },
   pricingSubtitle: {
     fontSize: 12,
-    color: '#999',
+    color: '#666',
     marginBottom: 8,
   },
   pricingValue: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#E53935',
+    color: '#333',
     marginBottom: 8,
   },
   pricingTapHint: {
