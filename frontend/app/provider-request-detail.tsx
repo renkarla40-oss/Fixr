@@ -270,7 +270,8 @@ export default function ProviderRequestDetailScreen() {
     }
   };
 
-  // Quiet fetch for polling - no loading state, merge by ID to prevent duplicates
+  // Quiet fetch for polling - no loading state, only updates on real changes
+  // MATCHES CUSTOMER CHAT EXACTLY
   const fetchMessagesQuietly = async () => {
     if (!request?._id) return;
     
@@ -278,37 +279,22 @@ export default function ProviderRequestDetailScreen() {
       const response = await axios.get(`${BACKEND_URL}/api/service-requests/${request._id}/messages`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const newMessages = response.data.messages || [];
+      const newMessages: Message[] = response.data.messages || [];
       
-      // Only update if there are actual content changes (not just readAt updates)
+      // Only update if message count changed (new message arrived)
+      // Don't update just because readAt changed - that causes unnecessary re-renders
       setMessages(prev => {
-        // Different count = definitely update
         if (newMessages.length !== prev.length) {
-          
+          // New message arrived - update and scroll
+          setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
           return newMessages;
         }
-        
-        // Same count - check if last message IDs match
-        if (newMessages.length > 0 && prev.length > 0) {
-          const lastNewId = newMessages[newMessages.length - 1]._id;
-          const lastPrevId = prev[prev.length - 1]._id;
-          if (lastNewId !== lastPrevId) {
-            
-            return newMessages;
-          }
-        }
-        
-        // Check for readAt updates only (for blue ticks) - update quietly without scroll
-        const hasReadAtChanges = newMessages.some((newMsg: Message, idx: number) => {
-          const prevMsg = prev[idx];
-          return prevMsg && newMsg.readAt !== prevMsg.readAt;
-        });
-        
-        if (hasReadAtChanges) {
+        // Check if last message ID changed (edge case: message was deleted/replaced)
+        if (newMessages.length > 0 && prev.length > 0 && 
+            newMessages[newMessages.length - 1]._id !== prev[prev.length - 1]._id) {
           return newMessages;
         }
-        
-        // No changes - keep previous array reference to prevent re-render
+        // No structural change - keep current state
         return prev;
       });
     } catch (err) {
