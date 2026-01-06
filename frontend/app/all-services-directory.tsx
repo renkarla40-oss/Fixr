@@ -213,16 +213,16 @@ const styles = StyleSheet.create({
   },
   columnsContainer: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 14, // Horizontal gutter between columns: 12-16px
   },
   column: {
     flex: 1,
-    gap: 16,
+    gap: 18, // Vertical spacing between category cards: 16-20px
   },
   categoryBlock: {
     backgroundColor: '#FFFFFF',
     borderRadius: 14,
-    padding: 16,
+    padding: 16, // Category card internal padding: 16px all sides
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
   categoryHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 14,
+    marginBottom: 12, // Space between category title and first subcategory: 12px
     paddingBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
