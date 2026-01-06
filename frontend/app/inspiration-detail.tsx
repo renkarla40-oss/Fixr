@@ -115,6 +115,7 @@ const inspirationData: Record<string, {
         title: 'Wash in Cold Water',
         description: '90% of washing machine energy goes to heating water. Cold water cleans just as well.',
         image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/lec98ke3_Cold%20water%20washing.jpg',
+        useContain: true, // Show full washing machine without cropping
       },
       {
         title: 'Service Appliances Regularly',
