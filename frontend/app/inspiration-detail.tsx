@@ -126,6 +126,7 @@ const inspirationData: Record<string, {
         title: 'Use Ceiling Fans with AC',
         description: 'Fans circulate cool air, letting you raise the AC temperature while staying comfortable.',
         image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/7cu5g2hc_Use%20of%20ceiling%20fans%20%26%20AC.jpg',
+        useContain: true, // Show full ceiling fan without cropping
       },
     ],
   },
