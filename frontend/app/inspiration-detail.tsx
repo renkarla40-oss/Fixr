@@ -27,27 +27,29 @@ const inspirationData: Record<string, {
     headerImage: 'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800',
     items: [
       {
-        title: '1. Fresh Paint',
-        description: 'A new coat of paint can transform any room. Stick to neutral tones for timeless appeal.',
-        image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=400',
+        title: '1. Freshen Up With Paint',
+        description: 'A new coat of paint is one of the fastest ways to refresh any room. Neutral and light tones help spaces feel cooler and more spacious.',
+        image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/vaaae1jy_Fresh%20paint.jpg',
       },
       {
-        title: '2. Update Light Fixtures',
-        description: 'Swap outdated fixtures for modern designs. Good lighting changes the entire mood.',
-        image: 'https://images.unsplash.com/photo-1524484485831-a92ffc0de03f?w=400',
+        title: '2. Upgrade Light Fixtures',
+        description: 'Modern light fixtures instantly update the look of a home. Energy-efficient lighting also helps reduce electricity costs.',
+        image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/f3wbozyk_Lighting%20%26%20fixtures.jpg',
       },
       {
         title: '3. Install Ceiling Fans',
-        description: 'Perfect for Trinidad\'s climate. Reduces AC costs and improves air circulation.',
+        description: 'Ceiling fans improve airflow and reduce the need for constant air-conditioning, making them ideal for Trinidad\'s climate.',
+        image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/64wt73u3_Ceiling%20fan.jpg',
       },
       {
         title: '4. Refresh Cabinet Hardware',
-        description: 'New handles and knobs in kitchens and bathrooms give a quick, affordable facelift.',
+        description: 'Replacing old handles and knobs can make kitchens and bathrooms look new without major renovations.',
+        image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/n4wapf6c_cabinet%20hardware.jpg',
       },
       {
         title: '5. Add Indoor Plants',
-        description: 'Bring life to your space. Snake plants and pothos thrive in our tropical climate.',
-        image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400',
+        description: 'Indoor plants improve air quality and bring life into your home. Low-maintenance plants thrive well in tropical environments.',
+        image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/lhzvcn76_indoor%20plants.jpg',
       },
       {
         title: '6. Upgrade Faucets',
