@@ -163,15 +163,17 @@ const inspirationData: Record<string, {
       {
         title: 'Install a Hammock',
         description: 'The ultimate tropical relaxation spot. Choose a shaded corner between two sturdy trees or posts.',
+        image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/wr3f5z1t_Outdoor%20Hammock.jpg',
       },
       {
         title: 'Set Up an Outdoor Kitchen',
         description: 'A simple grill station with prep space makes entertaining easy and keeps cooking heat outside.',
-        image: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=400',
+        image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/4fk6wsu5_Outdoor%20Kitchen.png',
       },
       {
         title: 'Add Water Features',
         description: 'A small fountain or water feature creates ambiance and masks neighborhood noise.',
+        image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/oyr3uc0k_Water%20feature.jpg',
       },
     ],
   },
