@@ -259,10 +259,10 @@ const styles = StyleSheet.create({
     color: '#4A7DC4',
   },
   subcategoriesList: {
-    gap: 4,
+    gap: 0, // Using paddingVertical on items for 12px total spacing between rows
   },
   subcategoryItem: {
-    paddingVertical: 6,
+    paddingVertical: 6, // 6px top + 6px bottom = 12px between rows
   },
   subcategoryText: {
     fontSize: 13,
@@ -270,8 +270,8 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   moreLink: {
-    paddingVertical: 6,
-    marginTop: 4,
+    paddingVertical: 6, // Consistent with subcategory items
+    marginTop: 0,
   },
   moreLinkText: {
     fontSize: 13,
