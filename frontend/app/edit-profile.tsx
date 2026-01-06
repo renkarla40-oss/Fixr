@@ -11,10 +11,12 @@ import {
   Platform,
   Alert,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
+import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../contexts/AuthContext';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
@@ -25,6 +27,81 @@ export default function EditProfileScreen() {
   const [name, setName] = useState(user?.name || '');
   const [phone, setPhone] = useState(user?.phone || '');
   const [loading, setLoading] = useState(false);
+  const [photoLoading, setPhotoLoading] = useState(false);
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(
+    (user as any)?.profilePhotoUrl || null
+  );
+
+  const handlePickImage = async () => {
+    try {
+      // Request permission
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permission Required',
+          'Please allow access to your photo library to upload a profile photo.'
+        );
+        return;
+      }
+
+      // Launch image picker
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.7,
+        base64: true,
+      });
+
+      if (result.canceled || !result.assets || !result.assets[0]) {
+        return;
+      }
+
+      const asset = result.assets[0];
+      
+      if (!asset.base64) {
+        Alert.alert('Error', 'Failed to process the image. Please try again.');
+        return;
+      }
+
+      // Check file size (base64 is ~33% larger than binary)
+      const estimatedSize = asset.base64.length * 0.75;
+      if (estimatedSize > 5 * 1024 * 1024) {
+        Alert.alert('Image Too Large', 'Please select an image smaller than 5MB.');
+        return;
+      }
+
+      // Upload the image
+      setPhotoLoading(true);
+      
+      // Determine mime type from URI
+      const mimeType = asset.uri.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+      const imageData = `data:${mimeType};base64,${asset.base64}`;
+
+      const response = await axios.post(
+        `${BACKEND_URL}/api/users/upload-profile-photo`,
+        { imageData },
+        {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.data.success) {
+        setProfilePhotoUrl(response.data.profilePhotoUrl);
+        await refreshUser();
+        Alert.alert('Success', 'Profile photo updated!');
+      }
+    } catch (error: any) {
+      console.error('Error uploading photo:', error);
+      const message = error.response?.data?.detail || 'Failed to upload photo. Please try again.';
+      Alert.alert('Upload Failed', message);
+    } finally {
+      setPhotoLoading(false);
+    }
+  };
 
   const handleSave = async () => {
     if (!name.trim()) {
@@ -66,6 +143,15 @@ export default function EditProfileScreen() {
     }
   };
 
+  // Build full photo URL
+  const getPhotoUrl = () => {
+    if (!profilePhotoUrl) return null;
+    if (profilePhotoUrl.startsWith('http')) return profilePhotoUrl;
+    return `${BACKEND_URL}${profilePhotoUrl}`;
+  };
+
+  const photoUrl = getPhotoUrl();
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
@@ -96,9 +182,36 @@ export default function EditProfileScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.avatarSection}>
-            <View style={styles.avatarContainer}>
-              <Ionicons name="person" size={48} color="#666" />
-            </View>
+            <TouchableOpacity 
+              onPress={handlePickImage}
+              disabled={photoLoading}
+              activeOpacity={0.7}
+            >
+              <View style={styles.avatarContainer}>
+                {photoLoading ? (
+                  <ActivityIndicator size="large" color="#E53935" />
+                ) : photoUrl ? (
+                  <Image 
+                    source={{ uri: photoUrl }} 
+                    style={styles.avatarImage}
+                  />
+                ) : (
+                  <Ionicons name="person" size={48} color="#666" />
+                )}
+                <View style={styles.cameraIconContainer}>
+                  <Ionicons name="camera" size={16} color="#FFFFFF" />
+                </View>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={handlePickImage}
+              disabled={photoLoading}
+              style={styles.changePhotoButton}
+            >
+              <Text style={styles.changePhotoText}>
+                {photoLoading ? 'Uploading...' : 'Change Photo'}
+              </Text>
+            </TouchableOpacity>
           </View>
 
           <View style={styles.form}>
@@ -210,6 +323,35 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  cameraIconContainer: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#E53935',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+  },
+  changePhotoButton: {
+    marginTop: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  changePhotoText: {
+    fontSize: 15,
+    color: '#E53935',
+    fontWeight: '600',
   },
   form: {
     gap: 20,
