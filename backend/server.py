@@ -550,7 +550,117 @@ async def update_user_profile(
     
     return updated_user
 
-@api_router.post("/users/provider-setup", response_model=User)
+# Customer Profile Photo Upload Model
+class CustomerPhotoUploadRequest(BaseModel):
+    imageData: str  # Base64 encoded image data
+
+# Create customer profile photos directory
+(UPLOADS_DIR / 'customer_photos').mkdir(exist_ok=True)
+
+@api_router.post("/users/upload-profile-photo")
+async def upload_customer_profile_photo(
+    upload_data: CustomerPhotoUploadRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Upload customer profile photo.
+    Accepts base64 encoded image data (jpg/png).
+    Max size: ~5MB (after base64 encoding).
+    """
+    try:
+        # Validate and decode base64 image
+        image_data = upload_data.imageData
+        
+        # Remove data URL prefix if present
+        if ',' in image_data:
+            header, image_data = image_data.split(',', 1)
+            # Validate format from header
+            if 'image/jpeg' in header or 'image/jpg' in header:
+                file_ext = '.jpg'
+            elif 'image/png' in header:
+                file_ext = '.png'
+            else:
+                raise HTTPException(status_code=400, detail="Only JPG and PNG images are supported")
+        else:
+            # Default to jpg if no header
+            file_ext = '.jpg'
+        
+        # Decode base64
+        try:
+            image_bytes = base64.b64decode(image_data)
+        except Exception:
+            raise HTTPException(status_code=400, detail="Invalid base64 image data")
+        
+        # Validate file size (max 5MB)
+        max_size = 5 * 1024 * 1024  # 5MB
+        if len(image_bytes) > max_size:
+            raise HTTPException(status_code=400, detail="Image too large. Maximum size is 5MB")
+        
+        # Validate minimum size (at least 1KB - likely a real image)
+        if len(image_bytes) < 1024:
+            raise HTTPException(status_code=400, detail="Image too small or invalid")
+        
+        # Generate unique filename
+        filename = f"customer_{current_user.id}_{uuid.uuid4().hex[:8]}{file_ext}"
+        
+        # Save file
+        storage_dir = UPLOADS_DIR / "customer_photos"
+        file_path = storage_dir / filename
+        
+        with open(file_path, 'wb') as f:
+            f.write(image_bytes)
+        
+        # Generate URL
+        file_url = f"/api/uploads/customer_photos/{filename}"
+        
+        # Delete old photo if exists
+        old_photo_url = None
+        user_doc = await db.users.find_one({"_id": ObjectId(current_user.id)})
+        if user_doc and user_doc.get("profilePhotoUrl"):
+            old_photo_url = user_doc["profilePhotoUrl"]
+            # Extract filename and delete old file
+            old_filename = old_photo_url.split('/')[-1]
+            old_file_path = storage_dir / old_filename
+            if old_file_path.exists():
+                try:
+                    old_file_path.unlink()
+                except Exception:
+                    pass  # Ignore deletion errors
+        
+        # Update user's profilePhotoUrl
+        await db.users.update_one(
+            {"_id": ObjectId(current_user.id)},
+            {"$set": {
+                "profilePhotoUrl": file_url,
+                "updatedAt": datetime.utcnow()
+            }}
+        )
+        
+        # Return updated user
+        updated_user = await db.users.find_one({"_id": ObjectId(current_user.id)})
+        updated_user["_id"] = str(updated_user["_id"])
+        
+        return {
+            "success": True,
+            "profilePhotoUrl": file_url,
+            "user": updated_user
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error uploading customer profile photo: {e}")
+        raise HTTPException(status_code=500, detail="Failed to upload profile photo")
+
+# Serve customer profile photos
+@api_router.get("/uploads/customer_photos/{filename}")
+async def get_customer_profile_photo(filename: str):
+    """Serve customer profile photos publicly"""
+    from fastapi.responses import FileResponse
+    file_path = UPLOADS_DIR / "customer_photos" / filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Photo not found")
+    return FileResponse(file_path)
 async def setup_provider(setup_data: ProviderSetup, current_user: User = Depends(get_current_user)):
     # Create or update provider profile with location data
     # Phase 4: Start with "unverified" status until uploads complete
