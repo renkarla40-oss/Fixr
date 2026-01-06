@@ -19,7 +19,7 @@ const inspirationData: Record<string, {
   title: string;
   subtitle: string;
   headerImage: string;
-  items: { title: string; description: string; image?: string }[];
+  items: { title: string; description: string; image?: string; useContain?: boolean }[];
 }> = {
   'home-improvement': {
     title: '10 Ways to Improve Your Home',
@@ -35,11 +35,13 @@ const inspirationData: Record<string, {
         title: '2. Upgrade Light Fixtures',
         description: 'Modern light fixtures instantly update the look of a home. Energy-efficient lighting also helps reduce electricity costs.',
         image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/f3wbozyk_Lighting%20%26%20fixtures.jpg',
+        useContain: true, // Show full fixtures without cropping
       },
       {
         title: '3. Install Ceiling Fans',
         description: 'Ceiling fans improve airflow and reduce the need for constant air-conditioning, making them ideal for Trinidad\'s climate.',
         image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/64wt73u3_Ceiling%20fan.jpg',
+        useContain: true, // Show full ceiling fan without cropping
       },
       {
         title: '4. Refresh Cabinet Hardware',
