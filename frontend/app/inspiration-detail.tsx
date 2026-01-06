@@ -138,25 +138,27 @@ const inspirationData: Record<string, {
       {
         title: 'Create a Shaded Patio',
         description: 'Add a pergola or retractable awning to enjoy your outdoor space even during the hottest hours.',
-        image: 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=400',
+        image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/naja6lb1_Covered%20Patio.jpg',
       },
       {
         title: 'Install Outdoor Lighting',
         description: 'String lights, solar path lights, and wall sconces extend your outdoor time into the evening.',
-        image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',
+        image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/mfj0780a_outdoor%20lighting.jpg',
       },
       {
         title: 'Build a Small Deck',
         description: 'Even a compact wooden deck creates a defined outdoor living space. Use pressure-treated lumber.',
+        image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/cn8z582l_An%20outdoor%20deck.jpg',
       },
       {
         title: 'Add Container Gardens',
         description: 'Herbs, flowers, and small fruit trees in pots add color and freshness without major landscaping.',
-        image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400',
+        image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/ny9mhhf8_Container%20Garden.jpg',
       },
       {
         title: 'Create Privacy with Plants',
         description: 'Bamboo, hibiscus hedges, or tall grasses create natural privacy screens that look beautiful.',
+        image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/72io4pbx_Privacy%20fence.jpg',
       },
       {
         title: 'Install a Hammock',
