@@ -103,6 +103,7 @@ class User(UserBase):
     id: str = Field(alias="_id")
     isProviderEnabled: bool = False
     isBetaUser: bool = False
+    profilePhotoUrl: Optional[str] = None  # Customer profile photo URL
     createdAt: datetime = Field(default_factory=datetime.utcnow)
     updatedAt: datetime = Field(default_factory=datetime.utcnow)
     
