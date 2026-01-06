@@ -311,6 +311,17 @@ const styles = StyleSheet.create({
     height: 160,
     backgroundColor: '#E0E0E0',
   },
+  itemImageContainWrapper: {
+    width: '100%',
+    height: 180,
+    backgroundColor: '#F0F2F4',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  itemImageContain: {
+    width: '100%',
+    height: 180,
+  },
   itemContent: {
     padding: 16,
   },
