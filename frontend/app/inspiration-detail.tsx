@@ -99,6 +99,7 @@ const inspirationData: Record<string, {
         title: 'Unplug When Not in Use',
         description: 'Appliances on standby still draw power. Unplug chargers, TVs, and kitchen appliances when not in use.',
         image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/eh4e7ikq_Unplug%20appliances.jpg',
+        useContain: true, // Show full image without cropping
       },
       {
         title: 'Use Natural Ventilation',
