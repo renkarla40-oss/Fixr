@@ -113,15 +113,17 @@ const inspirationData: Record<string, {
       {
         title: 'Wash in Cold Water',
         description: '90% of washing machine energy goes to heating water. Cold water cleans just as well.',
+        image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/lec98ke3_Cold%20water%20washing.jpg',
       },
       {
         title: 'Service Appliances Regularly',
         description: 'Clean refrigerator coils, AC filters, and dryer vents. Maintained appliances work more efficiently.',
+        image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/lgtqk3r7_service%20appliances.jpg',
       },
       {
         title: 'Use Ceiling Fans with AC',
         description: 'Fans circulate cool air, letting you raise the AC temperature while staying comfortable.',
-        image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=400',
+        image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/7cu5g2hc_Use%20of%20ceiling%20fans%20%26%20AC.jpg',
       },
     ],
   },
