@@ -222,11 +222,13 @@ export default function InspirationDetailScreen() {
           {content.items.map((item, index) => (
             <View key={index} style={styles.itemCard}>
               {item.image && (
-                <Image
-                  source={{ uri: item.image }}
-                  style={styles.itemImage}
-                  resizeMode="cover"
-                />
+                <View style={item.useContain ? styles.itemImageContainWrapper : undefined}>
+                  <Image
+                    source={{ uri: item.image }}
+                    style={item.useContain ? styles.itemImageContain : styles.itemImage}
+                    resizeMode={item.useContain ? 'contain' : 'cover'}
+                  />
+                </View>
               )}
               <View style={styles.itemContent}>
                 <Text style={styles.itemTitle}>{item.title}</Text>
