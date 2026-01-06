@@ -23,6 +23,16 @@ export default function ProfileScreen() {
   const router = useRouter();
   const [switching, setSwitching] = useState(false);
 
+  // Get profile photo URL
+  const getPhotoUrl = () => {
+    const photoUrl = (user as any)?.profilePhotoUrl;
+    if (!photoUrl) return null;
+    if (photoUrl.startsWith('http')) return photoUrl;
+    return `${BACKEND_URL}${photoUrl}`;
+  };
+
+  const profilePhotoUrl = getPhotoUrl();
+
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
       { text: 'Cancel', style: 'cancel' },
