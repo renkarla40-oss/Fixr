@@ -88,24 +88,27 @@ const inspirationData: Record<string, {
       {
         title: 'Optimize Your AC',
         description: 'Set your AC to 24-25°C. Each degree lower increases energy use by 3-5%. Use timers to run only when needed.',
-        image: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=400',
+        image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/3tf8cdnb_Optimize%20AC.jpg',
       },
       {
         title: 'Switch to LED Bulbs',
         description: 'LEDs use 75% less energy than incandescent bulbs and last 25 times longer. The savings add up.',
+        image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/x7e09pe8_LED%20Bulbs.jpg',
       },
       {
         title: 'Unplug When Not in Use',
         description: 'Appliances on standby still draw power. Unplug chargers, TVs, and kitchen appliances when not in use.',
+        image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/eh4e7ikq_Unplug%20appliances.jpg',
       },
       {
         title: 'Use Natural Ventilation',
         description: 'Open windows in the morning and evening when it\'s cooler. Cross-ventilation reduces AC dependency.',
-        image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400',
+        image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/qu0skvpx_Natural%20Ventilation.jpg',
       },
       {
         title: 'Install Window Films',
         description: 'Reflective films block heat from entering while keeping your view. Reduces AC load significantly.',
+        image: 'https://customer-assets.emergentagent.com/job_browse-services/artifacts/zfmkws7u_Window%20Film.jpg',
       },
       {
         title: 'Wash in Cold Water',
