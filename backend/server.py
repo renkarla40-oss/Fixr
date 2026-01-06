@@ -661,6 +661,8 @@ async def get_customer_profile_photo(filename: str):
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="Photo not found")
     return FileResponse(file_path)
+
+@api_router.post("/users/provider-setup", response_model=User)
 async def setup_provider(setup_data: ProviderSetup, current_user: User = Depends(get_current_user)):
     # Create or update provider profile with location data
     # Phase 4: Start with "unverified" status until uploads complete
