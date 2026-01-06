@@ -596,8 +596,8 @@ async def upload_customer_profile_photo(
         if len(image_bytes) > max_size:
             raise HTTPException(status_code=400, detail="Image too large. Maximum size is 5MB")
         
-        # Validate minimum size (at least 1KB - likely a real image)
-        if len(image_bytes) < 1024:
+        # Validate minimum size (at least 100 bytes - likely a real image)
+        if len(image_bytes) < 100:
             raise HTTPException(status_code=400, detail="Image too small or invalid")
         
         # Generate unique filename
