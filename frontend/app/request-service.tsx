@@ -19,6 +19,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import { getServiceLabel } from '../constants/serviceCategories';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
