@@ -27,6 +27,7 @@ export default function RequestServiceScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { token } = useAuth();
+  const insets = useSafeAreaInsets();
   const providerId = params.providerId as string;
   const category = params.category as string;
   const subCategory = params.subCategory as string | undefined;
