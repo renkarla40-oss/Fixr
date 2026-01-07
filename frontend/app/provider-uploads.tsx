@@ -35,6 +35,7 @@ interface UploadingState {
 export default function ProviderUploadsScreen() {
   const router = useRouter();
   const { token, refreshUser } = useAuth();
+  const insets = useSafeAreaInsets();
   
   const [uploads, setUploads] = useState<UploadState>({
     profilePhoto: null,
