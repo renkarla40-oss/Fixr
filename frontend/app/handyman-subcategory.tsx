@@ -24,6 +24,7 @@ const HANDYMAN_SUBCATEGORIES = [
 export default function HandymanSubcategoryScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
 
   const handleSubcategorySelect = (subcategoryId: string) => {
