@@ -378,7 +378,7 @@ export default function ProviderUploadsScreen() {
         </View>
       </ScrollView>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: Math.max(24, insets.bottom + 16) }]}>
         <TouchableOpacity
           style={[
             styles.completeButton,
