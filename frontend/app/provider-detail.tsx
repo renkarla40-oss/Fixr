@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Alert,
+  Image,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,6 +24,7 @@ interface Provider {
   services: string[];
   bio: string;
   verificationStatus: string;
+  profilePhotoUrl?: string | null;
 }
 
 export default function ProviderDetailScreen() {
