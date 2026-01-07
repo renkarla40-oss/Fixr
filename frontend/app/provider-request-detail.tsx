@@ -172,13 +172,7 @@ export default function ProviderRequestDetailScreen() {
     };
   }, [requestId, token]);
 
-  // Fetch messages when request loads and we're on chat tab
-  useEffect(() => {
-    if (request && activeTab === 'chat' && messages.length === 0) {
-      fetchMessages();
-    }
-  }, [request?._id]);
-
+  // Tab-based message and unread polling - MATCHES CUSTOMER CHAT PATTERN EXACTLY
   useEffect(() => {
     if (activeTab === 'chat' && request) {
       // Mark messages as read when opening chat tab
