@@ -30,6 +30,7 @@ const onboardingSteps = [
 
 export default function CustomerOnboardingScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [currentStep, setCurrentStep] = useState(0);
 
   const handleNext = () => {
