@@ -15,12 +15,14 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 export default function PhoneVerificationScreen() {
   const router = useRouter();
   const { token, user } = useAuth();
+  const insets = useSafeAreaInsets();
   
   const [phone, setPhone] = useState(user?.phone || '');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
