@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function RoleSelectionScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [selectedRole, setSelectedRole] = useState<'customer' | 'provider' | null>(null);
 
   const handleContinue = () => {
