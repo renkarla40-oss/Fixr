@@ -246,16 +246,36 @@ export default function ProviderRequestDetailScreen() {
     }
   };
 
-  const fetchMessages = async () => {
+  // MATCHES CUSTOMER CHAT EXACTLY - smart update to prevent re-render flicker
+  const fetchMessages = async (showLoading = true) => {
     if (!request?._id) return;
-
-    setLoadingMessages(true);
+    
+    // Only show loading on first fetch, not on subsequent polls
+    if (showLoading && messages.length === 0) {
+      setLoadingMessages(true);
+    }
     try {
       const response = await axios.get(`${BACKEND_URL}/api/service-requests/${request._id}/messages`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setMessages(response.data.messages || []);
+      const newMessages: Message[] = response.data.messages || [];
       
+      // Only update state if there's an actual change in message count or IDs
+      setMessages(prev => {
+        // If count changed, definitely update
+        if (newMessages.length !== prev.length) {
+          setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
+          return newMessages;
+        }
+        // If count is same, check if any message IDs changed (new messages replacing old)
+        const prevIds = prev.map(m => m._id).join(',');
+        const newIds = newMessages.map(m => m._id).join(',');
+        if (prevIds !== newIds) {
+          return newMessages;
+        }
+        // Same messages - don't update state to prevent re-render
+        return prev;
+      });
     } catch (err) {
       console.log('Messages fetch error');
     } finally {
