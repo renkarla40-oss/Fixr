@@ -284,7 +284,7 @@ export default function ProviderDetailScreen() {
           </TouchableOpacity>
         </ScrollView>
 
-        <View style={styles.footer}>
+        <View style={[styles.footer, { paddingBottom: Math.max(24, insets.bottom + 16) }]}>
           <TouchableOpacity
             style={styles.requestButton}
             onPress={handleRequestService}
