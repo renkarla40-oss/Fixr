@@ -76,7 +76,7 @@ export default function CustomerOnboardingScreen() {
         </View>
       </ScrollView>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: Math.max(24, insets.bottom + 16) }]}>
         <TouchableOpacity
           style={styles.nextButton}
           onPress={handleNext}
