@@ -355,6 +355,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
   },
   nameContainer: {
     alignItems: 'center',
