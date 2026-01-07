@@ -192,7 +192,17 @@ export default function ProviderDetailScreen() {
         >
           <View style={styles.profileSection}>
             <View style={styles.avatarLarge}>
-              <Ionicons name="person" size={64} color="#666" />
+              {provider.profilePhotoUrl ? (
+                <Image
+                  source={{ uri: provider.profilePhotoUrl.startsWith('http') 
+                    ? provider.profilePhotoUrl 
+                    : `${BACKEND_URL}${provider.profilePhotoUrl}` 
+                  }}
+                  style={styles.avatarImage}
+                />
+              ) : (
+                <Ionicons name="person" size={64} color="#666" />
+              )}
             </View>
             <View style={styles.nameContainer}>
               <Text style={styles.providerName}>{provider.name}</Text>
