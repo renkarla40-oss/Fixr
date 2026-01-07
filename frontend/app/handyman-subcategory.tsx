@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const HANDYMAN_SUBCATEGORIES = [
   { id: 'yard_work', name: 'Yard Work', icon: 'leaf-outline' },
