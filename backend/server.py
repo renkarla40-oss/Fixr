@@ -2749,87 +2749,34 @@ app.add_middleware(
 @app.on_event("startup")
 async def seed_canonical_accounts():
     """
-    Seed exactly two canonical test accounts on startup.
-    These are the ONLY accounts that should exist for testing.
+    Seed canonical test accounts on startup (MVP MODE).
+    Uses clean accounts created after stability fixes.
     """
     logger.info("=" * 50)
-    logger.info("CANONICAL ACCOUNT SEEDING")
+    logger.info("MVP TEST ACCOUNT CHECK")
     logger.info("=" * 50)
     
-    # Define canonical accounts
-    canonical_accounts = [
-        {
-            "email": "customer@test.com",
-            "password": "password123",
-            "name": "Test Customer",
-            "phone": "+1868-555-0001",
-            "currentRole": "customer",
-            "isProviderEnabled": False,
-            "isBetaUser": True,
-        },
-        {
-            "email": "provider@test.com",
-            "password": "password123",
-            "name": "Test Provider",
-            "phone": "+1868-555-0002",
-            "currentRole": "provider",
-            "isProviderEnabled": True,
-            "isBetaUser": True,
-        }
-    ]
+    # MVP MODE: Only check if clean test accounts exist, don't create legacy ones
+    # The clean accounts (customer003, provider003) were created manually
+    # and should not be auto-seeded to avoid data corruption
     
-    for account in canonical_accounts:
-        # Check if account already exists
-        existing = await db.users.find_one({"email": account["email"]})
-        
-        if not existing:
-            # Hash password and create user
-            hashed_password = pwd_context.hash(account["password"])
-            user_doc = {
-                "email": account["email"],
-                "password": hashed_password,  # Use 'password' to match login function
-                "name": account["name"],
-                "phone": account["phone"],
-                "currentRole": account["currentRole"],
-                "isProviderEnabled": account["isProviderEnabled"],
-                "isBetaUser": account["isBetaUser"],
-                "createdAt": datetime.utcnow(),
-                "updatedAt": datetime.utcnow(),
-            }
-            result = await db.users.insert_one(user_doc)
-            user_id = result.inserted_id
-            logger.info(f"✅ Created: {account['email']} (ID: {user_id})")
-            
-            # If provider, create provider profile
-            if account["isProviderEnabled"]:
-                provider_doc = {
-                    "userId": str(user_id),
-                    "services": ["plumbing", "electrical", "handyman"],
-                    "bio": "Experienced professional ready to help with your home repairs.",
-                    "baseTown": "Port of Spain",
-                    "travelDistanceKm": 30,
-                    "travelAnywhere": False,
-                    "isAcceptingJobs": True,
-                    "availabilityNote": "Available weekdays 8am-6pm",
-                    "phoneVerified": True,
-                    "phoneVerifiedAt": datetime.utcnow(),
-                    "uploadsComplete": True,
-                    "profilePhotoUrl": None,
-                    "governmentIdFrontUrl": None,
-                    "governmentIdBackUrl": None,
-                    "createdAt": datetime.utcnow(),
-                    "updatedAt": datetime.utcnow(),
-                }
-                await db.providers.insert_one(provider_doc)
-                logger.info(f"✅ Created provider profile for: {account['email']}")
-        else:
-            logger.info(f"ℹ️  Already exists: {account['email']}")
+    customer003 = await db.users.find_one({"email": "customer003@test.com"})
+    provider003 = await db.users.find_one({"email": "provider003@test.com"})
     
-    # Log total user count
+    if customer003:
+        logger.info(f"✅ MVP Customer: customer003@test.com")
+    else:
+        logger.info(f"⚠️  Missing: customer003@test.com - create manually if needed")
+    
+    if provider003:
+        logger.info(f"✅ MVP Provider: provider003@test.com")
+    else:
+        logger.info(f"⚠️  Missing: provider003@test.com - create manually if needed")
+    
+    # Log total counts
     total_users = await db.users.count_documents({})
-    logger.info(f"\n📊 Total users in database: {total_users}")
-    logger.info("=" * 50)
-    logger.info("Canonical test accounts seeded: customer@test.com, provider@test.com")
+    total_providers = await db.providers.count_documents({})
+    logger.info(f"\n📊 Total users: {total_users}, providers: {total_providers}")
     logger.info("=" * 50)
 
 @app.on_event("shutdown")
