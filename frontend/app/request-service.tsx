@@ -380,7 +380,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 24,
-    paddingBottom: 120,
+    paddingBottom: 140, // Increased to ensure helper text is visible above CTA
   },
   form: {
     gap: 24,
