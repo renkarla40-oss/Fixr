@@ -814,7 +814,11 @@ export default function ProviderRequestDetailScreen() {
       </View>
 
       {activeTab === 'details' ? (
-        <View style={styles.detailsContainer}>
+        <KeyboardAvoidingView 
+          style={styles.detailsContainer}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        >
           <ScrollView
             style={styles.content}
             contentContainerStyle={[
@@ -822,6 +826,7 @@ export default function ProviderRequestDetailScreen() {
               { paddingBottom: isPending ? 100 : bottomTabBarHeight + 16 }
             ]}
             showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           >
             {/* Customer & Service Summary Card - TOP PRIORITY INFO */}
