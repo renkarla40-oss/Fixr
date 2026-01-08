@@ -998,42 +998,44 @@ async def get_providers(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Get providers with location-based matching.
+    Get providers - MVP MODE (location filtering disabled).
     
-    Matching Logic (Phase 2 + Phase 3A + Phase 4):
-    - Filter: setupComplete=true AND isAcceptingJobs=true AND profilePhotoUrl exists AND governmentIdFrontUrl exists
-    - Bucket A (local/within radius): Providers where distance <= customer's search_radius
-      AND (provider.travelAnywhere OR distance <= provider.travelRadiusMiles)
-      Sorted by distance ascending (closest first)
+    MVP Behavior:
+    - Returns ALL providers who offer the selected service
+    - Location (job_town) is stored in request but NOT used for filtering
+    - Provider still sees customer's location in job details
     
-    - Bucket B (travel-anywhere): Providers with travelAnywhere=true that weren't in Bucket A
-      Only included if include_travel_anywhere=true
+    Filter: setupComplete=true AND isAcceptingJobs=true AND has required uploads
     """
-    # Phase 3A + Phase 4: Only show providers who are accepting jobs AND have completed uploads
+    # =======================================================
+    # MVP MODE: Location filtering DISABLED
+    # All providers matching service are returned nationwide
+    # =======================================================
+    
+    # Base query: Only show providers who are set up and accepting jobs
     query = {
         "setupComplete": True, 
         "isAcceptingJobs": {"$ne": False},
-        # Phase 4: Require photo and ID uploads to be visible
+        # Require photo and ID uploads to be visible
         "profilePhotoUrl": {"$ne": None, "$exists": True},
         "governmentIdFrontUrl": {"$ne": None, "$exists": True}
     }
+    
+    # Filter by service if specified
     if service:
         query["services"] = service
     
     providers = await db.providers.find(query).to_list(100)
     
-    bucket_a = []  # Local providers within distance
-    bucket_b = []  # Travel-anywhere providers (outside distance)
+    result = []
     
     for provider in providers:
         provider["_id"] = str(provider["_id"])
         
-        # Ensure new fields have defaults for backward compatibility
+        # Ensure all fields have defaults for backward compatibility
         if "baseTown" not in provider:
             provider["baseTown"] = None
-        # Handle both old (miles) and new (km) field names
         if "travelDistanceKm" not in provider:
-            # Convert legacy travelRadiusMiles to km, or use default
             legacy_miles = provider.get("travelRadiusMiles", 10)
             provider["travelDistanceKm"] = round(legacy_miles * 1.60934)
         if "travelAnywhere" not in provider:
@@ -1042,7 +1044,6 @@ async def get_providers(
             provider["isAcceptingJobs"] = True
         if "availabilityNote" not in provider:
             provider["availabilityNote"] = None
-        # Phase 4: Ensure photo fields have defaults
         if "profilePhotoUrl" not in provider:
             provider["profilePhotoUrl"] = None
         if "governmentIdFrontUrl" not in provider:
@@ -1052,50 +1053,16 @@ async def get_providers(
         if "uploadsComplete" not in provider:
             provider["uploadsComplete"] = False
         
-        # If no job_town specified, return all providers (no location filtering)
-        if not job_town:
-            provider["distanceFromJob"] = None
-            provider["isOutsideSelectedArea"] = False
-            bucket_a.append({"provider": Provider(**provider), "distance": 0})
-            continue
+        # MVP MODE: No location filtering - all providers included
+        # Distance shown as informational only (not used for filtering)
+        provider["distanceFromJob"] = None
+        provider["isOutsideSelectedArea"] = False
         
-        provider_base_town = provider.get("baseTown")
-        provider_travel_distance_km = provider.get("travelDistanceKm", 16)
-        provider_travel_anywhere = provider.get("travelAnywhere", False)
+        # If job_town provided, calculate distance for display purposes only
+        if job_town and provider.get("baseTown"):
+            provider["distanceFromJob"] = estimate_distance(job_town, provider["baseTown"])
         
-        # Calculate distance from job town to provider's base town (in km)
-        if not provider_base_town:
-            # Provider hasn't set base town - skip for location-based search
-            if provider_travel_anywhere and include_travel_anywhere:
-                provider["distanceFromJob"] = None
-                provider["isOutsideSelectedArea"] = True
-                bucket_b.append(Provider(**provider))
-            continue
-        
-        distance = estimate_distance(job_town, provider_base_town)
-        
-        # Bucket A Logic: Include if within customer's search distance AND
-        # (provider willing to travel anywhere OR within provider's travel distance)
-        is_within_customer_distance = distance <= search_radius
-        is_within_provider_distance = provider_travel_anywhere or distance <= provider_travel_distance_km
-        
-        if is_within_customer_distance and is_within_provider_distance:
-            # Add to Bucket A
-            provider["distanceFromJob"] = distance
-            provider["isOutsideSelectedArea"] = False
-            bucket_a.append({"provider": Provider(**provider), "distance": distance})
-        elif provider_travel_anywhere and include_travel_anywhere:
-            # Bucket B: Travel-anywhere provider not in Bucket A
-            provider["distanceFromJob"] = distance
-            provider["isOutsideSelectedArea"] = True
-            bucket_b.append(Provider(**provider))
-    
-    # Sort Bucket A by distance ascending (closest first)
-    bucket_a.sort(key=lambda x: x["distance"])
-    
-    # Build result: Bucket A first, then Bucket B
-    result = [item["provider"] for item in bucket_a]
-    result.extend(bucket_b)
+        result.append(Provider(**provider))
     
     # P0 TEST UNBLOCKER: If no providers found, return the canonical test provider
     if len(result) == 0:
