@@ -289,27 +289,6 @@ export default function RequestDetailScreen() {
       // Silent fail for polling
     }
   };
-      // Don't update just because readAt changed - that causes unnecessary re-renders
-      setMessages(prev => {
-        if (newMessages.length !== prev.length) {
-          // New message arrived - update and scroll only if there are MORE messages (not initial)
-          if (newMessages.length > prev.length && prev.length > 0) {
-            setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
-          }
-          return newMessages;
-        }
-        // Check if last message ID changed (edge case: message was deleted/replaced)
-        if (newMessages.length > 0 && prev.length > 0 && 
-            newMessages[newMessages.length - 1]._id !== prev[prev.length - 1]._id) {
-          return newMessages;
-        }
-        // No structural change - keep current state
-        return prev;
-      });
-    } catch (err) {
-      // Silent fail for polling
-    }
-  };
 
   // Check for unread messages while on Details tab
   // Uses server-side readAt field for accurate unread detection
