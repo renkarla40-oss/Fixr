@@ -249,7 +249,10 @@ export default function RequestDetailScreen() {
       setMessages(prev => {
         // If count changed, definitely update
         if (newMessages.length !== prev.length) {
-          setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
+          // Only auto-scroll if there are actual messages (prevents jump on empty chat)
+          if (newMessages.length > 0) {
+            setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
+          }
           return newMessages;
         }
         // If count is same, check if any message IDs changed (new messages replacing old)
