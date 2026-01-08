@@ -1673,4 +1673,42 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  // Scrollable status banners (inside ScrollView)
+  scrollableQuoteCard: {
+    marginHorizontal: 12,
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  statusBannerPaidScrollable: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F5E9',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginHorizontal: 12,
+    marginBottom: 8,
+    borderRadius: 8,
+    gap: 8,
+  },
+  statusBannerPaidText: {
+    fontSize: 13,
+    color: '#2E7D32',
+    flex: 1,
+  },
+  statusBannerInProgressScrollable: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E3F2FD',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginHorizontal: 12,
+    marginBottom: 8,
+    borderRadius: 8,
+    gap: 8,
+  },
+  statusBannerInProgressText: {
+    fontSize: 13,
+    color: '#1565C0',
+    flex: 1,
+  },
 });
