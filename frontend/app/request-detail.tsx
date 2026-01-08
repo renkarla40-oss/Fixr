@@ -250,8 +250,9 @@ export default function RequestDetailScreen() {
       setMessages(prev => {
         // If count changed, definitely update
         if (newMessages.length !== prev.length) {
-          // Only auto-scroll if there are actual messages (prevents jump on empty chat)
-          if (newMessages.length > 0) {
+          // Only auto-scroll after initial load AND when new messages arrive
+          // Do NOT scroll on initial mount to prevent jump
+          if (newMessages.length > 0 && didInitialLoad && newMessages.length > prev.length) {
             setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
           }
           return newMessages;
@@ -265,6 +266,11 @@ export default function RequestDetailScreen() {
         // Same messages - don't update state to prevent re-render
         return prev;
       });
+      
+      // Mark initial load complete after first successful fetch
+      if (!didInitialLoad) {
+        setDidInitialLoad(true);
+      }
     } catch (err) {
       console.log('Messages fetch error');
     } finally {
