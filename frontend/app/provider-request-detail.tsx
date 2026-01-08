@@ -868,26 +868,6 @@ export default function ProviderRequestDetailScreen() {
               )}
             </View>
 
-            {/* Description */}
-            <View style={styles.descriptionCard}>
-              <Text style={styles.descriptionLabel}>Job Description</Text>
-              <Text style={styles.descriptionText}>{request.description}</Text>
-            </View>
-
-            {/* Schedule Info */}
-            <View style={styles.infoRow}>
-              <View style={styles.infoItem}>
-                <Ionicons name="calendar-outline" size={16} color="#666" />
-                <Text style={styles.infoLabel}>Preferred</Text>
-                <Text style={styles.infoValue}>{formatDateTime(request.preferredDateTime)}</Text>
-              </View>
-              <View style={styles.infoItem}>
-                <Ionicons name="time-outline" size={16} color="#666" />
-                <Text style={styles.infoLabel}>Requested</Text>
-                <Text style={styles.infoValue}>{formatDate(request.createdAt)}</Text>
-              </View>
-            </View>
-
             {/* Job Code Entry - Show for accepted and paid status */}
             {(request.status === 'accepted' || request.status === 'paid') && (
               <View style={styles.jobCodeSection}>
@@ -920,7 +900,7 @@ export default function ProviderRequestDetailScreen() {
               </View>
             )}
 
-            {/* Finish Job Button and OTP Input (when in_progress) */}
+            {/* Finish Job Button and OTP Input - MOVED UP for visibility (when in_progress) */}
             {(request.status === 'in_progress' || request.status === 'started') && (
               <View style={styles.finishJobSection}>
                 {!showCompletionOtpInput ? (
@@ -938,6 +918,58 @@ export default function ProviderRequestDetailScreen() {
                     <TextInput
                       style={styles.completionOtpInput}
                       placeholder="Enter 6-digit OTP"
+                      placeholderTextColor="#A5D6A7"
+                      value={completionOtpInput}
+                      onChangeText={setCompletionOtpInput}
+                      keyboardType="number-pad"
+                      maxLength={6}
+                    />
+                    <View style={styles.completionOtpButtons}>
+                      <TouchableOpacity
+                        style={styles.cancelOtpButton}
+                        onPress={() => {
+                          setShowCompletionOtpInput(false);
+                          setCompletionOtpInput('');
+                        }}
+                      >
+                        <Text style={styles.cancelOtpButtonText}>Cancel</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.confirmCompletionButton, completionOtpInput.length !== 6 && styles.buttonDisabled]}
+                        onPress={handleFinishWithOtp}
+                        disabled={completionOtpInput.length !== 6 || completingJob}
+                      >
+                        {completingJob ? (
+                          <ActivityIndicator size="small" color="#FFFFFF" />
+                        ) : (
+                          <Text style={styles.confirmCompletionButtonText}>Confirm & Complete</Text>
+                        )}
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
+              </View>
+            )}
+
+            {/* Description */}
+            <View style={styles.descriptionCard}>
+              <Text style={styles.descriptionLabel}>Job Description</Text>
+              <Text style={styles.descriptionText}>{request.description}</Text>
+            </View>
+
+            {/* Schedule Info */}
+            <View style={styles.infoRow}>
+              <View style={styles.infoItem}>
+                <Ionicons name="calendar-outline" size={16} color="#666" />
+                <Text style={styles.infoLabel}>Preferred</Text>
+                <Text style={styles.infoValue}>{formatDateTime(request.preferredDateTime)}</Text>
+              </View>
+              <View style={styles.infoItem}>
+                <Ionicons name="time-outline" size={16} color="#666" />
+                <Text style={styles.infoLabel}>Requested</Text>
+                <Text style={styles.infoValue}>{formatDate(request.createdAt)}</Text>
+              </View>
+            </View>
                       placeholderTextColor="#999"
                       value={completionOtpInput}
                       onChangeText={setCompletionOtpInput}
