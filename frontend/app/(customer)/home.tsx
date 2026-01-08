@@ -480,6 +480,9 @@ const styles = StyleSheet.create({
   section: {
     marginTop: 24,
   },
+  sectionOnGradient: {
+    marginTop: 24,
+  },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -488,6 +491,23 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    paddingHorizontal: 20,
+    marginBottom: 16,
+  },
+  sectionTitleLight: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    paddingHorizontal: 20,
+    marginBottom: 16,
+    textShadowColor: 'rgba(0,0,0,0.1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  sectionTitleOnGradient: {
     fontSize: 20,
     fontWeight: '700',
     color: '#1A1A1A',
