@@ -292,8 +292,8 @@ export default function RequestDetailScreen() {
       // Don't update just because readAt changed - that causes unnecessary re-renders
       setMessages(prev => {
         if (newMessages.length !== prev.length) {
-          // New message arrived - update and scroll only if there are messages
-          if (newMessages.length > 0) {
+          // New message arrived - update and scroll only if there are MORE messages (not initial)
+          if (newMessages.length > prev.length && prev.length > 0) {
             setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
           }
           return newMessages;
