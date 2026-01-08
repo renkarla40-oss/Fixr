@@ -174,6 +174,7 @@ export default function RequestServiceScreen() {
           style={styles.content}
           contentContainerStyle={styles.contentContainer}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
           <View style={styles.form}>
             <View style={styles.inputGroup}>
