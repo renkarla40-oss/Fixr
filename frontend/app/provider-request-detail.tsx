@@ -940,7 +940,7 @@ export default function ProviderRequestDetailScreen() {
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={[styles.confirmCompletionButton, completionOtpInput.length !== 6 && styles.buttonDisabled]}
-                        onPress={handleFinishWithOtp}
+                        onPress={handleConfirmCompletion}
                         disabled={completionOtpInput.length !== 6 || completingJob}
                       >
                         {completingJob ? (
