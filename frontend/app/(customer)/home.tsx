@@ -417,20 +417,24 @@ export default function CustomerHomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  // ISOLATED: This SafeAreaView is specific to Home screen only
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F5F6F8', // Original gray background restored
   },
   scrollView: {
     flex: 1,
+    backgroundColor: '#FFFFFF', // White scroll area for content below gradient
   },
   scrollContent: {
     paddingBottom: 24,
+    backgroundColor: '#FFFFFF', // Ensure solid white below gradient zone
   },
 
-  // ===== PREMIUM GRADIENT HEADER ZONE =====
+  // ===== PREMIUM GRADIENT HEADER ZONE (ISOLATED TO THIS VIEW) =====
   gradientHeaderZone: {
     position: 'relative',
+    overflow: 'hidden', // Ensure gradient doesn't bleed
   },
   premiumGradient: {
     position: 'absolute',
