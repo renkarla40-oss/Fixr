@@ -1033,14 +1033,18 @@ export default function ProviderRequestDetailScreen() {
                   <View key={msg._id} style={[styles.messageBubble, isMine ? styles.messageBubbleMine : styles.messageBubbleTheirs, isImage && styles.imageBubble]}>
                     {!isMine && <Text style={styles.messageSender}>{msg.senderName}</Text>}
                     {isImage ? (
-                      <TouchableOpacity onPress={() => setFullScreenImage(imageUri)}>
+                      <TouchableOpacity 
+                        onPress={() => setFullScreenImage(imageUri)}
+                        style={styles.chatImageContainer}
+                        activeOpacity={0.9}
+                      >
                         <Image
                           source={{ uri: imageUri }}
                           style={styles.chatImage}
                           resizeMode="cover"
                         />
                         <View style={styles.imageOverlay}>
-                          <Ionicons name="expand-outline" size={20} color="rgba(255,255,255,0.8)" />
+                          <Ionicons name="expand-outline" size={18} color="rgba(255,255,255,0.9)" />
                         </View>
                       </TouchableOpacity>
                     ) : (
