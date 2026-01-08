@@ -186,12 +186,18 @@ export default function CustomerHomeScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* ===== HERO SEARCH SECTION ===== */}
-        <View style={styles.heroSection}>
+        {/* ===== PREMIUM RED GRADIENT HEADER ZONE ===== */}
+        <View style={styles.gradientHeaderZone}>
           <LinearGradient
-            colors={['#FFF5F5', '#FFFFFF']}
-            style={styles.heroGradient}
-          >
+            colors={['#C62828', '#D32F2F', '#E53935', '#FFFFFF']}
+            locations={[0, 0.3, 0.6, 1]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.premiumGradient}
+          />
+          
+          {/* ===== HERO SEARCH SECTION ===== */}
+          <View style={styles.heroSection}>
             <Text style={styles.heroTitle}>What do you need{'\n'}help with today?</Text>
             
             {/* Search Bar - Acts as Service Finder */}
@@ -204,75 +210,75 @@ export default function CustomerHomeScreen() {
               <Text style={styles.searchPlaceholder}>Browse services by category</Text>
               <Ionicons name="chevron-forward" size={18} color="#CCC" />
             </TouchableOpacity>
-          </LinearGradient>
-        </View>
+          </View>
 
-        {/* ===== BROWSE BY CATEGORY (Horizontal) ===== */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Browse by Category</Text>
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.categoriesRow}
-          >
-            {categories.slice(0, 6).map((category) => (
-              <TouchableOpacity
-                key={category.serviceKey}
-                style={styles.categoryChip}
-                onPress={() => handleCategoryPress(category)}
-                activeOpacity={0.7}
-              >
-                <View style={styles.categoryIconCircle}>
-                  <Ionicons
-                    name={category.icon as any}
-                    size={24}
-                    color="#E53935"
-                  />
-                </View>
-                <Text style={styles.categoryChipText} numberOfLines={1}>
-                  {category.label}
-                </Text>
-                {category.status === 'beta' && (
-                  <View style={styles.betaBadgeSmall}>
-                    <Text style={styles.betaBadgeTextSmall}>BETA</Text>
+          {/* ===== BROWSE BY CATEGORY (Horizontal) ===== */}
+          <View style={styles.sectionOnGradient}>
+            <Text style={styles.sectionTitleLight}>Browse by Category</Text>
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.categoriesRow}
+            >
+              {categories.slice(0, 6).map((category) => (
+                <TouchableOpacity
+                  key={category.serviceKey}
+                  style={styles.categoryChip}
+                  onPress={() => handleCategoryPress(category)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.categoryIconCircle}>
+                    <Ionicons
+                      name={category.icon as any}
+                      size={24}
+                      color="#E53935"
+                    />
                   </View>
-                )}
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
+                  <Text style={styles.categoryChipTextOnGradient} numberOfLines={1}>
+                    {category.label}
+                  </Text>
+                  {category.status === 'beta' && (
+                    <View style={styles.betaBadgeSmall}>
+                      <Text style={styles.betaBadgeTextSmall}>BETA</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
 
-        {/* ===== ALL SERVICES GRID ===== */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>All Services</Text>
-          <View style={styles.servicesGrid}>
-            {categories.map((category) => (
-              <TouchableOpacity
-                key={category.serviceKey}
-                style={[
-                  styles.serviceCard,
-                  category.status === 'beta' && styles.serviceCardBeta,
-                ]}
-                onPress={() => handleCategoryPress(category)}
-                activeOpacity={0.7}
-              >
-                <View style={styles.serviceIconContainer}>
-                  <Ionicons
-                    name={category.icon as any}
-                    size={26}
-                    color="#E53935"
-                  />
-                </View>
-                <Text style={styles.serviceName} numberOfLines={2}>
-                  {category.label}
-                </Text>
-                {category.status === 'beta' && (
-                  <View style={styles.betaBadge}>
-                    <Text style={styles.betaBadgeText}>BETA</Text>
+          {/* ===== ALL SERVICES GRID ===== */}
+          <View style={styles.sectionOnGradient}>
+            <Text style={styles.sectionTitleOnGradient}>All Services</Text>
+            <View style={styles.servicesGrid}>
+              {categories.map((category) => (
+                <TouchableOpacity
+                  key={category.serviceKey}
+                  style={[
+                    styles.serviceCard,
+                    category.status === 'beta' && styles.serviceCardBeta,
+                  ]}
+                  onPress={() => handleCategoryPress(category)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.serviceIconContainer}>
+                    <Ionicons
+                      name={category.icon as any}
+                      size={26}
+                      color="#E53935"
+                    />
                   </View>
-                )}
-              </TouchableOpacity>
-            ))}
+                  <Text style={styles.serviceName} numberOfLines={2}>
+                    {category.label}
+                  </Text>
+                  {category.status === 'beta' && (
+                    <View style={styles.betaBadge}>
+                      <Text style={styles.betaBadgeText}>BETA</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
         </View>
 
