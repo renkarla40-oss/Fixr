@@ -105,6 +105,7 @@ export default function RequestDetailScreen() {
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
+  const [didInitialLoad, setDidInitialLoad] = useState(false); // Track initial load to prevent jump
   
   // Quote state
   const [currentQuote, setCurrentQuote] = useState<Quote | null>(null);
