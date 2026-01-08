@@ -753,7 +753,7 @@ export default function RequestDetailScreen() {
       {activeTab === 'details' ? (
         <ScrollView
           style={styles.content}
-          contentContainerStyle={[styles.contentContainer, { paddingBottom: bottomTabBarHeight + 40 }]}
+          contentContainerStyle={[styles.contentContainer, { paddingBottom: insets.bottom + 140 }]}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         >
