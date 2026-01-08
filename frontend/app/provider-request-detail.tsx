@@ -123,13 +123,13 @@ export default function ProviderRequestDetailScreen() {
   const [completionOtpInput, setCompletionOtpInput] = useState('');
   const [showCompletionOtpInput, setShowCompletionOtpInput] = useState(false);
   const [completingJob, setCompletingJob] = useState(false);
-  const [didInitialLoad, setDidInitialLoad] = useState(false); // Track initial load to prevent jump
 
   const scrollViewRef = useRef<ScrollView>(null);
   const inputRef = useRef<TextInput>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const unreadPollingRef = useRef<NodeJS.Timeout | null>(null);
   const statusPollingRef = useRef<NodeJS.Timeout | null>(null);
+  const prevMessageCountRef = useRef<number>(0); // Track previous message count for scroll logic
 
   // Calculate bottom spacing to clear tab bar + system nav
   const bottomTabBarHeight = TAB_BAR_BASE_HEIGHT + insets.bottom + (Platform.OS === 'android' ? 20 : 8);
