@@ -105,7 +105,6 @@ export default function RequestDetailScreen() {
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
-  const [didInitialLoad, setDidInitialLoad] = useState(false); // Track initial load to prevent jump
   
   // Quote state
   const [currentQuote, setCurrentQuote] = useState<Quote | null>(null);
@@ -116,6 +115,7 @@ export default function RequestDetailScreen() {
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const unreadPollingRef = useRef<NodeJS.Timeout | null>(null);
   const statusPollingRef = useRef<NodeJS.Timeout | null>(null);
+  const prevMessageCountRef = useRef<number>(0); // Track previous message count for scroll logic
 
   // Calculate bottom spacing to clear tab bar + system nav
   const bottomTabBarHeight = TAB_BAR_BASE_HEIGHT + insets.bottom + (Platform.OS === 'android' ? 20 : 8);
