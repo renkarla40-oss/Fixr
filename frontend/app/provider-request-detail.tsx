@@ -996,7 +996,7 @@ export default function ProviderRequestDetailScreen() {
               </TouchableOpacity>
             </View>
           )}
-        </View>
+        </KeyboardAvoidingView>
       ) : (
         /* Chat Tab - Uses KeyboardAvoidingView */
         <KeyboardAvoidingView
