@@ -419,7 +419,7 @@ export default function CustomerHomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F5F6F8',
+    backgroundColor: '#FFFFFF',
   },
   scrollView: {
     flex: 1,
@@ -428,11 +428,20 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
 
+  // ===== PREMIUM GRADIENT HEADER ZONE =====
+  gradientHeaderZone: {
+    position: 'relative',
+  },
+  premiumGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+
   // ===== HERO SECTION =====
   heroSection: {
-    marginBottom: 8,
-  },
-  heroGradient: {
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 24,
@@ -440,9 +449,12 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
     lineHeight: 36,
     marginBottom: 20,
+    textShadowColor: 'rgba(0,0,0,0.1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   searchBar: {
     flexDirection: 'row',
