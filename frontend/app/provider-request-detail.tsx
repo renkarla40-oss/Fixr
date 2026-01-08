@@ -123,6 +123,7 @@ export default function ProviderRequestDetailScreen() {
   const [completionOtpInput, setCompletionOtpInput] = useState('');
   const [showCompletionOtpInput, setShowCompletionOtpInput] = useState(false);
   const [completingJob, setCompletingJob] = useState(false);
+  const [didInitialLoad, setDidInitialLoad] = useState(false); // Track initial load to prevent jump
 
   const scrollViewRef = useRef<ScrollView>(null);
   const inputRef = useRef<TextInput>(null);
