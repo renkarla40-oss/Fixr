@@ -248,11 +248,15 @@ export default function RequestDetailScreen() {
       
       // Only update state if there's an actual change in message count or IDs
       setMessages(prev => {
+        // GUARD: No scroll behavior when empty
+        if (newMessages.length === 0) {
+          return newMessages;
+        }
+        
         // If count changed, definitely update
         if (newMessages.length !== prev.length) {
-          // Only auto-scroll after initial load AND when new messages arrive
-          // Do NOT scroll on initial mount to prevent jump
-          if (newMessages.length > 0 && didInitialLoad && newMessages.length > prev.length) {
+          // Only auto-scroll when NEW messages arrive (not on initial load)
+          if (didInitialLoad && newMessages.length > prev.length && prev.length > 0) {
             setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
           }
           return newMessages;
