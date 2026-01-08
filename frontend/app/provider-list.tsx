@@ -99,12 +99,11 @@ export default function ProviderListScreen() {
       // Valid response - set providers (can be empty array, that's fine)
       setProviders(response.data);
       
-      // Check if we need to show the no-providers modal
+      // MVP MODE: Location filtering disabled - modal never shows
+      // Flow always proceeds to Available Providers list
       if (!initialSearchComplete) {
         setInitialSearchComplete(true);
-        if (response.data.length === 0 && location) {
-          setShowNoProvidersModal(true);
-        }
+        // Modal disabled for MVP - all providers shown regardless of location
       }
     } catch (error: any) {
       // Only log and show error for actual failures (network errors, 4xx/5xx)
