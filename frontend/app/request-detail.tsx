@@ -1013,30 +1013,7 @@ export default function RequestDetailScreen() {
                   </TouchableOpacity>
                 </View>
               )}
-              {/* Paid Quote Card */}
-              {currentQuote && currentQuote.status === 'PAID' && (
-                <View style={[styles.quoteCard, styles.quoteCardPaid]}>
-                  <View style={styles.quoteCardHeader}>
-                    <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-                    <Text style={styles.quoteCardTitle}>Payment Confirmed</Text>
-                  </View>
-                  <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
-                  <Text style={styles.quoteCardAmountPaid}>${currentQuote.amount.toFixed(2)} {currentQuote.currency}</Text>
-                </View>
-              )}
-              {/* Status Banners */}
-              {request.status === 'paid' && (
-                <View style={styles.statusBannerPaid}>
-                  <Ionicons name="time-outline" size={16} color="#2E7D32" />
-                  <Text style={styles.statusBannerPaidText}>Payment received! Waiting for provider to start.</Text>
-                </View>
-              )}
-              {(request.status === 'in_progress' || request.status === 'started') && (
-                <View style={styles.statusBannerInProgress}>
-                  <Ionicons name="construct" size={16} color="#1565C0" />
-                  <Text style={styles.statusBannerInProgressText}>Job in progress</Text>
-                </View>
-              )}
+              {/* NOTE: Paid quote card and status banners moved INSIDE ScrollView above */}
               <View style={styles.messageInputContainer}>
                 {/* Image upload button */}
                 <TouchableOpacity
