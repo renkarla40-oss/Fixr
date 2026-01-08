@@ -549,6 +549,15 @@ const styles = StyleSheet.create({
     color: '#333',
     textAlign: 'center',
   },
+  categoryChipTextOnGradient: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.2)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
   betaBadgeSmall: {
     backgroundColor: '#EAF3FF',
     paddingHorizontal: 4,
