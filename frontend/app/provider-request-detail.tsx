@@ -970,42 +970,6 @@ export default function ProviderRequestDetailScreen() {
                 <Text style={styles.infoValue}>{formatDate(request.createdAt)}</Text>
               </View>
             </View>
-                      placeholderTextColor="#999"
-                      value={completionOtpInput}
-                      onChangeText={setCompletionOtpInput}
-                      keyboardType="number-pad"
-                      maxLength={6}
-                      textAlign="center"
-                    />
-                    <View style={styles.completionOtpButtons}>
-                      <TouchableOpacity 
-                        style={styles.cancelOtpButton}
-                        onPress={() => {
-                          setShowCompletionOtpInput(false);
-                          setCompletionOtpInput('');
-                        }}
-                      >
-                        <Text style={styles.cancelOtpButtonText}>Cancel</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity 
-                        style={[styles.confirmCompletionButton, completionOtpInput.length !== 6 && styles.buttonDisabled]}
-                        onPress={handleConfirmCompletion}
-                        disabled={completionOtpInput.length !== 6 || completingJob}
-                      >
-                        {completingJob ? (
-                          <ActivityIndicator size="small" color="#FFFFFF" />
-                        ) : (
-                          <>
-                            <Ionicons name="checkmark" size={18} color="#FFFFFF" />
-                            <Text style={styles.confirmCompletionButtonText}>Confirm Completion</Text>
-                          </>
-                        )}
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                )}
-              </View>
-            )}
           </ScrollView>
 
           {/* FIXED ACTION BUTTONS AT BOTTOM - Only for pending requests */}
