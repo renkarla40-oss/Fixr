@@ -829,4 +829,149 @@ agent_communication:
       - Complete quote → payment → job start → completion workflow working perfectly
       - No regression in existing functionality
       
-      **THE CRITICAL BUG IS FIXED:** Providers can now start jobs from 'paid' status, resolving the post-payment workflow blocker that prevented job initiation after quote payment.
+      **THE CRITICAL BUG IS FIXED:** Providers can now start jobs from 'paid' status, resolving the post-payment workflow blocker that prevented job initiation after quote payment.  - agent: "main"
+    message: |
+      IMPLEMENTING REVIEWS FEATURE - End-to-End Flow Testing Required
+      
+      **BACKEND IMPLEMENTATION (already exists, needs verification):**
+      1. POST /api/reviews - Create review for completed job (jobId, rating 1-5, optional comment max 500 chars)
+         - customerId derived from auth session
+         - providerId derived from job record
+         - Rating validation: 1-5
+         - Comment trimmed, max 500 chars
+         - Uses MongoDB aggregation for provider.averageRating and provider.totalReviews update
+      
+      2. GET /api/reviews/by-job/{jobId} - Get review for a specific job
+         - Authorization: only job customer or provider can access
+      
+      3. GET /api/reviews/by-provider/{providerId} - Get all reviews for a provider
+         - Returns public-safe fields: rating, comment, createdAt
+      
+      4. GET /api/quotes/by-request/{requestId} - Now includes provider rating info:
+         - providerName, providerRating, providerReviewCount
+      
+      **FRONTEND IMPLEMENTATION (just added):**
+      1. request-detail.tsx - "Leave a Review" button in Details tab for completed jobs
+         - Shows only when job completed AND no review exists
+         - Star rating selector (1-5)
+         - Optional comment field (max 500 chars)
+         - Submit calls POST /api/reviews
+         - After submit shows "Review Submitted" with saved rating/comment
+      
+      2. provider-list.tsx - Provider cards show averageRating + totalReviews (existing)
+      
+      3. provider-detail.tsx - Rating summary + reviews list
+         - Rating stars display with average
+         - List of reviews with rating, date, comment
+      
+      4. Quote card in chat - Shows provider rating when viewing quote
+      
+      **TEST FLOW:**
+      1. Complete a job as customer (or use existing completed job)
+      2. Customer opens job Details tab
+      3. Customer sees "Leave a Review" button
+      4. Customer submits review (5 stars + comment)
+      5. Verify "Review Submitted" card appears
+      6. Verify provider.averageRating and provider.totalReviews updated
+      7. Verify rating appears on provider cards in search
+      8. Verify rating appears on provider detail page
+      9. Verify reviews list on provider detail page
+      
+      Test credentials:
+      - Customer: customer003@test.com / password123
+      - Provider: provider003@test.com / password123
+
+backend:
+  - task: "Reviews - POST /api/reviews endpoint"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Reviews endpoint implemented with validation (rating 1-5, comment max 500), customerId from auth, providerId from job, MongoDB aggregation for rating updates"
+
+  - task: "Reviews - GET /api/reviews/by-job/{jobId}"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Get review by job endpoint with authorization check"
+
+  - task: "Reviews - GET /api/reviews/by-provider/{providerId}"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Get reviews by provider endpoint returning public-safe fields"
+
+  - task: "Reviews - Provider rating update via aggregation"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "MongoDB aggregation pipeline updates provider.averageRating and provider.totalReviews after review creation"
+
+frontend:
+  - task: "Reviews - Leave a Review button on completed jobs"
+    implemented: true
+    working: "NA"
+    file: "request-detail.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Leave a Review button added to Details tab for completed jobs, star rating selector, optional comment, calls POST /api/reviews"
+
+  - task: "Reviews - Rating display on provider detail"
+    implemented: true
+    working: "NA"
+    file: "provider-detail.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Rating summary and reviews list added to provider detail page"
+
+  - task: "Reviews - Rating display on quote card"
+    implemented: true
+    working: "NA"
+    file: "request-detail.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Quote card now shows provider rating when available"
+
+test_plan:
+  current_focus:
+    - "Reviews - POST /api/reviews endpoint"
+    - "Reviews - Provider rating update via aggregation"
+    - "Reviews - Complete E2E flow"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
