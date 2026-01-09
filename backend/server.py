@@ -2244,7 +2244,10 @@ async def sandbox_pay_quote(
     quote_id: str,
     current_user: User = Depends(get_current_user)
 ):
-    """Customer completes sandbox payment. Sets quote to PAID and job to PAID/READY_TO_START."""
+    """
+    Customer completes sandbox payment. Sets quote to PAID and job to PAID/READY_TO_START.
+    Valid transition: accepted → paid
+    """
     quote = await db.quotes.find_one({"_id": ObjectId(quote_id)})
     if not quote:
         raise HTTPException(status_code=404, detail="Quote not found")
@@ -2255,6 +2258,18 @@ async def sandbox_pay_quote(
     
     if quote["status"] not in [QuoteStatus.SENT, QuoteStatus.ACCEPTED]:
         raise HTTPException(status_code=400, detail=f"Cannot pay quote with status {quote['status']}")
+    
+    # STATE MACHINE: Verify job is in accepted state before allowing payment
+    request = await db.service_requests.find_one({"_id": ObjectId(quote["requestId"])})
+    if not request:
+        raise HTTPException(status_code=404, detail="Associated job request not found")
+    
+    current_status = request.get("status")
+    is_valid, error_msg = validate_status_transition(current_status, "paid")
+    if not is_valid:
+        # Allow payment if status is awaiting_payment (quote sent state)
+        if current_status not in ["accepted", "awaiting_payment"]:
+            raise HTTPException(status_code=400, detail=f"Cannot pay: {error_msg}")
     
     now = datetime.utcnow()
     
