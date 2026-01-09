@@ -1714,6 +1714,7 @@ async def complete_service_request(
     """
     Provider marks the job as completed by entering the completion OTP.
     Valid transition: in_progress -> completed
+    IDEMPOTENT: Returns success if already completed.
     """
     request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
     if not request:
@@ -1724,8 +1725,12 @@ async def complete_service_request(
     if not provider or str(provider["_id"]) != request.get("providerId"):
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    # STATE MACHINE: Can only complete from in_progress
+    # IDEMPOTENCY: If already completed, return success
     current_status = request.get("status")
+    if current_status == "completed":
+        return {"success": True, "message": "Job already completed", "errorCode": "ALREADY_COMPLETED"}
+    
+    # STATE MACHINE: Can only complete from in_progress
     if current_status != "in_progress":
         raise HTTPException(
             status_code=400, 
