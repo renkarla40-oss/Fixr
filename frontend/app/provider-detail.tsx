@@ -308,6 +308,65 @@ export default function ProviderDetailScreen() {
             </View>
           )}
 
+          {/* Rating Summary Section */}
+          {(provider.averageRating || provider.totalReviews) && (
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Ionicons name="star" size={20} color="#FFB300" />
+                <Text style={styles.sectionTitle}>Rating</Text>
+              </View>
+              <View style={styles.ratingSummary}>
+                <View style={styles.ratingStarsRow}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Ionicons
+                      key={star}
+                      name={star <= (provider.averageRating || 0) ? 'star' : star - 0.5 <= (provider.averageRating || 0) ? 'star-half' : 'star-outline'}
+                      size={28}
+                      color="#FFB300"
+                    />
+                  ))}
+                </View>
+                <Text style={styles.ratingText}>
+                  {provider.averageRating ? provider.averageRating.toFixed(1) : 'No ratings'} ({provider.totalReviews || 0} review{(provider.totalReviews || 0) !== 1 ? 's' : ''})
+                </Text>
+              </View>
+            </View>
+          )}
+
+          {/* Reviews List Section */}
+          {reviews.length > 0 && (
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Ionicons name="chatbubbles" size={20} color="#666" />
+                <Text style={styles.sectionTitle}>Reviews</Text>
+              </View>
+              {reviews.map((review) => (
+                <View key={review._id} style={styles.reviewCard}>
+                  <View style={styles.reviewCardHeader}>
+                    <View style={styles.reviewStarsSmall}>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Ionicons
+                          key={star}
+                          name={star <= review.rating ? 'star' : 'star-outline'}
+                          size={16}
+                          color="#FFB300"
+                        />
+                      ))}
+                    </View>
+                    {review.createdAt && (
+                      <Text style={styles.reviewDate}>
+                        {new Date(review.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </Text>
+                    )}
+                  </View>
+                  {review.comment && (
+                    <Text style={styles.reviewComment}>"{review.comment}"</Text>
+                  )}
+                </View>
+              ))}
+            </View>
+          )}
+
           <TouchableOpacity
             style={styles.reportButton}
             onPress={handleReportProvider}
