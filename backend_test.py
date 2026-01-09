@@ -78,7 +78,7 @@ class ReviewsTestSuite:
         
         if success and "token" in result:
             self.customer_token = result["token"]
-            self.customer_id = result["user"]["id"]
+            self.customer_id = result["user"]["_id"]
             self.log_test("Customer Authentication", True, f"Customer ID: {self.customer_id}")
         else:
             self.log_test("Customer Authentication", False, f"Error: {result}")
@@ -92,7 +92,7 @@ class ReviewsTestSuite:
         
         if success and "token" in result:
             self.provider_token = result["token"]
-            self.provider_id = result["user"]["id"]
+            self.provider_id = result["user"]["_id"]
             self.log_test("Provider Authentication", True, f"Provider ID: {self.provider_id}")
         else:
             self.log_test("Provider Authentication", False, f"Error: {result}")
