@@ -76,10 +76,10 @@ def generate_job_code() -> str:
 
 VALID_STATUS_TRANSITIONS = {
     "pending": ["accepted"],
-    "accepted": ["paid"],
-    "paid": ["started", "in_progress"],
-    "started": ["completed"],
-    "in_progress": ["completed"],
+    "accepted": ["paid", "awaiting_payment"],  # awaiting_payment when quote sent
+    "awaiting_payment": ["paid"],  # customer pays quote
+    "paid": ["in_progress"],  # provider starts job (single status, no "started")
+    "in_progress": ["completed"],  # provider completes with OTP
     "completed": [],  # Terminal state - no further transitions
 }
 
