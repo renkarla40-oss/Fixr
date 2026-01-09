@@ -2885,10 +2885,14 @@ async def get_integrity_report(
     DEV-ONLY: Data integrity report.
     Lists orphaned records and data anomalies - NEVER deletes anything.
     
-    Access: Requires dev_token=fixr-mvp-dev-2024 query param
+    Access: Requires dev_token query param matching DEV_INTEGRITY_TOKEN env var
     """
-    # Security: Require dev token
-    if dev_token != "fixr-mvp-dev-2024":
+    # Security: Read token from env - if not set, disable endpoint
+    expected_token = os.getenv("DEV_INTEGRITY_TOKEN")
+    if not expected_token:
+        raise HTTPException(status_code=404, detail="Endpoint not available")
+    
+    if dev_token != expected_token:
         raise HTTPException(status_code=403, detail="Dev token required")
     
     report = {
