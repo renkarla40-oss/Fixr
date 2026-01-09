@@ -2319,8 +2319,16 @@ async def sandbox_pay_quote(
     if quote.get("customerId") != current_user.id:
         raise HTTPException(status_code=403, detail="Only the customer can pay quotes")
     
+    # IDEMPOTENCY: If already paid, return success
+    if quote["status"] == QuoteStatus.PAID:
+        quote["_id"] = str(quote["_id"])
+        return {"success": True, "quote": quote, "message": "Already paid", "errorCode": "ALREADY_PAID"}
+    
     if quote["status"] not in [QuoteStatus.SENT, QuoteStatus.ACCEPTED]:
-        raise HTTPException(status_code=400, detail=f"Cannot pay quote with status {quote['status']}")
+        raise HTTPException(
+            status_code=400, 
+            detail={"message": f"Cannot pay quote with status {quote['status']}", "errorCode": "ALREADY_PAID"}
+        )
     
     # STATE MACHINE: Verify job is in accepted state before allowing payment
     request = await db.service_requests.find_one({"_id": ObjectId(quote["requestId"])})
@@ -2328,6 +2336,12 @@ async def sandbox_pay_quote(
         raise HTTPException(status_code=404, detail="Associated job request not found")
     
     current_status = request.get("status")
+    
+    # IDEMPOTENCY: If job already paid or beyond, return success (don't double-process)
+    if current_status in ["paid", "in_progress", "completed"]:
+        quote["_id"] = str(quote["_id"])
+        return {"success": True, "quote": quote, "message": "Job already paid", "errorCode": "ALREADY_PAID"}
+    
     is_valid, error_msg = validate_status_transition(current_status, "paid")
     if not is_valid:
         # Allow payment if status is awaiting_payment (quote sent state)
