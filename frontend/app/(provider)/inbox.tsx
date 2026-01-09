@@ -87,7 +87,7 @@ export default function ProviderInboxScreen() {
           
           // Include ALL jobs that have messages (including completed for dispute/verification)
           // Also include active jobs even without messages
-          const isActiveJob = ['pending', 'accepted', 'started', 'in_progress'].includes(job.status);
+          const isActiveJob = ['pending', 'accepted', 'in_progress'].includes(job.status);
           if (messages.length > 0 || isActiveJob) {
             const lastMessage = messages.length > 0 ? messages[messages.length - 1] : undefined;
             
