@@ -26,6 +26,15 @@ interface Provider {
   bio: string;
   verificationStatus: string;
   profilePhotoUrl?: string | null;
+  averageRating?: number;
+  totalReviews?: number;
+}
+
+interface PublicReview {
+  _id: string;
+  rating: number;
+  comment?: string;
+  createdAt?: string;
 }
 
 export default function ProviderDetailScreen() {
@@ -41,10 +50,38 @@ export default function ProviderDetailScreen() {
   const [provider, setProvider] = useState<Provider | null>(null);
   const [loading, setLoading] = useState(true);
   const [reporting, setReporting] = useState(false);
+  const [reviews, setReviews] = useState<PublicReview[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(false);
 
   useEffect(() => {
     fetchProvider();
   }, [providerId]);
+
+  // Fetch reviews when provider is loaded
+  useEffect(() => {
+    if (provider?._id) {
+      fetchReviews();
+    }
+  }, [provider?._id]);
+
+  const fetchReviews = async () => {
+    if (!provider?._id) return;
+    setLoadingReviews(true);
+    try {
+      const response = await axios.get(
+        `${BACKEND_URL}/api/reviews/by-provider/${provider._id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setReviews(response.data.reviews || []);
+    } catch (err) {
+      // Reviews may not exist yet - that's fine
+      if (__DEV__) {
+        console.warn('Error fetching reviews:', err);
+      }
+    } finally {
+      setLoadingReviews(false);
+    }
+  };
 
   const fetchProvider = async () => {
     try {
