@@ -562,6 +562,17 @@ async def social_auth(auth_data: SocialAuthRequest):
         logger.error(f"Social auth error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Authentication failed: {str(e)}")
 
+# Feature flags endpoint (public, read-only)
+@api_router.get("/config/feature-flags")
+async def get_feature_flags():
+    """Get current feature flags for frontend sync"""
+    return {
+        "MVP_MODE": FLAGS.MVP_MODE,
+        "ENABLE_LOCATION_MATCHING": FLAGS.ENABLE_LOCATION_MATCHING,
+        "ENABLE_REVIEWS": FLAGS.ENABLE_REVIEWS,
+        "ENABLE_NOTIFICATIONS": FLAGS.ENABLE_NOTIFICATIONS,
+    }
+
 # User Routes
 @api_router.patch("/users/role", response_model=User)
 async def switch_role(role_data: RoleUpdate, current_user: User = Depends(get_current_user)):
