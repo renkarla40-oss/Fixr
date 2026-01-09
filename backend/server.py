@@ -2318,6 +2318,14 @@ async def get_quote_by_request(
     
     if quote:
         quote["_id"] = str(quote["_id"])
+        
+        # Include provider rating info for the customer (quote comparison)
+        if is_customer and quote.get("providerId"):
+            quote_provider = await db.providers.find_one({"_id": ObjectId(quote["providerId"])})
+            if quote_provider:
+                quote["providerName"] = quote_provider.get("name", "Provider")
+                quote["providerRating"] = quote_provider.get("averageRating")
+                quote["providerReviewCount"] = quote_provider.get("totalReviews", 0)
     
     return {"quote": quote}
 
