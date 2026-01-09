@@ -296,7 +296,7 @@ class ReviewsTestSuite:
         if success and isinstance(result, list):
             found_provider = None
             for provider in result:
-                if provider.get("id") == self.provider_profile_id:
+                if provider.get("_id") == self.provider_profile_id:
                     found_provider = provider
                     break
             
