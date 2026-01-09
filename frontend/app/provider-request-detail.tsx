@@ -700,7 +700,6 @@ export default function ProviderRequestDetailScreen() {
       case 'paid':
         return { bg: '#E8F5E9', text: '#2E7D32', icon: 'card', label: 'Paid' };
       case 'in_progress':
-      case 'started':
         return { bg: '#E3F2FD', text: '#1565C0', icon: 'play-circle', label: 'In Progress' };
       case 'completed':
         return { bg: '#F3E5F5', text: '#7B1FA2', icon: 'checkmark-done-circle', label: 'Completed' };
