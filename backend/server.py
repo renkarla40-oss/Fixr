@@ -62,6 +62,53 @@ def generate_job_code() -> str:
     import random
     return str(random.randint(100000, 999999))
 
+# =============================================================================
+# JOB STATUS STATE MACHINE
+# =============================================================================
+# Allowed status order: pending → accepted → paid → started/in_progress → completed
+# 
+# Valid transitions:
+#   pending     → accepted (provider accepts)
+#   accepted    → paid (customer pays quote)
+#   paid        → started/in_progress (provider starts with job code)
+#   started/in_progress → completed (provider finishes with completion OTP)
+# =============================================================================
+
+VALID_STATUS_TRANSITIONS = {
+    "pending": ["accepted"],
+    "accepted": ["paid"],
+    "paid": ["started", "in_progress"],
+    "started": ["completed"],
+    "in_progress": ["completed"],
+    "completed": [],  # Terminal state - no further transitions
+}
+
+def validate_status_transition(current_status: str, new_status: str) -> tuple[bool, str]:
+    """
+    Validate if a status transition is allowed.
+    Returns (is_valid, error_message)
+    """
+    if current_status == new_status:
+        return True, ""  # No change is always valid
+    
+    allowed = VALID_STATUS_TRANSITIONS.get(current_status, [])
+    if new_status in allowed:
+        return True, ""
+    
+    return False, f"Invalid status transition: '{current_status}' → '{new_status}'. Allowed: {allowed or 'none (terminal state)'}"
+
+def get_status_display_name(status: str) -> str:
+    """Get human-readable status name"""
+    names = {
+        "pending": "Pending",
+        "accepted": "Accepted", 
+        "paid": "Paid",
+        "started": "In Progress",
+        "in_progress": "In Progress",
+        "completed": "Completed"
+    }
+    return names.get(status, status.title())
+
 # Create the main app
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
