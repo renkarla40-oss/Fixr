@@ -909,6 +909,95 @@ export default function RequestDetailScreen() {
               <Text style={styles.cancelButtonText}>Cancel Request</Text>
             </TouchableOpacity>
           )}
+
+          {/* REVIEW SECTION - Show for completed jobs */}
+          {request.status === 'completed' && (
+            <View style={styles.reviewSection}>
+              {existingReview ? (
+                // Show submitted review
+                <View style={styles.reviewSubmittedCard}>
+                  <View style={styles.reviewSubmittedHeader}>
+                    <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                    <Text style={styles.reviewSubmittedTitle}>Review Submitted</Text>
+                  </View>
+                  <View style={styles.reviewStarsDisplay}>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Ionicons
+                        key={star}
+                        name={star <= existingReview.rating ? 'star' : 'star-outline'}
+                        size={24}
+                        color="#FFB300"
+                      />
+                    ))}
+                  </View>
+                  {existingReview.comment && (
+                    <Text style={styles.reviewCommentText}>"{existingReview.comment}"</Text>
+                  )}
+                </View>
+              ) : showReviewForm ? (
+                // Show review form
+                <View style={styles.reviewFormCard}>
+                  <Text style={styles.reviewFormTitle}>Rate Your Experience</Text>
+                  <View style={styles.reviewStarsRow}>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <TouchableOpacity
+                        key={star}
+                        onPress={() => setReviewRating(star)}
+                        style={styles.starButton}
+                      >
+                        <Ionicons
+                          name={star <= reviewRating ? 'star' : 'star-outline'}
+                          size={36}
+                          color={star <= reviewRating ? '#FFB300' : '#CCC'}
+                        />
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                  <TextInput
+                    style={styles.reviewCommentInput}
+                    placeholder="Share your experience (optional, max 500 chars)"
+                    placeholderTextColor="#999"
+                    value={reviewComment}
+                    onChangeText={setReviewComment}
+                    multiline
+                    maxLength={500}
+                  />
+                  <View style={styles.reviewFormButtons}>
+                    <TouchableOpacity
+                      style={styles.reviewCancelButton}
+                      onPress={() => {
+                        setShowReviewForm(false);
+                        setReviewRating(0);
+                        setReviewComment('');
+                      }}
+                    >
+                      <Text style={styles.reviewCancelButtonText}>Cancel</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.reviewSubmitButton, reviewRating === 0 && styles.reviewSubmitButtonDisabled]}
+                      onPress={handleSubmitReview}
+                      disabled={reviewRating === 0 || submittingReview}
+                    >
+                      {submittingReview ? (
+                        <ActivityIndicator size="small" color="#FFFFFF" />
+                      ) : (
+                        <Text style={styles.reviewSubmitButtonText}>Submit Review</Text>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ) : (
+                // Show "Leave a Review" button
+                <TouchableOpacity
+                  style={styles.leaveReviewButton}
+                  onPress={() => setShowReviewForm(true)}
+                >
+                  <Ionicons name="star-outline" size={20} color="#FFFFFF" />
+                  <Text style={styles.leaveReviewButtonText}>Leave a Review</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
         </ScrollView>
       ) : (
         /* Chat Tab */
