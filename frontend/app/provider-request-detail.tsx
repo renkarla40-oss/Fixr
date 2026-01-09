@@ -261,35 +261,17 @@ export default function ProviderRequestDetailScreen() {
       });
       const newMessages: Message[] = response.data.messages || [];
       
-      // Only update state if there's an actual change in message count or IDs
-      setMessages(prev => {
-        // GUARD: No scroll behavior when empty
-        if (newMessages.length === 0) {
-          return newMessages;
-        }
-        
-        // If count changed, definitely update
-        if (newMessages.length !== prev.length) {
-          // Only auto-scroll when NEW messages arrive (not on initial load)
-          if (didInitialLoad && newMessages.length > prev.length && prev.length > 0) {
-            setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
-          }
-          return newMessages;
-        }
-        // If count is same, check if any message IDs changed (new messages replacing old)
-        const prevIds = prev.map(m => m._id).join(',');
-        const newIds = newMessages.map(m => m._id).join(',');
-        if (prevIds !== newIds) {
-          return newMessages;
-        }
-        // Same messages - don't update state to prevent re-render
-        return prev;
-      });
+      // Update messages state
+      setMessages(newMessages);
       
-      // Mark initial load complete after first successful fetch
-      if (!didInitialLoad) {
-        setDidInitialLoad(true);
+      // SCROLL LOGIC: Only scroll when new messages arrive (count increases)
+      // Never scroll on initial load or when empty
+      if (newMessages.length > 0 && newMessages.length > prevMessageCountRef.current && prevMessageCountRef.current > 0) {
+        setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
       }
+      
+      // Update prev count ref AFTER render
+      prevMessageCountRef.current = newMessages.length;
     } catch (err) {
       console.log('Messages fetch error');
     } finally {
@@ -308,24 +290,17 @@ export default function ProviderRequestDetailScreen() {
       });
       const newMessages: Message[] = response.data.messages || [];
       
-      // Only update if message count changed (new message arrived)
-      // Don't update just because readAt changed - that causes unnecessary re-renders
-      setMessages(prev => {
-        if (newMessages.length !== prev.length) {
-          // New message arrived - update and scroll only if there are MORE messages (not initial)
-          if (newMessages.length > prev.length && prev.length > 0) {
-            setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
-          }
-          return newMessages;
+      // Only update if message count changed
+      if (newMessages.length !== prevMessageCountRef.current) {
+        setMessages(newMessages);
+        
+        // Scroll only when NEW messages arrive (not on decrease/same)
+        if (newMessages.length > prevMessageCountRef.current && prevMessageCountRef.current > 0) {
+          setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
         }
-        // Check if last message ID changed (edge case: message was deleted/replaced)
-        if (newMessages.length > 0 && prev.length > 0 && 
-            newMessages[newMessages.length - 1]._id !== prev[prev.length - 1]._id) {
-          return newMessages;
-        }
-        // No structural change - keep current state
-        return prev;
-      });
+        
+        prevMessageCountRef.current = newMessages.length;
+      }
     } catch (err) {
       // Silent fail for polling
     }
