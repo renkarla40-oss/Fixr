@@ -2170,6 +2170,7 @@ async def send_quote(
     """
     Provider sends the quote to customer. Changes status to SENT.
     STATE MACHINE: Cannot send quotes if job is already paid/in_progress/completed.
+    IDEMPOTENT: If quote already SENT, return success.
     """
     quote = await db.quotes.find_one({"_id": ObjectId(quote_id)})
     if not quote:
@@ -2179,6 +2180,18 @@ async def send_quote(
     if quote.get("providerUserId") != current_user.id:
         raise HTTPException(status_code=403, detail="Only the quote creator can send it")
     
+    # IDEMPOTENCY: If already sent, return success
+    if quote["status"] == QuoteStatus.SENT:
+        quote["_id"] = str(quote["_id"])
+        return {"success": True, "quote": quote, "message": "Quote already sent"}
+    
+    # Cannot re-send paid quotes
+    if quote["status"] == QuoteStatus.PAID:
+        raise HTTPException(
+            status_code=400, 
+            detail={"message": "Quote already paid", "errorCode": "ALREADY_PAID"}
+        )
+    
     if quote["status"] not in [QuoteStatus.DRAFT, QuoteStatus.SENT]:
         raise HTTPException(status_code=400, detail=f"Cannot send quote with status {quote['status']}")
     
@@ -2186,10 +2199,10 @@ async def send_quote(
     request = await db.service_requests.find_one({"_id": ObjectId(quote["requestId"])})
     if request:
         current_status = request.get("status")
-        if current_status in ["paid", "in_progress", "started", "completed"]:
+        if current_status in ["paid", "in_progress", "completed"]:
             raise HTTPException(
                 status_code=400, 
-                detail=f"Cannot send quote: job is already {get_status_display_name(current_status)}"
+                detail={"message": f"Cannot send quote: job is already {get_status_display_name(current_status)}", "errorCode": "ALREADY_PAID"}
             )
     
     now = datetime.utcnow()
