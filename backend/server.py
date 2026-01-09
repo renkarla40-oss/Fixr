@@ -2748,6 +2748,126 @@ async def register_push_token(
     )
     return {"success": True, "message": "Push token registered"}
 
+# =============================================================================
+# REVIEW ROUTES (MVP)
+# =============================================================================
+
+@api_router.post("/reviews", response_model=Review)
+async def create_review(
+    review_data: ReviewCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Create a review for a completed job.
+    
+    Rules:
+    - Job must be completed
+    - Only one review per job (jobId unique)
+    - Only the job's customer can create the review
+    - Updates provider's averageRating and totalReviews
+    """
+    # Find the job
+    job = await db.service_requests.find_one({"_id": ObjectId(review_data.jobId)})
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    # Verify job is completed
+    if job.get("status") != "completed":
+        raise HTTPException(
+            status_code=400,
+            detail={"message": "Reviews can only be created for completed jobs", "errorCode": "INVALID_STATUS"}
+        )
+    
+    # Verify current user is the customer for this job
+    if job.get("customerId") != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail={"message": "Only the customer can review this job", "errorCode": "UNAUTHORIZED"}
+        )
+    
+    # Check if review already exists for this job (idempotency)
+    existing_review = await db.reviews.find_one({"jobId": review_data.jobId})
+    if existing_review:
+        existing_review["_id"] = str(existing_review["_id"])
+        return {"success": True, "review": existing_review, "message": "Review already exists", "errorCode": "ALREADY_REVIEWED"}
+    
+    # Create the review
+    provider_id = job.get("providerId")
+    review_doc = {
+        "jobId": review_data.jobId,
+        "providerId": provider_id,
+        "customerId": current_user.id,
+        "rating": review_data.rating,
+        "comment": review_data.comment,
+        "createdAt": datetime.utcnow(),
+    }
+    
+    result = await db.reviews.insert_one(review_doc)
+    review_doc["_id"] = str(result.inserted_id)
+    
+    # Update provider's rating statistics
+    if provider_id:
+        # Get all reviews for this provider
+        provider_reviews = await db.reviews.find({"providerId": provider_id}).to_list(1000)
+        total_reviews = len(provider_reviews)
+        average_rating = sum(r["rating"] for r in provider_reviews) / total_reviews if total_reviews > 0 else 0
+        
+        await db.providers.update_one(
+            {"_id": ObjectId(provider_id)},
+            {"$set": {
+                "averageRating": round(average_rating, 2),
+                "totalReviews": total_reviews
+            }}
+        )
+    
+    # Also update the job record with review info
+    await db.service_requests.update_one(
+        {"_id": ObjectId(review_data.jobId)},
+        {"$set": {
+            "customerRating": review_data.rating,
+            "customerReview": review_data.comment,
+            "reviewedAt": datetime.utcnow()
+        }}
+    )
+    
+    return Review(**review_doc)
+
+
+@api_router.get("/reviews/by-job/{job_id}")
+async def get_review_by_job(
+    job_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get the review for a specific job (if exists)"""
+    review = await db.reviews.find_one({"jobId": job_id})
+    if not review:
+        raise HTTPException(status_code=404, detail="No review found for this job")
+    
+    review["_id"] = str(review["_id"])
+    return review
+
+
+@api_router.get("/reviews/by-provider/{provider_id}")
+async def get_reviews_by_provider(
+    provider_id: str,
+    limit: int = Query(20, ge=1, le=100),
+    current_user: User = Depends(get_current_user)
+):
+    """Get all reviews for a provider"""
+    reviews = await db.reviews.find({"providerId": provider_id}).sort("createdAt", -1).to_list(limit)
+    
+    for review in reviews:
+        review["_id"] = str(review["_id"])
+    
+    # Also return summary stats
+    total = await db.reviews.count_documents({"providerId": provider_id})
+    
+    return {
+        "reviews": reviews,
+        "total": total,
+        "limit": limit
+    }
+
 @api_router.get("/notifications")
 async def get_notifications(
     current_user: User = Depends(get_current_user),
