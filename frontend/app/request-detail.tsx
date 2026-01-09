@@ -765,7 +765,7 @@ export default function RequestDetailScreen() {
           )}
 
           {/* In Progress Status - Light blue theme */}
-          {(request.status === 'in_progress' || request.status === 'started') && (
+          {request.status === 'in_progress' && (
             <View style={styles.inProgressCard}>
               <Ionicons name="play-circle" size={22} color="#4A90D9" />
               <View style={styles.inProgressContent}>
@@ -877,7 +877,7 @@ export default function RequestDetailScreen() {
                   <Text style={styles.statusBannerPaidText}>Payment received! Waiting for provider to start.</Text>
                 </View>
               )}
-              {(request.status === 'in_progress' || request.status === 'started') && (
+              {request.status === 'in_progress' && (
                 <View style={[styles.statusBannerInProgressScrollable]}>
                   <Ionicons name="construct" size={16} color="#1565C0" />
                   <Text style={styles.statusBannerInProgressText}>Job in progress</Text>
