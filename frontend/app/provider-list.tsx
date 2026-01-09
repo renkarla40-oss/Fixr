@@ -359,7 +359,7 @@ export default function ProviderListScreen() {
                   
                   {provider.averageRating && provider.averageRating > 0 && (
                     <View style={styles.ratingBadge}>
-                      <Ionicons name="star" size={12} color="#666" />
+                      <Ionicons name="star" size={12} color="#FFB300" />
                       <Text style={styles.ratingBadgeText}>
                         {provider.averageRating.toFixed(1)} ({provider.totalReviews || 0})
                       </Text>
