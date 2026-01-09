@@ -2760,72 +2760,113 @@ async def create_review(
     """
     Create a review for a completed job.
     
-    Rules:
-    - Job must be completed
-    - Only one review per job (jobId unique)
-    - Only the job's customer can create the review
-    - Updates provider's averageRating and totalReviews
+    Server-side enforcement:
+    - Rating must be 1-5
+    - Comment trimmed, max 500 chars
+    - Job must be status=completed
+    - customerId derived from auth (not client)
+    - providerId derived from job (not client)
+    - Idempotent: returns existing if same customer, 403 otherwise
     """
+    # Server-side validation: rating 1-5
+    if not (1 <= review_data.rating <= 5):
+        raise HTTPException(
+            status_code=400,
+            detail={"message": "Rating must be between 1 and 5", "errorCode": "INVALID_RATING"}
+        )
+    
+    # Server-side validation: trim and limit comment
+    comment = None
+    if review_data.comment:
+        comment = review_data.comment.strip()[:500] if review_data.comment else None
+        if comment == "":
+            comment = None
+    
     # Find the job
-    job = await db.service_requests.find_one({"_id": ObjectId(review_data.jobId)})
+    try:
+        job = await db.service_requests.find_one({"_id": ObjectId(review_data.jobId)})
+    except:
+        raise HTTPException(status_code=400, detail="Invalid job ID format")
+    
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
     
-    # Verify job is completed
+    # Server-side enforcement: job must be completed
     if job.get("status") != "completed":
         raise HTTPException(
             status_code=400,
             detail={"message": "Reviews can only be created for completed jobs", "errorCode": "INVALID_STATUS"}
         )
     
-    # Verify current user is the customer for this job
-    if job.get("customerId") != current_user.id:
+    # Derive customerId from job (verify current user is the customer)
+    job_customer_id = job.get("customerId")
+    if job_customer_id != current_user.id:
         raise HTTPException(
             status_code=403,
             detail={"message": "Only the customer can review this job", "errorCode": "UNAUTHORIZED"}
         )
     
-    # Check if review already exists for this job (idempotency)
+    # Derive providerId from job (not from client)
+    provider_id = job.get("providerId")
+    if not provider_id:
+        raise HTTPException(
+            status_code=400,
+            detail={"message": "Job has no assigned provider", "errorCode": "NO_PROVIDER"}
+        )
+    
+    # Idempotency check with authorization
     existing_review = await db.reviews.find_one({"jobId": review_data.jobId})
     if existing_review:
+        # Only return existing review if requester is the job's customer
+        if existing_review.get("customerId") != current_user.id:
+            raise HTTPException(
+                status_code=403,
+                detail={"message": "Not authorized to access this review", "errorCode": "UNAUTHORIZED"}
+            )
         existing_review["_id"] = str(existing_review["_id"])
         return Review(**existing_review)
     
-    # Create the review
-    provider_id = job.get("providerId")
+    # Create the review with server-derived values
     review_doc = {
         "jobId": review_data.jobId,
-        "providerId": provider_id,
-        "customerId": current_user.id,
+        "providerId": provider_id,  # Derived from job
+        "customerId": current_user.id,  # Derived from auth
         "rating": review_data.rating,
-        "comment": review_data.comment,
+        "comment": comment,  # Trimmed and limited
         "createdAt": datetime.utcnow(),
     }
     
     result = await db.reviews.insert_one(review_doc)
     review_doc["_id"] = str(result.inserted_id)
     
-    # Update provider's rating statistics
+    # Update provider's rating using DB aggregation (scalable)
     if provider_id:
-        # Get all reviews for this provider
-        provider_reviews = await db.reviews.find({"providerId": provider_id}).to_list(1000)
-        total_reviews = len(provider_reviews)
-        average_rating = sum(r["rating"] for r in provider_reviews) / total_reviews if total_reviews > 0 else 0
-        
-        await db.providers.update_one(
-            {"_id": ObjectId(provider_id)},
-            {"$set": {
-                "averageRating": round(average_rating, 2),
-                "totalReviews": total_reviews
+        pipeline = [
+            {"$match": {"providerId": provider_id}},
+            {"$group": {
+                "_id": None,
+                "averageRating": {"$avg": "$rating"},
+                "totalReviews": {"$sum": 1}
             }}
-        )
+        ]
+        agg_result = await db.reviews.aggregate(pipeline).to_list(1)
+        
+        if agg_result:
+            stats = agg_result[0]
+            await db.providers.update_one(
+                {"_id": ObjectId(provider_id)},
+                {"$set": {
+                    "averageRating": round(stats["averageRating"], 2),
+                    "totalReviews": stats["totalReviews"]
+                }}
+            )
     
-    # Also update the job record with review info
+    # Update the job record with review info
     await db.service_requests.update_one(
         {"_id": ObjectId(review_data.jobId)},
         {"$set": {
             "customerRating": review_data.rating,
-            "customerReview": review_data.comment,
+            "customerReview": comment,
             "reviewedAt": datetime.utcnow()
         }}
     )
@@ -2838,7 +2879,29 @@ async def get_review_by_job(
     job_id: str,
     current_user: User = Depends(get_current_user)
 ):
-    """Get the review for a specific job (if exists)"""
+    """
+    Get the review for a specific job.
+    Authorization: Only job's customer or provider can access.
+    """
+    # First find the job to check authorization
+    try:
+        job = await db.service_requests.find_one({"_id": ObjectId(job_id)})
+    except:
+        raise HTTPException(status_code=400, detail="Invalid job ID format")
+    
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    # Authorization: only customer or provider of this job
+    is_customer = job.get("customerId") == current_user.id
+    is_provider = job.get("providerUserId") == current_user.id
+    
+    if not is_customer and not is_provider:
+        raise HTTPException(
+            status_code=403,
+            detail={"message": "Only the job's customer or provider can view this review", "errorCode": "UNAUTHORIZED"}
+        )
+    
     review = await db.reviews.find_one({"jobId": job_id})
     if not review:
         raise HTTPException(status_code=404, detail="No review found for this job")
@@ -2853,11 +2916,31 @@ async def get_reviews_by_provider(
     limit: int = Query(20, ge=1, le=100),
     current_user: User = Depends(get_current_user)
 ):
-    """Get all reviews for a provider"""
+    """
+    Get reviews for a provider.
+    Public-safe fields for anyone; full details only for the provider.
+    """
+    # Check if requester is the provider
+    provider = await db.providers.find_one({"_id": ObjectId(provider_id)})
+    is_own_profile = provider and provider.get("userId") == current_user.id
+    
     reviews = await db.reviews.find({"providerId": provider_id}).sort("createdAt", -1).to_list(limit)
     
+    # Build response with appropriate fields
+    safe_reviews = []
     for review in reviews:
-        review["_id"] = str(review["_id"])
+        if is_own_profile:
+            # Provider sees full review
+            review["_id"] = str(review["_id"])
+            safe_reviews.append(review)
+        else:
+            # Public sees only safe fields (no customerId)
+            safe_reviews.append({
+                "_id": str(review["_id"]),
+                "rating": review["rating"],
+                "comment": review.get("comment"),
+                "createdAt": review.get("createdAt"),
+            })
     
     # Also return summary stats
     total = await db.reviews.count_documents({"providerId": provider_id})
