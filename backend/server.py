@@ -2918,6 +2918,138 @@ async def seed_canonical_accounts():
     logger.info(f"\n📊 Total users: {total_users}, providers: {total_providers}")
     logger.info("=" * 50)
 
+# =============================================================================
+# DEV-ONLY: DATA INTEGRITY REPORT
+# Protected endpoint - only enabled in MVP mode, report-only (no deletes)
+# =============================================================================
+
+@api_router.get("/dev/integrity-report")
+async def get_integrity_report(
+    dev_token: str = None,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    DEV-ONLY: Data integrity report.
+    Lists orphaned records and data anomalies - NEVER deletes anything.
+    
+    Access: Requires dev_token=fixr-mvp-dev-2024 query param
+    """
+    # Security: Require dev token
+    if dev_token != "fixr-mvp-dev-2024":
+        raise HTTPException(status_code=403, detail="Dev token required")
+    
+    report = {
+        "generated_at": datetime.utcnow().isoformat(),
+        "mode": "REPORT_ONLY",
+        "warning": "This endpoint only reports - no data is modified or deleted",
+        "summary": {},
+        "orphaned_quotes": [],
+        "orphaned_messages": [],
+        "jobs_missing_fields": [],
+        "jobs_invalid_state": [],
+    }
+    
+    # 1. Find orphaned quotes (quote without matching job)
+    all_quotes = await db.quotes.find().to_list(1000)
+    for quote in all_quotes:
+        request_id = quote.get("requestId")
+        if request_id:
+            job = await db.service_requests.find_one({"_id": ObjectId(request_id)})
+            if not job:
+                report["orphaned_quotes"].append({
+                    "quote_id": str(quote["_id"]),
+                    "request_id": request_id,
+                    "status": quote.get("status"),
+                    "created_at": str(quote.get("createdAt", "unknown"))
+                })
+    
+    # 2. Find orphaned messages (message without matching job)
+    all_messages = await db.messages.find().to_list(5000)
+    checked_jobs = {}  # Cache job existence checks
+    for msg in all_messages:
+        job_id = msg.get("jobId")
+        if job_id:
+            if job_id not in checked_jobs:
+                job = await db.service_requests.find_one({"_id": ObjectId(job_id)})
+                checked_jobs[job_id] = job is not None
+            if not checked_jobs[job_id]:
+                report["orphaned_messages"].append({
+                    "message_id": str(msg["_id"]),
+                    "job_id": job_id,
+                    "created_at": str(msg.get("createdAt", "unknown"))
+                })
+    
+    # 3. Find jobs missing required fields
+    all_jobs = await db.service_requests.find().to_list(1000)
+    required_fields = ["status", "customerId", "service"]
+    
+    for job in all_jobs:
+        missing = []
+        for field in required_fields:
+            if not job.get(field):
+                missing.append(field)
+        
+        # Check providerId only if job is accepted or beyond
+        if job.get("status") in ["accepted", "awaiting_payment", "paid", "in_progress", "completed"]:
+            if not job.get("providerId"):
+                missing.append("providerId")
+        
+        if missing:
+            report["jobs_missing_fields"].append({
+                "job_id": str(job["_id"]),
+                "status": job.get("status"),
+                "missing_fields": missing
+            })
+    
+    # 4. Find jobs in impossible states
+    for job in all_jobs:
+        status = job.get("status")
+        issues = []
+        
+        # Completed jobs should have completedAt
+        if status == "completed" and not job.get("completedAt"):
+            issues.append("completed but missing completedAt")
+        
+        # In-progress jobs should have startedAt
+        if status == "in_progress" and not job.get("startedAt"):
+            issues.append("in_progress but missing startedAt")
+        
+        # Paid jobs should have paidAt or a paid quote
+        if status == "paid" and not job.get("paidAt"):
+            # Check if there's a paid quote
+            paid_quote = await db.quotes.find_one({
+                "requestId": str(job["_id"]),
+                "status": "PAID"
+            })
+            if not paid_quote:
+                issues.append("paid but no paidAt timestamp and no PAID quote")
+        
+        # Accepted jobs should have jobCode
+        if status in ["accepted", "awaiting_payment", "paid"] and not job.get("jobCode"):
+            issues.append("accepted/paid but missing jobCode")
+        
+        if issues:
+            report["jobs_invalid_state"].append({
+                "job_id": str(job["_id"]),
+                "status": status,
+                "issues": issues
+            })
+    
+    # Summary counts
+    report["summary"] = {
+        "total_users": await db.users.count_documents({}),
+        "total_providers": await db.providers.count_documents({}),
+        "total_jobs": len(all_jobs),
+        "total_quotes": len(all_quotes),
+        "total_messages": len(all_messages),
+        "orphaned_quotes_count": len(report["orphaned_quotes"]),
+        "orphaned_messages_count": len(report["orphaned_messages"]),
+        "jobs_missing_fields_count": len(report["jobs_missing_fields"]),
+        "jobs_invalid_state_count": len(report["jobs_invalid_state"]),
+    }
+    
+    return report
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
