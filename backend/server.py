@@ -21,6 +21,19 @@ from dotenv import load_dotenv
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
+# =============================================================================
+# MVP FEATURE FLAGS
+# Read from environment, with safe defaults
+# =============================================================================
+class FeatureFlags:
+    MVP_MODE: bool = os.getenv("MVP_MODE", "true").lower() == "true"
+    ENABLE_LOCATION_MATCHING: bool = os.getenv("ENABLE_LOCATION_MATCHING", "false").lower() == "true"
+    ENABLE_REVIEWS: bool = os.getenv("ENABLE_REVIEWS", "false").lower() == "true"
+    ENABLE_NOTIFICATIONS: bool = os.getenv("ENABLE_NOTIFICATIONS", "false").lower() == "true"
+
+# Singleton instance
+FLAGS = FeatureFlags()
+
 # Create uploads directory for provider photos/IDs
 UPLOADS_DIR = ROOT_DIR / 'uploads'
 UPLOADS_DIR.mkdir(exist_ok=True)
