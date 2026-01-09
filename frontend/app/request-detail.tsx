@@ -539,16 +539,20 @@ export default function RequestDetailScreen() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
+      // Handle idempotent success (already paid)
+      if (isIdempotentSuccess(payResponse)) {
+        Alert.alert('Info', getIdempotentMessage(payResponse));
+      } else {
+        Alert.alert('Payment Successful', 'Your payment has been confirmed (sandbox). The provider can now start the job!');
+      }
+      
       setCurrentQuote(payResponse.data.quote);
       
       // Refresh request and messages
       fetchRequestDetail();
       fetchMessagesQuietly();
-      
-      Alert.alert('Payment Successful', 'Your payment has been confirmed (sandbox). The provider can now start the job!');
     } catch (err: any) {
-      const errorMsg = err.response?.data?.detail || 'Payment failed. Please try again.';
-      Alert.alert('Error', errorMsg);
+      Alert.alert('Error', getUserFriendlyError(err, 'Payment failed. Please try again.'));
     } finally {
       setProcessingPayment(false);
     }
