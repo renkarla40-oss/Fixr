@@ -2946,7 +2946,7 @@ async def get_reviews_by_provider(
     total = await db.reviews.count_documents({"providerId": provider_id})
     
     return {
-        "reviews": reviews,
+        "reviews": safe_reviews,
         "total": total,
         "limit": limit
     }
