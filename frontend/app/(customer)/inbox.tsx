@@ -127,7 +127,7 @@ export default function CustomerInboxScreen() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'accepted': return '#4CAF50';
-      case 'started': return '#2196F3';
+      case 'in_progress': return '#2196F3';
       case 'completed': return '#9C27B0';
       case 'declined': return '#F44336';
       default: return '#4A7DC4';
