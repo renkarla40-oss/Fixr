@@ -1644,6 +1644,7 @@ async def confirm_job_arrival(
     """
     Provider enters the job code from customer to confirm arrival and start the job.
     Valid transition: paid -> in_progress (payment required before start)
+    IDEMPOTENT: Returns success if already in_progress.
     """
     request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
     if not request:
@@ -1654,8 +1655,19 @@ async def confirm_job_arrival(
     if not provider or str(provider["_id"]) != request.get("providerId"):
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    # STATE MACHINE: Can only start from PAID (payment required before job start)
+    # IDEMPOTENCY: If already in_progress, return success
     current_status = request.get("status")
+    if current_status == "in_progress":
+        return {"success": True, "message": "Job already started", "errorCode": "ALREADY_IN_PROGRESS"}
+    
+    # Check if already completed
+    if current_status == "completed":
+        raise HTTPException(
+            status_code=400,
+            detail={"message": "Job already completed", "errorCode": "ALREADY_COMPLETED"}
+        )
+    
+    # STATE MACHINE: Can only start from PAID (payment required before job start)
     if current_status != "paid":
         raise HTTPException(
             status_code=400, 
