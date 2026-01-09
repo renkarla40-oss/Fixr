@@ -2130,7 +2130,10 @@ async def send_quote(
     quote_id: str,
     current_user: User = Depends(get_current_user)
 ):
-    """Provider sends the quote to customer. Changes status to SENT."""
+    """
+    Provider sends the quote to customer. Changes status to SENT.
+    STATE MACHINE: Cannot send quotes if job is already paid/in_progress/completed.
+    """
     quote = await db.quotes.find_one({"_id": ObjectId(quote_id)})
     if not quote:
         raise HTTPException(status_code=404, detail="Quote not found")
@@ -2141,6 +2144,16 @@ async def send_quote(
     
     if quote["status"] not in [QuoteStatus.DRAFT, QuoteStatus.SENT]:
         raise HTTPException(status_code=400, detail=f"Cannot send quote with status {quote['status']}")
+    
+    # STATE MACHINE: Check job status - cannot send quote if job already paid or beyond
+    request = await db.service_requests.find_one({"_id": ObjectId(quote["requestId"])})
+    if request:
+        current_status = request.get("status")
+        if current_status in ["paid", "in_progress", "started", "completed"]:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Cannot send quote: job is already {get_status_display_name(current_status)}"
+            )
     
     now = datetime.utcnow()
     await db.quotes.update_one(
