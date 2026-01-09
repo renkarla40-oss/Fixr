@@ -1579,6 +1579,7 @@ async def accept_service_request(
     """
     Provider accepts a job request. Generates a job code for arrival confirmation.
     Valid transition: pending -> accepted
+    IDEMPOTENT: Returns success if already accepted by same provider.
     """
     request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
     if not request:
@@ -1589,8 +1590,21 @@ async def accept_service_request(
     if not provider or str(provider["_id"]) != request.get("providerId"):
         raise HTTPException(status_code=403, detail="Not authorized to accept this request")
     
+    # IDEMPOTENCY: If already accepted, return success (not error)
+    current_status = request.get("status")
+    if current_status == "accepted":
+        request["_id"] = str(request["_id"])
+        return request  # Already accepted - idempotent success
+    
+    # Check if job has progressed beyond acceptable state
+    if current_status in ["paid", "in_progress", "completed"]:
+        raise HTTPException(
+            status_code=400, 
+            detail={"message": "Job already in progress or completed", "errorCode": "ALREADY_IN_PROGRESS"}
+        )
+    
     # Enforce valid status transition: can only accept pending requests
-    if request.get("status") != "pending":
+    if current_status != "pending":
         raise HTTPException(status_code=400, detail="This request can no longer be accepted")
     
     # Generate job code for customer to share on arrival
