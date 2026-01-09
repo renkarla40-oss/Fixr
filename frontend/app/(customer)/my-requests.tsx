@@ -103,7 +103,6 @@ export default function MyRequestsScreen() {
       case 'pending': return 'Pending';
       case 'accepted': return 'Accepted';
       case 'in_progress': return 'In Progress';
-      case 'started': return 'In Progress';
       case 'completed': return 'Completed';
       case 'declined': return 'Declined';
       case 'cancelled': return 'Cancelled';
