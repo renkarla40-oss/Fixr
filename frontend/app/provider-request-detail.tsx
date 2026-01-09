@@ -24,6 +24,7 @@ import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import { getServiceLabel } from '../constants/serviceCategories';
+import { getUserFriendlyError, isIdempotentSuccess, getIdempotentMessage } from '../utils/errorMessages';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
