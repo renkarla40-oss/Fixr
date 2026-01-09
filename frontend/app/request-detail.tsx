@@ -1544,6 +1544,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
+    minHeight: 200,
   },
   emptyChatTitle: {
     fontSize: 16,
