@@ -402,7 +402,7 @@ export default function ProviderListScreen() {
                   
                   {provider.distanceFromJob !== undefined && provider.distanceFromJob !== null && !provider.isOutsideSelectedArea && (
                     <View style={styles.distanceBadge}>
-                      <Ionicons name="navigate-outline" size={12} color="#666" />
+                      <Ionicons name="navigate-outline" size={12} color="#1565C0" />
                       <Text style={styles.distanceBadgeText}>~{provider.distanceFromJob} km away</Text>
                     </View>
                   )}
