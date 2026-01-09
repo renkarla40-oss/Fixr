@@ -2322,12 +2322,12 @@ async def sandbox_pay_quote(
     # IDEMPOTENCY: If already paid, return success
     if quote["status"] == QuoteStatus.PAID:
         quote["_id"] = str(quote["_id"])
-        return {"success": True, "quote": quote, "message": "Already paid", "errorCode": "ALREADY_PAID"}
+        return {"success": True, "quote": quote, "message": "Quote already paid", "errorCode": "ALREADY_PAID"}
     
     if quote["status"] not in [QuoteStatus.SENT, QuoteStatus.ACCEPTED]:
         raise HTTPException(
             status_code=400, 
-            detail={"message": f"Cannot pay quote with status {quote['status']}", "errorCode": "ALREADY_PAID"}
+            detail={"message": f"Cannot pay quote with status {quote['status']}", "errorCode": "INVALID_STATUS"}
         )
     
     # STATE MACHINE: Verify job is in accepted state before allowing payment
