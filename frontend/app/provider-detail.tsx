@@ -564,4 +564,45 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#999',
   },
+  // Rating and Reviews Styles
+  ratingSummary: {
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  ratingStarsRow: {
+    flexDirection: 'row',
+    gap: 4,
+    marginBottom: 8,
+  },
+  ratingText: {
+    fontSize: 16,
+    color: '#666',
+    fontWeight: '500',
+  },
+  reviewCard: {
+    backgroundColor: '#F8F8F8',
+    borderRadius: 10,
+    padding: 14,
+    marginTop: 10,
+  },
+  reviewCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  reviewStarsSmall: {
+    flexDirection: 'row',
+    gap: 2,
+  },
+  reviewDate: {
+    fontSize: 12,
+    color: '#999',
+  },
+  reviewComment: {
+    fontSize: 14,
+    color: '#444',
+    fontStyle: 'italic',
+    lineHeight: 20,
+  },
 });
