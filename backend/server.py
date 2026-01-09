@@ -2183,7 +2183,7 @@ async def send_quote(
     # IDEMPOTENCY: If already sent, return success
     if quote["status"] == QuoteStatus.SENT:
         quote["_id"] = str(quote["_id"])
-        return {"success": True, "quote": quote, "message": "Quote already sent"}
+        return {"success": True, "quote": quote, "message": "Quote already sent", "errorCode": "ALREADY_QUOTED"}
     
     # Cannot re-send paid quotes
     if quote["status"] == QuoteStatus.PAID:
@@ -2193,7 +2193,7 @@ async def send_quote(
         )
     
     if quote["status"] not in [QuoteStatus.DRAFT, QuoteStatus.SENT]:
-        raise HTTPException(status_code=400, detail=f"Cannot send quote with status {quote['status']}")
+        raise HTTPException(status_code=400, detail={"message": f"Cannot send quote with status {quote['status']}", "errorCode": "INVALID_STATUS"})
     
     # STATE MACHINE: Check job status - cannot send quote if job already paid or beyond
     request = await db.service_requests.find_one({"_id": ObjectId(quote["requestId"])})
