@@ -86,7 +86,6 @@ export default function MyRequestsScreen() {
       case 'accepted':
         return { bg: '#E8F5E9', text: '#2E7D32' };
       case 'in_progress':
-      case 'started':
         return { bg: '#EEF6FF', text: '#2C5AA0' };
       case 'declined':
         return { bg: '#FFEBEE', text: '#C62828' };
