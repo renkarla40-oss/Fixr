@@ -3086,17 +3086,6 @@ async def seed_canonical_accounts():
     logger.info(f"  ENABLE_NOTIFICATIONS: {FLAGS.ENABLE_NOTIFICATIONS}")
     logger.info("=" * 50)
 
-# Feature flags endpoint (public, read-only)
-@api_router.get("/config/feature-flags")
-async def get_feature_flags():
-    """Get current feature flags for frontend sync"""
-    return {
-        "MVP_MODE": FLAGS.MVP_MODE,
-        "ENABLE_LOCATION_MATCHING": FLAGS.ENABLE_LOCATION_MATCHING,
-        "ENABLE_REVIEWS": FLAGS.ENABLE_REVIEWS,
-        "ENABLE_NOTIFICATIONS": FLAGS.ENABLE_NOTIFICATIONS,
-    }
-
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
