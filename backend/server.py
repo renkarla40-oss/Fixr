@@ -1629,7 +1629,7 @@ async def confirm_job_arrival(
 ):
     """
     Provider enters the job code from customer to confirm arrival and start the job.
-    Valid transition: accepted -> in_progress
+    Valid transition: paid -> in_progress (payment required before start)
     """
     request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
     if not request:
@@ -1640,10 +1640,13 @@ async def confirm_job_arrival(
     if not provider or str(provider["_id"]) != request.get("providerId"):
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    # Enforce valid status transition: can only start from accepted or paid
+    # STATE MACHINE: Can only start from PAID (payment required before job start)
     current_status = request.get("status")
-    if current_status not in ["accepted", "paid"]:
-        raise HTTPException(status_code=400, detail="Job must be accepted (or paid) before it can be started")
+    if current_status != "paid":
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Job must be paid before it can be started. Current status: {get_status_display_name(current_status)}"
+        )
     
     # Check job code
     if request.get("jobCode") != confirm_data.jobCode:
