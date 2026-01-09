@@ -140,6 +140,13 @@ export default function RequestDetailScreen() {
     }, [requestId, token])
   );
 
+  // Fetch existing review when request is loaded and completed
+  useEffect(() => {
+    if (request?.status === 'completed' && request._id) {
+      fetchExistingReview();
+    }
+  }, [request?.status, request?._id]);
+
   // CRITICAL: Continuous status polling - runs independently of tabs
   // This ensures customer sees OTP completion updates in real-time
   useEffect(() => {
