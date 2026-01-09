@@ -3077,6 +3077,25 @@ async def seed_canonical_accounts():
     total_providers = await db.providers.count_documents({})
     logger.info(f"\n📊 Total users: {total_users}, providers: {total_providers}")
     logger.info("=" * 50)
+    
+    # Log feature flags
+    logger.info("MVP FEATURE FLAGS:")
+    logger.info(f"  MVP_MODE: {FLAGS.MVP_MODE}")
+    logger.info(f"  ENABLE_LOCATION_MATCHING: {FLAGS.ENABLE_LOCATION_MATCHING}")
+    logger.info(f"  ENABLE_REVIEWS: {FLAGS.ENABLE_REVIEWS}")
+    logger.info(f"  ENABLE_NOTIFICATIONS: {FLAGS.ENABLE_NOTIFICATIONS}")
+    logger.info("=" * 50)
+
+# Feature flags endpoint (public, read-only)
+@api_router.get("/config/feature-flags")
+async def get_feature_flags():
+    """Get current feature flags for frontend sync"""
+    return {
+        "MVP_MODE": FLAGS.MVP_MODE,
+        "ENABLE_LOCATION_MATCHING": FLAGS.ENABLE_LOCATION_MATCHING,
+        "ENABLE_REVIEWS": FLAGS.ENABLE_REVIEWS,
+        "ENABLE_NOTIFICATIONS": FLAGS.ENABLE_NOTIFICATIONS,
+    }
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
