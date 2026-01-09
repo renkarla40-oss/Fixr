@@ -62,7 +62,7 @@ export default function CustomerInboxScreen() {
           
           // Include requests that have messages OR are in active status
           // Completed jobs with messages should still appear for dispute/verification
-          if (messages.length > 0 || ['pending', 'accepted', 'started', 'in_progress', 'completed'].includes(req.status)) {
+          if (messages.length > 0 || ['pending', 'accepted', 'in_progress', 'completed'].includes(req.status)) {
             const lastMsg = messages.length > 0 ? messages[messages.length - 1] : null;
             
             conversationsWithMessages.push({
