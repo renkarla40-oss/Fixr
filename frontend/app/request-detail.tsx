@@ -83,6 +83,10 @@ interface Quote {
   sentAt?: string;
   acceptedAt?: string;
   paidAt?: string;
+  // Provider rating info
+  providerName?: string;
+  providerRating?: number;
+  providerReviewCount?: number;
 }
 
 type TabType = 'details' | 'chat';
