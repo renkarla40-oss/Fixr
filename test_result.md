@@ -980,10 +980,7 @@ frontend:
         comment: "Quote card now shows provider rating when available"
 
 test_plan:
-  current_focus:
-    - "Reviews - POST /api/reviews endpoint"
-    - "Reviews - Provider rating update via aggregation"
-    - "Reviews - Complete E2E flow"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
