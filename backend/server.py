@@ -1698,10 +1698,13 @@ async def complete_service_request(
     if not provider or str(provider["_id"]) != request.get("providerId"):
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    # Enforce valid status transition: can only complete from in_progress
+    # STATE MACHINE: Can only complete from in_progress
     current_status = request.get("status")
-    if current_status != "in_progress" and current_status != "started":
-        raise HTTPException(status_code=400, detail="Job must be in progress before it can be completed")
+    if current_status != "in_progress":
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Job must be in progress before it can be completed. Current status: {get_status_display_name(current_status)}"
+        )
     
     # Verify completion OTP
     submitted_otp = completion_data.get("completionOtp", "").strip()
