@@ -613,17 +613,22 @@ export default function ProviderRequestDetailScreen() {
 
     setConfirmingArrival(true);
     try {
-      await axios.post(
+      const response = await axios.post(
         `${BACKEND_URL}/api/service-requests/${request._id}/confirm-arrival`,
         { jobCode: jobCodeInput.trim() },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      Alert.alert('Success', 'Job started successfully!');
+      
+      // Handle idempotent success (already started)
+      if (isIdempotentSuccess(response)) {
+        Alert.alert('Info', getIdempotentMessage(response));
+      } else {
+        Alert.alert('Success', 'Job started successfully!');
+      }
       setJobCodeInput('');
       fetchRequestDetail();
     } catch (err: any) {
-      const message = err.response?.data?.detail || 'Incorrect code. Please try again.';
-      Alert.alert('Error', message);
+      Alert.alert('Error', getUserFriendlyError(err, "That code doesn't match. Please try again."));
     } finally {
       setConfirmingArrival(false);
     }
@@ -640,19 +645,23 @@ export default function ProviderRequestDetailScreen() {
     
     setCompletingJob(true);
     try {
-      await axios.patch(
+      const response = await axios.patch(
         `${BACKEND_URL}/api/service-requests/${request._id}/complete`,
         { completionOtp: completionOtpInput.trim() },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      // Immediately re-fetch to update local state with latest from DB
+      
+      // Handle idempotent success (already completed)
+      if (isIdempotentSuccess(response)) {
+        Alert.alert('Info', getIdempotentMessage(response));
+      } else {
+        Alert.alert('Success', 'Job completed successfully!');
+      }
       setShowCompletionOtpInput(false);
       setCompletionOtpInput('');
       await fetchRequestDetail();
-      Alert.alert('Success', 'Job completed successfully!');
     } catch (err: any) {
-      const errorMessage = err.response?.data?.detail || 'Failed to complete job. Please try again.';
-      Alert.alert('Error', errorMessage);
+      Alert.alert('Error', getUserFriendlyError(err, "That code doesn't match. Please try again."));
     } finally {
       setCompletingJob(false);
     }
