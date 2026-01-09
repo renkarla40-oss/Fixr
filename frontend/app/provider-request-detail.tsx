@@ -879,7 +879,7 @@ export default function ProviderRequestDetailScreen() {
             )}
 
             {/* Finish Job Button and OTP Input - MOVED UP for visibility (when in_progress) */}
-            {(request.status === 'in_progress' || request.status === 'started') && (
+            {request.status === 'in_progress' && (
               <View style={styles.finishJobSection}>
                 {!showCompletionOtpInput ? (
                   <TouchableOpacity style={styles.finishJobButton} onPress={handleCompleteJob}>
