@@ -1138,6 +1138,15 @@ export default function RequestDetailScreen() {
                       <Text style={styles.quoteStatusText}>PENDING</Text>
                     </View>
                   </View>
+                  {/* Provider Rating Display */}
+                  {(currentQuote.providerRating !== undefined && currentQuote.providerRating > 0) && (
+                    <View style={styles.quoteProviderRating}>
+                      <Ionicons name="star" size={16} color="#FFB300" />
+                      <Text style={styles.quoteProviderRatingText}>
+                        {currentQuote.providerRating.toFixed(1)} ({currentQuote.providerReviewCount || 0} reviews)
+                      </Text>
+                    </View>
+                  )}
                   <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
                   {currentQuote.description ? (
                     <Text style={styles.quoteCardDescription}>{currentQuote.description}</Text>
