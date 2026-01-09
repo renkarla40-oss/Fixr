@@ -381,7 +381,7 @@ export default function ProviderListScreen() {
                   
                   {provider.baseTown && (
                     <View style={styles.locationBadge}>
-                      <Ionicons name="location-outline" size={12} color="#666" />
+                      <Ionicons name="location-outline" size={12} color="#1565C0" />
                       <Text style={styles.locationBadgeText}>{provider.baseTown}</Text>
                     </View>
                   )}
