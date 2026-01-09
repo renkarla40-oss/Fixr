@@ -847,7 +847,7 @@ const styles = StyleSheet.create({
   distanceBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#E3F2FD',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
@@ -855,7 +855,7 @@ const styles = StyleSheet.create({
   },
   distanceBadgeText: {
     fontSize: 12,
-    color: '#666',
+    color: '#1565C0',
   },
   providerBio: {
     fontSize: 14,
