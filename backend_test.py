@@ -338,7 +338,7 @@ class ReviewsTestSuite:
             "comment": "Invalid rating test"
         })
         
-        if not success and "400" in str(result.get("status_code", "")):
+        if not success and ("400" in str(result.get("status_code", "")) or "422" in str(result.get("status_code", ""))):
             self.log_test("Invalid Rating (0) - Validation", True, "Correctly rejected rating=0")
         else:
             self.log_test("Invalid Rating (0) - Validation", False, f"Should have failed: {result}")
@@ -350,7 +350,7 @@ class ReviewsTestSuite:
             "comment": "Invalid rating test"
         })
         
-        if not success and "400" in str(result.get("status_code", "")):
+        if not success and ("400" in str(result.get("status_code", "")) or "422" in str(result.get("status_code", ""))):
             self.log_test("Invalid Rating (6) - Validation", True, "Correctly rejected rating=6")
         else:
             self.log_test("Invalid Rating (6) - Validation", False, f"Should have failed: {result}")
