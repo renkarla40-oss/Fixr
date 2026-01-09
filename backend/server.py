@@ -1594,7 +1594,7 @@ async def accept_service_request(
     current_status = request.get("status")
     if current_status == "accepted":
         request["_id"] = str(request["_id"])
-        return request  # Already accepted - idempotent success
+        return {"success": True, "data": request, "message": "Job already accepted", "errorCode": "ALREADY_ACCEPTED"}
     
     # Check if job has progressed beyond acceptable state
     if current_status in ["paid", "in_progress", "completed"]:
