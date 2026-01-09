@@ -101,9 +101,9 @@ def get_status_display_name(status: str) -> str:
     """Get human-readable status name"""
     names = {
         "pending": "Pending",
-        "accepted": "Accepted", 
+        "accepted": "Accepted",
+        "awaiting_payment": "Awaiting Payment",
         "paid": "Paid",
-        "started": "In Progress",
         "in_progress": "In Progress",
         "completed": "Completed"
     }
