@@ -2789,7 +2789,7 @@ async def create_review(
     existing_review = await db.reviews.find_one({"jobId": review_data.jobId})
     if existing_review:
         existing_review["_id"] = str(existing_review["_id"])
-        return {"success": True, "review": existing_review, "message": "Review already exists", "errorCode": "ALREADY_REVIEWED"}
+        return Review(**existing_review)
     
     # Create the review
     provider_id = job.get("providerId")
