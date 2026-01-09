@@ -565,12 +565,68 @@ export default function RequestDetailScreen() {
     }
   };
 
+  // Fetch existing review for this job
+  const fetchExistingReview = async () => {
+    if (!request?._id) return;
+    try {
+      const response = await axios.get(
+        `${BACKEND_URL}/api/reviews/by-job/${request._id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.data) {
+        setExistingReview({
+          rating: response.data.rating,
+          comment: response.data.comment,
+        });
+      }
+    } catch (err: any) {
+      // 404 means no review yet - that's fine
+      if (err.response?.status !== 404) {
+        console.log('Error fetching review:', err);
+      }
+    }
+  };
+
+  // Submit review
+  const handleSubmitReview = async () => {
+    if (!request?._id || reviewRating === 0) return;
+    
+    setSubmittingReview(true);
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/api/reviews`,
+        {
+          jobId: request._id,
+          rating: reviewRating,
+          comment: reviewComment.trim() || undefined,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      setExistingReview({
+        rating: response.data.rating,
+        comment: response.data.comment,
+      });
+      setShowReviewForm(false);
+      Alert.alert('Review Submitted', 'Thank you for your feedback!');
+    } catch (err: any) {
+      const errorMsg = err.response?.data?.message || err.response?.data?.detail || 'Failed to submit review.';
+      Alert.alert('Error', errorMsg);
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
   const onRefresh = () => {
     setRefreshing(true);
     fetchRequestDetail();
     if (activeTab === 'chat') {
       fetchMessages();
       fetchQuote();
+    }
+    // Refresh review status if job is completed
+    if (request?.status === 'completed') {
+      fetchExistingReview();
     }
   };
 
