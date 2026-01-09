@@ -751,7 +751,7 @@ export default function RequestDetailScreen() {
           )}
 
           {/* COMPLETION OTP CARD - Show when job is in progress */}
-          {(request.status === 'in_progress' || request.status === 'started') && request.completionOtp && (
+          {request.status === 'in_progress' && request.completionOtp && (
             <View style={styles.completionOtpCard}>
               <View style={styles.completionOtpHeader}>
                 <Ionicons name="key" size={22} color="#4CAF50" />
