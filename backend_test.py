@@ -106,8 +106,8 @@ class ReviewsTestSuite:
         
         success, result = self.make_request("GET", "/providers/me/profile", self.provider_token)
         
-        if success and "id" in result:
-            self.provider_profile_id = result["id"]
+        if success and "_id" in result:
+            self.provider_profile_id = result["_id"]
             self.log_test("Get Provider Profile", True, f"Provider Profile ID: {self.provider_profile_id}")
             return True
         else:
