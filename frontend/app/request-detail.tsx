@@ -111,6 +111,13 @@ export default function RequestDetailScreen() {
   const [currentQuote, setCurrentQuote] = useState<Quote | null>(null);
   const [processingPayment, setProcessingPayment] = useState(false);
   
+  // Review state
+  const [existingReview, setExistingReview] = useState<{rating: number; comment?: string} | null>(null);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewRating, setReviewRating] = useState<number>(0);
+  const [reviewComment, setReviewComment] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+  
   const scrollViewRef = useRef<ScrollView>(null);
   const inputRef = useRef<TextInput>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
