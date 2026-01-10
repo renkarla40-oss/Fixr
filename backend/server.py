@@ -1708,7 +1708,7 @@ async def accept_service_request(
         return {"success": True, "data": request, "message": "Job already accepted", "errorCode": "ALREADY_ACCEPTED"}
     
     # Check if job has progressed beyond acceptable state
-    if current_status in ["paid", "in_progress", "completed"]:
+    if current_status in ["awaiting_payment", "in_progress", "completed"]:
         raise HTTPException(
             status_code=400, 
             detail={"message": "Job already in progress or completed", "errorCode": "ALREADY_IN_PROGRESS"}
