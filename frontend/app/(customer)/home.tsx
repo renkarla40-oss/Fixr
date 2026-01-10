@@ -525,7 +525,7 @@ const styles = StyleSheet.create({
   sectionTitleOnGradient: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
     paddingHorizontal: 20,
     marginBottom: 16,
   },
