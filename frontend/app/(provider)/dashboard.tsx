@@ -288,8 +288,11 @@ export default function ProviderMyJobsScreen() {
       />
       <View style={styles.header}>
         <Text style={styles.title}>My Jobs</Text>
-        <View style={styles.countBadge}>
-          <Text style={styles.countText}>{jobs.length}</Text>
+        <View style={styles.headerRight}>
+          <View style={styles.countBadge}>
+            <Text style={styles.countText}>{jobs.length}</Text>
+          </View>
+          <NotificationBell color="#1A1A1A" size={24} />
         </View>
       </View>
       <ScrollView
