@@ -218,13 +218,14 @@ class NotificationTester:
         
         # Create quote
         quote_data = {
+            "requestId": job_id,
             "amount": 150.00,
             "description": "Kitchen sink repair - replace faucet and fix drainage",
             "estimatedDuration": "2 hours"
         }
         
         try:
-            response = self.make_request("POST", f"/quotes?request_id={job_id}", 
+            response = self.make_request("POST", "/quotes", 
                                        token=self.provider_token, data=quote_data)
             if response.status_code == 200:
                 data = response.json()
