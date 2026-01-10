@@ -388,6 +388,11 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
     flex: 1,
   },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   countBadge: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
