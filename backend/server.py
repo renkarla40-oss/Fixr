@@ -3638,7 +3638,7 @@ async def get_integrity_report(
                 missing.append(field)
         
         # Check providerId only if job is accepted or beyond
-        if job.get("status") in ["accepted", "awaiting_payment", "paid", "in_progress", "completed"]:
+        if job.get("status") in ["accepted", "awaiting_payment", "in_progress", "completed"]:
             if not job.get("providerId"):
                 missing.append("providerId")
         
@@ -3652,6 +3652,7 @@ async def get_integrity_report(
     # 4. Find jobs in impossible states
     for job in all_jobs:
         status = job.get("status")
+        payment_status = job.get("paymentStatus", "unpaid")
         issues = []
         
         # Completed jobs should have completedAt
@@ -3662,24 +3663,19 @@ async def get_integrity_report(
         if status == "in_progress" and not job.get("startedAt"):
             issues.append("in_progress but missing startedAt")
         
-        # Paid jobs should have paidAt or a paid quote
-        if status == "paid" and not job.get("paidAt"):
-            # Check if there's a paid quote
-            paid_quote = await db.quotes.find_one({
-                "requestId": str(job["_id"]),
-                "status": "PAID"
-            })
-            if not paid_quote:
-                issues.append("paid but no paidAt timestamp and no PAID quote")
+        # Jobs with paymentStatus=paid_manual should have paidAt
+        if payment_status == "paid_manual" and not job.get("paidAt"):
+            issues.append("payment recorded but missing paidAt timestamp")
         
         # Accepted jobs should have jobCode
-        if status in ["accepted", "awaiting_payment", "paid"] and not job.get("jobCode"):
-            issues.append("accepted/paid but missing jobCode")
+        if status in ["accepted", "awaiting_payment"] and not job.get("jobCode"):
+            issues.append("accepted but missing jobCode")
         
         if issues:
             report["jobs_invalid_state"].append({
                 "job_id": str(job["_id"]),
                 "status": status,
+                "paymentStatus": payment_status,
                 "issues": issues
             })
     
