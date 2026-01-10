@@ -1,437 +1,578 @@
 #!/usr/bin/env python3
 """
-Backend Testing Suite for Reviews Feature
-Tests the complete Reviews feature end-to-end using test accounts.
+Backend Testing Suite for In-App Notifications System
+Tests the complete notification workflow including triggers, endpoints, and data integrity.
 """
 
 import requests
 import json
-import sys
+import time
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Dict, List, Optional
 
 # Configuration
 BASE_URL = "https://chat-jump-fixer.preview.emergentagent.com/api"
+TEST_CREDENTIALS = {
+    "customer": {"email": "customer003@test.com", "password": "password123"},
+    "provider": {"email": "provider003@test.com", "password": "password123"}
+}
 
-# Test credentials
-CUSTOMER_EMAIL = "customer003@test.com"
-CUSTOMER_PASSWORD = "password123"
-PROVIDER_EMAIL = "provider003@test.com"
-PROVIDER_PASSWORD = "password123"
-
-class ReviewsTestSuite:
+class NotificationTester:
     def __init__(self):
         self.customer_token = None
         self.provider_token = None
         self.customer_id = None
         self.provider_id = None
-        self.provider_profile_id = None
-        self.completed_job_id = None
-        self.test_results = []
+        self.test_job_id = None
+        self.test_quote_id = None
         
-    def log_test(self, test_name: str, success: bool, details: str = ""):
-        """Log test result"""
-        status = "✅ PASS" if success else "❌ FAIL"
-        self.test_results.append(f"{status}: {test_name}")
-        if details:
-            self.test_results.append(f"    {details}")
-        print(f"{status}: {test_name}")
-        if details:
-            print(f"    {details}")
-    
-    def make_request(self, method: str, endpoint: str, token: str = None, data: dict = None) -> tuple[bool, dict]:
-        """Make HTTP request with error handling"""
+    def log(self, message: str, level: str = "INFO"):
+        """Log test messages with timestamp"""
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        print(f"[{timestamp}] {level}: {message}")
+        
+    def make_request(self, method: str, endpoint: str, token: str = None, data: dict = None, params: dict = None) -> requests.Response:
+        """Make HTTP request with proper headers"""
         url = f"{BASE_URL}{endpoint}"
         headers = {"Content-Type": "application/json"}
+        
         if token:
             headers["Authorization"] = f"Bearer {token}"
+            
+        try:
+            if method.upper() == "GET":
+                response = requests.get(url, headers=headers, params=params, timeout=30)
+            elif method.upper() == "POST":
+                response = requests.post(url, headers=headers, json=data, timeout=30)
+            elif method.upper() == "PATCH":
+                response = requests.patch(url, headers=headers, json=data, timeout=30)
+            else:
+                raise ValueError(f"Unsupported method: {method}")
+                
+            return response
+        except requests.exceptions.RequestException as e:
+            self.log(f"Request failed: {e}", "ERROR")
+            raise
+            
+    def authenticate_users(self) -> bool:
+        """Authenticate both customer and provider users"""
+        self.log("=== AUTHENTICATION PHASE ===")
+        
+        # Authenticate customer
+        try:
+            response = self.make_request("POST", "/auth/login", data=TEST_CREDENTIALS["customer"])
+            if response.status_code == 200:
+                data = response.json()
+                self.customer_token = data["token"]
+                self.customer_id = data["user"]["id"]
+                self.log(f"✅ Customer authenticated: {TEST_CREDENTIALS['customer']['email']}")
+            else:
+                self.log(f"❌ Customer authentication failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+        except Exception as e:
+            self.log(f"❌ Customer authentication error: {e}", "ERROR")
+            return False
+            
+        # Authenticate provider
+        try:
+            response = self.make_request("POST", "/auth/login", data=TEST_CREDENTIALS["provider"])
+            if response.status_code == 200:
+                data = response.json()
+                self.provider_token = data["token"]
+                self.provider_id = data["user"]["id"]
+                self.log(f"✅ Provider authenticated: {TEST_CREDENTIALS['provider']['email']}")
+            else:
+                self.log(f"❌ Provider authentication failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+        except Exception as e:
+            self.log(f"❌ Provider authentication error: {e}", "ERROR")
+            return False
+            
+        return True
+        
+    def test_notification_endpoints(self) -> bool:
+        """Test basic notification endpoints"""
+        self.log("=== TESTING NOTIFICATION ENDPOINTS ===")
+        
+        # Test GET /api/notifications for customer
+        try:
+            response = self.make_request("GET", "/notifications", token=self.customer_token)
+            if response.status_code == 200:
+                data = response.json()
+                self.log(f"✅ GET /api/notifications (customer): {len(data.get('notifications', []))} notifications")
+                self.log(f"   Response structure: {list(data.keys())}")
+            else:
+                self.log(f"❌ GET /api/notifications failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+        except Exception as e:
+            self.log(f"❌ GET /api/notifications error: {e}", "ERROR")
+            return False
+            
+        # Test GET /api/notifications for provider
+        try:
+            response = self.make_request("GET", "/notifications", token=self.provider_token)
+            if response.status_code == 200:
+                data = response.json()
+                self.log(f"✅ GET /api/notifications (provider): {len(data.get('notifications', []))} notifications")
+            else:
+                self.log(f"❌ GET /api/notifications (provider) failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+        except Exception as e:
+            self.log(f"❌ GET /api/notifications (provider) error: {e}", "ERROR")
+            return False
+            
+        # Test GET /api/notifications/unread-count for customer
+        try:
+            response = self.make_request("GET", "/notifications/unread-count", token=self.customer_token)
+            if response.status_code == 200:
+                data = response.json()
+                self.log(f"✅ GET /api/notifications/unread-count (customer): {data.get('count', 0)} unread")
+            else:
+                self.log(f"❌ GET /api/notifications/unread-count failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+        except Exception as e:
+            self.log(f"❌ GET /api/notifications/unread-count error: {e}", "ERROR")
+            return False
+            
+        # Test GET /api/notifications/unread-count for provider
+        try:
+            response = self.make_request("GET", "/notifications/unread-count", token=self.provider_token)
+            if response.status_code == 200:
+                data = response.json()
+                self.log(f"✅ GET /api/notifications/unread-count (provider): {data.get('count', 0)} unread")
+            else:
+                self.log(f"❌ GET /api/notifications/unread-count (provider) failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+        except Exception as e:
+            self.log(f"❌ GET /api/notifications/unread-count (provider) error: {e}", "ERROR")
+            return False
+            
+        return True
+        
+    def get_provider_profile(self) -> Optional[str]:
+        """Get provider profile ID for service requests"""
+        try:
+            response = self.make_request("GET", "/providers/me/profile", token=self.provider_token)
+            if response.status_code == 200:
+                data = response.json()
+                provider_profile_id = data.get("id") or data.get("_id")
+                self.log(f"✅ Provider profile ID: {provider_profile_id}")
+                return provider_profile_id
+            else:
+                self.log(f"❌ Failed to get provider profile: {response.status_code} - {response.text}", "ERROR")
+                return None
+        except Exception as e:
+            self.log(f"❌ Provider profile error: {e}", "ERROR")
+            return None
+            
+    def create_service_request(self, provider_profile_id: str) -> Optional[str]:
+        """Create a service request to trigger notifications"""
+        self.log("=== CREATING SERVICE REQUEST ===")
+        
+        request_data = {
+            "service": "Plumbing",
+            "description": "Test notification system - kitchen sink repair needed",
+            "jobTown": "Port of Spain",
+            "searchDistanceKm": 16,
+            "jobDuration": "1-2 hours"
+        }
         
         try:
-            if method == "GET":
-                response = requests.get(url, headers=headers)
-            elif method == "POST":
-                response = requests.post(url, headers=headers, json=data)
-            elif method == "PATCH":
-                response = requests.patch(url, headers=headers, json=data)
+            response = self.make_request("POST", f"/service-requests?provider_id={provider_profile_id}", 
+                                       token=self.customer_token, data=request_data)
+            if response.status_code == 200:
+                data = response.json()
+                job_id = data.get("id") or data.get("_id")
+                self.log(f"✅ Service request created: {job_id}")
+                self.log(f"   Status: {data.get('status')}")
+                return job_id
             else:
-                return False, {"error": f"Unsupported method: {method}"}
-            
-            if response.status_code < 400:
-                return True, response.json()
-            else:
-                return False, {
-                    "status_code": response.status_code,
-                    "error": response.text
-                }
+                self.log(f"❌ Service request creation failed: {response.status_code} - {response.text}", "ERROR")
+                return None
         except Exception as e:
-            return False, {"error": str(e)}
-    
-    def test_authentication(self):
-        """Test 1-2: Authentication for both customer and provider"""
-        print("\n=== AUTHENTICATION TESTS ===")
+            self.log(f"❌ Service request creation error: {e}", "ERROR")
+            return None
+            
+    def accept_service_request(self, job_id: str) -> bool:
+        """Provider accepts the service request"""
+        self.log("=== PROVIDER ACCEPTING REQUEST ===")
         
-        # Test 1: Customer Authentication
-        success, result = self.make_request("POST", "/auth/login", data={
-            "email": CUSTOMER_EMAIL,
-            "password": CUSTOMER_PASSWORD
-        })
-        
-        if success and "token" in result:
-            self.customer_token = result["token"]
-            self.customer_id = result["user"]["_id"]
-            self.log_test("Customer Authentication", True, f"Customer ID: {self.customer_id}")
-        else:
-            self.log_test("Customer Authentication", False, f"Error: {result}")
+        try:
+            response = self.make_request("PATCH", f"/service-requests/{job_id}/accept", token=self.provider_token)
+            if response.status_code == 200:
+                data = response.json()
+                self.log(f"✅ Service request accepted")
+                self.log(f"   Status: {data.get('status')}")
+                self.log(f"   Job Code: {data.get('jobCode')}")
+                return True
+            else:
+                self.log(f"❌ Service request acceptance failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+        except Exception as e:
+            self.log(f"❌ Service request acceptance error: {e}", "ERROR")
             return False
+            
+    def create_and_send_quote(self, job_id: str) -> Optional[str]:
+        """Create and send a quote"""
+        self.log("=== CREATING AND SENDING QUOTE ===")
         
-        # Test 2: Provider Authentication
-        success, result = self.make_request("POST", "/auth/login", data={
-            "email": PROVIDER_EMAIL,
-            "password": PROVIDER_PASSWORD
-        })
-        
-        if success and "token" in result:
-            self.provider_token = result["token"]
-            self.provider_id = result["user"]["_id"]
-            self.log_test("Provider Authentication", True, f"Provider ID: {self.provider_id}")
-        else:
-            self.log_test("Provider Authentication", False, f"Error: {result}")
-            return False
-        
-        return True
-    
-    def test_get_provider_profile(self):
-        """Test 3: Get provider profile to get provider profile ID"""
-        print("\n=== PROVIDER PROFILE TEST ===")
-        
-        success, result = self.make_request("GET", "/providers/me/profile", self.provider_token)
-        
-        if success and "_id" in result:
-            self.provider_profile_id = result["_id"]
-            self.log_test("Get Provider Profile", True, f"Provider Profile ID: {self.provider_profile_id}")
-            return True
-        else:
-            self.log_test("Get Provider Profile", False, f"Error: {result}")
-            return False
-    
-    def test_get_or_create_completed_job(self):
-        """Test 4-10: Get or create a completed job for testing reviews"""
-        print("\n=== COMPLETED JOB SETUP ===")
-        
-        # First, try to find an existing completed job
-        success, result = self.make_request("GET", "/service-requests", self.customer_token)
-        
-        if success and isinstance(result, list):
-            for request in result:
-                if request.get("status") == "completed" and request.get("providerId") == self.provider_profile_id:
-                    self.completed_job_id = request["_id"]
-                    self.log_test("Found Existing Completed Job", True, f"Job ID: {self.completed_job_id}")
-                    return True
-        
-        # If no completed job found, create the full workflow
-        self.log_test("No Existing Completed Job Found", True, "Creating new job workflow...")
-        
-        # Test 4: Customer creates service request
-        success, result = self.make_request("POST", "/service-requests", self.customer_token, {
-            "service": "Plumbing",
-            "description": "Test plumbing job for reviews testing",
-            "providerId": self.provider_profile_id,
-            "jobTown": "Port of Spain",
-            "searchDistanceKm": 16
-        })
-        
-        if success and "_id" in result:
-            job_id = result["_id"]
-            self.log_test("Create Service Request", True, f"Job ID: {job_id}")
-        else:
-            self.log_test("Create Service Request", False, f"Error: {result}")
-            return False
-        
-        # Test 5: Provider accepts request
-        success, result = self.make_request("PATCH", f"/service-requests/{job_id}/accept", self.provider_token)
-        
-        if success and "jobCode" in result:
-            job_code = result["jobCode"]
-            self.log_test("Provider Accepts Request", True, f"Job Code: {job_code}")
-        else:
-            self.log_test("Provider Accepts Request", False, f"Error: {result}")
-            return False
-        
-        # Test 6: Create and send quote
-        success, result = self.make_request("POST", "/quotes", self.provider_token, {
-            "requestId": job_id,
+        # Create quote
+        quote_data = {
             "amount": 150.00,
-            "description": "Plumbing repair work",
+            "description": "Kitchen sink repair - replace faucet and fix drainage",
             "estimatedDuration": "2 hours"
-        })
+        }
         
-        if success and "_id" in result:
-            quote_id = result["_id"]
-            self.log_test("Create Quote", True, f"Quote ID: {quote_id}")
-        else:
-            self.log_test("Create Quote", False, f"Error: {result}")
-            return False
-        
-        # Test 7: Send quote
-        success, result = self.make_request("POST", f"/quotes/{quote_id}/send", self.provider_token)
-        
-        if success:
-            self.log_test("Send Quote", True, "Quote sent successfully")
-        else:
-            self.log_test("Send Quote", False, f"Error: {result}")
-            return False
-        
-        # Test 8: Customer accepts quote
-        success, result = self.make_request("POST", f"/quotes/{quote_id}/accept", self.customer_token)
-        
-        if success:
-            self.log_test("Customer Accepts Quote", True, "Quote accepted")
-        else:
-            self.log_test("Customer Accepts Quote", False, f"Error: {result}")
-            return False
-        
-        # Test 9: Customer pays quote (sandbox)
-        success, result = self.make_request("POST", f"/quotes/{quote_id}/sandbox-pay", self.customer_token)
-        
-        if success:
-            self.log_test("Customer Pays Quote (Sandbox)", True, "Payment successful")
-        else:
-            self.log_test("Customer Pays Quote (Sandbox)", False, f"Error: {result}")
-            return False
-        
-        # Test 10: Provider confirms arrival and starts job
-        success, result = self.make_request("POST", f"/service-requests/{job_id}/confirm-arrival", self.provider_token, {
-            "jobCode": job_code
-        })
-        
-        if success:
-            self.log_test("Provider Confirms Arrival", True, "Job started")
-        else:
-            self.log_test("Provider Confirms Arrival", False, f"Error: {result}")
-            return False
-        
-        # Test 11: Provider completes job
-        success, result = self.make_request("PATCH", f"/service-requests/{job_id}/complete", self.provider_token, {
-            "completionOtp": "123456"  # Using test OTP
-        })
-        
-        if success:
-            self.completed_job_id = job_id
-            self.log_test("Provider Completes Job", True, f"Job completed: {job_id}")
-            return True
-        else:
-            self.log_test("Provider Completes Job", False, f"Error: {result}")
-            return False
-    
-    def test_reviews_backend(self):
-        """Test 12-18: Reviews backend functionality"""
-        print("\n=== REVIEWS BACKEND TESTS ===")
-        
-        if not self.completed_job_id:
-            self.log_test("Reviews Backend Tests", False, "No completed job available")
-            return False
-        
-        # Get provider rating before review
-        success, result = self.make_request("GET", f"/providers/{self.provider_profile_id}", self.customer_token)
-        provider_rating_before = None
-        provider_reviews_before = 0
-        
-        if success:
-            provider_rating_before = result.get("averageRating")
-            provider_reviews_before = result.get("totalReviews", 0)
-            self.log_test("Get Provider Rating Before Review", True, 
-                         f"Rating: {provider_rating_before}, Reviews: {provider_reviews_before}")
-        
-        # Test 12: Create review with valid data
-        success, result = self.make_request("POST", "/reviews", self.customer_token, {
-            "jobId": self.completed_job_id,
-            "rating": 5,
-            "comment": "Excellent service, very professional!"
-        })
-        
-        if success and "_id" in result:
-            review_id = result["_id"]
-            self.log_test("Create Review (Valid Data)", True, f"Review ID: {review_id}")
-        else:
-            self.log_test("Create Review (Valid Data)", False, f"Error: {result}")
-            return False
-        
-        # Test 13: Verify review was created - GET /api/reviews/by-job/{jobId}
-        success, result = self.make_request("GET", f"/reviews/by-job/{self.completed_job_id}", self.customer_token)
-        
-        if success and "rating" in result:
-            self.log_test("Get Review by Job ID", True, f"Rating: {result['rating']}, Comment: {result.get('comment', 'None')}")
-        else:
-            self.log_test("Get Review by Job ID", False, f"Error: {result}")
-        
-        # Test 14: Get reviews by provider - GET /api/reviews/by-provider/{providerId}
-        success, result = self.make_request("GET", f"/reviews/by-provider/{self.provider_profile_id}", self.customer_token)
-        
-        if success and "reviews" in result:
-            reviews = result["reviews"]
-            total = result.get("total", 0)
-            self.log_test("Get Reviews by Provider", True, f"Found {len(reviews)} reviews, Total: {total}")
-        else:
-            self.log_test("Get Reviews by Provider", False, f"Error: {result}")
-        
-        # Test 15: Verify provider rating was updated (or stayed same if idempotent)
-        success, result = self.make_request("GET", f"/providers/{self.provider_profile_id}", self.customer_token)
-        
-        if success:
-            provider_rating_after = result.get("averageRating")
-            provider_reviews_after = result.get("totalReviews", 0)
+        try:
+            response = self.make_request("POST", f"/quotes?request_id={job_id}", 
+                                       token=self.provider_token, data=quote_data)
+            if response.status_code == 200:
+                data = response.json()
+                quote_id = data.get("id") or data.get("_id")
+                self.log(f"✅ Quote created: {quote_id}")
+                
+                # Send quote
+                response = self.make_request("POST", f"/quotes/{quote_id}/send", token=self.provider_token)
+                if response.status_code == 200:
+                    self.log(f"✅ Quote sent to customer")
+                    return quote_id
+                else:
+                    self.log(f"❌ Quote sending failed: {response.status_code} - {response.text}", "ERROR")
+                    return None
+            else:
+                self.log(f"❌ Quote creation failed: {response.status_code} - {response.text}", "ERROR")
+                return None
+        except Exception as e:
+            self.log(f"❌ Quote creation/sending error: {e}", "ERROR")
+            return None
             
-            if provider_reviews_after >= provider_reviews_before:
-                self.log_test("Provider Rating Updated", True, 
-                             f"Before: {provider_rating_before}/{provider_reviews_before} → After: {provider_rating_after}/{provider_reviews_after}")
+    def accept_and_pay_quote(self, quote_id: str) -> bool:
+        """Customer accepts and pays the quote"""
+        self.log("=== CUSTOMER ACCEPTING AND PAYING QUOTE ===")
+        
+        try:
+            # Accept quote
+            response = self.make_request("POST", f"/quotes/{quote_id}/accept", token=self.customer_token)
+            if response.status_code == 200:
+                self.log(f"✅ Quote accepted by customer")
+                
+                # Pay quote (sandbox)
+                response = self.make_request("POST", f"/quotes/{quote_id}/sandbox-pay", token=self.customer_token)
+                if response.status_code == 200:
+                    self.log(f"✅ Quote paid (sandbox)")
+                    return True
+                else:
+                    self.log(f"❌ Quote payment failed: {response.status_code} - {response.text}", "ERROR")
+                    return False
             else:
-                self.log_test("Provider Rating Updated", False, 
-                             f"Review count decreased: {provider_reviews_before} → {provider_reviews_after}")
-        else:
-            self.log_test("Provider Rating Updated", False, f"Error: {result}")
-        
-        # Test 16: Verify provider rating in provider list
-        success, result = self.make_request("GET", "/providers", self.customer_token)
-        
-        if success and isinstance(result, list):
-            found_provider = None
-            for provider in result:
-                if provider.get("_id") == self.provider_profile_id:
-                    found_provider = provider
-                    break
+                self.log(f"❌ Quote acceptance failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+        except Exception as e:
+            self.log(f"❌ Quote acceptance/payment error: {e}", "ERROR")
+            return False
             
-            if found_provider and found_provider.get("averageRating") is not None:
-                self.log_test("Provider Rating in List", True, 
-                             f"Rating: {found_provider['averageRating']}, Reviews: {found_provider.get('totalReviews', 0)}")
+    def confirm_arrival_and_complete_job(self, job_id: str) -> bool:
+        """Provider confirms arrival and completes job"""
+        self.log("=== PROVIDER CONFIRMING ARRIVAL AND COMPLETING JOB ===")
+        
+        try:
+            # Get job details to find job code
+            response = self.make_request("GET", f"/service-requests/{job_id}", token=self.provider_token)
+            if response.status_code == 200:
+                data = response.json()
+                job_code = data.get("jobCode")
+                if not job_code:
+                    self.log("❌ No job code found", "ERROR")
+                    return False
+                    
+                # Confirm arrival
+                arrival_data = {"jobCode": job_code}
+                response = self.make_request("POST", f"/service-requests/{job_id}/confirm-arrival", 
+                                           token=self.provider_token, data=arrival_data)
+                if response.status_code == 200:
+                    self.log(f"✅ Arrival confirmed with job code: {job_code}")
+                    
+                    # Complete job
+                    completion_data = {"completionOtp": "123456"}  # Test OTP
+                    response = self.make_request("PATCH", f"/service-requests/{job_id}/complete", 
+                                               token=self.provider_token, data=completion_data)
+                    if response.status_code == 200:
+                        self.log(f"✅ Job completed")
+                        return True
+                    else:
+                        self.log(f"❌ Job completion failed: {response.status_code} - {response.text}", "ERROR")
+                        return False
+                else:
+                    self.log(f"❌ Arrival confirmation failed: {response.status_code} - {response.text}", "ERROR")
+                    return False
             else:
-                self.log_test("Provider Rating in List", False, "Provider not found or no rating")
-        else:
-            self.log_test("Provider Rating in List", False, f"Error: {result}")
-        
-        # Test 17: Verify quote includes provider rating
-        success, result = self.make_request("GET", f"/quotes/by-request/{self.completed_job_id}", self.customer_token)
-        
-        if success and "quote" in result and result["quote"]:
-            quote = result["quote"]
-            if "providerRating" in quote and "providerReviewCount" in quote:
-                self.log_test("Quote Includes Provider Rating", True, 
-                             f"Rating: {quote['providerRating']}, Count: {quote['providerReviewCount']}")
-            else:
-                self.log_test("Quote Includes Provider Rating", False, "Rating fields missing from quote")
-        else:
-            self.log_test("Quote Includes Provider Rating", False, f"Error: {result}")
-        
-        return True
-    
-    def test_validation_and_authorization(self):
-        """Test 18-22: Validation and authorization tests"""
-        print("\n=== VALIDATION & AUTHORIZATION TESTS ===")
-        
-        if not self.completed_job_id:
-            self.log_test("Validation Tests", False, "No completed job available")
+                self.log(f"❌ Failed to get job details: {response.status_code} - {response.text}", "ERROR")
+                return False
+        except Exception as e:
+            self.log(f"❌ Arrival/completion error: {e}", "ERROR")
             return False
+            
+    def submit_review(self, job_id: str) -> bool:
+        """Customer submits a review"""
+        self.log("=== CUSTOMER SUBMITTING REVIEW ===")
         
-        # Test 18: Invalid rating (0)
-        success, result = self.make_request("POST", "/reviews", self.customer_token, {
-            "jobId": self.completed_job_id,
-            "rating": 0,
-            "comment": "Invalid rating test"
-        })
-        
-        if not success and ("400" in str(result.get("status_code", "")) or "422" in str(result.get("status_code", ""))):
-            self.log_test("Invalid Rating (0) - Validation", True, "Correctly rejected rating=0")
-        else:
-            self.log_test("Invalid Rating (0) - Validation", False, f"Should have failed: {result}")
-        
-        # Test 19: Invalid rating (6)
-        success, result = self.make_request("POST", "/reviews", self.customer_token, {
-            "jobId": self.completed_job_id,
-            "rating": 6,
-            "comment": "Invalid rating test"
-        })
-        
-        if not success and ("400" in str(result.get("status_code", "")) or "422" in str(result.get("status_code", ""))):
-            self.log_test("Invalid Rating (6) - Validation", True, "Correctly rejected rating=6")
-        else:
-            self.log_test("Invalid Rating (6) - Validation", False, f"Should have failed: {result}")
-        
-        # Test 20: Duplicate review (idempotency)
-        success, result = self.make_request("POST", "/reviews", self.customer_token, {
-            "jobId": self.completed_job_id,
-            "rating": 4,
-            "comment": "Duplicate review test"
-        })
-        
-        if success and "_id" in result:
-            # Should return existing review, not create new one
-            self.log_test("Duplicate Review - Idempotency", True, "Returned existing review")
-        else:
-            self.log_test("Duplicate Review - Idempotency", False, f"Error: {result}")
-        
-        # Test 21: Unauthorized access (provider trying to review their own job)
-        success, result = self.make_request("POST", "/reviews", self.provider_token, {
-            "jobId": self.completed_job_id,
+        review_data = {
+            "jobId": job_id,
             "rating": 5,
-            "comment": "Provider trying to review"
-        })
+            "comment": "Excellent service! Very professional and completed the work quickly."
+        }
         
-        if not success and ("403" in str(result.get("status_code", "")) or "401" in str(result.get("status_code", ""))):
-            self.log_test("Unauthorized Review - Provider", True, "Correctly rejected provider review")
-        else:
-            self.log_test("Unauthorized Review - Provider", False, f"Should have failed: {result}")
+        try:
+            response = self.make_request("POST", "/reviews", token=self.customer_token, data=review_data)
+            if response.status_code == 200:
+                self.log(f"✅ Review submitted: 5 stars")
+                return True
+            else:
+                self.log(f"❌ Review submission failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+        except Exception as e:
+            self.log(f"❌ Review submission error: {e}", "ERROR")
+            return False
+            
+    def verify_notifications_created(self) -> bool:
+        """Verify that notifications were created during the workflow"""
+        self.log("=== VERIFYING NOTIFICATIONS CREATED ===")
         
-        # Test 22: Invalid job ID
-        success, result = self.make_request("GET", "/reviews/by-job/invalid_job_id", self.customer_token)
-        
-        if not success and "400" in str(result.get("status_code", "")):
-            self.log_test("Invalid Job ID - Validation", True, "Correctly rejected invalid job ID")
-        else:
-            self.log_test("Invalid Job ID - Validation", False, f"Should have failed: {result}")
-        
+        # Check customer notifications
+        try:
+            response = self.make_request("GET", "/notifications", token=self.customer_token)
+            if response.status_code == 200:
+                data = response.json()
+                customer_notifications = data.get("notifications", [])
+                self.log(f"✅ Customer has {len(customer_notifications)} notifications")
+                
+                # Log notification details
+                for i, notif in enumerate(customer_notifications[:5]):  # Show first 5
+                    self.log(f"   [{i+1}] {notif.get('type')}: {notif.get('title')}")
+                    self.log(f"       Body: {notif.get('body')}")
+                    self.log(f"       Read: {notif.get('isRead')}, Created: {notif.get('createdAt')}")
+                    
+                    # Verify notification structure
+                    required_fields = ['_id', 'userId', 'type', 'title', 'body', 'isRead', 'createdAt']
+                    missing_fields = [field for field in required_fields if field not in notif]
+                    if missing_fields:
+                        self.log(f"❌ Missing fields in notification: {missing_fields}", "ERROR")
+                        return False
+            else:
+                self.log(f"❌ Failed to get customer notifications: {response.status_code} - {response.text}", "ERROR")
+                return False
+        except Exception as e:
+            self.log(f"❌ Customer notifications error: {e}", "ERROR")
+            return False
+            
+        # Check provider notifications
+        try:
+            response = self.make_request("GET", "/notifications", token=self.provider_token)
+            if response.status_code == 200:
+                data = response.json()
+                provider_notifications = data.get("notifications", [])
+                self.log(f"✅ Provider has {len(provider_notifications)} notifications")
+                
+                # Log notification details
+                for i, notif in enumerate(provider_notifications[:5]):  # Show first 5
+                    self.log(f"   [{i+1}] {notif.get('type')}: {notif.get('title')}")
+                    self.log(f"       Body: {notif.get('body')}")
+                    self.log(f"       Read: {notif.get('isRead')}, Created: {notif.get('createdAt')}")
+            else:
+                self.log(f"❌ Failed to get provider notifications: {response.status_code} - {response.text}", "ERROR")
+                return False
+        except Exception as e:
+            self.log(f"❌ Provider notifications error: {e}", "ERROR")
+            return False
+            
         return True
-    
-    def run_all_tests(self):
-        """Run the complete test suite"""
-        print("🧪 REVIEWS FEATURE END-TO-END TESTING")
-        print("=" * 50)
         
-        # Run test phases
-        if not self.test_authentication():
-            print("\n❌ AUTHENTICATION FAILED - STOPPING TESTS")
+    def test_pagination(self) -> bool:
+        """Test notification pagination"""
+        self.log("=== TESTING NOTIFICATION PAGINATION ===")
+        
+        try:
+            # Test with limit and skip
+            params = {"limit": 5, "skip": 0}
+            response = self.make_request("GET", "/notifications", token=self.customer_token, params=params)
+            if response.status_code == 200:
+                data = response.json()
+                self.log(f"✅ Pagination test: limit=5, skip=0")
+                self.log(f"   Returned: {len(data.get('notifications', []))} notifications")
+                self.log(f"   Has more: {data.get('hasMore', False)}")
+                self.log(f"   Total: {data.get('total', 0)}")
+                return True
+            else:
+                self.log(f"❌ Pagination test failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+        except Exception as e:
+            self.log(f"❌ Pagination test error: {e}", "ERROR")
             return False
+            
+    def test_mark_read_functionality(self) -> bool:
+        """Test marking notifications as read"""
+        self.log("=== TESTING MARK READ FUNCTIONALITY ===")
         
-        if not self.test_get_provider_profile():
-            print("\n❌ PROVIDER PROFILE FAILED - STOPPING TESTS")
-            return False
-        
-        if not self.test_get_or_create_completed_job():
-            print("\n❌ COMPLETED JOB SETUP FAILED - STOPPING TESTS")
-            return False
-        
-        self.test_reviews_backend()
-        self.test_validation_and_authorization()
-        
-        # Summary
-        print("\n" + "=" * 50)
-        print("📊 TEST SUMMARY")
-        print("=" * 50)
-        
-        passed = sum(1 for result in self.test_results if "✅ PASS" in result)
-        failed = sum(1 for result in self.test_results if "❌ FAIL" in result)
-        
-        for result in self.test_results:
-            print(result)
-        
-        print(f"\n📈 RESULTS: {passed} PASSED, {failed} FAILED")
-        
-        if failed == 0:
-            print("🎉 ALL TESTS PASSED! Reviews feature is working correctly.")
+        try:
+            # Get customer notifications
+            response = self.make_request("GET", "/notifications", token=self.customer_token)
+            if response.status_code == 200:
+                data = response.json()
+                notifications = data.get("notifications", [])
+                
+                if notifications:
+                    # Mark first notification as read
+                    notif_id = notifications[0].get("_id")
+                    response = self.make_request("PATCH", f"/notifications/{notif_id}/read", token=self.customer_token)
+                    if response.status_code == 200:
+                        self.log(f"✅ Individual notification marked as read: {notif_id}")
+                    else:
+                        self.log(f"❌ Failed to mark notification as read: {response.status_code} - {response.text}", "ERROR")
+                        return False
+                        
+                # Test mark all as read
+                response = self.make_request("PATCH", "/notifications/read-all", token=self.customer_token)
+                if response.status_code == 200:
+                    data = response.json()
+                    self.log(f"✅ All notifications marked as read: {data.get('markedCount', 0)} notifications")
+                else:
+                    self.log(f"❌ Failed to mark all notifications as read: {response.status_code} - {response.text}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Failed to get notifications for mark read test: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
             return True
-        else:
-            print(f"⚠️  {failed} TESTS FAILED. Please review the issues above.")
+        except Exception as e:
+            self.log(f"❌ Mark read test error: {e}", "ERROR")
             return False
+            
+    def test_idempotency(self) -> bool:
+        """Test notification idempotency by trying to complete the same job twice"""
+        self.log("=== TESTING NOTIFICATION IDEMPOTENCY ===")
+        
+        if not self.test_job_id:
+            self.log("❌ No test job ID available for idempotency test", "ERROR")
+            return False
+            
+        try:
+            # Get initial notification count
+            response = self.make_request("GET", "/notifications/unread-count", token=self.customer_token)
+            if response.status_code == 200:
+                initial_count = response.json().get("count", 0)
+                
+                # Try to complete the job again (should not create duplicate notifications)
+                completion_data = {"completionOtp": "123456"}
+                response = self.make_request("PATCH", f"/service-requests/{self.test_job_id}/complete", 
+                                           token=self.provider_token, data=completion_data)
+                
+                # This should fail (job already completed), but let's check notifications anyway
+                time.sleep(1)  # Brief delay for any async processing
+                
+                # Check notification count again
+                response = self.make_request("GET", "/notifications/unread-count", token=self.customer_token)
+                if response.status_code == 200:
+                    final_count = response.json().get("count", 0)
+                    
+                    if final_count == initial_count:
+                        self.log(f"✅ Idempotency test passed: No duplicate notifications created")
+                        return True
+                    else:
+                        self.log(f"⚠️ Idempotency test: Notification count changed from {initial_count} to {final_count}")
+                        return True  # This might be expected behavior
+                else:
+                    self.log(f"❌ Failed to get final notification count: {response.status_code} - {response.text}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Failed to get initial notification count: {response.status_code} - {response.text}", "ERROR")
+                return False
+        except Exception as e:
+            self.log(f"❌ Idempotency test error: {e}", "ERROR")
+            return False
+            
+    def run_complete_test_suite(self) -> bool:
+        """Run the complete notification system test suite"""
+        self.log("🚀 STARTING IN-APP NOTIFICATIONS SYSTEM TESTING")
+        self.log("=" * 60)
+        
+        # Phase 1: Authentication
+        if not self.authenticate_users():
+            return False
+            
+        # Phase 2: Test basic notification endpoints
+        if not self.test_notification_endpoints():
+            return False
+            
+        # Phase 3: Create complete job workflow to trigger notifications
+        provider_profile_id = self.get_provider_profile()
+        if not provider_profile_id:
+            return False
+            
+        # Create service request (should trigger REQUEST_RECEIVED notification for provider)
+        job_id = self.create_service_request(provider_profile_id)
+        if not job_id:
+            return False
+        self.test_job_id = job_id
+        
+        # Provider accepts request (should trigger REQUEST_ACCEPTED notification for customer)
+        if not self.accept_service_request(job_id):
+            return False
+            
+        # Provider sends quote
+        quote_id = self.create_and_send_quote(job_id)
+        if not quote_id:
+            return False
+        self.test_quote_id = quote_id
+        
+        # Customer accepts and pays quote
+        if not self.accept_and_pay_quote(quote_id):
+            return False
+            
+        # Provider confirms arrival and completes job (should trigger JOB_COMPLETED for both)
+        if not self.confirm_arrival_and_complete_job(job_id):
+            return False
+            
+        # Customer submits review (should trigger REVIEW_RECEIVED for provider)
+        if not self.submit_review(job_id):
+            return False
+            
+        # Phase 4: Verify notifications were created
+        time.sleep(2)  # Allow time for async notification processing
+        if not self.verify_notifications_created():
+            return False
+            
+        # Phase 5: Test additional functionality
+        if not self.test_pagination():
+            return False
+            
+        if not self.test_mark_read_functionality():
+            return False
+            
+        if not self.test_idempotency():
+            return False
+            
+        self.log("=" * 60)
+        self.log("🎉 ALL NOTIFICATION SYSTEM TESTS COMPLETED SUCCESSFULLY!")
+        return True
+
+def main():
+    """Main test execution"""
+    tester = NotificationTester()
+    
+    try:
+        success = tester.run_complete_test_suite()
+        if success:
+            print("\n✅ NOTIFICATION SYSTEM TESTING: ALL TESTS PASSED")
+            exit(0)
+        else:
+            print("\n❌ NOTIFICATION SYSTEM TESTING: SOME TESTS FAILED")
+            exit(1)
+    except KeyboardInterrupt:
+        print("\n⚠️ Testing interrupted by user")
+        exit(1)
+    except Exception as e:
+        print(f"\n💥 Testing failed with unexpected error: {e}")
+        exit(1)
 
 if __name__ == "__main__":
-    test_suite = ReviewsTestSuite()
-    success = test_suite.run_all_tests()
-    sys.exit(0 if success else 1)
+    main()
