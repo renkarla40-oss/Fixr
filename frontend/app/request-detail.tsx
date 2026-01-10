@@ -1208,14 +1208,16 @@ export default function RequestDetailScreen() {
             </View>
           ) : (
             <View style={{ paddingBottom: insets.bottom + 12 }}>
-              {/* Quote Card - Show when there's a quote pending */}
+              {/* Quote Card - Show when there's a quote pending (SENT status) */}
               {currentQuote && currentQuote.status === 'SENT' && (
                 <View style={styles.quoteCard}>
                   <View style={styles.quoteCardHeader}>
                     <Ionicons name="document-text" size={20} color="#4CAF50" />
                     <Text style={styles.quoteCardTitle}>Quote from Provider</Text>
                     <View style={styles.quoteStatusBadge}>
-                      <Text style={styles.quoteStatusText}>PENDING</Text>
+                      <Text style={styles.quoteStatusText}>
+                        {currentQuote.revision && currentQuote.revision > 1 ? `REVISED #${currentQuote.revision}` : 'PENDING'}
+                      </Text>
                     </View>
                   </View>
                   {/* Provider Rating Display */}
@@ -1231,10 +1233,151 @@ export default function RequestDetailScreen() {
                   {currentQuote.description ? (
                     <Text style={styles.quoteCardDescription}>{currentQuote.description}</Text>
                   ) : null}
+                  {currentQuote.note ? (
+                    <Text style={styles.quoteCardNote}>Note: {currentQuote.note}</Text>
+                  ) : null}
+                  <Text style={styles.quoteCardAmount}>${currentQuote.amount.toFixed(2)} {currentQuote.currency}</Text>
+                  
+                  {/* Counter Form */}
+                  {showCounterForm ? (
+                    <View style={styles.counterFormContainer}>
+                      <Text style={styles.counterFormTitle}>Make a Counter Offer</Text>
+                      <View style={styles.counterInputRow}>
+                        <Text style={styles.counterCurrencyLabel}>$</Text>
+                        <TextInput
+                          style={styles.counterAmountInput}
+                          placeholder="Your offer"
+                          placeholderTextColor="#999"
+                          keyboardType="decimal-pad"
+                          value={counterAmount}
+                          onChangeText={setCounterAmount}
+                        />
+                      </View>
+                      <TextInput
+                        style={styles.counterNoteInput}
+                        placeholder="Add a note (optional)"
+                        placeholderTextColor="#999"
+                        value={counterNote}
+                        onChangeText={setCounterNote}
+                        maxLength={500}
+                        multiline
+                      />
+                      <View style={styles.counterFormButtons}>
+                        <TouchableOpacity
+                          style={styles.counterCancelButton}
+                          onPress={() => {
+                            setShowCounterForm(false);
+                            setCounterAmount('');
+                            setCounterNote('');
+                          }}
+                        >
+                          <Text style={styles.counterCancelButtonText}>Cancel</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[styles.counterSubmitButton, processingQuoteAction && styles.buttonDisabled]}
+                          onPress={handleCounterQuote}
+                          disabled={processingQuoteAction}
+                        >
+                          {processingQuoteAction ? (
+                            <ActivityIndicator size="small" color="#FFFFFF" />
+                          ) : (
+                            <Text style={styles.counterSubmitButtonText}>Send Counter</Text>
+                          )}
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  ) : (
+                    <>
+                      {/* Accept & Pay Button */}
+                      <TouchableOpacity
+                        style={styles.acceptPayButton}
+                        onPress={handleAcceptAndPay}
+                        disabled={processingPayment || processingQuoteAction}
+                      >
+                        {processingPayment ? (
+                          <ActivityIndicator size="small" color="#FFFFFF" />
+                        ) : (
+                          <>
+                            <Ionicons name="card" size={18} color="#FFFFFF" />
+                            <Text style={styles.acceptPayButtonText}>Accept & Pay (Sandbox)</Text>
+                          </>
+                        )}
+                      </TouchableOpacity>
+                      
+                      {/* Reject / Counter Row */}
+                      <View style={styles.quoteSecondaryActions}>
+                        <TouchableOpacity
+                          style={styles.rejectQuoteButton}
+                          onPress={handleRejectQuote}
+                          disabled={processingQuoteAction}
+                        >
+                          <Ionicons name="close-circle-outline" size={18} color="#E53935" />
+                          <Text style={styles.rejectQuoteButtonText}>Reject</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={styles.counterQuoteButton}
+                          onPress={() => setShowCounterForm(true)}
+                          disabled={processingQuoteAction}
+                        >
+                          <Ionicons name="swap-horizontal" size={18} color="#1976D2" />
+                          <Text style={styles.counterQuoteButtonText}>Counter Offer</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </>
+                  )}
+                </View>
+              )}
+
+              {/* Quote Card - REJECTED status (waiting for provider revision) */}
+              {currentQuote && currentQuote.status === 'REJECTED' && (
+                <View style={[styles.quoteCard, styles.quoteCardRejected]}>
+                  <View style={styles.quoteCardHeader}>
+                    <Ionicons name="close-circle" size={20} color="#E53935" />
+                    <Text style={styles.quoteCardTitle}>Quote Rejected</Text>
+                  </View>
+                  <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
+                  <Text style={styles.quoteCardAmountStrikethrough}>${currentQuote.amount.toFixed(2)} {currentQuote.currency}</Text>
+                  <Text style={styles.quoteWaitingText}>Waiting for provider to send a revised quote...</Text>
+                </View>
+              )}
+
+              {/* Quote Card - COUNTERED status (waiting for provider revision) */}
+              {currentQuote && currentQuote.status === 'COUNTERED' && (
+                <View style={[styles.quoteCard, styles.quoteCardCountered]}>
+                  <View style={styles.quoteCardHeader}>
+                    <Ionicons name="swap-horizontal" size={20} color="#FF9800" />
+                    <Text style={styles.quoteCardTitle}>Counter Offer Sent</Text>
+                  </View>
+                  <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
+                  <View style={styles.counterOfferSummary}>
+                    <View style={styles.counterOfferRow}>
+                      <Text style={styles.counterOfferLabel}>Original:</Text>
+                      <Text style={styles.counterOfferOriginal}>${currentQuote.amount.toFixed(2)}</Text>
+                    </View>
+                    <View style={styles.counterOfferRow}>
+                      <Text style={styles.counterOfferLabel}>Your offer:</Text>
+                      <Text style={styles.counterOfferYours}>${currentQuote.counterAmount?.toFixed(2)}</Text>
+                    </View>
+                    {currentQuote.counterNote && (
+                      <Text style={styles.counterOfferNote}>"{currentQuote.counterNote}"</Text>
+                    )}
+                  </View>
+                  <Text style={styles.quoteWaitingText}>Waiting for provider to respond...</Text>
+                </View>
+              )}
+
+              {/* Quote Card - ACCEPTED status (payment required) */}
+              {currentQuote && currentQuote.status === 'ACCEPTED' && !currentQuote.paidAt && (
+                <View style={[styles.quoteCard, styles.quoteCardAccepted]}>
+                  <View style={styles.quoteCardHeader}>
+                    <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                    <Text style={styles.quoteCardTitle}>Quote Accepted</Text>
+                  </View>
+                  <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
                   <Text style={styles.quoteCardAmount}>${currentQuote.amount.toFixed(2)} {currentQuote.currency}</Text>
                   <TouchableOpacity
                     style={styles.acceptPayButton}
-                    onPress={handleAcceptAndPay}
+                    onPress={processPayment}
                     disabled={processingPayment}
                   >
                     {processingPayment ? (
@@ -1242,7 +1385,7 @@ export default function RequestDetailScreen() {
                     ) : (
                       <>
                         <Ionicons name="card" size={18} color="#FFFFFF" />
-                        <Text style={styles.acceptPayButtonText}>Accept & Pay (Sandbox)</Text>
+                        <Text style={styles.acceptPayButtonText}>Complete Payment (Sandbox)</Text>
                       </>
                     )}
                   </TouchableOpacity>
