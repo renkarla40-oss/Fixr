@@ -86,8 +86,10 @@ def generate_job_code() -> str:
 #   awaiting_payment  → in_progress (provider starts with job code, after payment confirmed)
 #   in_progress       → completed (provider finishes with completion OTP)
 #
-# Payment is tracked SEPARATELY via paymentStatus field:
-#   paymentStatus: "unpaid" | "paid_manual"
+# Payment is tracked SEPARATELY via paymentStatus field (escrow model):
+#   paymentStatus: "unpaid" | "held"
+#   - "unpaid": no payment received
+#   - "held": funds held in escrow, ready to release on job completion
 # =============================================================================
 
 VALID_STATUS_TRANSITIONS = {
