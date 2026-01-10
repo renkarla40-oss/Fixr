@@ -199,6 +199,11 @@ export default function CustomerHomeScreen() {
           
           {/* ===== HERO SEARCH SECTION ===== */}
           <View style={styles.heroSection}>
+            {/* Header with notification bell */}
+            <View style={styles.heroHeader}>
+              <View style={styles.heroHeaderSpacer} />
+              <NotificationBell color="#FFFFFF" size={26} />
+            </View>
             <Text style={styles.heroTitle}>What do you need{'\n'}help with today?</Text>
             
             {/* Search Bar - Acts as Service Finder */}
