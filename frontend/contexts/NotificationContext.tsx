@@ -43,12 +43,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     if (!token || !user) return;
     
     try {
-      // Get all requests for this user
-      const endpoint = user.role === 'provider' 
-        ? `${BACKEND_URL}/api/service-requests/provider`
-        : `${BACKEND_URL}/api/service-requests/customer`;
-      
-      const response = await axios.get(endpoint, {
+      // Get all requests for this user - use the unified endpoint
+      const response = await axios.get(`${BACKEND_URL}/api/service-requests`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
