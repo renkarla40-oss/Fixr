@@ -2960,6 +2960,25 @@ async def create_review(
         }}
     )
     
+    # Send notification to provider about new review
+    if provider_id:
+        provider = await db.providers.find_one({"_id": ObjectId(provider_id)})
+        if provider and provider.get("userId"):
+            stars = "⭐" * review_data.rating
+            review_preview = f"{stars}" + (f' "{comment[:50]}..."' if comment and len(comment) > 50 else f' "{comment}"' if comment else '')
+            await send_push_notification(
+                provider.get("userId"),
+                "New Review Received",
+                f"{current_user.name} left you a {review_data.rating}-star review",
+                {
+                    "type": NotificationType.REVIEW_RECEIVED,
+                    "requestId": review_data.jobId,
+                    "customerId": current_user.id,
+                    "providerId": provider_id,
+                    "rating": review_data.rating,
+                }
+            )
+    
     return Review(**review_doc)
 
 
