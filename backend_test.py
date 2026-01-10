@@ -99,7 +99,7 @@ class QuoteNegotiationTester:
         
         if status_code == 200 and "token" in response:
             self.provider_token = response["token"]
-            self.provider_id = response["user"]["id"]
+            self.provider_id = response["user"].get("id") or response["user"].get("_id")
             await self.log_test("Provider Authentication", True, f"Provider ID: {self.provider_id}")
             return True
         else:
