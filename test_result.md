@@ -308,6 +308,21 @@ test_plan:
   test_priority: "high_first"
 
 backend:
+  - task: "Quote Negotiation Backend Implementation"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented complete quote negotiation system with create, send, reject, counter, revise, accept, and pay functionality. Includes proper status transitions, idempotency, authorization, and validation."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Quote Negotiation Backend FULLY FUNCTIONAL. All 21 tests passed: (1) Customer and Provider authentication successful, (2) Service request creation and provider acceptance working, (3) Quote creation and sending with proper status (SENT) and revision tracking, (4) Customer reject functionality with REJECTED status and idempotency (ALREADY_REJECTED), (5) Provider revise and resend after rejection with incremented revision, (6) Customer counter functionality with COUNTERED status and counter amount tracking, (7) Counter idempotency (ALREADY_COUNTERED), (8) Provider revise to match counter and resend with counter amount cleared, (9) Customer accept and pay with ACCEPTED then PAID status, (10) Authorization enforcement - customer cannot send quotes (403), provider cannot reject quotes (403), (11) Validation rules - amount=0 rejected (400), negative amounts rejected (400), counter amount=0 rejected (400). Complete negotiation cycle from initial quote through rejection, revision, counter, acceptance, and payment working perfectly."
+
   - task: "Post-payment workflow fix - confirm-arrival accepts 'paid' status"
     implemented: true
     working: true
