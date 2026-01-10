@@ -135,8 +135,8 @@ class QuoteNegotiationTester:
             data=request_data
         )
         
-        if status_code == 201 and "id" in response:
-            self.service_request_id = response["id"]
+        if status_code == 201 and ("id" in response or "_id" in response):
+            self.service_request_id = response.get("id") or response.get("_id")
             await self.log_test("Create Service Request", True, f"Request ID: {self.service_request_id}")
             return True
         else:
