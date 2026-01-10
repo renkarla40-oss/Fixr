@@ -64,7 +64,7 @@ class NotificationTester:
             if response.status_code == 200:
                 data = response.json()
                 self.customer_token = data["token"]
-                self.customer_id = data["user"]["id"]
+                self.customer_id = data["user"]["_id"]
                 self.log(f"✅ Customer authenticated: {TEST_CREDENTIALS['customer']['email']}")
             else:
                 self.log(f"❌ Customer authentication failed: {response.status_code} - {response.text}", "ERROR")
