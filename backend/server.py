@@ -2575,6 +2575,24 @@ async def create_service_request(
         result = await db.service_requests.insert_one(request_dict)
         request_dict["_id"] = str(result.inserted_id)
         
+        # Send notification to provider for new job request
+        if not is_general_request and provider_id:
+            provider = await db.providers.find_one({"_id": ObjectId(provider_id)})
+            if provider:
+                provider_user_id = provider.get("userId")
+                if provider_user_id:
+                    await send_push_notification(
+                        provider_user_id,
+                        "New Job Request",
+                        f"{current_user.name} has requested {request_data.service} service",
+                        {
+                            "type": NotificationType.REQUEST_RECEIVED,
+                            "requestId": str(result.inserted_id),
+                            "customerId": current_user.id,
+                            "providerId": provider_id,
+                        }
+                    )
+        
         # Ensure new fields have defaults for response
         request_dict["jobCode"] = request_dict.get("jobCode")
         request_dict["jobStartedAt"] = request_dict.get("jobStartedAt")
