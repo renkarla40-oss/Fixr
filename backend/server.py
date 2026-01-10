@@ -1787,12 +1787,12 @@ async def confirm_job_arrival(
             detail=f"Job must be in 'awaiting_payment' status before it can be started. Current status: {get_status_display_name(current_status)}"
         )
     
-    # Check payment status - must be paid before starting
+    # Check payment status - must have funds held in escrow before starting
     payment_status = request.get("paymentStatus", "unpaid")
-    if payment_status != "paid_manual":
+    if payment_status != "held":
         raise HTTPException(
             status_code=400, 
-            detail="Payment must be confirmed before starting the job."
+            detail="Payment must be confirmed and held in escrow before starting the job."
         )
     
     # Check job code
