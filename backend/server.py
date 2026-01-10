@@ -2589,11 +2589,11 @@ async def counter_quote(
         quote["_id"] = str(quote["_id"])
         return {"success": True, "quote": quote, "message": "Quote already countered with this amount", "errorCode": "ALREADY_COUNTERED"}
     
-    # Cannot counter accepted or paid quotes
-    if quote["status"] in [QuoteStatus.ACCEPTED, QuoteStatus.PAID]:
+    # Cannot counter accepted quotes - quote lifecycle ends at ACCEPTED
+    if quote["status"] == QuoteStatus.ACCEPTED:
         raise HTTPException(
             status_code=400, 
-            detail={"message": f"Cannot counter quote with status {quote['status']}", "errorCode": "INVALID_STATUS"}
+            detail={"message": "Cannot counter accepted quote", "errorCode": "INVALID_STATUS"}
         )
     
     # Can only counter sent quotes
