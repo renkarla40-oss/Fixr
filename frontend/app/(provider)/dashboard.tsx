@@ -15,6 +15,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
 import BetaNoticeModal from '../../components/BetaNoticeModal';
+import NotificationBell from '../../components/NotificationBell';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
