@@ -1165,15 +1165,95 @@ export default function ProviderRequestDetailScreen() {
                   <Text style={styles.sendQuoteButtonText}>Send Quote</Text>
                 </TouchableOpacity>
               )}
-              {/* Quote Status Banner */}
+              {/* Quote Status Banner - SENT */}
               {currentQuote && currentQuote.status === 'SENT' && (
                 <View style={styles.quotePendingBanner}>
                   <Ionicons name="time-outline" size={16} color="#F57C00" />
-                  <Text style={styles.quotePendingText}>Quote sent • Waiting for customer to pay</Text>
+                  <Text style={styles.quotePendingText}>
+                    {currentQuote.revision && currentQuote.revision > 1 
+                      ? `Revised quote #${currentQuote.revision} sent • Waiting for customer` 
+                      : 'Quote sent • Waiting for customer'}
+                  </Text>
                 </View>
               )}
+
+              {/* Quote Status Banner - REJECTED (needs revision) */}
+              {currentQuote && currentQuote.status === 'REJECTED' && (
+                <View style={styles.quoteRejectedBanner}>
+                  <View style={styles.quoteRejectedHeader}>
+                    <Ionicons name="close-circle" size={18} color="#E53935" />
+                    <Text style={styles.quoteRejectedTitle}>Quote Rejected</Text>
+                  </View>
+                  <Text style={styles.quoteRejectedSubtext}>
+                    Your quote of ${currentQuote.amount.toFixed(2)} was rejected
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.reviseQuoteButton}
+                    onPress={openReviseModal}
+                    disabled={sendingQuote}
+                  >
+                    <Ionicons name="create-outline" size={18} color="#FFFFFF" />
+                    <Text style={styles.reviseQuoteButtonText}>Revise & Resend Quote</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+
+              {/* Quote Status Banner - COUNTERED (needs revision) */}
+              {currentQuote && currentQuote.status === 'COUNTERED' && (
+                <View style={styles.quoteCounteredBanner}>
+                  <View style={styles.quoteCounteredHeader}>
+                    <Ionicons name="swap-horizontal" size={18} color="#FF9800" />
+                    <Text style={styles.quoteCounteredTitle}>Counter Offer Received</Text>
+                  </View>
+                  <View style={styles.counterOfferDetails}>
+                    <View style={styles.counterOfferAmountRow}>
+                      <Text style={styles.counterOfferLabel}>Your quote:</Text>
+                      <Text style={styles.counterOfferOriginalAmount}>${currentQuote.amount.toFixed(2)}</Text>
+                    </View>
+                    <View style={styles.counterOfferAmountRow}>
+                      <Text style={styles.counterOfferLabel}>Counter offer:</Text>
+                      <Text style={styles.counterOfferNewAmount}>${currentQuote.counterAmount?.toFixed(2)}</Text>
+                    </View>
+                    {currentQuote.counterNote && (
+                      <Text style={styles.counterOfferNoteText}>"{currentQuote.counterNote}"</Text>
+                    )}
+                  </View>
+                  <View style={styles.counterOfferActions}>
+                    <TouchableOpacity
+                      style={styles.acceptCounterButton}
+                      onPress={() => {
+                        // Accept the counter by revising to their amount and resending
+                        setReviseAmount(currentQuote.counterAmount?.toString() || '');
+                        setReviseNote('Accepted your counter offer');
+                        setShowReviseModal(true);
+                      }}
+                      disabled={sendingQuote}
+                    >
+                      <Ionicons name="checkmark" size={18} color="#FFFFFF" />
+                      <Text style={styles.acceptCounterButtonText}>Accept Counter</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.reviseQuoteButtonAlt}
+                      onPress={openReviseModal}
+                      disabled={sendingQuote}
+                    >
+                      <Ionicons name="create-outline" size={18} color="#1976D2" />
+                      <Text style={styles.reviseQuoteButtonAltText}>Make New Offer</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
+
+              {/* Quote Status Banner - ACCEPTED (awaiting payment) */}
+              {currentQuote && currentQuote.status === 'ACCEPTED' && !request.paidAt && (
+                <View style={styles.quoteAcceptedBanner}>
+                  <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
+                  <Text style={styles.quoteAcceptedText}>Quote accepted • Waiting for customer to pay</Text>
+                </View>
+              )}
+
               {/* Payment Confirmed - Inline Job Code Entry */}
-              {request.status === 'paid' && (
+              {request.status === 'awaiting_payment' && request.paymentStatus === 'held' && (
                 <View style={styles.paidJobCodeSection}>
                   <View style={styles.paidJobCodeHeader}>
                     <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
