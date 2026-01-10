@@ -586,6 +586,76 @@ export default function RequestDetailScreen() {
     }
   };
 
+  // Quote negotiation handlers
+  const handleRejectQuote = async () => {
+    if (!currentQuote) return;
+    
+    Alert.alert(
+      'Reject Quote',
+      `Are you sure you want to reject this quote for $${currentQuote.amount.toFixed(2)}?\n\nThe provider will be notified and can send a revised quote.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Reject', 
+          onPress: processRejectQuote,
+          style: 'destructive'
+        },
+      ]
+    );
+  };
+
+  const processRejectQuote = async () => {
+    if (!currentQuote) return;
+    
+    setProcessingQuoteAction(true);
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/api/quotes/${currentQuote._id}/reject`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      setCurrentQuote(response.data.quote);
+      Alert.alert('Quote Rejected', 'The provider has been notified and can send a revised quote.');
+      fetchMessagesQuietly();
+    } catch (err: any) {
+      Alert.alert('Error', getUserFriendlyError(err, 'Failed to reject quote.'));
+    } finally {
+      setProcessingQuoteAction(false);
+    }
+  };
+
+  const handleCounterQuote = async () => {
+    const amount = parseFloat(counterAmount);
+    if (isNaN(amount) || amount <= 0) {
+      Alert.alert('Invalid Amount', 'Please enter a valid counter amount greater than 0.');
+      return;
+    }
+    
+    setProcessingQuoteAction(true);
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/api/quotes/${currentQuote?._id}/counter`,
+        {
+          counterAmount: amount,
+          counterNote: counterNote.trim() || undefined,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      setCurrentQuote(response.data.quote);
+      setShowCounterForm(false);
+      setCounterAmount('');
+      setCounterNote('');
+      Alert.alert('Counter Offer Sent', 'The provider has been notified of your counter offer.');
+      fetchMessagesQuietly();
+    } catch (err: any) {
+      Alert.alert('Error', getUserFriendlyError(err, 'Failed to send counter offer.'));
+    } finally {
+      setProcessingQuoteAction(false);
+    }
+  };
+
   // Fetch existing review for this job
   const fetchExistingReview = async () => {
     if (!request?._id) return;
