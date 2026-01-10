@@ -1902,6 +1902,21 @@ async def complete_service_request(
         data={
             "type": NotificationType.JOB_COMPLETED,
             "requestId": str(request["_id"]),
+            "providerId": str(provider["_id"]),
+            "customerId": request["customerId"],
+        }
+    )
+    
+    # Send notification to provider (self-confirmation)
+    await send_push_notification(
+        user_id=provider["userId"],
+        title="Job Completed",
+        body=f"You've completed the {request['service']} job for {request.get('customerName', 'the customer')}.",
+        data={
+            "type": NotificationType.JOB_COMPLETED,
+            "requestId": str(request["_id"]),
+            "providerId": str(provider["_id"]),
+            "customerId": request["customerId"],
         }
     )
     
