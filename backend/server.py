@@ -355,18 +355,23 @@ class NotificationType:
     REQUEST_ACCEPTED = "request_accepted"      # Customer: provider accepted
     REQUEST_DECLINED = "request_declined"      # Customer: provider declined
     JOB_STARTED = "job_started"                # Customer: job started
-    JOB_COMPLETED = "job_completed"            # Customer: job completed
+    JOB_COMPLETED = "job_completed"            # Both: job completed
     NEW_MESSAGE = "new_message"                # Both: new chat message
+    REVIEW_RECEIVED = "review_received"        # Provider: new review
 
 class Notification(BaseModel):
     id: str = Field(alias="_id")
     userId: str                    # Recipient user ID
     type: str                      # NotificationType value
     title: str                     # Notification title
-    body: str                      # Notification body
+    body: str                      # Notification body (renamed from message for clarity)
     data: dict = {}                # Extra data (requestId, etc.)
-    read: bool = False
+    jobId: Optional[str] = None    # Related job ID for navigation
+    providerId: Optional[str] = None  # Related provider ID
+    customerId: Optional[str] = None  # Related customer ID
+    isRead: bool = False           # Renamed from 'read' for consistency
     createdAt: datetime = Field(default_factory=datetime.utcnow)
+    readAt: Optional[datetime] = None  # Timestamp when marked read
     
     class Config:
         populate_by_name = True
@@ -378,23 +383,81 @@ class NotificationResponse(BaseModel):
     success: bool
     message: str
 
-# Helper function to send push notifications
+# Helper function to create idempotent in-app notification
+async def create_notification(
+    user_id: str,
+    notification_type: str,
+    title: str,
+    body: str,
+    job_id: str = None,
+    provider_id: str = None,
+    customer_id: str = None,
+    data: dict = None,
+    idempotency_key: str = None
+):
+    """
+    Create an in-app notification with idempotency support.
+    If idempotency_key is provided, checks for existing notification to prevent duplicates.
+    """
+    try:
+        # Idempotency check - prevent duplicate notifications for same event
+        if idempotency_key:
+            existing = await db.notifications.find_one({
+                "userId": user_id,
+                "data.idempotencyKey": idempotency_key
+            })
+            if existing:
+                logger.debug(f"Notification already exists for key: {idempotency_key}")
+                return existing
+        
+        notification_doc = {
+            "userId": user_id,
+            "type": notification_type,
+            "title": title,
+            "body": body,
+            "jobId": job_id,
+            "providerId": provider_id,
+            "customerId": customer_id,
+            "data": {**(data or {}), "idempotencyKey": idempotency_key} if idempotency_key else (data or {}),
+            "isRead": False,
+            "createdAt": datetime.utcnow(),
+            "readAt": None,
+        }
+        result = await db.notifications.insert_one(notification_doc)
+        notification_doc["_id"] = str(result.inserted_id)
+        logger.info(f"Created notification: {notification_type} for user {user_id}")
+        return notification_doc
+    except Exception as e:
+        logger.error(f"Error creating notification: {e}")
+        return None
+
+# Helper function to send push notifications (keeps backward compatibility)
 import httpx
 
 async def send_push_notification(user_id: str, title: str, body: str, data: dict = None):
     """Send push notification to a user and create in-app notification"""
     try:
-        # Create in-app notification
-        notification_doc = {
-            "userId": user_id,
-            "type": data.get("type", "general") if data else "general",
-            "title": title,
-            "body": body,
-            "data": data or {},
-            "read": False,
-            "createdAt": datetime.utcnow(),
-        }
-        await db.notifications.insert_one(notification_doc)
+        # Extract job/provider/customer IDs from data if available
+        job_id = data.get("requestId") or data.get("jobId") if data else None
+        provider_id = data.get("providerId") if data else None
+        customer_id = data.get("customerId") if data else None
+        notification_type = data.get("type", "general") if data else "general"
+        
+        # Create idempotency key from type + jobId + userId
+        idempotency_key = f"{notification_type}:{job_id}:{user_id}" if job_id else None
+        
+        # Create in-app notification with idempotency
+        await create_notification(
+            user_id=user_id,
+            notification_type=notification_type,
+            title=title,
+            body=body,
+            job_id=job_id,
+            provider_id=provider_id,
+            customer_id=customer_id,
+            data=data,
+            idempotency_key=idempotency_key
+        )
         
         # Get user's push token
         user = await db.users.find_one({"_id": ObjectId(user_id)})
