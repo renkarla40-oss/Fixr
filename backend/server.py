@@ -3665,9 +3665,9 @@ async def get_integrity_report(
         if status == "in_progress" and not job.get("startedAt"):
             issues.append("in_progress but missing startedAt")
         
-        # Jobs with paymentStatus=paid_manual should have paidAt
-        if payment_status == "paid_manual" and not job.get("paidAt"):
-            issues.append("payment recorded but missing paidAt timestamp")
+        # Jobs with paymentStatus=held should have paidAt
+        if payment_status == "held" and not job.get("paidAt"):
+            issues.append("payment held but missing paidAt timestamp")
         
         # Accepted jobs should have jobCode
         if status in ["accepted", "awaiting_payment"] and not job.get("jobCode"):
