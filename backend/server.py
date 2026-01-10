@@ -2732,27 +2732,29 @@ async def sandbox_pay_quote(
             detail={"message": f"Quote must be accepted before payment. Current status: {quote['status']}", "errorCode": "INVALID_STATUS"}
         )
     
-    # STATE MACHINE: Verify job is in correct state before allowing payment
+    # Verify job exists and is in correct state
     request = await db.service_requests.find_one({"_id": ObjectId(quote["requestId"])})
     if not request:
         raise HTTPException(status_code=404, detail="Associated job request not found")
     
     current_status = request.get("status")
+    current_payment_status = request.get("paymentStatus", "unpaid")
     
-    # IDEMPOTENCY: If job already paid or beyond, return success (don't double-process)
-    if current_status in ["paid", "in_progress", "completed"]:
+    # IDEMPOTENCY: If already paid, return success (don't double-process)
+    if current_payment_status == "paid_manual":
         quote["_id"] = str(quote["_id"])
-        return {"success": True, "quote": quote, "message": "Job already paid", "errorCode": "ALREADY_PAID"}
+        return {"success": True, "quote": quote, "message": "Payment already recorded", "errorCode": "ALREADY_PAID"}
     
-    is_valid, error_msg = validate_status_transition(current_status, "paid")
-    if not is_valid:
-        # Allow payment if status is awaiting_payment (quote sent state)
-        if current_status not in ["accepted", "awaiting_payment"]:
-            raise HTTPException(status_code=400, detail=f"Cannot pay: {error_msg}")
+    # Payment is only allowed when job is in awaiting_payment status
+    if current_status not in ["awaiting_payment"]:
+        raise HTTPException(
+            status_code=400, 
+            detail={"message": f"Cannot pay: job must be in 'awaiting_payment' status. Current: {current_status}", "errorCode": "INVALID_STATUS"}
+        )
     
     now = datetime.utcnow()
     
-    # Update quote with payment timestamp (quote status stays at ACCEPTED - payment is job-level concern)
+    # Update quote with payment timestamp (quote status stays at ACCEPTED)
     await db.quotes.update_one(
         {"_id": ObjectId(quote_id)},
         {"$set": {
@@ -2760,10 +2762,14 @@ async def sandbox_pay_quote(
         }}
     )
     
-    # Update request/job status to PAID (ready to start)
+    # Update job paymentStatus (NOT job status - that stays at awaiting_payment until provider starts)
     await db.service_requests.update_one(
         {"_id": ObjectId(quote["requestId"])},
-        {"$set": {"status": "paid", "updatedAt": now, "paidAt": now}}
+        {"$set": {
+            "paymentStatus": "paid_manual",
+            "paidAt": now,
+            "updatedAt": now
+        }}
     )
     
     # Send a system message in chat about payment
