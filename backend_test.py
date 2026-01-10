@@ -83,7 +83,7 @@ class QuoteNegotiationTester:
         
         if status_code == 200 and "token" in response:
             self.customer_token = response["token"]
-            self.customer_id = response["user"]["id"]
+            self.customer_id = response["user"].get("id") or response["user"].get("_id")
             await self.log_test("Customer Authentication", True, f"Customer ID: {self.customer_id}")
             return True
         else:
