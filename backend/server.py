@@ -2328,6 +2328,7 @@ async def send_quote(
     Provider sends the quote to customer. Changes status to SENT.
     STATE MACHINE: Cannot send quotes if job is already paid/in_progress/completed.
     IDEMPOTENT: If quote already SENT, return success.
+    Can resend after COUNTERED or REJECTED (increments revision).
     """
     quote = await db.quotes.find_one({"_id": ObjectId(quote_id)})
     if not quote:
@@ -2342,14 +2343,21 @@ async def send_quote(
         quote["_id"] = str(quote["_id"])
         return {"success": True, "quote": quote, "message": "Quote already sent", "errorCode": "ALREADY_QUOTED"}
     
-    # Cannot re-send paid quotes
+    # Cannot re-send paid or accepted quotes
     if quote["status"] == QuoteStatus.PAID:
         raise HTTPException(
             status_code=400, 
             detail={"message": "Quote already paid", "errorCode": "ALREADY_PAID"}
         )
     
-    if quote["status"] not in [QuoteStatus.DRAFT, QuoteStatus.SENT]:
+    if quote["status"] == QuoteStatus.ACCEPTED:
+        raise HTTPException(
+            status_code=400, 
+            detail={"message": "Quote already accepted, cannot revise", "errorCode": "ALREADY_ACCEPTED"}
+        )
+    
+    # Valid states to send from: DRAFT, COUNTERED, REJECTED
+    if quote["status"] not in [QuoteStatus.DRAFT, QuoteStatus.COUNTERED, QuoteStatus.REJECTED]:
         raise HTTPException(status_code=400, detail={"message": f"Cannot send quote with status {quote['status']}", "errorCode": "INVALID_STATUS"})
     
     # STATE MACHINE: Check job status - cannot send quote if job already paid or beyond
@@ -2363,9 +2371,24 @@ async def send_quote(
             )
     
     now = datetime.utcnow()
+    
+    # Increment revision if resending after counter/reject
+    current_revision = quote.get("revision", 1)
+    if quote["status"] in [QuoteStatus.COUNTERED, QuoteStatus.REJECTED]:
+        current_revision += 1
+    
     await db.quotes.update_one(
         {"_id": ObjectId(quote_id)},
-        {"$set": {"status": QuoteStatus.SENT, "sentAt": now}}
+        {"$set": {
+            "status": QuoteStatus.SENT, 
+            "sentAt": now,
+            "revision": current_revision,
+            # Clear counter fields on resend
+            "counterAmount": None,
+            "counterNote": None,
+            "counteredAt": None,
+            "rejectedAt": None,
+        }}
     )
     
     # Update request status to AWAITING_PAYMENT
@@ -2383,19 +2406,243 @@ async def send_quote(
         if provider_user:
             provider_name = provider_user.get("name", "Provider")
     
+    revision_text = f" (Revision {current_revision})" if current_revision > 1 else ""
     quote_message = {
         "requestId": quote["requestId"],
         "senderId": current_user.id,
         "senderName": provider_name,
         "senderRole": "provider",
         "type": "quote",
-        "text": f"Quote sent: {quote['title']} - ${quote['amount']:.2f} {quote['currency']}",
+        "text": f"Quote sent{revision_text}: {quote['title']} - ${quote['amount']:.2f} {quote['currency']}",
         "quoteId": quote_id,
         "createdAt": now,
         "deliveredAt": now,
         "readAt": None,
     }
     await db.job_messages.insert_one(quote_message)
+    
+    updated_quote = await db.quotes.find_one({"_id": ObjectId(quote_id)})
+    updated_quote["_id"] = str(updated_quote["_id"])
+    
+    return {"success": True, "quote": updated_quote}
+
+@api_router.patch("/quotes/{quote_id}/revise")
+async def revise_quote(
+    quote_id: str,
+    revision_data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Provider revises a quote (updates amount and/or note) before resending.
+    Can only revise quotes in COUNTERED or REJECTED status.
+    Does NOT automatically send - provider must call /send after revision.
+    """
+    quote = await db.quotes.find_one({"_id": ObjectId(quote_id)})
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    
+    # Only provider can revise
+    if quote.get("providerUserId") != current_user.id:
+        raise HTTPException(status_code=403, detail="Only the quote creator can revise it")
+    
+    # Can only revise countered or rejected quotes
+    if quote["status"] not in [QuoteStatus.COUNTERED, QuoteStatus.REJECTED, QuoteStatus.DRAFT]:
+        raise HTTPException(
+            status_code=400, 
+            detail={"message": f"Cannot revise quote with status {quote['status']}", "errorCode": "INVALID_STATUS"}
+        )
+    
+    # Cannot revise accepted quotes
+    if quote["status"] == QuoteStatus.ACCEPTED:
+        raise HTTPException(
+            status_code=400, 
+            detail={"message": "Quote already accepted, cannot revise", "errorCode": "ALREADY_ACCEPTED"}
+        )
+    
+    update_fields = {}
+    
+    # Validate and update amount if provided
+    if "amount" in revision_data:
+        try:
+            amount = float(revision_data["amount"])
+            if amount <= 0:
+                raise HTTPException(status_code=400, detail="Amount must be greater than 0")
+            update_fields["amount"] = amount
+        except (ValueError, TypeError):
+            raise HTTPException(status_code=400, detail="Invalid amount")
+    
+    # Validate and update note if provided
+    if "note" in revision_data:
+        note = revision_data["note"] or ""
+        update_fields["note"] = note.strip()[:500]
+    
+    if not update_fields:
+        raise HTTPException(status_code=400, detail="No fields to update")
+    
+    update_fields["updatedAt"] = datetime.utcnow()
+    
+    await db.quotes.update_one(
+        {"_id": ObjectId(quote_id)},
+        {"$set": update_fields}
+    )
+    
+    updated_quote = await db.quotes.find_one({"_id": ObjectId(quote_id)})
+    updated_quote["_id"] = str(updated_quote["_id"])
+    
+    return {"success": True, "quote": updated_quote}
+
+@api_router.post("/quotes/{quote_id}/reject")
+async def reject_quote(
+    quote_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Customer rejects a quote.
+    IDEMPOTENT: If already rejected, return success.
+    Can only reject SENT quotes.
+    """
+    quote = await db.quotes.find_one({"_id": ObjectId(quote_id)})
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    
+    # Only customer can reject
+    if quote["customerId"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Only the customer can reject quotes")
+    
+    # IDEMPOTENCY: If already rejected, return success
+    if quote["status"] == QuoteStatus.REJECTED:
+        quote["_id"] = str(quote["_id"])
+        return {"success": True, "quote": quote, "message": "Quote already rejected", "errorCode": "ALREADY_REJECTED"}
+    
+    # Cannot reject accepted or paid quotes
+    if quote["status"] in [QuoteStatus.ACCEPTED, QuoteStatus.PAID]:
+        raise HTTPException(
+            status_code=400, 
+            detail={"message": f"Cannot reject quote with status {quote['status']}", "errorCode": "INVALID_STATUS"}
+        )
+    
+    # Can only reject sent quotes
+    if quote["status"] != QuoteStatus.SENT:
+        raise HTTPException(
+            status_code=400, 
+            detail={"message": "Can only reject sent quotes", "errorCode": "INVALID_STATUS"}
+        )
+    
+    now = datetime.utcnow()
+    await db.quotes.update_one(
+        {"_id": ObjectId(quote_id)},
+        {"$set": {"status": QuoteStatus.REJECTED, "rejectedAt": now}}
+    )
+    
+    # Send a system message about rejection
+    customer = await db.users.find_one({"_id": ObjectId(current_user.id)})
+    customer_name = customer.get("name", "Customer") if customer else "Customer"
+    
+    reject_message = {
+        "requestId": quote["requestId"],
+        "senderId": current_user.id,
+        "senderName": customer_name,
+        "senderRole": "customer",
+        "type": "system",
+        "text": f"Quote rejected. Provider can revise and resend.",
+        "quoteId": quote_id,
+        "createdAt": now,
+        "deliveredAt": now,
+        "readAt": None,
+    }
+    await db.job_messages.insert_one(reject_message)
+    
+    updated_quote = await db.quotes.find_one({"_id": ObjectId(quote_id)})
+    updated_quote["_id"] = str(updated_quote["_id"])
+    
+    return {"success": True, "quote": updated_quote}
+
+@api_router.post("/quotes/{quote_id}/counter")
+async def counter_quote(
+    quote_id: str,
+    counter_data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Customer counters a quote with a different amount.
+    IDEMPOTENT: If already countered with same amount, return success.
+    Can only counter SENT quotes.
+    """
+    quote = await db.quotes.find_one({"_id": ObjectId(quote_id)})
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    
+    # Only customer can counter
+    if quote["customerId"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Only the customer can counter quotes")
+    
+    # Validate counter amount
+    counter_amount = counter_data.get("counterAmount")
+    if counter_amount is None:
+        raise HTTPException(status_code=400, detail="counterAmount is required")
+    
+    try:
+        counter_amount = float(counter_amount)
+        if counter_amount <= 0:
+            raise HTTPException(status_code=400, detail="Counter amount must be greater than 0")
+    except (ValueError, TypeError):
+        raise HTTPException(status_code=400, detail="Invalid counter amount")
+    
+    # Validate and trim counter note
+    counter_note = counter_data.get("counterNote", "") or ""
+    counter_note = counter_note.strip()[:500]
+    
+    # IDEMPOTENCY: If already countered with same amount, return success
+    if quote["status"] == QuoteStatus.COUNTERED and quote.get("counterAmount") == counter_amount:
+        quote["_id"] = str(quote["_id"])
+        return {"success": True, "quote": quote, "message": "Quote already countered with this amount", "errorCode": "ALREADY_COUNTERED"}
+    
+    # Cannot counter accepted or paid quotes
+    if quote["status"] in [QuoteStatus.ACCEPTED, QuoteStatus.PAID]:
+        raise HTTPException(
+            status_code=400, 
+            detail={"message": f"Cannot counter quote with status {quote['status']}", "errorCode": "INVALID_STATUS"}
+        )
+    
+    # Can only counter sent quotes
+    if quote["status"] != QuoteStatus.SENT:
+        raise HTTPException(
+            status_code=400, 
+            detail={"message": "Can only counter sent quotes", "errorCode": "INVALID_STATUS"}
+        )
+    
+    now = datetime.utcnow()
+    await db.quotes.update_one(
+        {"_id": ObjectId(quote_id)},
+        {"$set": {
+            "status": QuoteStatus.COUNTERED, 
+            "counterAmount": counter_amount,
+            "counterNote": counter_note,
+            "counteredAt": now
+        }}
+    )
+    
+    # Send a system message about counter offer
+    customer = await db.users.find_one({"_id": ObjectId(current_user.id)})
+    customer_name = customer.get("name", "Customer") if customer else "Customer"
+    
+    counter_text = f"Counter offer: ${counter_amount:.2f}"
+    if counter_note:
+        counter_text += f" - \"{counter_note}\""
+    
+    counter_message = {
+        "requestId": quote["requestId"],
+        "senderId": current_user.id,
+        "senderName": customer_name,
+        "senderRole": "customer",
+        "type": "system",
+        "text": counter_text,
+        "quoteId": quote_id,
+        "createdAt": now,
+        "deliveredAt": now,
+        "readAt": None,
+    }
+    await db.job_messages.insert_one(counter_message)
     
     updated_quote = await db.quotes.find_one({"_id": ObjectId(quote_id)})
     updated_quote["_id"] = str(updated_quote["_id"])
