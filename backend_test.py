@@ -293,15 +293,27 @@ class NotificationTester:
                 if response.status_code == 200:
                     self.log(f"✅ Arrival confirmed with job code: {job_code}")
                     
-                    # Complete job
-                    completion_data = {"completionOtp": "123456"}  # Test OTP
-                    response = self.make_request("PATCH", f"/service-requests/{job_id}/complete", 
-                                               token=self.provider_token, data=completion_data)
+                    # Get updated job details to find completion OTP
+                    response = self.make_request("GET", f"/service-requests/{job_id}", token=self.provider_token)
                     if response.status_code == 200:
-                        self.log(f"✅ Job completed")
-                        return True
+                        updated_data = response.json()
+                        completion_otp = updated_data.get("completionOtp")
+                        if not completion_otp:
+                            self.log("❌ No completion OTP found", "ERROR")
+                            return False
+                            
+                        # Complete job
+                        completion_data = {"completionOtp": completion_otp}
+                        response = self.make_request("PATCH", f"/service-requests/{job_id}/complete", 
+                                                   token=self.provider_token, data=completion_data)
+                        if response.status_code == 200:
+                            self.log(f"✅ Job completed with OTP: {completion_otp}")
+                            return True
+                        else:
+                            self.log(f"❌ Job completion failed: {response.status_code} - {response.text}", "ERROR")
+                            return False
                     else:
-                        self.log(f"❌ Job completion failed: {response.status_code} - {response.text}", "ERROR")
+                        self.log(f"❌ Failed to get updated job details: {response.status_code} - {response.text}", "ERROR")
                         return False
                 else:
                     self.log(f"❌ Arrival confirmation failed: {response.status_code} - {response.text}", "ERROR")
