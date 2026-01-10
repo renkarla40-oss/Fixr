@@ -42,6 +42,8 @@ interface ServiceRequest {
   customerId: string;
   providerId?: string;
   status: string;
+  paymentStatus?: 'unpaid' | 'held';
+  paidAt?: string;
   createdAt: string;
   preferredDateTime?: string;
   isGeneralRequest?: boolean;
