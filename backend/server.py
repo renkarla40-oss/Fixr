@@ -2341,13 +2341,7 @@ async def send_quote(
         quote["_id"] = str(quote["_id"])
         return {"success": True, "quote": quote, "message": "Quote already sent", "errorCode": "ALREADY_QUOTED"}
     
-    # Cannot re-send paid or accepted quotes
-    if quote["status"] == QuoteStatus.PAID:
-        raise HTTPException(
-            status_code=400, 
-            detail={"message": "Quote already paid", "errorCode": "ALREADY_PAID"}
-        )
-    
+    # Cannot revise/resend accepted quotes - quote lifecycle ends at ACCEPTED
     if quote["status"] == QuoteStatus.ACCEPTED:
         raise HTTPException(
             status_code=400, 
