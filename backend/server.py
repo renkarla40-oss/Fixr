@@ -1754,7 +1754,7 @@ async def confirm_job_arrival(
 ):
     """
     Provider enters the job code from customer to confirm arrival and start the job.
-    Valid transition: paid -> in_progress (payment required before start)
+    Valid transition: awaiting_payment -> in_progress (payment must be confirmed first)
     IDEMPOTENT: Returns success if already in_progress.
     """
     request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
@@ -1778,11 +1778,19 @@ async def confirm_job_arrival(
             detail={"message": "Job already completed", "errorCode": "ALREADY_COMPLETED"}
         )
     
-    # STATE MACHINE: Can only start from PAID (payment required before job start)
-    if current_status != "paid":
+    # STATE MACHINE: Can only start from awaiting_payment status
+    if current_status != "awaiting_payment":
         raise HTTPException(
             status_code=400, 
-            detail=f"Job must be paid before it can be started. Current status: {get_status_display_name(current_status)}"
+            detail=f"Job must be in 'awaiting_payment' status before it can be started. Current status: {get_status_display_name(current_status)}"
+        )
+    
+    # Check payment status - must be paid before starting
+    payment_status = request.get("paymentStatus", "unpaid")
+    if payment_status != "paid_manual":
+        raise HTTPException(
+            status_code=400, 
+            detail="Payment must be confirmed before starting the job."
         )
     
     # Check job code
