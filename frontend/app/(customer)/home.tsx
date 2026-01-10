@@ -449,8 +449,17 @@ const styles = StyleSheet.create({
   // ===== HERO SECTION =====
   heroSection: {
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 10,
     paddingBottom: 24,
+  },
+  heroHeader: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  heroHeaderSpacer: {
+    flex: 1,
   },
   heroTitle: {
     fontSize: 28,
