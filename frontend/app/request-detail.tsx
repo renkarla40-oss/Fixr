@@ -120,6 +120,10 @@ export default function RequestDetailScreen() {
   // Quote state
   const [currentQuote, setCurrentQuote] = useState<Quote | null>(null);
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [processingQuoteAction, setProcessingQuoteAction] = useState(false);
+  const [showCounterForm, setShowCounterForm] = useState(false);
+  const [counterAmount, setCounterAmount] = useState('');
+  const [counterNote, setCounterNote] = useState('');
   
   // Review state
   const [existingReview, setExistingReview] = useState<{rating: number; comment?: string} | null>(null);
