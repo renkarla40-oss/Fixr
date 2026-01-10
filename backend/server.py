@@ -3026,24 +3026,48 @@ async def get_reviews_by_provider(
 async def get_notifications(
     current_user: User = Depends(get_current_user),
     limit: int = Query(50, ge=1, le=100),
+    skip: int = Query(0, ge=0),
     unread_only: bool = Query(False)
 ):
-    """Get user's notifications"""
+    """Get user's notifications with pagination (newest first)"""
     query = {"userId": current_user.id}
     if unread_only:
-        query["read"] = False
+        query["isRead"] = False
     
-    notifications = await db.notifications.find(query).sort("createdAt", -1).limit(limit).to_list(limit)
+    # Get total count for pagination info
+    total_count = await db.notifications.count_documents(query)
+    
+    notifications = await db.notifications.find(query).sort("createdAt", -1).skip(skip).limit(limit).to_list(limit)
     
     for n in notifications:
         n["_id"] = str(n["_id"])
+        # Ensure backward compatibility - map old 'read' field to 'isRead'
+        if "read" in n and "isRead" not in n:
+            n["isRead"] = n.pop("read")
+        # Ensure all expected fields exist
+        n.setdefault("jobId", None)
+        n.setdefault("providerId", None)
+        n.setdefault("customerId", None)
+        n.setdefault("readAt", None)
+        n.setdefault("isRead", False)
     
-    return {"notifications": notifications}
+    return {
+        "notifications": notifications,
+        "total": total_count,
+        "hasMore": skip + len(notifications) < total_count
+    }
 
 @api_router.get("/notifications/unread-count")
 async def get_unread_count(current_user: User = Depends(get_current_user)):
     """Get count of unread notifications"""
-    count = await db.notifications.count_documents({"userId": current_user.id, "read": False})
+    # Support both old 'read' field and new 'isRead' field
+    count = await db.notifications.count_documents({
+        "userId": current_user.id,
+        "$or": [
+            {"isRead": False},
+            {"read": False, "isRead": {"$exists": False}}
+        ]
+    })
     return {"unreadCount": count}
 
 @api_router.patch("/notifications/{notification_id}/read")
@@ -3052,22 +3076,24 @@ async def mark_notification_read(
     current_user: User = Depends(get_current_user)
 ):
     """Mark a notification as read"""
+    now = datetime.utcnow()
     result = await db.notifications.update_one(
         {"_id": ObjectId(notification_id), "userId": current_user.id},
-        {"$set": {"read": True}}
+        {"$set": {"isRead": True, "read": True, "readAt": now}}
     )
-    if result.modified_count == 0:
+    if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Notification not found")
-    return {"success": True}
+    return {"success": True, "readAt": now.isoformat()}
 
 @api_router.patch("/notifications/read-all")
 async def mark_all_notifications_read(current_user: User = Depends(get_current_user)):
     """Mark all notifications as read"""
-    await db.notifications.update_many(
-        {"userId": current_user.id, "read": False},
-        {"$set": {"read": True}}
+    now = datetime.utcnow()
+    result = await db.notifications.update_many(
+        {"userId": current_user.id, "$or": [{"isRead": False}, {"read": False}]},
+        {"$set": {"isRead": True, "read": True, "readAt": now}}
     )
-    return {"success": True}
+    return {"success": True, "markedCount": result.modified_count}
 
 # ============================================
 # DEV ONLY: RESET DEMO DATA ENDPOINT
