@@ -2750,10 +2750,10 @@ async def sandbox_pay_quote(
     current_status = request.get("status")
     current_payment_status = request.get("paymentStatus", "unpaid")
     
-    # IDEMPOTENCY: If already paid, return success (don't double-process)
-    if current_payment_status == "paid_manual":
+    # IDEMPOTENCY: If already held in escrow, return success (don't double-process)
+    if current_payment_status == "held":
         quote["_id"] = str(quote["_id"])
-        return {"success": True, "quote": quote, "message": "Payment already recorded", "errorCode": "ALREADY_PAID"}
+        return {"success": True, "quote": quote, "message": "Payment already held in escrow", "errorCode": "ALREADY_PAID"}
     
     # Payment is only allowed when job is in awaiting_payment status
     if current_status not in ["awaiting_payment"]:
@@ -2772,11 +2772,11 @@ async def sandbox_pay_quote(
         }}
     )
     
-    # Update job paymentStatus (NOT job status - that stays at awaiting_payment until provider starts)
+    # Update job paymentStatus to "held" (escrow - funds held until job completion)
     await db.service_requests.update_one(
         {"_id": ObjectId(quote["requestId"])},
         {"$set": {
-            "paymentStatus": "paid_manual",
+            "paymentStatus": "held",
             "paidAt": now,
             "updatedAt": now
         }}
