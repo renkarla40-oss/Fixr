@@ -120,7 +120,11 @@ export default function ProviderRequestDetailScreen() {
   const [quoteTitle, setQuoteTitle] = useState('');
   const [quoteDescription, setQuoteDescription] = useState('');
   const [quoteAmount, setQuoteAmount] = useState('');
+  const [quoteNote, setQuoteNote] = useState('');
   const [sendingQuote, setSendingQuote] = useState(false);
+  const [showReviseModal, setShowReviseModal] = useState(false);
+  const [reviseAmount, setReviseAmount] = useState('');
+  const [reviseNote, setReviseNote] = useState('');
 
   // Job code entry
   const [jobCodeInput, setJobCodeInput] = useState('');
