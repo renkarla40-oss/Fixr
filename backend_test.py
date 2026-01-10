@@ -79,7 +79,7 @@ class NotificationTester:
             if response.status_code == 200:
                 data = response.json()
                 self.provider_token = data["token"]
-                self.provider_id = data["user"]["id"]
+                self.provider_id = data["user"]["_id"]
                 self.log(f"✅ Provider authenticated: {TEST_CREDENTIALS['provider']['email']}")
             else:
                 self.log(f"❌ Provider authentication failed: {response.status_code} - {response.text}", "ERROR")
