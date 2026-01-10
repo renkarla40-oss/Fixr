@@ -2506,11 +2506,11 @@ async def reject_quote(
         quote["_id"] = str(quote["_id"])
         return {"success": True, "quote": quote, "message": "Quote already rejected", "errorCode": "ALREADY_REJECTED"}
     
-    # Cannot reject accepted or paid quotes
-    if quote["status"] in [QuoteStatus.ACCEPTED, QuoteStatus.PAID]:
+    # Cannot reject accepted quotes - quote lifecycle ends at ACCEPTED
+    if quote["status"] == QuoteStatus.ACCEPTED:
         raise HTTPException(
             status_code=400, 
-            detail={"message": f"Cannot reject quote with status {quote['status']}", "errorCode": "INVALID_STATUS"}
+            detail={"message": "Cannot reject accepted quote", "errorCode": "INVALID_STATUS"}
         )
     
     # Can only reject sent quotes
