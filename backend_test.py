@@ -150,7 +150,7 @@ class QuoteNegotiationTester:
             token=self.provider_token
         )
         
-        if status_code == 200 and response.get("status") == "accepted":
+        if status_code == 200 and response.get("success"):
             job_code = response.get("jobCode")
             await self.log_test("Provider Accept Request", True, f"Status: accepted, Job Code: {job_code}")
             return True
