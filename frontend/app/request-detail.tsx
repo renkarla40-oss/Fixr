@@ -78,10 +78,16 @@ interface Quote {
   description: string;
   amount: number;
   currency: string;
-  status: 'DRAFT' | 'SENT' | 'ACCEPTED' | 'PAID' | 'VOID';
+  status: 'DRAFT' | 'SENT' | 'COUNTERED' | 'REJECTED' | 'ACCEPTED' | 'VOID';
+  note?: string;
+  revision?: number;
+  counterAmount?: number;
+  counterNote?: string;
   createdAt: string;
   sentAt?: string;
   acceptedAt?: string;
+  rejectedAt?: string;
+  counteredAt?: string;
   paidAt?: string;
   // Provider rating info
   providerName?: string;
