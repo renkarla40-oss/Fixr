@@ -78,20 +78,22 @@ def generate_job_code() -> str:
 # =============================================================================
 # JOB STATUS STATE MACHINE
 # =============================================================================
-# Allowed status order: pending → accepted → paid → started/in_progress → completed
+# Job lifecycle: pending → accepted → awaiting_payment → in_progress → completed
 # 
 # Valid transitions:
-#   pending     → accepted (provider accepts)
-#   accepted    → paid (customer pays quote)
-#   paid        → started/in_progress (provider starts with job code)
-#   started/in_progress → completed (provider finishes with completion OTP)
+#   pending           → accepted (provider accepts)
+#   accepted          → awaiting_payment (provider sends quote)
+#   awaiting_payment  → in_progress (provider starts with job code, after payment confirmed)
+#   in_progress       → completed (provider finishes with completion OTP)
+#
+# Payment is tracked SEPARATELY via paymentStatus field:
+#   paymentStatus: "unpaid" | "paid_manual"
 # =============================================================================
 
 VALID_STATUS_TRANSITIONS = {
     "pending": ["accepted"],
-    "accepted": ["paid", "awaiting_payment"],  # awaiting_payment when quote sent
-    "awaiting_payment": ["paid"],  # customer pays quote
-    "paid": ["in_progress"],  # provider starts job (single status, no "started")
+    "accepted": ["awaiting_payment"],  # quote sent
+    "awaiting_payment": ["in_progress"],  # provider starts job (payment must be confirmed first)
     "in_progress": ["completed"],  # provider completes with OTP
     "completed": [],  # Terminal state - no further transitions
 }
@@ -116,7 +118,6 @@ def get_status_display_name(status: str) -> str:
         "pending": "Pending",
         "accepted": "Accepted",
         "awaiting_payment": "Awaiting Payment",
-        "paid": "Paid",
         "in_progress": "In Progress",
         "completed": "Completed"
     }
