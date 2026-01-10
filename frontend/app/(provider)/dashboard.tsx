@@ -243,6 +243,7 @@ export default function ProviderMyJobsScreen() {
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <Text style={styles.title}>My Jobs</Text>
+          <NotificationBell color="#1A1A1A" size={24} />
         </View>
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color="#E53935" />
@@ -260,6 +261,7 @@ export default function ProviderMyJobsScreen() {
         />
         <View style={styles.header}>
           <Text style={styles.title}>My Jobs</Text>
+          <NotificationBell color="#1A1A1A" size={24} />
         </View>
         <ScrollView
           contentContainerStyle={styles.emptyContainer}
