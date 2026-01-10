@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../../contexts/AuthContext';
 import BetaNoticeModal from '../../components/BetaNoticeModal';
+import NotificationBell from '../../components/NotificationBell';
 import {
   getDisplayableCategories,
   ServiceCategory,
