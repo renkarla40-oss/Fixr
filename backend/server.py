@@ -3471,6 +3471,15 @@ async def seed_canonical_accounts():
     logger.info(f"  ENABLE_REVIEWS: {FLAGS.ENABLE_REVIEWS}")
     logger.info(f"  ENABLE_NOTIFICATIONS: {FLAGS.ENABLE_NOTIFICATIONS}")
     logger.info("=" * 50)
+    
+    # Create notification indexes for efficient queries
+    try:
+        await db.notifications.create_index("userId")
+        await db.notifications.create_index([("userId", 1), ("createdAt", -1)])
+        await db.notifications.create_index([("userId", 1), ("isRead", 1)])
+        logger.info("✅ Notification indexes created/verified")
+    except Exception as e:
+        logger.warning(f"Could not create notification indexes: {e}")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
