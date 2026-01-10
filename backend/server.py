@@ -125,6 +125,28 @@ def get_status_display_name(status: str) -> str:
     }
     return names.get(status, status.title())
 
+def normalize_legacy_job(job: dict) -> dict:
+    """
+    Normalize legacy job data to current state machine.
+    Handles migration from old 'paid' status to new paymentStatus field.
+    """
+    if not job:
+        return job
+    
+    status = job.get("status")
+    
+    # Handle legacy 'paid' status - convert to awaiting_payment + paymentStatus=held
+    if status == "paid":
+        job["status"] = "awaiting_payment"
+        job["paymentStatus"] = "held"
+        logger.debug(f"Normalized legacy 'paid' status for job {job.get('_id')}")
+    
+    # Ensure paymentStatus exists
+    if "paymentStatus" not in job:
+        job["paymentStatus"] = "unpaid"
+    
+    return job
+
 # Create the main app
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
