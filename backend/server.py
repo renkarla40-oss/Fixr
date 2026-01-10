@@ -2723,18 +2723,15 @@ async def sandbox_pay_quote(
     if quote.get("customerId") != current_user.id:
         raise HTTPException(status_code=403, detail="Only the customer can pay quotes")
     
-    # IDEMPOTENCY: If already paid, return success
-    if quote["status"] == QuoteStatus.PAID:
-        quote["_id"] = str(quote["_id"])
-        return {"success": True, "quote": quote, "message": "Quote already paid", "errorCode": "ALREADY_PAID"}
-    
-    if quote["status"] not in [QuoteStatus.SENT, QuoteStatus.ACCEPTED]:
+    # Quote must be ACCEPTED before payment can proceed
+    # Quote lifecycle ends at ACCEPTED - payment is tracked separately on the job
+    if quote["status"] != QuoteStatus.ACCEPTED:
         raise HTTPException(
             status_code=400, 
-            detail={"message": f"Cannot pay quote with status {quote['status']}", "errorCode": "INVALID_STATUS"}
+            detail={"message": f"Quote must be accepted before payment. Current status: {quote['status']}", "errorCode": "INVALID_STATUS"}
         )
     
-    # STATE MACHINE: Verify job is in accepted state before allowing payment
+    # STATE MACHINE: Verify job is in correct state before allowing payment
     request = await db.service_requests.find_one({"_id": ObjectId(quote["requestId"])})
     if not request:
         raise HTTPException(status_code=404, detail="Associated job request not found")
@@ -2754,13 +2751,11 @@ async def sandbox_pay_quote(
     
     now = datetime.utcnow()
     
-    # Update quote to PAID
+    # Update quote with payment timestamp (quote status stays at ACCEPTED - payment is job-level concern)
     await db.quotes.update_one(
         {"_id": ObjectId(quote_id)},
         {"$set": {
-            "status": QuoteStatus.PAID, 
             "paidAt": now,
-            "acceptedAt": quote.get("acceptedAt") or now
         }}
     )
     
