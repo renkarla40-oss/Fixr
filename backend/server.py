@@ -2244,18 +2244,16 @@ class QuoteStatus:
     SENT = "SENT"
     COUNTERED = "COUNTERED"  # Customer countered with different amount
     REJECTED = "REJECTED"    # Customer rejected the quote
-    ACCEPTED = "ACCEPTED"
-    PAID = "PAID"
+    ACCEPTED = "ACCEPTED"    # Quote lifecycle ends here
     VOID = "VOID"
 
 # Valid quote status transitions
 QUOTE_TRANSITIONS = {
     QuoteStatus.DRAFT: [QuoteStatus.SENT],
-    QuoteStatus.SENT: [QuoteStatus.ACCEPTED, QuoteStatus.REJECTED, QuoteStatus.COUNTERED, QuoteStatus.PAID],
+    QuoteStatus.SENT: [QuoteStatus.ACCEPTED, QuoteStatus.REJECTED, QuoteStatus.COUNTERED],
     QuoteStatus.COUNTERED: [QuoteStatus.SENT],  # Provider can revise and resend
     QuoteStatus.REJECTED: [QuoteStatus.SENT],   # Provider can revise and resend
-    QuoteStatus.ACCEPTED: [QuoteStatus.PAID],
-    QuoteStatus.PAID: [],
+    QuoteStatus.ACCEPTED: [],  # Quote lifecycle ends at ACCEPTED
     QuoteStatus.VOID: [],
 }
 
