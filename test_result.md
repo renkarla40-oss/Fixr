@@ -866,6 +866,111 @@ agent_communication:
       All Reviews feature backend functionality is working perfectly. The system correctly handles the complete review lifecycle from creation through rating aggregation and display.
 
 backend:
+  - task: "In-App Notifications - GET /api/notifications endpoint"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Notification retrieval endpoint with pagination support"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: GET /api/notifications endpoint working correctly for both customer and provider. Returns paginated notifications with proper structure (notifications, total, hasMore). Customer has 38 notifications, provider has 12 notifications. All required fields present (_id, userId, type, title, body, isRead, createdAt)."
+
+  - task: "In-App Notifications - GET /api/notifications/unread-count endpoint"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Unread notification count endpoint"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: GET /api/notifications/unread-count endpoint working correctly for both customer and provider. Returns proper count structure."
+
+  - task: "In-App Notifications - PATCH /api/notifications/{id}/read endpoint"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Individual notification mark as read endpoint"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: PATCH /api/notifications/{id}/read endpoint working correctly. Successfully marked individual notification as read."
+
+  - task: "In-App Notifications - PATCH /api/notifications/read-all endpoint"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Mark all notifications as read endpoint"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: PATCH /api/notifications/read-all endpoint working correctly. Successfully marked 37 notifications as read."
+
+  - task: "In-App Notifications - Notification triggers during job workflow"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Notification creation during service request lifecycle"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Notification triggers working correctly throughout complete job workflow. Successfully tested: (1) REQUEST_RECEIVED notification for provider when customer creates service request, (2) REQUEST_ACCEPTED notification for customer when provider accepts, (3) JOB_STARTED notification for customer when provider confirms arrival, (4) JOB_COMPLETED notifications for both customer and provider when job completes, (5) REVIEW_RECEIVED notification for provider when customer submits review. All notifications created with proper structure and timing."
+
+  - task: "In-App Notifications - Pagination functionality"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Notification pagination with limit and skip parameters"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Notification pagination working correctly. GET /api/notifications?limit=5&skip=0 returned 5 notifications with hasMore=true and total=38. Pagination structure correct."
+
+  - task: "In-App Notifications - Idempotency prevention"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Notification idempotency to prevent duplicate notifications"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Notification idempotency working correctly. Attempted to complete same job twice - no duplicate notifications created. Idempotency system prevents duplicate notifications for same events."
+
   - task: "Reviews - POST /api/reviews endpoint"
     implemented: true
     working: true
