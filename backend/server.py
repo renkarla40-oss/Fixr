@@ -1691,6 +1691,9 @@ async def get_service_request_detail(
     # Convert ObjectId to string
     request["_id"] = str(request["_id"])
     
+    # Normalize legacy status
+    request = normalize_legacy_job(request)
+    
     # Ensure all fields have defaults
     request["jobCode"] = request.get("jobCode")
     request["jobStartedAt"] = request.get("jobStartedAt")
@@ -1703,6 +1706,8 @@ async def get_service_request_detail(
     request["jobTown"] = request.get("jobTown")
     request["searchRadiusMiles"] = request.get("searchRadiusMiles", 10)
     request["jobDuration"] = request.get("jobDuration")
+    request["paymentStatus"] = request.get("paymentStatus", "unpaid")
+    request["paidAt"] = request.get("paidAt")
     
     return request
 
