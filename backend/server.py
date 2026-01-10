@@ -2242,9 +2242,22 @@ async def mark_messages_read(
 class QuoteStatus:
     DRAFT = "DRAFT"
     SENT = "SENT"
+    COUNTERED = "COUNTERED"  # Customer countered with different amount
+    REJECTED = "REJECTED"    # Customer rejected the quote
     ACCEPTED = "ACCEPTED"
     PAID = "PAID"
     VOID = "VOID"
+
+# Valid quote status transitions
+QUOTE_TRANSITIONS = {
+    QuoteStatus.DRAFT: [QuoteStatus.SENT],
+    QuoteStatus.SENT: [QuoteStatus.ACCEPTED, QuoteStatus.REJECTED, QuoteStatus.COUNTERED, QuoteStatus.PAID],
+    QuoteStatus.COUNTERED: [QuoteStatus.SENT],  # Provider can revise and resend
+    QuoteStatus.REJECTED: [QuoteStatus.SENT],   # Provider can revise and resend
+    QuoteStatus.ACCEPTED: [QuoteStatus.PAID],
+    QuoteStatus.PAID: [],
+    QuoteStatus.VOID: [],
+}
 
 @api_router.post("/quotes")
 async def create_quote(
@@ -2255,6 +2268,19 @@ async def create_quote(
     request_id = quote_data.get("requestId")
     if not request_id:
         raise HTTPException(status_code=400, detail="requestId is required")
+    
+    # Validate amount
+    amount = quote_data.get("amount", 0)
+    try:
+        amount = float(amount)
+        if amount <= 0:
+            raise HTTPException(status_code=400, detail="Amount must be greater than 0")
+    except (ValueError, TypeError):
+        raise HTTPException(status_code=400, detail="Invalid amount")
+    
+    # Validate and trim note
+    note = quote_data.get("note", "") or ""
+    note = note.strip()[:500] if note else ""
     
     # Verify provider owns this request
     request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
@@ -2273,12 +2299,18 @@ async def create_quote(
         "providerUserId": current_user.id,
         "title": quote_data.get("title", "Service Quote"),
         "description": quote_data.get("description", ""),
-        "amount": float(quote_data.get("amount", 0)),
+        "amount": amount,
         "currency": quote_data.get("currency", "TTD"),
+        "note": note,
         "status": QuoteStatus.DRAFT,
+        "revision": 1,
+        "counterAmount": None,
+        "counterNote": None,
         "createdAt": now,
         "sentAt": None,
         "acceptedAt": None,
+        "rejectedAt": None,
+        "counteredAt": None,
         "paidAt": None,
     }
     
