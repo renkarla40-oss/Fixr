@@ -229,7 +229,7 @@ class NotificationTester:
                                        token=self.provider_token, data=quote_data)
             if response.status_code == 200:
                 data = response.json()
-                quote_id = data.get("id") or data.get("_id")
+                quote_id = data.get("quote", {}).get("_id") or data.get("quote", {}).get("id")
                 self.log(f"✅ Quote created: {quote_id}")
                 
                 # Send quote
