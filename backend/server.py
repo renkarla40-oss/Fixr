@@ -2361,14 +2361,14 @@ async def send_quote(
     if quote["status"] not in [QuoteStatus.DRAFT, QuoteStatus.COUNTERED, QuoteStatus.REJECTED]:
         raise HTTPException(status_code=400, detail={"message": f"Cannot send quote with status {quote['status']}", "errorCode": "INVALID_STATUS"})
     
-    # STATE MACHINE: Check job status - cannot send quote if job already paid or beyond
+    # STATE MACHINE: Check job status - cannot send quote if job is beyond accepted
     request = await db.service_requests.find_one({"_id": ObjectId(quote["requestId"])})
     if request:
         current_status = request.get("status")
-        if current_status in ["paid", "in_progress", "completed"]:
+        if current_status in ["in_progress", "completed"]:
             raise HTTPException(
                 status_code=400, 
-                detail={"message": f"Cannot send quote: job is already {get_status_display_name(current_status)}", "errorCode": "ALREADY_PAID"}
+                detail={"message": f"Cannot send quote: job is already {get_status_display_name(current_status)}", "errorCode": "INVALID_STATUS"}
             )
     
     now = datetime.utcnow()
