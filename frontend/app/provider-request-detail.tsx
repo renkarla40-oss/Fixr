@@ -542,6 +542,7 @@ export default function ProviderRequestDetailScreen() {
           title: quoteTitle.trim(),
           description: quoteDescription.trim(),
           amount: amount,
+          note: quoteNote.trim() || undefined,
           currency: 'TTD',
         },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -561,6 +562,7 @@ export default function ProviderRequestDetailScreen() {
       setQuoteTitle('');
       setQuoteDescription('');
       setQuoteAmount('');
+      setQuoteNote('');
       
       // Refresh request and messages
       fetchRequestDetail();
@@ -570,6 +572,60 @@ export default function ProviderRequestDetailScreen() {
     } catch (err: any) {
       const errorMsg = err.response?.data?.detail || 'Failed to send quote.';
       Alert.alert('Error', errorMsg);
+    } finally {
+      setSendingQuote(false);
+    }
+  };
+
+  // Open revise modal with current quote values
+  const openReviseModal = () => {
+    if (currentQuote) {
+      setReviseAmount(currentQuote.amount.toString());
+      setReviseNote(currentQuote.note || '');
+      setShowReviseModal(true);
+    }
+  };
+
+  // Revise and resend quote
+  const handleReviseAndResend = async () => {
+    if (!currentQuote) return;
+    
+    const amount = parseFloat(reviseAmount);
+    if (isNaN(amount) || amount <= 0) {
+      Alert.alert('Invalid Amount', 'Please enter a valid amount.');
+      return;
+    }
+    
+    setSendingQuote(true);
+    try {
+      // Revise the quote
+      await axios.patch(
+        `${BACKEND_URL}/api/quotes/${currentQuote._id}/revise`,
+        {
+          amount: amount,
+          note: reviseNote.trim() || undefined,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      // Resend the quote
+      const sendResponse = await axios.post(
+        `${BACKEND_URL}/api/quotes/${currentQuote._id}/send`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      setCurrentQuote(sendResponse.data.quote);
+      setShowReviseModal(false);
+      setReviseAmount('');
+      setReviseNote('');
+      
+      // Refresh messages
+      fetchMessagesQuietly();
+      
+      Alert.alert('Success', 'Revised quote sent to customer!');
+    } catch (err: any) {
+      Alert.alert('Error', getUserFriendlyError(err, 'Failed to revise and resend quote.'));
     } finally {
       setSendingQuote(false);
     }
