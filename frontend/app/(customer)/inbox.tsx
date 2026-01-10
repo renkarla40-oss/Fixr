@@ -42,7 +42,7 @@ export default function CustomerInboxScreen() {
   const fetchConversations = useCallback(async () => {
     try {
       // Fetch all customer requests that have messages
-      const response = await axios.get(`${BACKEND_URL}/api/service-requests/customer`, {
+      const response = await axios.get(`${BACKEND_URL}/api/service-requests`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
