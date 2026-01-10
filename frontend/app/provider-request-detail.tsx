@@ -1083,7 +1083,7 @@ export default function ProviderRequestDetailScreen() {
             >
               {messages.map((msg) => {
                 const isMine = msg.senderId === user?._id;
-                const isSystem = msg.type === 'system' || msg.senderRole === 'system';
+                const isSystem = msg.type === 'system' || (msg.senderRole as string) === 'system';
                 const isImage = (msg.type === 'image' || msg.imageUrl) && msg.imageUrl;
                 const imageUri = isImage ? `${BACKEND_URL}${msg.imageUrl}` : '';
                 
