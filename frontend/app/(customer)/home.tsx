@@ -180,7 +180,7 @@ export default function CustomerHomeScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <BetaNoticeModal 
         visible={shouldShowBetaNotice} 
         onClose={handleBetaNoticeContinue}
