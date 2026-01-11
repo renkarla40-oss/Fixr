@@ -1652,8 +1652,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   jobCodeHint: {
-    fontSize: 12,
-    color: '#7A9BC7',
+    fontSize: 13,
+    color: '#1976D2',
+    textAlign: 'center',
+    lineHeight: 18,
   },
   // In Progress Card - Light blue theme
   inProgressCard: {
