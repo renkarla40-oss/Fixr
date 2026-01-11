@@ -422,7 +422,7 @@ export default function CustomerHomeScreen() {
         {/* Bottom Spacing */}
         <View style={{ height: 24 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
