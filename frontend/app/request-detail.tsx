@@ -896,8 +896,19 @@ export default function RequestDetailScreen() {
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         >
-          {/* JOB CODE CARD - Show for accepted, awaiting_payment, or in_progress status */}
-          {(['accepted', 'awaiting_payment', 'in_progress'].includes(request.status)) && request.jobCode && (
+          {/* WAITING FOR QUOTE - Show when accepted but no quote sent yet */}
+          {request.status === 'accepted' && !quotes?.some((q: any) => q.status === 'SENT' || q.status === 'ACCEPTED') && (
+            <View style={styles.waitingForQuoteCard}>
+              <Ionicons name="time-outline" size={24} color="#FF9800" />
+              <Text style={styles.waitingForQuoteTitle}>Waiting for Provider Quote</Text>
+              <Text style={styles.waitingForQuoteSubtext}>
+                The provider has accepted your request and will send a quote soon.
+              </Text>
+            </View>
+          )}
+
+          {/* JOB CODE CARD - ONLY show when payment is confirmed (held) */}
+          {request.paymentStatus === 'held' && request.jobCode && (
             <View style={styles.jobCodeCard}>
               <View style={styles.jobCodeHeader}>
                 <Ionicons name="key-outline" size={20} color="#1976D2" />
@@ -907,9 +918,7 @@ export default function RequestDetailScreen() {
                 {request.jobCode.slice(0, 3)} {request.jobCode.slice(3)}
               </Text>
               <Text style={styles.jobCodeHint}>
-                {request.paymentStatus === 'held'
-                  ? '✓ Payment confirmed! Share this code when provider arrives to start the job.'
-                  : 'Share this code when the provider arrives to start the job.'}
+                ✓ Payment confirmed! Share this code when provider arrives to start the job.
               </Text>
             </View>
           )}
