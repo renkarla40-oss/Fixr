@@ -106,6 +106,7 @@ const inspirationContent = [
 export default function CustomerHomeScreen() {
   const router = useRouter();
   const { user, shouldShowBetaNotice, markBetaNoticeSeen } = useAuth();
+  const insets = useSafeAreaInsets();
 
   const handleBetaNoticeContinue = async () => {
     await markBetaNoticeSeen();
