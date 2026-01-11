@@ -1597,6 +1597,28 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 16,
   },
+  // WAITING FOR QUOTE CARD - Orange theme
+  waitingForQuoteCard: {
+    backgroundColor: '#FFF8E1',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#FFE082',
+    alignItems: 'center',
+  },
+  waitingForQuoteTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#FF9800',
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  waitingForQuoteSubtext: {
+    fontSize: 13,
+    color: '#666',
+    textAlign: 'center',
+  },
   // JOB CODE CARD - Compact, subtle light blue
   jobCodeCard: {
     backgroundColor: '#EEF6FF',
