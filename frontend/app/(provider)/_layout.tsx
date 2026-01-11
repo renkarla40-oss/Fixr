@@ -1,5 +1,4 @@
 import React from 'react';
-import { Platform } from 'react-native';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,16 +8,13 @@ export default function ProviderLayout() {
   const insets = useSafeAreaInsets();
   const { unreadCount } = useNotifications();
   
-  // Calculate proper bottom padding:
-  // - On iOS: use safe area inset (for home indicator)
-  // - On Android: use safe area inset + extra padding for system nav bar
+  // Calculate proper bottom padding respecting safe area
+  // Keep it minimal but respect system gesture areas
   const bottomInset = insets.bottom;
-  const extraPadding = Platform.OS === 'android' ? 12 : 0;
-  const totalBottomPadding = bottomInset + extraPadding + 8;
   
-  // Minimum tab bar height for proper touch targets (48dp minimum per button)
-  const minTabBarHeight = 60;
-  const tabBarHeight = Math.max(minTabBarHeight + totalBottomPadding, Platform.OS === 'ios' ? 90 : 80);
+  // Compact tab bar height - similar to TaskRabbit/modern apps
+  // Base height of 50 + safe area inset for gesture bar
+  const tabBarHeight = 50 + bottomInset;
 
   return (
     <Tabs
@@ -30,27 +26,28 @@ export default function ProviderLayout() {
           borderTopWidth: 1,
           borderTopColor: '#E0E0E0',
           height: tabBarHeight,
-          paddingBottom: totalBottomPadding,
-          paddingTop: 8,
-          // Ensure tab bar sits above system navigation
+          paddingBottom: bottomInset,
+          paddingTop: 4,
           elevation: 8,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 4,
+          shadowOpacity: 0.08,
+          shadowRadius: 3,
         },
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: '600',
-          marginTop: 2,
+          marginTop: 0,
+          marginBottom: 2,
         },
         tabBarIconStyle: {
-          marginTop: 4,
+          marginTop: 2,
+          marginBottom: 0,
         },
-        // Increase touch target for better accessibility
+        // Maintain minimum touch target for accessibility
         tabBarItemStyle: {
-          paddingVertical: 4,
-          minHeight: 48,
+          paddingVertical: 2,
+          minHeight: 44,
         },
         headerShown: false,
       }}
