@@ -2286,6 +2286,7 @@ async def mark_messages_read(
     """
     Mark all messages as read for a specific job thread.
     Sets readAt for messages where recipientId == currentUserId and readAt == null.
+    Also marks system messages (Fixr) as read.
     
     Request body:
     - jobId: The service request ID for the thread
@@ -2306,14 +2307,14 @@ async def mark_messages_read(
     if not is_customer and not is_provider:
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    # Mark all messages from the OTHER user as read
+    # Mark all messages from the OTHER user AND system messages as read
     other_role = "provider" if is_customer else "customer"
     
     now = datetime.utcnow()
     result = await db.job_messages.update_many(
         {
             "requestId": job_id,
-            "senderRole": other_role,
+            "senderRole": {"$in": [other_role, "system"]},  # Include system messages
             "readAt": None  # Only update messages not yet read
         },
         {"$set": {"readAt": now}}
