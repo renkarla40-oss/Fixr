@@ -202,7 +202,7 @@ export default function CustomerHomeScreen() {
           />
           
           {/* ===== HERO SEARCH SECTION ===== */}
-          <View style={styles.heroSection}>
+          <View style={[styles.heroSection, { paddingTop: Math.max(insets.top, 10) + 6 }]}>
             {/* Header with notification bell */}
             <View style={styles.heroHeader}>
               <View style={styles.heroHeaderSpacer} />
