@@ -8,10 +8,13 @@ import {
   SafeAreaView,
   Image,
   Dimensions,
+  Platform,
+  StatusBar,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
 import BetaNoticeModal from '../../components/BetaNoticeModal';
 import NotificationBell from '../../components/NotificationBell';
