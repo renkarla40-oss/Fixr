@@ -33,6 +33,11 @@ export default function ProviderLayout() {
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.08,
           shadowRadius: 3,
+          // Ensure flat edge-to-edge appearance
+          borderRadius: 0,
+          borderTopLeftRadius: 0,
+          borderTopRightRadius: 0,
+          marginHorizontal: 0,
         },
         tabBarLabelStyle: {
           fontSize: 10,
