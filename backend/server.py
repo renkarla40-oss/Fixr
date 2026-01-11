@@ -1870,6 +1870,27 @@ async def confirm_job_arrival(
         }}
     )
     
+    # IDEMPOTENT: Add "Fixr" system message about Completion OTP being ready (only once)
+    existing_otp_msg = await db.job_messages.find_one({
+        "requestId": request_id,
+        "senderName": "Fixr",
+        "text": {"$regex": "Completion OTP is ready"}
+    })
+    
+    if not existing_otp_msg:
+        otp_message = {
+            "requestId": request_id,
+            "senderId": "system",
+            "senderName": "Fixr",
+            "senderRole": "system",
+            "type": "text",
+            "text": "Fixr: Completion OTP is ready. Please check Details to share it when the job is completed.",
+            "createdAt": datetime.utcnow(),
+            "deliveredAt": datetime.utcnow(),
+            "readAt": None,
+        }
+        await db.job_messages.insert_one(otp_message)
+    
     # Send notification to customer
     await send_push_notification(
         user_id=request["customerId"],
