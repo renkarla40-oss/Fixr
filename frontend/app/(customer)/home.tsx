@@ -289,7 +289,7 @@ export default function CustomerHomeScreen() {
         </View>
 
         {/* ===== POPULAR PROJECTS CAROUSEL (All Tappable) ===== */}
-        <View style={styles.section}>
+        <View style={[styles.section, styles.popularProjectsSection]}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitleInline}>Popular Projects</Text>
           </View>
