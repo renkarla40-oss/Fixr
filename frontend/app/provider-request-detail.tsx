@@ -924,13 +924,11 @@ export default function ProviderRequestDetailScreen() {
               )}
             </View>
 
-            {/* Job Code Entry - Show for accepted and paid status */}
-            {(request.status === 'accepted' || request.status === 'paid') && (
+            {/* Job Code Entry - ONLY show when payment is confirmed (held) */}
+            {request.paymentStatus === 'held' && request.status === 'awaiting_payment' && (
               <View style={styles.jobCodeSection}>
-                <Text style={styles.jobCodeLabel}>
-                  {request.status === 'paid' ? 'Payment Received! Start Job' : 'Enter Job Code'}
-                </Text>
-                <Text style={styles.jobCodeHint}>Ask the customer for the 6-digit code</Text>
+                <Text style={styles.jobCodeLabel}>✓ Payment Confirmed! Start Job</Text>
+                <Text style={styles.jobCodeHint}>Ask the customer for the 6-digit code to begin</Text>
                 <View style={styles.jobCodeInputRow}>
                   <TextInput
                     style={styles.jobCodeInput}
@@ -953,6 +951,95 @@ export default function ProviderRequestDetailScreen() {
                     )}
                   </TouchableOpacity>
                 </View>
+              </View>
+            )}
+
+            {/* Send Quote CTA - Show on Details tab when accepted but no quote/payment yet */}
+            {request.status === 'accepted' && (!currentQuote || currentQuote.status === 'VOID') && (
+              <View style={styles.sendQuoteCTASection}>
+                <View style={styles.sendQuoteCTAHeader}>
+                  <Ionicons name="document-text-outline" size={24} color="#E53935" />
+                  <Text style={styles.sendQuoteCTATitle}>Send Quote to Customer</Text>
+                </View>
+                <Text style={styles.sendQuoteCTASubtext}>
+                  The customer is waiting for your quote. Send your price to proceed.
+                </Text>
+                <TouchableOpacity
+                  style={styles.sendQuoteCTAButton}
+                  onPress={() => setShowQuoteModal(true)}
+                >
+                  <Ionicons name="send" size={18} color="#FFFFFF" />
+                  <Text style={styles.sendQuoteCTAButtonText}>Send Quote</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* Quote Pending Status - Show when quote sent but awaiting response */}
+            {currentQuote && currentQuote.status === 'SENT' && (
+              <View style={styles.quoteStatusSection}>
+                <View style={styles.quoteStatusHeader}>
+                  <Ionicons name="time-outline" size={20} color="#FF9800" />
+                  <Text style={styles.quoteStatusTitle}>Quote Sent</Text>
+                </View>
+                <Text style={styles.quoteStatusAmount}>${currentQuote.amount.toFixed(2)}</Text>
+                <Text style={styles.quoteStatusSubtext}>Waiting for customer to accept, reject, or counter</Text>
+              </View>
+            )}
+
+            {/* Quote Accepted Status - Awaiting payment */}
+            {currentQuote && currentQuote.status === 'ACCEPTED' && request.paymentStatus !== 'held' && (
+              <View style={styles.quoteAcceptedSection}>
+                <View style={styles.quoteAcceptedHeader}>
+                  <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                  <Text style={styles.quoteAcceptedTitle}>Quote Accepted!</Text>
+                </View>
+                <Text style={styles.quoteAcceptedAmount}>${currentQuote.amount.toFixed(2)}</Text>
+                <Text style={styles.quoteAcceptedSubtext}>Waiting for customer to complete payment</Text>
+              </View>
+            )}
+
+            {/* Quote Rejected - Needs revision (show on Details) */}
+            {currentQuote && currentQuote.status === 'REJECTED' && (
+              <View style={styles.quoteRejectedSection}>
+                <View style={styles.quoteRejectedSectionHeader}>
+                  <Ionicons name="close-circle" size={20} color="#E53935" />
+                  <Text style={styles.quoteRejectedSectionTitle}>Quote Rejected</Text>
+                </View>
+                <Text style={styles.quoteRejectedSectionAmount}>Your quote: ${currentQuote.amount.toFixed(2)}</Text>
+                <TouchableOpacity
+                  style={styles.reviseQuoteCTAButton}
+                  onPress={openReviseModal}
+                  disabled={sendingQuote}
+                >
+                  <Ionicons name="create-outline" size={18} color="#FFFFFF" />
+                  <Text style={styles.reviseQuoteCTAButtonText}>Revise & Resend Quote</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* Counter Offer - Show on Details */}
+            {currentQuote && currentQuote.status === 'COUNTERED' && (
+              <View style={styles.counterOfferSection}>
+                <View style={styles.counterOfferSectionHeader}>
+                  <Ionicons name="swap-horizontal" size={20} color="#FF9800" />
+                  <Text style={styles.counterOfferSectionTitle}>Counter Offer Received</Text>
+                </View>
+                <View style={styles.counterOfferAmounts}>
+                  <Text style={styles.counterOfferYours}>Your quote: ${currentQuote.amount.toFixed(2)}</Text>
+                  <Ionicons name="arrow-forward" size={16} color="#666" />
+                  <Text style={styles.counterOfferTheirs}>Counter: ${currentQuote.counterAmount?.toFixed(2)}</Text>
+                </View>
+                {currentQuote.counterNote && (
+                  <Text style={styles.counterOfferNote}>"{currentQuote.counterNote}"</Text>
+                )}
+                <TouchableOpacity
+                  style={styles.reviseQuoteCTAButton}
+                  onPress={openReviseModal}
+                  disabled={sendingQuote}
+                >
+                  <Ionicons name="create-outline" size={18} color="#FFFFFF" />
+                  <Text style={styles.reviseQuoteCTAButtonText}>Revise & Resend Quote</Text>
+                </TouchableOpacity>
               </View>
             )}
 
