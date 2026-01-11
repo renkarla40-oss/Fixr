@@ -1822,9 +1822,39 @@ async def confirm_job_arrival(
             detail="Payment must be confirmed and held in escrow before starting the job."
         )
     
-    # Check job code
-    if request.get("jobCode") != confirm_data.jobCode:
+    # Get stored job code - handle missing codes for older jobs
+    stored_code = request.get("jobCode")
+    
+    # If no job code exists (legacy job), generate and save one
+    if not stored_code:
+        logger.warning(f"[JOB_CODE] Job {request_id} has no jobCode - generating one now (legacy backfill)")
+        stored_code = generate_job_code()
+        await db.service_requests.update_one(
+            {"_id": ObjectId(request_id)},
+            {"$set": {"jobCode": stored_code}}
+        )
+        # Return error so customer can see the newly generated code
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Job code was not previously generated. A new code has been created. Please ask the customer to refresh and provide the new code."
+        )
+    
+    # Normalize both values for comparison
+    stored_code_normalized = str(stored_code).strip()
+    input_code_normalized = str(confirm_data.jobCode).strip() if confirm_data.jobCode else ""
+    
+    # DEV LOGS for debugging
+    logger.info(f"[JOB_CODE_VALIDATION] jobId={request_id}")
+    logger.info(f"[JOB_CODE_VALIDATION] stored_code (jobCode field) = '{stored_code_normalized}'")
+    logger.info(f"[JOB_CODE_VALIDATION] input_code = '{input_code_normalized}'")
+    logger.info(f"[JOB_CODE_VALIDATION] match = {stored_code_normalized == input_code_normalized}")
+    
+    # Compare normalized strings
+    if stored_code_normalized != input_code_normalized:
+        logger.warning(f"[JOB_CODE_VALIDATION] MISMATCH for job {request_id}: stored='{stored_code_normalized}' vs input='{input_code_normalized}'")
         raise HTTPException(status_code=400, detail="Incorrect code. Please ask the customer for the correct code.")
+    
+    logger.info(f"[JOB_CODE_VALIDATION] SUCCESS for job {request_id}")
     
     # Generate completion OTP (6-digit code)
     import random
