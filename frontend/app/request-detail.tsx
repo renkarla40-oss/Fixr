@@ -896,17 +896,20 @@ export default function RequestDetailScreen() {
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         >
-          {/* JOB CODE CARD - Compact, subtle light blue - show for accepted or paid status */}
-          {(request.status === 'accepted' || request.status === 'paid') && request.jobCode && (
+          {/* JOB CODE CARD - Show for accepted, awaiting_payment, or in_progress status */}
+          {(['accepted', 'awaiting_payment', 'in_progress'].includes(request.status)) && request.jobCode && (
             <View style={styles.jobCodeCard}>
-              <Text style={styles.jobCodeLabel}>Job Code</Text>
+              <View style={styles.jobCodeHeader}>
+                <Ionicons name="key-outline" size={20} color="#1976D2" />
+                <Text style={styles.jobCodeLabel}>START JOB CODE</Text>
+              </View>
               <Text style={styles.jobCodeValue}>
                 {request.jobCode.slice(0, 3)} {request.jobCode.slice(3)}
               </Text>
               <Text style={styles.jobCodeHint}>
-                {request.status === 'paid' 
-                  ? 'Payment received! Share this code when provider arrives' 
-                  : 'Share this code when the provider arrives'}
+                {request.paymentStatus === 'held'
+                  ? '✓ Payment confirmed! Share this code when provider arrives to start the job.'
+                  : 'Share this code when the provider arrives to start the job.'}
               </Text>
             </View>
           )}
