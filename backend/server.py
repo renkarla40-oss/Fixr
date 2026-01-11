@@ -2857,6 +2857,27 @@ async def sandbox_pay_quote(
     }
     await db.job_messages.insert_one(payment_message)
     
+    # IDEMPOTENT: Add "Fixr" system message about Job Start Code being ready (only once)
+    existing_start_code_msg = await db.job_messages.find_one({
+        "requestId": quote["requestId"],
+        "senderName": "Fixr",
+        "text": {"$regex": "Job Start Code is ready"}
+    })
+    
+    if not existing_start_code_msg:
+        start_code_message = {
+            "requestId": quote["requestId"],
+            "senderId": "system",
+            "senderName": "Fixr",
+            "senderRole": "system",
+            "type": "text",
+            "text": "Fixr: Job Start Code is ready. Please check Details to share it with your provider.",
+            "createdAt": datetime.utcnow(),
+            "deliveredAt": datetime.utcnow(),
+            "readAt": None,
+        }
+        await db.job_messages.insert_one(start_code_message)
+    
     updated_quote = await db.quotes.find_one({"_id": ObjectId(quote_id)})
     updated_quote["_id"] = str(updated_quote["_id"])
     
