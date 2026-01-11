@@ -274,7 +274,7 @@ export default function CustomerHomeScreen() {
                       color="#E53935"
                     />
                   </View>
-                  <Text style={styles.serviceName} numberOfLines={2}>
+                  <Text style={styles.serviceName} numberOfLines={1} ellipsizeMode="tail">
                     {category.label}
                   </Text>
                   {category.status === 'beta' && (
