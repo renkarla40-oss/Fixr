@@ -495,6 +495,9 @@ const styles = StyleSheet.create({
   section: {
     marginTop: 24,
   },
+  popularProjectsSection: {
+    marginTop: 32,
+  },
   sectionOnGradient: {
     marginTop: 24,
   },
