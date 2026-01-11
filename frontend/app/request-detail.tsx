@@ -897,7 +897,7 @@ export default function RequestDetailScreen() {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         >
           {/* WAITING FOR QUOTE - Show when accepted but no quote sent yet */}
-          {request.status === 'accepted' && !quotes?.some((q: any) => q.status === 'SENT' || q.status === 'ACCEPTED') && (
+          {request.status === 'accepted' && (!currentQuote || !['SENT', 'ACCEPTED'].includes(currentQuote.status)) && (
             <View style={styles.waitingForQuoteCard}>
               <Ionicons name="time-outline" size={24} color="#FF9800" />
               <Text style={styles.waitingForQuoteTitle}>Waiting for Provider Quote</Text>
