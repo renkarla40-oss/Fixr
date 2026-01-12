@@ -132,22 +132,17 @@ export default function EditProfileScreen() {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
-          timeout: 30000, // 30 second timeout
+          timeout: 30000,
         }
       );
-
-      console.log('[PHOTO UPLOAD] Response status:', response.status);
-      console.log('[PHOTO UPLOAD] Response profilePhotoUrl:', response.data?.profilePhotoUrl);
 
       // Provider endpoint returns Provider object directly with profilePhotoUrl
       // Customer endpoint returns { success: true, profilePhotoUrl: ... }
       let newPhotoUrl: string | null = null;
       
       if (isProvider) {
-        // Provider response is the full provider object
         newPhotoUrl = response.data?.profilePhotoUrl || null;
       } else {
-        // Customer response has success flag
         if (response.data.success) {
           newPhotoUrl = response.data.profilePhotoUrl;
         }
