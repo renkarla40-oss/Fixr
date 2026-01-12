@@ -108,9 +108,18 @@ export default function EditProfileScreen() {
       const mimeType = asset.uri.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
       const imageData = `data:${mimeType};base64,${asset.base64}`;
 
+      // Use different endpoint based on user role
+      const uploadEndpoint = isProvider 
+        ? `${BACKEND_URL}/api/providers/me/upload-photo`
+        : `${BACKEND_URL}/api/users/upload-profile-photo`;
+      
+      const uploadPayload = isProvider 
+        ? { imageData, uploadType: 'profile_photo' }
+        : { imageData };
+
       const response = await axios.post(
-        `${BACKEND_URL}/api/users/upload-profile-photo`,
-        { imageData },
+        uploadEndpoint,
+        uploadPayload,
         {
           headers: { 
             Authorization: `Bearer ${token}`,
@@ -120,7 +129,9 @@ export default function EditProfileScreen() {
       );
 
       if (response.data.success) {
-        setProfilePhotoUrl(response.data.profilePhotoUrl);
+        // Provider endpoint returns photoUrl, customer returns profilePhotoUrl
+        const newPhotoUrl = response.data.photoUrl || response.data.profilePhotoUrl;
+        setProfilePhotoUrl(newPhotoUrl);
         await refreshUser();
         Alert.alert('Success', 'Profile photo updated!');
       }
