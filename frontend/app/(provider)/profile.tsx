@@ -52,9 +52,12 @@ export default function ProviderProfileScreen() {
   // Provider profile info
   const [providerProfile, setProviderProfile] = useState<ProviderProfile | null>(null);
 
-  useEffect(() => {
-    fetchProviderProfile();
-  }, []);
+  // Refetch profile when screen comes into focus (e.g., after editing photo)
+  useFocusEffect(
+    useCallback(() => {
+      fetchProviderProfile();
+    }, [token])
+  );
 
   const fetchProviderProfile = async () => {
     try {
