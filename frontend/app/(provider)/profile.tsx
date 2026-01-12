@@ -160,9 +160,20 @@ export default function ProviderProfileScreen() {
               {providerProfile?.profilePhotoUrl ? (
                 <Image
                   source={{ 
-                    uri: providerProfile.profilePhotoUrl.startsWith('/') 
-                      ? `${BACKEND_URL}${providerProfile.profilePhotoUrl}` 
-                      : providerProfile.profilePhotoUrl 
+                    uri: (() => {
+                      let url = providerProfile.profilePhotoUrl.startsWith('/') 
+                        ? `${BACKEND_URL}${providerProfile.profilePhotoUrl}` 
+                        : providerProfile.profilePhotoUrl;
+                      // Add cache-busting using updatedAt timestamp if available
+                      const cacheBuster = providerProfile.updatedAt 
+                        ? `?v=${new Date(providerProfile.updatedAt).getTime()}`
+                        : `?v=${Date.now()}`;
+                      // Only add if not already present
+                      if (!url.includes('?')) {
+                        url += cacheBuster;
+                      }
+                      return url;
+                    })()
                   }}
                   style={styles.avatarImage}
                 />
