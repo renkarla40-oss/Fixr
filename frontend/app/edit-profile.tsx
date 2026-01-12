@@ -30,9 +30,37 @@ export default function EditProfileScreen() {
   const [phone, setPhone] = useState(user?.phone || '');
   const [loading, setLoading] = useState(false);
   const [photoLoading, setPhotoLoading] = useState(false);
-  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(
-    (user as any)?.profilePhotoUrl || null
-  );
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
+  const [initialLoading, setInitialLoading] = useState(true);
+  
+  // Determine if user is currently in provider role
+  const isProvider = user?.role === 'provider';
+
+  // Fetch current profile photo on mount (provider or customer)
+  useEffect(() => {
+    const fetchProfilePhoto = async () => {
+      try {
+        if (isProvider) {
+          // Fetch from provider profile
+          const response = await axios.get(`${BACKEND_URL}/api/providers/me/profile`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setProfilePhotoUrl(response.data?.profilePhotoUrl || null);
+        } else {
+          // Use customer's profilePhotoUrl from user object
+          setProfilePhotoUrl((user as any)?.profilePhotoUrl || null);
+        }
+      } catch (error) {
+        console.warn('Could not fetch profile photo:', error);
+        // Fallback to user object
+        setProfilePhotoUrl((user as any)?.profilePhotoUrl || null);
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+    
+    fetchProfilePhoto();
+  }, [isProvider, token, user]);
 
   const handlePickImage = async () => {
     try {
