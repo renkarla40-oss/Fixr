@@ -34,6 +34,7 @@ interface ProviderProfile {
   governmentIdFrontUrl?: string | null;
   governmentIdBackUrl?: string | null;
   services?: string[];
+  updatedAt?: string;
 }
 
 export default function ProviderProfileScreen() {
