@@ -110,7 +110,7 @@ export default function EditProfileScreen() {
 
       // Use different endpoint based on user role
       const uploadEndpoint = isProvider 
-        ? `${BACKEND_URL}/api/providers/me/upload-photo`
+        ? `${BACKEND_URL}/api/providers/me/upload`
         : `${BACKEND_URL}/api/users/upload-profile-photo`;
       
       const uploadPayload = isProvider 
