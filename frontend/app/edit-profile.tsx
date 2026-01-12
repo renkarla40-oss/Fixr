@@ -34,7 +34,7 @@ export default function EditProfileScreen() {
   const [initialLoading, setInitialLoading] = useState(true);
   
   // Determine if user is currently in provider role
-  const isProvider = user?.role === 'provider';
+  const isProvider = user?.currentRole === 'provider';
 
   // Fetch current profile photo on mount (provider or customer)
   useEffect(() => {
