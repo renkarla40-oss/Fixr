@@ -101,6 +101,10 @@ export default function EditProfileScreen() {
         return;
       }
 
+      // Show local preview immediately while uploading
+      const localPreviewUri = asset.uri;
+      setProfilePhotoUrl(localPreviewUri);
+      
       // Upload the image
       setPhotoLoading(true);
       
@@ -119,7 +123,6 @@ export default function EditProfileScreen() {
 
       console.log('[PHOTO UPLOAD] Endpoint:', uploadEndpoint);
       console.log('[PHOTO UPLOAD] isProvider:', isProvider);
-      console.log('[PHOTO UPLOAD] imageData length:', imageData.length);
 
       const response = await axios.post(
         uploadEndpoint,
@@ -129,11 +132,11 @@ export default function EditProfileScreen() {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
+          timeout: 30000, // 30 second timeout
         }
       );
 
       console.log('[PHOTO UPLOAD] Response status:', response.status);
-      console.log('[PHOTO UPLOAD] Response data keys:', Object.keys(response.data || {}));
       console.log('[PHOTO UPLOAD] Response profilePhotoUrl:', response.data?.profilePhotoUrl);
 
       // Provider endpoint returns Provider object directly with profilePhotoUrl
@@ -143,7 +146,6 @@ export default function EditProfileScreen() {
       if (isProvider) {
         // Provider response is the full provider object
         newPhotoUrl = response.data?.profilePhotoUrl || null;
-        console.log('[PHOTO UPLOAD] Provider newPhotoUrl:', newPhotoUrl);
       } else {
         // Customer response has success flag
         if (response.data.success) {
@@ -156,18 +158,18 @@ export default function EditProfileScreen() {
         const cacheBustedUrl = newPhotoUrl.includes('?') 
           ? `${newPhotoUrl}&v=${Date.now()}`
           : `${newPhotoUrl}?v=${Date.now()}`;
-        console.log('[PHOTO UPLOAD] Setting cacheBustedUrl:', cacheBustedUrl);
         setProfilePhotoUrl(cacheBustedUrl);
         await refreshUser();
         Alert.alert('Success', 'Profile photo updated!');
       } else {
-        console.log('[PHOTO UPLOAD] newPhotoUrl is null/empty, showing error');
-        Alert.alert('Error', 'Photo upload failed. Please try again.');
+        // Revert to previous photo if upload didn't return a URL
+        console.log('[PHOTO UPLOAD] No URL returned, reverting preview');
+        Alert.alert('Error', 'Photo upload failed - no URL returned. Please try again.');
       }
     } catch (error: any) {
-      console.error('[PHOTO UPLOAD] Error:', error);
+      console.error('[PHOTO UPLOAD] Error:', error?.message || error);
       console.error('[PHOTO UPLOAD] Error response:', error.response?.data);
-      const message = error.response?.data?.detail || 'Failed to upload photo. Please try again.';
+      const message = error.response?.data?.detail || error.message || 'Failed to upload photo. Please try again.';
       Alert.alert('Upload Failed', message);
     } finally {
       setPhotoLoading(false);
