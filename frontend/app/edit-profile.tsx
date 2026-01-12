@@ -128,12 +128,30 @@ export default function EditProfileScreen() {
         }
       );
 
-      if (response.data.success) {
-        // Provider endpoint returns photoUrl, customer returns profilePhotoUrl
-        const newPhotoUrl = response.data.photoUrl || response.data.profilePhotoUrl;
-        setProfilePhotoUrl(newPhotoUrl);
+      // Provider endpoint returns Provider object directly with profilePhotoUrl
+      // Customer endpoint returns { success: true, profilePhotoUrl: ... }
+      let newPhotoUrl: string | null = null;
+      
+      if (isProvider) {
+        // Provider response is the full provider object
+        newPhotoUrl = response.data?.profilePhotoUrl || null;
+      } else {
+        // Customer response has success flag
+        if (response.data.success) {
+          newPhotoUrl = response.data.profilePhotoUrl;
+        }
+      }
+      
+      if (newPhotoUrl) {
+        // Add cache-busting timestamp to force reload
+        const cacheBustedUrl = newPhotoUrl.includes('?') 
+          ? `${newPhotoUrl}&v=${Date.now()}`
+          : `${newPhotoUrl}?v=${Date.now()}`;
+        setProfilePhotoUrl(cacheBustedUrl);
         await refreshUser();
         Alert.alert('Success', 'Profile photo updated!');
+      } else {
+        Alert.alert('Error', 'Photo upload failed. Please try again.');
       }
     } catch (error: any) {
       console.error('Error uploading photo:', error);
