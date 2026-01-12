@@ -117,6 +117,10 @@ export default function EditProfileScreen() {
         ? { imageData, uploadType: 'profile_photo' }
         : { imageData };
 
+      console.log('[PHOTO UPLOAD] Endpoint:', uploadEndpoint);
+      console.log('[PHOTO UPLOAD] isProvider:', isProvider);
+      console.log('[PHOTO UPLOAD] imageData length:', imageData.length);
+
       const response = await axios.post(
         uploadEndpoint,
         uploadPayload,
@@ -128,6 +132,10 @@ export default function EditProfileScreen() {
         }
       );
 
+      console.log('[PHOTO UPLOAD] Response status:', response.status);
+      console.log('[PHOTO UPLOAD] Response data keys:', Object.keys(response.data || {}));
+      console.log('[PHOTO UPLOAD] Response profilePhotoUrl:', response.data?.profilePhotoUrl);
+
       // Provider endpoint returns Provider object directly with profilePhotoUrl
       // Customer endpoint returns { success: true, profilePhotoUrl: ... }
       let newPhotoUrl: string | null = null;
@@ -135,6 +143,7 @@ export default function EditProfileScreen() {
       if (isProvider) {
         // Provider response is the full provider object
         newPhotoUrl = response.data?.profilePhotoUrl || null;
+        console.log('[PHOTO UPLOAD] Provider newPhotoUrl:', newPhotoUrl);
       } else {
         // Customer response has success flag
         if (response.data.success) {
@@ -147,14 +156,17 @@ export default function EditProfileScreen() {
         const cacheBustedUrl = newPhotoUrl.includes('?') 
           ? `${newPhotoUrl}&v=${Date.now()}`
           : `${newPhotoUrl}?v=${Date.now()}`;
+        console.log('[PHOTO UPLOAD] Setting cacheBustedUrl:', cacheBustedUrl);
         setProfilePhotoUrl(cacheBustedUrl);
         await refreshUser();
         Alert.alert('Success', 'Profile photo updated!');
       } else {
+        console.log('[PHOTO UPLOAD] newPhotoUrl is null/empty, showing error');
         Alert.alert('Error', 'Photo upload failed. Please try again.');
       }
     } catch (error: any) {
-      console.error('Error uploading photo:', error);
+      console.error('[PHOTO UPLOAD] Error:', error);
+      console.error('[PHOTO UPLOAD] Error response:', error.response?.data);
       const message = error.response?.data?.detail || 'Failed to upload photo. Please try again.';
       Alert.alert('Upload Failed', message);
     } finally {
