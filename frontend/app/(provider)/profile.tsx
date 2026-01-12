@@ -67,10 +67,6 @@ export default function ProviderProfileScreen() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const profile = response.data;
-      console.log('[PROVIDER PROFILE] Fetched profile:', JSON.stringify({
-        profilePhotoUrl: profile.profilePhotoUrl,
-        updatedAt: profile.updatedAt,
-      }));
       setProviderProfile(profile);
       setIsAcceptingJobs(profile.isAcceptingJobs ?? true);
       setAvailabilityNote(profile.availabilityNote || '');
