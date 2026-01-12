@@ -166,29 +166,28 @@ export default function ProviderProfileScreen() {
         >
           <View style={styles.profileSection}>
             <View style={styles.avatarContainer}>
-              {providerProfile?.profilePhotoUrl ? (
-                <Image
-                  source={{ 
-                    uri: (() => {
-                      let url = providerProfile.profilePhotoUrl.startsWith('/') 
-                        ? `${BACKEND_URL}${providerProfile.profilePhotoUrl}` 
-                        : providerProfile.profilePhotoUrl;
-                      // Add cache-busting using updatedAt timestamp if available
-                      const cacheBuster = providerProfile.updatedAt 
-                        ? `?v=${new Date(providerProfile.updatedAt).getTime()}`
-                        : `?v=${Date.now()}`;
-                      // Only add if not already present
-                      if (!url.includes('?')) {
-                        url += cacheBuster;
-                      }
-                      return url;
-                    })()
-                  }}
-                  style={styles.avatarImage}
-                />
-              ) : (
-                <Ionicons name="person" size={48} color="#666" />
-              )}
+              {(() => {
+                const photoUrl = providerProfile?.profilePhotoUrl;
+                console.log('[PROVIDER PROFILE RENDER] profilePhotoUrl:', photoUrl);
+                if (photoUrl) {
+                  let fullUrl = photoUrl.startsWith('/') 
+                    ? `${BACKEND_URL}${photoUrl}` 
+                    : photoUrl;
+                  // Add cache-busting
+                  if (!fullUrl.includes('?')) {
+                    fullUrl += `?v=${Date.now()}`;
+                  }
+                  console.log('[PROVIDER PROFILE RENDER] Image URI:', fullUrl);
+                  return (
+                    <Image
+                      source={{ uri: fullUrl }}
+                      style={styles.avatarImage}
+                    />
+                  );
+                } else {
+                  return <Ionicons name="person" size={48} color="#666" />;
+                }
+              })()}
             </View>
             <Text style={styles.name}>{user?.name}</Text>
             <Text style={styles.email}>{user?.email}</Text>
