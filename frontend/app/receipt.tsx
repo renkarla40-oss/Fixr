@@ -146,10 +146,20 @@ export default function ReceiptScreen() {
       </View>
 
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
+        {/* Fixr Logo - small header branding */}
+        <View style={styles.logoContainer}>
+          <Image source={FixrLogo} style={styles.logo} resizeMode="contain" />
+        </View>
+
         {/* Success Icon */}
         <View style={styles.successIcon}>
           <Ionicons name="checkmark-circle" size={64} color="#2ecc71" />
         </View>
+
+        {/* Personalized Thank You */}
+        <Text style={styles.thankYouText}>
+          Thank you, {customerFirstName}!
+        </Text>
 
         {/* Receipt Card */}
         <View style={styles.receiptCard}>
