@@ -961,6 +961,55 @@ export default function RequestDetailScreen() {
             </View>
           )}
 
+          {/* JOB STARTED CONFIRMATION - Shows after job code verified (in_progress or completed) */}
+          {(request.status === 'in_progress' || request.status === 'completed') && (request.jobStartedAt || request.startedAt) && (
+            <View style={styles.customerJobStartedCard}>
+              <View style={styles.customerJobStartedHeader}>
+                <Ionicons name="play-circle" size={26} color="#2196F3" />
+                <Text style={styles.customerJobStartedTitle}>Job Started</Text>
+              </View>
+              <View style={styles.customerJobStartedDetails}>
+                {request.jobCode && (
+                  <View style={styles.customerJobDetailRow}>
+                    <Text style={styles.customerJobDetailLabel}>Start Code</Text>
+                    <Text style={styles.customerJobDetailValue}>{request.jobCode}</Text>
+                  </View>
+                )}
+                <View style={styles.customerJobDetailRow}>
+                  <Text style={styles.customerJobDetailLabel}>Started At</Text>
+                  <Text style={styles.customerJobDetailValue}>{formatDateTime(request.jobStartedAt || request.startedAt)}</Text>
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* JOB COMPLETED CONFIRMATION - Shows after job is completed */}
+          {request.status === 'completed' && (
+            <View style={styles.customerJobCompletedCard}>
+              <View style={styles.customerJobCompletedHeader}>
+                <Ionicons name="checkmark-done-circle" size={26} color="#4CAF50" />
+                <Text style={styles.customerJobCompletedTitle}>Job Completed</Text>
+              </View>
+              <View style={styles.customerJobCompletedDetails}>
+                {request.completionOtp && (
+                  <View style={styles.customerJobDetailRow}>
+                    <Text style={styles.customerJobDetailLabel}>Completion Code</Text>
+                    <Text style={styles.customerJobDetailValue}>{request.completionOtp}</Text>
+                  </View>
+                )}
+                {(request.jobCompletedAt || request.completedAt) && (
+                  <View style={styles.customerJobDetailRow}>
+                    <Text style={styles.customerJobDetailLabel}>Completed At</Text>
+                    <Text style={styles.customerJobDetailValue}>{formatDateTime(request.jobCompletedAt || request.completedAt)}</Text>
+                  </View>
+                )}
+              </View>
+              <Text style={styles.customerJobCompletedNote}>
+                This job has been successfully completed. You can now leave a review.
+              </Text>
+            </View>
+          )}
+
           {/* Provider & Service Summary Card */}
           <View style={styles.summaryCard}>
             <View style={styles.summaryRow}>
