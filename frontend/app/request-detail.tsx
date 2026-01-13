@@ -52,6 +52,8 @@ interface ServiceRequest {
   jobCode?: string;
   startedAt?: string;
   completedAt?: string;
+  jobStartedAt?: string;
+  jobCompletedAt?: string;
   completionOtp?: string;
   customerRating?: number;
   customerReview?: string;
