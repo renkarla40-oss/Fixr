@@ -47,7 +47,12 @@ export default function ReceiptScreen() {
   const [error, setError] = useState<string | null>(null);
 
   // Get customer's first name for personalization
-  const customerFirstName = user?.name?.split(' ')[0] || 'Customer';
+  const customerFirstName = user?.name?.split(' ')[0] || null;
+  
+  // Build personalized greeting - fallback to just "Thank you!" if no name
+  const thankYouMessage = customerFirstName 
+    ? `Thank you, ${customerFirstName}!` 
+    : 'Thank you!';
 
   useEffect(() => {
     fetchReceipt();
