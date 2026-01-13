@@ -2877,7 +2877,7 @@ async def sandbox_pay_quote(
     
     if not existing_txn:
         # Fee & Commission Config
-        SERVICE_FEE_FLAT = 25.00  # TTD flat fee charged to customer
+        SERVICE_FEE_FLAT = 40.00  # TTD flat fee charged to customer
         COMMISSION_RATE = 0.10   # 10% commission from provider
         CURRENCY = "TTD"
         
