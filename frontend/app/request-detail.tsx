@@ -2110,6 +2110,23 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#2E7D32',
   },
+  viewReceiptButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+    paddingVertical: 10,
+    backgroundColor: '#f0f9f4',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#2ecc71',
+    gap: 6,
+  },
+  viewReceiptText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#2ecc71',
+  },
   acceptPayButton: {
     flexDirection: 'row',
     alignItems: 'center',
