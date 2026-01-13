@@ -1094,6 +1094,28 @@ export default function ProviderRequestDetailScreen() {
               </View>
             )}
 
+            {/* Job Started Confirmation - Shows after job code verified (in_progress or completed) */}
+            {(request.status === 'in_progress' || request.status === 'completed') && request.jobStartedAt && (
+              <View style={styles.jobStartedSection}>
+                <View style={styles.jobStartedHeader}>
+                  <Ionicons name="play-circle" size={28} color="#2196F3" />
+                  <Text style={styles.jobStartedTitle}>Job Started</Text>
+                </View>
+                <View style={styles.jobStartedDetails}>
+                  {request.jobCode && (
+                    <View style={styles.startedDetailRow}>
+                      <Text style={styles.startedDetailLabel}>Start Code</Text>
+                      <Text style={styles.startedDetailValue}>{request.jobCode}</Text>
+                    </View>
+                  )}
+                  <View style={styles.startedDetailRow}>
+                    <Text style={styles.startedDetailLabel}>Started At</Text>
+                    <Text style={styles.startedDetailValue}>{formatDateTime(request.jobStartedAt)}</Text>
+                  </View>
+                </View>
+              </View>
+            )}
+
             {/* Job Completed Confirmation - Shows after successful completion */}
             {request.status === 'completed' && (
               <View style={styles.jobCompletedSection}>
