@@ -1782,6 +1782,80 @@ const styles = StyleSheet.create({
     color: '#7A9BC7',
     marginTop: 2,
   },
+  // Customer Job Started Confirmation Card
+  customerJobStartedCard: {
+    backgroundColor: '#E3F2FD',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#90CAF9',
+  },
+  customerJobStartedHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 12,
+  },
+  customerJobStartedTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#1565C0',
+  },
+  customerJobStartedDetails: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    padding: 12,
+  },
+  customerJobDetailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E3F2FD',
+  },
+  customerJobDetailLabel: {
+    fontSize: 14,
+    color: '#666',
+  },
+  customerJobDetailValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1565C0',
+  },
+  // Customer Job Completed Confirmation Card
+  customerJobCompletedCard: {
+    backgroundColor: '#E8F5E9',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#A5D6A7',
+  },
+  customerJobCompletedHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 12,
+  },
+  customerJobCompletedTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#2E7D32',
+  },
+  customerJobCompletedDetails: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 10,
+  },
+  customerJobCompletedNote: {
+    fontSize: 13,
+    color: '#388E3C',
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
   // Summary Card
   summaryCard: {
     backgroundColor: '#FAFAFA',
