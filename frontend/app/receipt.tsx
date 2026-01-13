@@ -17,8 +17,8 @@ import { useAuth } from '../contexts/AuthContext';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
-// Import the Fixr logo
-const FixrLogo = require('../assets/images/fixr-logo.png');
+// Import the correct Fixr logo for receipt
+const FixrLogo = require('../assets/images/fixr-logo-receipt.png');
 
 interface ReceiptData {
   transactionId: string;
