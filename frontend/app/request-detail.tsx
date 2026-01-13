@@ -573,7 +573,18 @@ export default function RequestDetailScreen() {
       if (isIdempotentSuccess(payResponse)) {
         Alert.alert('Info', getIdempotentMessage(payResponse));
       } else {
-        Alert.alert('Payment Successful', 'Your payment has been confirmed (sandbox). The provider can now start the job!');
+        // Show payment success with View Receipt option
+        Alert.alert(
+          'Payment Successful',
+          'Your payment has been confirmed. The provider can now start the job!',
+          [
+            { text: 'OK', style: 'cancel' },
+            { 
+              text: 'View Receipt', 
+              onPress: () => router.push({ pathname: '/receipt', params: { requestId: request?._id } })
+            },
+          ]
+        );
       }
       
       setCurrentQuote(payResponse.data.quote);
