@@ -1671,6 +1671,54 @@ frontend:
         agent: "main"
         comment: "Quote card now shows provider rating when available"
 
+  - task: "Payment Breakdown Engine (Part 1)"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Implemented Payment Breakdown Engine in sandbox_pay_quote. Creates PaymentTransaction (jobPrice, serviceFee $25 TTD, 10% commission, totalPaidByCustomer) and ProviderPayout (amount, status='pending') records. Idempotency by paymentProviderTxnId. VAT fields exist but dormant (vatEnabled=false). Tested with curl - records created correctly, no duplicates on retry."
+
+  - task: "Receipt Endpoint (Part 2)"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added GET /api/receipts/by-job/{request_id} endpoint. Returns PaymentTransaction fields for receipt UI. Auth enforced - only paying customer can access. Provider correctly gets 403 'You can only view your own receipts'."
+
+  - task: "Receipt Screen (Part 2)"
+    implemented: true
+    working: true
+    file: "receipt.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Created dedicated Receipt screen showing Transaction ID, Date/Time, Job Price, Service Fee, Total Paid, Currency (TTD), Payment Completed badge. VAT rows hidden when vatEnabled=false. Screenshot verified: $200 job + $25 fee = $225 total displayed correctly."
+
+  - task: "View Receipt Button in Job Details"
+    implemented: true
+    working: true
+    file: "request-detail.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added 'View Receipt' button to Payment Confirmed card in chat view. Also added View Receipt option to payment success alert. Both navigate to /receipt?requestId={id}."
+
 test_plan:
   current_focus: []
   stuck_tasks: []
