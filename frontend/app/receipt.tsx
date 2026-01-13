@@ -297,8 +297,23 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 16,
   },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  logo: {
+    width: 60,
+    height: 60,
+  },
   successIcon: {
     alignItems: 'center',
+    marginBottom: 8,
+  },
+  thankYouText: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#1a1a2e',
+    textAlign: 'center',
     marginBottom: 20,
   },
   receiptCard: {
