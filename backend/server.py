@@ -3113,6 +3113,7 @@ async def create_service_request(
         request_dict["jobCode"] = request_dict.get("jobCode")
         request_dict["jobStartedAt"] = request_dict.get("jobStartedAt")
         request_dict["jobCompletedAt"] = request_dict.get("jobCompletedAt")
+        request_dict["completionOtp"] = request_dict.get("completionOtp")
         request_dict["customerReview"] = request_dict.get("customerReview")
         request_dict["customerRating"] = request_dict.get("customerRating")
         request_dict["reviewedAt"] = request_dict.get("reviewedAt")
