@@ -163,7 +163,7 @@ export default function ReceiptScreen() {
 
         {/* Personalized Thank You */}
         <Text style={styles.thankYouText}>
-          Thank you, {customerFirstName}!
+          {thankYouMessage}
         </Text>
 
         {/* Receipt Card */}
