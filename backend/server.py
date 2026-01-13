@@ -2981,6 +2981,47 @@ async def sandbox_pay_quote(
     
     return {"success": True, "quote": updated_quote, "message": "Payment confirmed (sandbox)"}
 
+
+# =============================================================================
+# RECEIPT ENDPOINTS
+# =============================================================================
+@api_router.get("/receipts/by-job/{request_id}")
+async def get_receipt_by_job(
+    request_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Fetch payment receipt for a job. Only the paying customer can access.
+    Returns PaymentTransaction fields needed for receipt UI.
+    """
+    # Find the payment transaction for this job
+    txn = await db.payment_transactions.find_one({"jobId": request_id})
+    
+    if not txn:
+        raise HTTPException(status_code=404, detail="Receipt not found. Payment may not have been completed.")
+    
+    # Auth check: only the customer who paid can view the receipt
+    if txn.get("customerId") != current_user.id:
+        raise HTTPException(status_code=403, detail="You can only view your own receipts")
+    
+    # Return receipt data
+    return {
+        "transactionId": str(txn["_id"]),
+        "paymentProviderTxnId": txn.get("paymentProviderTxnId"),
+        "jobId": txn.get("jobId"),
+        "quoteId": txn.get("quoteId"),
+        "jobPrice": txn.get("jobPrice"),
+        "serviceFee": txn.get("serviceFee"),
+        "totalPaidByCustomer": txn.get("totalPaidByCustomer"),
+        "currency": txn.get("currency", "TTD"),
+        "vatEnabled": txn.get("vatEnabled", False),
+        "vatRate": txn.get("vatRate", 0),
+        "vatTotal": txn.get("vatTotal", 0),
+        "status": txn.get("status"),
+        "paidAt": txn.get("createdAt").isoformat() if txn.get("createdAt") else None,
+    }
+
+
 # Service Request Routes
 @api_router.post("/service-requests", response_model=ServiceRequestResponse)
 async def create_service_request(
