@@ -1142,6 +1142,13 @@ export default function RequestDetailScreen() {
                   </View>
                   <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
                   <Text style={styles.quoteCardAmountPaid}>${currentQuote.amount.toFixed(2)} {currentQuote.currency}</Text>
+                  <TouchableOpacity 
+                    style={styles.viewReceiptButton}
+                    onPress={() => router.push({ pathname: '/receipt', params: { requestId: request._id } })}
+                  >
+                    <Ionicons name="receipt-outline" size={16} color="#2ecc71" />
+                    <Text style={styles.viewReceiptText}>View Receipt</Text>
+                  </TouchableOpacity>
                 </View>
               )}
               {request.status === 'awaiting_payment' && request.paymentStatus === 'held' && (
