@@ -304,11 +304,11 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   logo: {
-    width: 60,
-    height: 60,
+    width: 100,
+    height: 100,
   },
   successIcon: {
     alignItems: 'center',
