@@ -1094,6 +1094,33 @@ export default function ProviderRequestDetailScreen() {
               </View>
             )}
 
+            {/* Job Completed Confirmation - Shows after successful completion */}
+            {request.status === 'completed' && (
+              <View style={styles.jobCompletedSection}>
+                <View style={styles.jobCompletedHeader}>
+                  <Ionicons name="checkmark-done-circle" size={32} color="#4CAF50" />
+                  <Text style={styles.jobCompletedTitle}>Job Completed</Text>
+                </View>
+                <View style={styles.jobCompletedDetails}>
+                  {request.completionOtp && (
+                    <View style={styles.completedDetailRow}>
+                      <Text style={styles.completedDetailLabel}>Completion Code</Text>
+                      <Text style={styles.completedDetailValue}>{request.completionOtp}</Text>
+                    </View>
+                  )}
+                  {request.jobCompletedAt && (
+                    <View style={styles.completedDetailRow}>
+                      <Text style={styles.completedDetailLabel}>Completed At</Text>
+                      <Text style={styles.completedDetailValue}>{formatDateTime(request.jobCompletedAt)}</Text>
+                    </View>
+                  )}
+                </View>
+                <Text style={styles.jobCompletedNote}>
+                  This job has been successfully completed. The customer can now leave a review.
+                </Text>
+              </View>
+            )}
+
             {/* Description */}
             <View style={styles.descriptionCard}>
               <Text style={styles.descriptionLabel}>Job Description</Text>
