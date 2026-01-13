@@ -2862,6 +2862,81 @@ async def sandbox_pay_quote(
         }}
     )
     
+    # =============================================================================
+    # PAYMENT BREAKDOWN ENGINE
+    # Creates PaymentTransaction + ProviderPayout with idempotency
+    # =============================================================================
+    
+    # Generate a unique payment transaction ID for idempotency
+    payment_provider_txn_id = f"sandbox_{quote_id}_{quote['requestId']}"
+    
+    # Check for existing transaction (idempotency)
+    existing_txn = await db.payment_transactions.find_one({
+        "paymentProviderTxnId": payment_provider_txn_id
+    })
+    
+    if not existing_txn:
+        # Fee & Commission Config
+        SERVICE_FEE_FLAT = 25.00  # TTD flat fee charged to customer
+        COMMISSION_RATE = 0.10   # 10% commission from provider
+        CURRENCY = "TTD"
+        
+        job_price = float(quote["amount"])
+        
+        # Calculate breakdown
+        service_fee = SERVICE_FEE_FLAT
+        commission = round(job_price * COMMISSION_RATE, 2)
+        total_paid_by_customer = round(job_price + service_fee, 2)
+        provider_payout_amount = round(job_price - commission, 2)
+        
+        # VAT fields (dormant for now)
+        vat_enabled = False
+        vat_rate = 0.0
+        vat_total = 0.0
+        
+        # Create PaymentTransaction record
+        payment_txn = {
+            "jobId": quote["requestId"],
+            "quoteId": quote_id,
+            "customerId": current_user.id,
+            "providerId": quote.get("providerId"),
+            "jobPrice": job_price,
+            "serviceFee": service_fee,
+            "commissionRate": COMMISSION_RATE,
+            "commission": commission,
+            "totalPaidByCustomer": total_paid_by_customer,
+            "currency": CURRENCY,
+            "paymentProviderTxnId": payment_provider_txn_id,
+            "status": "completed",
+            "vatEnabled": vat_enabled,
+            "vatRate": vat_rate,
+            "vatTotal": vat_total,
+            "createdAt": now,
+            "updatedAt": now,
+        }
+        
+        txn_result = await db.payment_transactions.insert_one(payment_txn)
+        payment_txn_id = str(txn_result.inserted_id)
+        
+        # Create linked ProviderPayout record (status: pending)
+        provider_payout = {
+            "paymentTransactionId": payment_txn_id,
+            "jobId": quote["requestId"],
+            "quoteId": quote_id,
+            "providerId": quote.get("providerId"),
+            "amount": provider_payout_amount,
+            "currency": CURRENCY,
+            "status": "pending",
+            "createdAt": now,
+            "updatedAt": now,
+        }
+        
+        await db.provider_payouts.insert_one(provider_payout)
+        
+        logger.info(f"Payment Breakdown: jobPrice={job_price}, serviceFee={service_fee}, commission={commission}, providerPayout={provider_payout_amount}, txnId={payment_provider_txn_id}")
+    else:
+        logger.info(f"Payment transaction already exists for txnId={payment_provider_txn_id}, skipping (idempotent)")
+    
     # Send a system message in chat about payment
     customer = await db.users.find_one({"_id": ObjectId(current_user.id)})
     customer_name = customer.get("name", "Customer") if customer else "Customer"
