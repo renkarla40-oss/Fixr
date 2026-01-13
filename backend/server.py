@@ -1867,6 +1867,7 @@ async def confirm_job_arrival(
         {"$set": {
             "status": "in_progress",
             "startedAt": datetime.utcnow(),
+            "jobStartedAt": datetime.utcnow(),
             "completionOtp": completion_otp
         }}
     )
