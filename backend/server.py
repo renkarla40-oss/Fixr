@@ -1698,6 +1698,7 @@ async def get_service_request_detail(
     request["jobCode"] = request.get("jobCode")
     request["jobStartedAt"] = request.get("jobStartedAt")
     request["jobCompletedAt"] = request.get("jobCompletedAt")
+    request["completionOtp"] = request.get("completionOtp")
     request["customerReview"] = request.get("customerReview")
     request["customerRating"] = request.get("customerRating")
     request["reviewedAt"] = request.get("reviewedAt")
