@@ -920,8 +920,8 @@ export default function RequestDetailScreen() {
             </View>
           )}
 
-          {/* JOB CODE CARD - ONLY show when payment is confirmed (held) */}
-          {request.paymentStatus === 'held' && request.jobCode && (
+          {/* JOB CODE CARD - ONLY show when payment is confirmed AND job has NOT started yet */}
+          {request.paymentStatus === 'held' && request.jobCode && !request.jobStartedAt && !request.startedAt && (
             <View style={styles.jobCodeCard}>
               <View style={styles.jobCodeHeader}>
                 <Ionicons name="key-outline" size={20} color="#1976D2" />
