@@ -2244,6 +2244,55 @@ const styles = StyleSheet.create({
   buttonDisabled: {
     opacity: 0.5,
   },
+  // Job Completed Confirmation styles
+  jobCompletedSection: {
+    backgroundColor: '#F3E5F5',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#CE93D8',
+  },
+  jobCompletedHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 12,
+  },
+  jobCompletedTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#7B1FA2',
+  },
+  jobCompletedDetails: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
+  },
+  completedDetailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3E5F5',
+  },
+  completedDetailLabel: {
+    fontSize: 14,
+    color: '#666',
+  },
+  completedDetailValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#7B1FA2',
+  },
+  jobCompletedNote: {
+    fontSize: 13,
+    color: '#8E24AA',
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
   // Chat styles
   chatContainer: {
     flex: 1,
