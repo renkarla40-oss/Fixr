@@ -2315,6 +2315,48 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontStyle: 'italic',
   },
+  // Job Started Confirmation styles
+  jobStartedSection: {
+    backgroundColor: '#E3F2FD',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#90CAF9',
+  },
+  jobStartedHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 12,
+  },
+  jobStartedTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1565C0',
+  },
+  jobStartedDetails: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    padding: 12,
+  },
+  startedDetailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E3F2FD',
+  },
+  startedDetailLabel: {
+    fontSize: 14,
+    color: '#666',
+  },
+  startedDetailValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1565C0',
+  },
   // Chat styles
   chatContainer: {
     flex: 1,
