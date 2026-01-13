@@ -39,12 +39,15 @@ interface ReceiptData {
 export default function ReceiptScreen() {
   const router = useRouter();
   const { requestId } = useLocalSearchParams<{ requestId: string }>();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const insets = useSafeAreaInsets();
 
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Get customer's first name for personalization
+  const customerFirstName = user?.name?.split(' ')[0] || 'Customer';
 
   useEffect(() => {
     fetchReceipt();
