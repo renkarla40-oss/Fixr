@@ -1951,7 +1951,8 @@ async def complete_service_request(
         {"_id": ObjectId(request_id)},
         {"$set": {
             "status": "completed",
-            "completedAt": datetime.utcnow()
+            "completedAt": datetime.utcnow(),
+            "jobCompletedAt": datetime.utcnow()
         }}
     )
     
