@@ -217,7 +217,7 @@ export default function ReceiptScreen() {
 
         {/* Footer Note */}
         <Text style={styles.footerNote}>
-          This receipt confirms your payment. The provider has been notified and can start your job.
+          Thank you for your business. This receipt confirms your payment.
         </Text>
       </ScrollView>
 
