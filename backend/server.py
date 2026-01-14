@@ -2956,7 +2956,7 @@ async def sandbox_pay_quote(
         
         await db.provider_payouts.insert_one(provider_payout)
         
-        logger.info(f"Payment Breakdown: jobPrice={job_price}, serviceFee={service_fee}, commission={commission}, providerPayout={provider_payout_amount}, txnId={payment_provider_txn_id}")
+        logger.info(f"Payment Breakdown: jobPrice={job_price}, serviceFee={service_fee}, commission={commission}, providerPayout={provider_payout_amount}, transactionFee={transaction_fee}, fixrGross={fixr_gross}, fixrNet={fixr_net}, txnId={payment_provider_txn_id}")
     else:
         logger.info(f"Payment transaction already exists for txnId={payment_provider_txn_id}, skipping (idempotent)")
     
