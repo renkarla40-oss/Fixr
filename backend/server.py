@@ -2099,9 +2099,14 @@ async def get_job_messages(
     # Verify user is part of this request
     is_customer = request["customerId"] == current_user.id
     provider = await db.providers.find_one({"userId": current_user.id})
-    is_provider = provider and str(provider["_id"]) == request.get("providerId")
+    is_assigned_provider = provider and str(provider["_id"]) == request.get("providerId")
     
-    if not is_customer and not is_provider:
+    # For general requests (providerId is null), allow any provider to view messages
+    # This supports the "Other Services" flow where requests are broadcast to all providers
+    is_general_request = request.get("isGeneralRequest", False) and request.get("providerId") is None
+    is_provider_for_general = provider and is_general_request
+    
+    if not is_customer and not is_assigned_provider and not is_provider_for_general:
         raise HTTPException(status_code=403, detail="Not authorized")
     
     # Get messages
