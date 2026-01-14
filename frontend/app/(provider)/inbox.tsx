@@ -279,8 +279,8 @@ export default function ProviderInboxScreen() {
         )}
       </View>
       
-      {/* Debug Banner - Only visible in development mode */}
-      {__DEV__ && renderDebugBanner()}
+      {/* Debug Banner - Disabled in production. Only enable via explicit flag for debugging */}
+      {/* {__DEV__ && process.env.EXPO_PUBLIC_SHOW_DEBUG === 'true' && renderDebugBanner()} */}
       
       {jobsWithMessages.length === 0 ? (
         <View style={styles.emptyContainer}>
