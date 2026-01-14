@@ -2884,6 +2884,11 @@ async def sandbox_pay_quote(
         COMMISSION_RATE = 0.10   # 10% commission from provider
         CURRENCY = "TTD"
         
+        # Transaction Fee Config (payment processor fee)
+        # Typical: 2.9% + fixed fee, but using simplified % for sandbox
+        TRANSACTION_FEE_RATE = 0.029  # 2.9% of total transaction
+        TRANSACTION_FEE_FIXED = 0.00  # Could be a fixed fee component
+        
         job_price = float(quote["amount"])
         
         # Calculate breakdown
@@ -2891,6 +2896,15 @@ async def sandbox_pay_quote(
         commission = round(job_price * COMMISSION_RATE, 2)
         total_paid_by_customer = round(job_price + service_fee, 2)
         provider_payout_amount = round(job_price - commission, 2)
+        
+        # Calculate transaction fee (on total paid by customer)
+        # In production, this would come from the payment gateway response
+        transaction_fee = round(total_paid_by_customer * TRANSACTION_FEE_RATE + TRANSACTION_FEE_FIXED, 2)
+        
+        # Calculate Fixr's net revenue (internal accounting)
+        # FixrNet = serviceFee + commission - transactionFee
+        fixr_gross = round(service_fee + commission, 2)
+        fixr_net = round(fixr_gross - transaction_fee, 2)
         
         # VAT fields (dormant for now)
         vat_enabled = False
@@ -2911,6 +2925,12 @@ async def sandbox_pay_quote(
             "currency": CURRENCY,
             "paymentProviderTxnId": payment_provider_txn_id,
             "status": "completed",
+            # Transaction fee fields (internal accounting, not displayed to customer)
+            "transactionFeeRate": TRANSACTION_FEE_RATE,
+            "transactionFee": transaction_fee,
+            "fixrGross": fixr_gross,  # serviceFee + commission
+            "fixrNet": fixr_net,      # fixrGross - transactionFee
+            # VAT fields (dormant)
             "vatEnabled": vat_enabled,
             "vatRate": vat_rate,
             "vatTotal": vat_total,
