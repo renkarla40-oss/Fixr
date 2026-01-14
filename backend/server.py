@@ -3045,6 +3045,172 @@ async def get_receipt_by_job(
     }
 
 
+# =============================================================================
+# ADMIN PAYOUT RELEASE ENDPOINTS
+# =============================================================================
+
+def verify_admin_token(x_admin_token: str = Header(None)):
+    """Verify admin token from header"""
+    admin_token = os.getenv("ADMIN_TOKEN", "")
+    if not admin_token:
+        raise HTTPException(status_code=500, detail="Admin token not configured")
+    if not x_admin_token or x_admin_token != admin_token:
+        raise HTTPException(status_code=401, detail="Invalid or missing admin token")
+    return True
+
+
+@api_router.post("/payouts/release/{request_id}")
+async def release_provider_payout(
+    request_id: str,
+    _admin: bool = Depends(verify_admin_token)
+):
+    """
+    ADMIN-ONLY: Release provider payout for a completed job.
+    
+    Requirements:
+    - Job must be completed (completedAt exists)
+    - No active disputes
+    - 24 hours must have passed since completion (unless PAYOUT_BYPASS_24H=true)
+    
+    Headers required:
+    - X-Admin-Token: Must match ADMIN_TOKEN env var
+    """
+    now = datetime.utcnow()
+    
+    # 1. Load the job/request
+    try:
+        request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
+    except:
+        raise HTTPException(status_code=400, detail="Invalid request ID format")
+    
+    if not request:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    # 2. Check if job is completed
+    completed_at = request.get("completedAt") or request.get("jobCompletedAt")
+    if not completed_at:
+        return {
+            "success": False,
+            "errorCode": "NOT_COMPLETED",
+            "message": "Job has not been completed yet. Cannot release payout."
+        }
+    
+    # 3. Load the ProviderPayout linked to this job
+    payout = await db.provider_payouts.find_one({"jobId": request_id})
+    if not payout:
+        return {
+            "success": False,
+            "errorCode": "NOT_FOUND",
+            "message": "Provider payout record not found for this job."
+        }
+    
+    payout_id = str(payout["_id"])
+    current_status = payout.get("status", "pending")
+    
+    # 4. Check for active disputes (simple check - look for disputes collection)
+    dispute = await db.disputes.find_one({
+        "requestId": request_id,
+        "status": {"$in": ["open", "pending", "under_review"]}
+    })
+    
+    if dispute:
+        # Set payout to on_hold if not already
+        if current_status != "on_hold":
+            await db.provider_payouts.update_one(
+                {"_id": payout["_id"]},
+                {"$set": {"status": "on_hold", "updatedAt": now}}
+            )
+        return {
+            "success": False,
+            "errorCode": "DISPUTE_ACTIVE",
+            "message": "Cannot release payout. An active dispute exists for this job.",
+            "disputeId": str(dispute["_id"])
+        }
+    
+    # 5. 24-hour hold rule
+    bypass_24h = os.getenv("PAYOUT_BYPASS_24H", "false").lower() == "true"
+    
+    if isinstance(completed_at, str):
+        completed_at = datetime.fromisoformat(completed_at.replace("Z", "+00:00").replace("+00:00", ""))
+    
+    hold_end_time = completed_at + timedelta(hours=24)
+    
+    if not bypass_24h and now < hold_end_time:
+        remaining_seconds = (hold_end_time - now).total_seconds()
+        remaining_hours = int(remaining_seconds // 3600)
+        remaining_minutes = int((remaining_seconds % 3600) // 60)
+        
+        return {
+            "success": False,
+            "errorCode": "NOT_ELIGIBLE_YET",
+            "message": f"Payout not eligible yet. 24-hour hold period has not passed.",
+            "completedAt": completed_at.isoformat(),
+            "eligibleAt": hold_end_time.isoformat(),
+            "remainingTime": f"{remaining_hours}h {remaining_minutes}m"
+        }
+    
+    # 6. Release payout (idempotent)
+    if current_status == "released":
+        # Already released - return success (idempotent)
+        return {
+            "success": True,
+            "message": "Payout already released (idempotent)",
+            "payoutId": payout_id,
+            "status": "released",
+            "releasedAt": payout.get("releasedAt").isoformat() if payout.get("releasedAt") else None,
+            "amount": payout.get("amount"),
+            "currency": payout.get("currency")
+        }
+    
+    # Update payout status to released
+    await db.provider_payouts.update_one(
+        {"_id": payout["_id"]},
+        {"$set": {
+            "status": "released",
+            "releasedAt": now,
+            "updatedAt": now
+        }}
+    )
+    
+    logger.info(f"Payout released: payoutId={payout_id}, jobId={request_id}, amount={payout.get('amount')} {payout.get('currency')}")
+    
+    return {
+        "success": True,
+        "message": "Payout released successfully",
+        "payoutId": payout_id,
+        "status": "released",
+        "releasedAt": now.isoformat(),
+        "amount": payout.get("amount"),
+        "currency": payout.get("currency"),
+        "providerId": payout.get("providerId")
+    }
+
+
+@api_router.get("/payouts/status/{request_id}")
+async def get_payout_status(
+    request_id: str,
+    _admin: bool = Depends(verify_admin_token)
+):
+    """
+    ADMIN-ONLY: Get payout status for a job.
+    """
+    payout = await db.provider_payouts.find_one({"jobId": request_id})
+    if not payout:
+        raise HTTPException(status_code=404, detail="Payout not found for this job")
+    
+    return {
+        "payoutId": str(payout["_id"]),
+        "jobId": payout.get("jobId"),
+        "providerId": payout.get("providerId"),
+        "amount": payout.get("amount"),
+        "currency": payout.get("currency"),
+        "status": payout.get("status"),
+        "createdAt": payout.get("createdAt").isoformat() if payout.get("createdAt") else None,
+        "releasedAt": payout.get("releasedAt").isoformat() if payout.get("releasedAt") else None,
+        "updatedAt": payout.get("updatedAt").isoformat() if payout.get("updatedAt") else None
+    }
+
+
 # Service Request Routes
 @api_router.post("/service-requests", response_model=ServiceRequestResponse)
 async def create_service_request(
