@@ -1119,10 +1119,10 @@ export default function RequestDetailScreen() {
             </TouchableOpacity>
           )}
 
-          {/* REVIEW SECTION - Show for completed jobs */}
-          {request.status === 'completed' && (
+          {/* REVIEW SECTION - Show for completed jobs (all completed states) */}
+          {['completed', 'completed_pending_review', 'completed_reviewed'].includes(request.status) && (
             <View style={styles.reviewSection}>
-              {existingReview ? (
+              {existingReview || request.customerRating !== null ? (
                 // Show submitted review
                 <View style={styles.reviewSubmittedCard}>
                   <View style={styles.reviewSubmittedHeader}>
@@ -1133,67 +1133,15 @@ export default function RequestDetailScreen() {
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Ionicons
                         key={star}
-                        name={star <= existingReview.rating ? 'star' : 'star-outline'}
+                        name={star <= (existingReview?.rating || request.customerRating || 0) ? 'star' : 'star-outline'}
                         size={24}
                         color="#FFB300"
                       />
                     ))}
                   </View>
-                  {existingReview.comment && (
-                    <Text style={styles.reviewCommentText}>"{existingReview.comment}"</Text>
+                  {(existingReview?.comment || request.customerReview) && (
+                    <Text style={styles.reviewCommentText}>"{existingReview?.comment || request.customerReview}"</Text>
                   )}
-                </View>
-              ) : showReviewForm ? (
-                // Show review form
-                <View style={styles.reviewFormCard}>
-                  <Text style={styles.reviewFormTitle}>Rate Your Experience</Text>
-                  <View style={styles.reviewStarsRow}>
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <TouchableOpacity
-                        key={star}
-                        onPress={() => setReviewRating(star)}
-                        style={styles.starButton}
-                      >
-                        <Ionicons
-                          name={star <= reviewRating ? 'star' : 'star-outline'}
-                          size={36}
-                          color={star <= reviewRating ? '#FFB300' : '#CCC'}
-                        />
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                  <TextInput
-                    style={styles.reviewCommentInput}
-                    placeholder="Share your experience (optional, max 500 chars)"
-                    placeholderTextColor="#999"
-                    value={reviewComment}
-                    onChangeText={setReviewComment}
-                    multiline
-                    maxLength={500}
-                  />
-                  <View style={styles.reviewFormButtons}>
-                    <TouchableOpacity
-                      style={styles.reviewCancelButton}
-                      onPress={() => {
-                        setShowReviewForm(false);
-                        setReviewRating(0);
-                        setReviewComment('');
-                      }}
-                    >
-                      <Text style={styles.reviewCancelButtonText}>Cancel</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.reviewSubmitButton, reviewRating === 0 && styles.reviewSubmitButtonDisabled]}
-                      onPress={handleSubmitReview}
-                      disabled={reviewRating === 0 || submittingReview}
-                    >
-                      {submittingReview ? (
-                        <ActivityIndicator size="small" color="#FFFFFF" />
-                      ) : (
-                        <Text style={styles.reviewSubmitButtonText}>Submit Review</Text>
-                      )}
-                    </TouchableOpacity>
-                  </View>
                 </View>
               ) : (
                 // Show "Leave a Review" button - Navigate to dedicated review screen
