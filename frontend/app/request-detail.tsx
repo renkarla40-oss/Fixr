@@ -1327,12 +1327,17 @@ export default function RequestDetailScreen() {
           )}
 
           {/* Message Input or Read-Only Banner */}
-          {request.status === 'completed' ? (
-            <View style={[styles.chatClosedBanner, { paddingBottom: insets.bottom + 12 }]}>
-              <Ionicons name="lock-closed" size={16} color="#666" />
-              <Text style={styles.chatClosedText}>Chat closed — job completed.</Text>
-            </View>
-          ) : (
+          {/* Chat CLOSED for: completed_reviewed */}
+          {/* Chat OPEN for: all other states including completed_pending_review */}
+          {(() => {
+            const isChatClosed = request.status === 'completed_reviewed' || 
+                                 (request.status === 'completed' && request.customerRating !== null);
+            return isChatClosed ? (
+              <View style={[styles.chatClosedBanner, { paddingBottom: insets.bottom + 12 }]}>
+                <Ionicons name="lock-closed" size={16} color="#666" />
+                <Text style={styles.chatClosedText}>Chat closed — review submitted.</Text>
+              </View>
+            ) : (
             <View style={{ paddingBottom: insets.bottom + 12 }}>
               {/* Quote Card - Show when there's a quote pending (SENT status) */}
               {currentQuote && currentQuote.status === 'SENT' && (
