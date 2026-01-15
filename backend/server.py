@@ -2188,9 +2188,12 @@ async def send_job_message(
     if not request:
         raise HTTPException(status_code=404, detail="Request not found")
     
-    # Block messaging after job completion
-    if request.get("status") == "completed":
-        raise HTTPException(status_code=403, detail="Chat is read-only after job completion.")
+    # Block messaging ONLY after review is submitted (completed_reviewed)
+    # Chat stays OPEN for: in_progress, completed_pending_review
+    # Chat CLOSED for: completed_reviewed
+    job_status = request.get("status", "")
+    if job_status == "completed_reviewed":
+        raise HTTPException(status_code=403, detail="Chat is read-only after review is submitted.")
     
     # Verify user is part of this request
     is_customer = request["customerId"] == current_user.id
