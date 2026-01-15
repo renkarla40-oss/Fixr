@@ -2417,6 +2417,71 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontStyle: 'italic',
   },
+  // Payout Section styles
+  payoutSection: {
+    backgroundColor: '#F1F8E9',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#C5E1A5',
+  },
+  payoutHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 12,
+  },
+  payoutTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#33691E',
+  },
+  payoutDetails: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    padding: 12,
+  },
+  payoutDetailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E8F5E9',
+  },
+  payoutDetailLabel: {
+    fontSize: 14,
+    color: '#666',
+  },
+  payoutDetailValue: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#2E7D32',
+  },
+  payoutStatusBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  payoutStatusText: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  payoutHelperText: {
+    fontSize: 13,
+    color: '#558B2F',
+    textAlign: 'center',
+    marginTop: 12,
+    fontStyle: 'italic',
+  },
+  payoutPlaceholder: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    fontStyle: 'italic',
+    paddingVertical: 16,
+  },
   // Job Started Confirmation styles
   jobStartedSection: {
     backgroundColor: '#E3F2FD',
