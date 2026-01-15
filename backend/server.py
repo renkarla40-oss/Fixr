@@ -1736,9 +1736,16 @@ async def accept_service_request(
     if not request:
         raise HTTPException(status_code=404, detail="Request not found")
     
-    # Verify the current user is the provider for this request
+    # Verify the current user is a valid provider
     provider = await db.providers.find_one({"userId": current_user.id})
-    if not provider or str(provider["_id"]) != request.get("providerId"):
+    if not provider:
+        raise HTTPException(status_code=403, detail="Not authorized - provider profile not found")
+    
+    # Authorization check:
+    # - If request has a specific providerId, only that provider can accept
+    # - If providerId is None (general request), any provider can accept
+    request_provider_id = request.get("providerId")
+    if request_provider_id is not None and str(provider["_id"]) != request_provider_id:
         raise HTTPException(status_code=403, detail="Not authorized to accept this request")
     
     # IDEMPOTENCY: If already accepted, return success (not error)
