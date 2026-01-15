@@ -159,11 +159,11 @@ export default function ProviderPayoutStatusScreen() {
           <View style={styles.jobReference}>
             <Text style={styles.jobReferenceLabel}>Job Reference</Text>
             <Text style={styles.jobReferenceText}>
-              {jobInfo.service}{jobInfo.subCategory ? ` - ${jobInfo.subCategory}` : ''}
+              {jobInfo.service}
             </Text>
-            {jobInfo.location && (
+            {(jobInfo.jobTown || jobInfo.location) && (
               <Text style={styles.jobLocationText}>
-                <Ionicons name="location-outline" size={14} color="#666" /> {jobInfo.location}
+                <Ionicons name="location-outline" size={14} color="#666" /> {jobInfo.jobTown || jobInfo.location}
               </Text>
             )}
           </View>
