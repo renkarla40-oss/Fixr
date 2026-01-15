@@ -844,7 +844,8 @@ export default function ProviderRequestDetailScreen() {
   }
 
   const statusInfo = getStatusInfo(request.status);
-  const isPending = request.status === 'pending';
+  // Only show Accept/Decline buttons for truly pending jobs (not any other state)
+  const canAcceptOrDecline = request.status === 'pending';
 
   return (
     <View style={[styles.safeArea, { paddingTop: insets.top }]}>
