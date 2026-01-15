@@ -129,7 +129,9 @@ def get_status_display_name(status: str) -> str:
         "accepted": "Accepted",
         "awaiting_payment": "Awaiting Payment",
         "in_progress": "In Progress",
-        "completed": "Completed"
+        "completed_pending_review": "Pending Review",
+        "completed_reviewed": "Completed",
+        "completed": "Completed"  # Legacy support
     }
     return names.get(status, status.title())
 
