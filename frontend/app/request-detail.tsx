@@ -815,6 +815,10 @@ export default function RequestDetailScreen() {
         return { bg: '#E8F5E9', text: '#2E7D32', icon: 'card', label: 'Paid' };
       case 'in_progress':
         return { bg: '#E3F2FD', text: '#1565C0', icon: 'play-circle', label: 'In Progress' };
+      case 'completed_pending_review':
+        return { bg: '#FFF3E0', text: '#E65100', icon: 'star-half', label: 'Pending Review' };
+      case 'completed_reviewed':
+        return { bg: '#F3E5F5', text: '#7B1FA2', icon: 'checkmark-done-circle', label: 'Completed' };
       case 'completed':
         return { bg: '#F3E5F5', text: '#7B1FA2', icon: 'checkmark-done-circle', label: 'Completed' };
       case 'declined':
