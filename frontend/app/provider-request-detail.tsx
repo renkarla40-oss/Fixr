@@ -139,6 +139,16 @@ export default function ProviderRequestDetailScreen() {
   const [showCompletionOtpInput, setShowCompletionOtpInput] = useState(false);
   const [completingJob, setCompletingJob] = useState(false);
 
+  // Payout info (read-only display)
+  const [payoutInfo, setPayoutInfo] = useState<{
+    exists: boolean;
+    amount?: number;
+    currency?: string;
+    status?: string;
+    releasedAt?: string;
+    message?: string;
+  } | null>(null);
+
   const scrollViewRef = useRef<ScrollView>(null);
   const inputRef = useRef<TextInput>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
