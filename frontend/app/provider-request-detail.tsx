@@ -773,12 +773,20 @@ export default function ProviderRequestDetailScreen() {
 
   const getStatusInfo = (status: string) => {
     switch (status) {
+      case 'pending':
+        return { bg: '#EAF3FF', text: '#4A7DC4', icon: 'time', label: 'Pending' };
       case 'accepted':
         return { bg: '#E8F5E9', text: '#2E7D32', icon: 'checkmark-circle', label: 'Accepted' };
       case 'paid':
         return { bg: '#E8F5E9', text: '#2E7D32', icon: 'card', label: 'Paid' };
+      case 'awaiting_payment':
+        return { bg: '#FFF3E0', text: '#E65100', icon: 'card-outline', label: 'Awaiting Payment' };
       case 'in_progress':
         return { bg: '#E3F2FD', text: '#1565C0', icon: 'play-circle', label: 'In Progress' };
+      case 'completed_pending_review':
+        return { bg: '#FFF3E0', text: '#E65100', icon: 'star-half', label: 'Pending Review' };
+      case 'completed_reviewed':
+        return { bg: '#F3E5F5', text: '#7B1FA2', icon: 'checkmark-done-circle', label: 'Completed' };
       case 'completed':
         return { bg: '#F3E5F5', text: '#7B1FA2', icon: 'checkmark-done-circle', label: 'Completed' };
       case 'declined':
@@ -786,9 +794,12 @@ export default function ProviderRequestDetailScreen() {
       case 'cancelled':
         return { bg: '#FFF3E0', text: '#E65100', icon: 'close-circle-outline', label: 'Cancelled' };
       default:
-        return { bg: '#EAF3FF', text: '#4A7DC4', icon: 'time', label: 'Pending Review' };
+        return { bg: '#EAF3FF', text: '#4A7DC4', icon: 'time', label: status };
     }
   };
+
+  // Only show Accept/Decline for truly pending jobs
+  const canAcceptOrDecline = request.status === 'pending';
 
   // Loading state
   if (loading) {
