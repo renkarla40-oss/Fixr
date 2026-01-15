@@ -12,7 +12,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 # Configuration
-BACKEND_URL = "https://fixr-ui-polish.preview.emergentagent.com/api"
+BACKEND_URL = "https://payflow-verify-2.preview.emergentagent.com/api"
 
 # Test credentials
 CUSTOMER_EMAIL = "customer003@test.com"
