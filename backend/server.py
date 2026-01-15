@@ -1701,6 +1701,10 @@ async def get_service_request_detail(
     # Convert ObjectId to string
     request["_id"] = str(request["_id"])
     
+    # Convert providerId if it's an ObjectId
+    if request.get("providerId"):
+        request["providerId"] = str(request["providerId"])
+    
     # Normalize legacy status
     request = normalize_legacy_job(request)
     
