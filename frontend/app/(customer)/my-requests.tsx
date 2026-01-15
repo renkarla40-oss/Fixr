@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+
+// Polling interval for status updates (20 seconds)
+const POLLING_INTERVAL_MS = 20000;
 
 interface ServiceRequest {
   _id: string;
