@@ -142,6 +142,8 @@ export default function RequestDetailScreen() {
   const unreadPollingRef = useRef<NodeJS.Timeout | null>(null);
   const statusPollingRef = useRef<NodeJS.Timeout | null>(null);
   const prevMessageCountRef = useRef<number>(0); // Track previous message count for scroll logic
+  const hasAutoNavigatedToReviewRef = useRef<boolean>(false); // Prevent auto-nav loops
+  const previousStatusRef = useRef<string | null>(null); // Track status transitions
 
   // Calculate bottom spacing to clear tab bar + system nav
   const bottomTabBarHeight = TAB_BAR_BASE_HEIGHT + insets.bottom + (Platform.OS === 'android' ? 20 : 8);
