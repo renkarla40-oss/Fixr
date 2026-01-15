@@ -798,9 +798,6 @@ export default function ProviderRequestDetailScreen() {
     }
   };
 
-  // Only show Accept/Decline for truly pending jobs
-  const canAcceptOrDecline = request.status === 'pending';
-
   // Loading state
   if (loading) {
     return (
