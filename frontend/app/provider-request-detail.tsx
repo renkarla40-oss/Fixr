@@ -2476,6 +2476,12 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontStyle: 'italic',
   },
+  payoutTapHint: {
+    fontSize: 12,
+    color: '#999',
+    textAlign: 'center',
+    marginTop: 12,
+  },
   payoutPlaceholder: {
     fontSize: 14,
     color: '#666',
