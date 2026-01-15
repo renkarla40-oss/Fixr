@@ -38,14 +38,30 @@ export default function MyRequestsScreen() {
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Refetch on screen focus to get latest status
+  // Refetch on screen focus AND set up polling
   useFocusEffect(
     useCallback(() => {
+      // Fetch immediately on focus
       fetchRequests();
+      
+      // Set up polling every 20 seconds while screen is focused
+      pollingIntervalRef.current = setInterval(() => {
+        fetchRequestsQuietly();
+      }, POLLING_INTERVAL_MS);
+      
+      // Cleanup: stop polling when screen loses focus or unmounts
+      return () => {
+        if (pollingIntervalRef.current) {
+          clearInterval(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
+        }
+      };
     }, [token])
   );
 
+  // Main fetch with loading state
   const fetchRequests = async () => {
     try {
       const response = await axios.get(`${BACKEND_URL}/api/service-requests`, {
@@ -54,13 +70,24 @@ export default function MyRequestsScreen() {
       setRequests(response.data);
     } catch (error) {
       // Silent fail for list fetching - don't show error to user
-      // Just log for debugging in dev mode
       if (__DEV__) {
         console.warn('Error fetching requests:', error);
       }
     } finally {
       setLoading(false);
       setRefreshing(false);
+    }
+  };
+
+  // Quiet fetch for polling (no loading state change)
+  const fetchRequestsQuietly = async () => {
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/service-requests`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setRequests(response.data);
+    } catch (error) {
+      // Silent fail for polling
     }
   };
 
