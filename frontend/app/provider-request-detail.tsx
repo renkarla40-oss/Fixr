@@ -898,7 +898,7 @@ export default function ProviderRequestDetailScreen() {
             style={styles.content}
             contentContainerStyle={[
               styles.contentContainer, 
-              { paddingBottom: isPending ? 100 : bottomTabBarHeight + 16 }
+              { paddingBottom: canAcceptOrDecline ? 100 : bottomTabBarHeight + 16 }
             ]}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
