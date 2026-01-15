@@ -768,7 +768,11 @@ export default function ProviderRequestDetailScreen() {
       if (isIdempotentSuccess(response)) {
         Alert.alert('Info', getIdempotentMessage(response));
       } else {
-        Alert.alert('Success', 'Job completed successfully!');
+        // Auto-navigate to payout status screen on successful completion
+        setShowCompletionOtpInput(false);
+        setCompletionOtpInput('');
+        router.push({ pathname: '/provider-payout-status', params: { requestId: request._id } });
+        return; // Exit early - payout screen will handle the success flow
       }
       setShowCompletionOtpInput(false);
       setCompletionOtpInput('');
