@@ -1924,8 +1924,13 @@ async def complete_service_request(
 ):
     """
     Provider marks the job as completed by entering the completion OTP.
-    Valid transition: in_progress -> completed
+    Valid transition: in_progress -> completed_pending_review
     IDEMPOTENT: Returns success if already completed.
+    
+    NEW STATE MACHINE:
+    - Job transitions to 'completed_pending_review' (NOT 'completed')
+    - Chat stays OPEN until customer submits review
+    - Customer is prompted to leave review or skip
     """
     request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
     if not request:
@@ -1936,10 +1941,10 @@ async def complete_service_request(
     if not provider or str(provider["_id"]) != request.get("providerId"):
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    # IDEMPOTENCY: If already completed, return success
+    # IDEMPOTENCY: If already in a completed state, return success
     current_status = request.get("status")
-    if current_status == "completed":
-        return {"success": True, "message": "Job already completed", "errorCode": "ALREADY_COMPLETED"}
+    if current_status in ["completed_pending_review", "completed_reviewed", "completed"]:
+        return {"success": True, "message": "Job already completed", "errorCode": "ALREADY_COMPLETED", "status": current_status}
     
     # STATE MACHINE: Can only complete from in_progress
     if current_status != "in_progress":
@@ -1958,17 +1963,17 @@ async def complete_service_request(
     if submitted_otp != stored_otp:
         raise HTTPException(status_code=400, detail="Incorrect completion code. Please ask the customer for the correct code.")
     
-    # Mark job as completed
+    # Mark job as completed_pending_review (NEW: Chat stays open!)
     await db.service_requests.update_one(
         {"_id": ObjectId(request_id)},
         {"$set": {
-            "status": "completed",
+            "status": "completed_pending_review",
             "completedAt": datetime.utcnow(),
             "jobCompletedAt": datetime.utcnow()
         }}
     )
     
-    # Add system completion message to chat (only once)
+    # Add system message about job completion (chat still open)
     # Check if completion message already exists to prevent duplicates
     existing_completion_msg = await db.job_messages.find_one({
         "requestId": request_id,
@@ -1983,7 +1988,7 @@ async def complete_service_request(
             "senderName": "System",
             "senderRole": "system",
             "type": "system",
-            "text": "✅ This job is now complete. Chat is now closed.",
+            "text": "✅ This job is now complete. Please leave a review for your provider.",
             "createdAt": datetime.utcnow(),
             "deliveredAt": datetime.utcnow(),
             "readAt": datetime.utcnow(),  # System messages are always "read"
@@ -1996,11 +2001,11 @@ async def complete_service_request(
         {"$inc": {"completedJobsCount": 1}}
     )
     
-    # Send notification to customer
+    # Send notification to customer - prompt to review
     await send_push_notification(
         user_id=request["customerId"],
-        title="Job Completed",
-        body=f"Your {request['service']} job has been completed.",
+        title="Job Completed - Leave a Review",
+        body=f"Your {request['service']} job has been completed. Please leave a review for your provider.",
         data={
             "type": NotificationType.JOB_COMPLETED,
             "requestId": str(request["_id"]),
