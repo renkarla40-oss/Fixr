@@ -78,26 +78,34 @@ def generate_job_code() -> str:
 # =============================================================================
 # JOB STATUS STATE MACHINE
 # =============================================================================
-# Job lifecycle: pending → accepted → awaiting_payment → in_progress → completed
+# Job lifecycle: pending → accepted → awaiting_payment → in_progress → completed_pending_review → completed_reviewed
 # 
 # Valid transitions:
-#   pending           → accepted (provider accepts)
-#   accepted          → awaiting_payment (provider sends quote)
-#   awaiting_payment  → in_progress (provider starts with job code, after payment confirmed)
-#   in_progress       → completed (provider finishes with completion OTP)
+#   pending                   → accepted (provider accepts)
+#   accepted                  → awaiting_payment (provider sends quote)
+#   awaiting_payment          → in_progress (provider starts with job code, after payment confirmed)
+#   in_progress               → completed_pending_review (provider finishes with completion OTP)
+#   completed_pending_review  → completed_reviewed (customer submits review OR skips review)
 #
 # Payment is tracked SEPARATELY via paymentStatus field (escrow model):
 #   paymentStatus: "unpaid" | "held"
 #   - "unpaid": no payment received
 #   - "held": funds held in escrow, ready to release on job completion
+#
+# CHAT RULES:
+#   - Chat OPEN: in_progress, completed_pending_review
+#   - Chat CLOSED: completed_reviewed ONLY
 # =============================================================================
 
 VALID_STATUS_TRANSITIONS = {
     "pending": ["accepted"],
     "accepted": ["awaiting_payment"],  # quote sent
     "awaiting_payment": ["in_progress"],  # provider starts job (payment must be confirmed first)
-    "in_progress": ["completed"],  # provider completes with OTP
-    "completed": [],  # Terminal state - no further transitions
+    "in_progress": ["completed_pending_review"],  # provider completes with OTP
+    "completed_pending_review": ["completed_reviewed"],  # customer submits or skips review
+    "completed_reviewed": [],  # Terminal state - no further transitions
+    # Legacy support - allow old 'completed' status to be terminal
+    "completed": ["completed_pending_review", "completed_reviewed"],
 }
 
 def validate_status_transition(current_status: str, new_status: str) -> tuple[bool, str]:
