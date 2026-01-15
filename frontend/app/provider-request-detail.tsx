@@ -1197,6 +1197,54 @@ export default function ProviderRequestDetailScreen() {
               </View>
             )}
 
+            {/* PAYOUT SECTION - Shows for completed jobs (read-only) */}
+            {['completed_pending_review', 'completed_reviewed', 'completed'].includes(request.status) && (
+              <View style={styles.payoutSection}>
+                <View style={styles.payoutHeader}>
+                  <Ionicons name="wallet-outline" size={24} color="#4CAF50" />
+                  <Text style={styles.payoutTitle}>Payout</Text>
+                </View>
+                {payoutInfo && payoutInfo.exists ? (
+                  <View style={styles.payoutDetails}>
+                    <View style={styles.payoutDetailRow}>
+                      <Text style={styles.payoutDetailLabel}>Amount</Text>
+                      <Text style={styles.payoutDetailValue}>
+                        {payoutInfo.currency || 'TTD'} ${payoutInfo.amount?.toFixed(2)}
+                      </Text>
+                    </View>
+                    <View style={styles.payoutDetailRow}>
+                      <Text style={styles.payoutDetailLabel}>Status</Text>
+                      <View style={[
+                        styles.payoutStatusBadge,
+                        { backgroundColor: payoutInfo.status === 'released' ? '#E8F5E9' : '#FFF3E0' }
+                      ]}>
+                        <Text style={[
+                          styles.payoutStatusText,
+                          { color: payoutInfo.status === 'released' ? '#2E7D32' : '#E65100' }
+                        ]}>
+                          {payoutInfo.status === 'released' ? 'Released' : 
+                           payoutInfo.status === 'on_hold' ? 'On Hold' : 'Pending'}
+                        </Text>
+                      </View>
+                    </View>
+                    {payoutInfo.status === 'released' && payoutInfo.releasedAt && (
+                      <View style={styles.payoutDetailRow}>
+                        <Text style={styles.payoutDetailLabel}>Released At</Text>
+                        <Text style={styles.payoutDetailValue}>{formatDateTime(payoutInfo.releasedAt)}</Text>
+                      </View>
+                    )}
+                    <Text style={styles.payoutHelperText}>
+                      Your payment is on the way now that the job is complete.
+                    </Text>
+                  </View>
+                ) : (
+                  <Text style={styles.payoutPlaceholder}>
+                    Payout information will appear here once available.
+                  </Text>
+                )}
+              </View>
+            )}
+
             {/* Description */}
             <View style={styles.descriptionCard}>
               <Text style={styles.descriptionLabel}>Job Description</Text>
