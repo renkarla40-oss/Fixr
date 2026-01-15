@@ -1201,12 +1201,17 @@ export default function ProviderRequestDetailScreen() {
               </View>
             )}
 
-            {/* PAYOUT SECTION - Shows for completed jobs (read-only) */}
+            {/* PAYOUT SECTION - Shows for completed jobs (tappable to open full status screen) */}
             {['completed_pending_review', 'completed_reviewed', 'completed'].includes(request.status) && (
-              <View style={styles.payoutSection}>
+              <TouchableOpacity 
+                style={styles.payoutSection}
+                onPress={() => router.push({ pathname: '/provider-payout-status', params: { requestId: request._id } })}
+                activeOpacity={0.7}
+              >
                 <View style={styles.payoutHeader}>
                   <Ionicons name="wallet-outline" size={24} color="#4CAF50" />
                   <Text style={styles.payoutTitle}>Payout</Text>
+                  <Ionicons name="chevron-forward" size={20} color="#999" style={{ marginLeft: 'auto' }} />
                 </View>
                 {payoutInfo && payoutInfo.exists ? (
                   <View style={styles.payoutDetails}>
@@ -1231,22 +1236,14 @@ export default function ProviderRequestDetailScreen() {
                         </Text>
                       </View>
                     </View>
-                    {payoutInfo.status === 'released' && payoutInfo.releasedAt && (
-                      <View style={styles.payoutDetailRow}>
-                        <Text style={styles.payoutDetailLabel}>Released At</Text>
-                        <Text style={styles.payoutDetailValue}>{formatDateTime(payoutInfo.releasedAt)}</Text>
-                      </View>
-                    )}
-                    <Text style={styles.payoutHelperText}>
-                      Your payment is on the way now that the job is complete.
-                    </Text>
+                    <Text style={styles.payoutTapHint}>Tap to view full payout details</Text>
                   </View>
                 ) : (
                   <Text style={styles.payoutPlaceholder}>
                     Payout information will appear here once available.
                   </Text>
                 )}
-              </View>
+              </TouchableOpacity>
             )}
 
             {/* Description */}
