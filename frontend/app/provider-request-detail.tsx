@@ -237,6 +237,16 @@ export default function ProviderRequestDetailScreen() {
     };
   }, [activeTab, request, user?._id]);
 
+  // Fetch payout info when job is in a completed state
+  useEffect(() => {
+    if (request?._id) {
+      const completedStates = ['completed_pending_review', 'completed_reviewed', 'completed'];
+      if (completedStates.includes(request.status)) {
+        fetchPayoutInfo();
+      }
+    }
+  }, [request?._id, request?.status]);
+
   // Mark all messages from the other user (customer) as read
   const markMessagesAsRead = async () => {
     if (!request?._id) return;
