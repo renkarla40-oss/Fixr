@@ -62,6 +62,7 @@ export default function ProviderPayoutStatusScreen() {
         service: jobResponse.data.service,
         subCategory: jobResponse.data.subCategory,
         location: jobResponse.data.location,
+        jobTown: jobResponse.data.jobTown,
         description: jobResponse.data.description,
       });
 
