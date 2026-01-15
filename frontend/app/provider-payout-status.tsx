@@ -28,6 +28,7 @@ interface JobInfo {
   service?: string;
   subCategory?: string;
   location?: string;
+  jobTown?: string;
   description?: string;
 }
 
