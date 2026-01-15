@@ -2041,6 +2041,8 @@ async def submit_job_review(
 ):
     """
     Customer submits a review for a completed job.
+    Transitions job from completed_pending_review -> completed_reviewed
+    CLOSES the chat after review submission.
     """
     request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
     if not request:
@@ -2050,9 +2052,14 @@ async def submit_job_review(
     if request["customerId"] != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to review this job")
     
-    # Only allow reviews for completed jobs
-    if request["status"] != "completed":
+    # Only allow reviews for completed jobs (both new and legacy states)
+    allowed_states = ["completed_pending_review", "completed", "completed_reviewed"]
+    if request["status"] not in allowed_states:
         raise HTTPException(status_code=400, detail="Reviews can only be submitted for completed jobs")
+    
+    # Check if already reviewed
+    if request.get("customerRating") is not None:
+        return {"success": True, "message": "You have already submitted a review for this job", "alreadyReviewed": True}
     
     # Validate rating
     if review_data.rating < 1 or review_data.rating > 5:
@@ -2061,15 +2068,30 @@ async def submit_job_review(
     # Limit review text
     review_text = (review_data.review or "")[:500]
     
-    # Save review
+    # Save review and transition to completed_reviewed
     await db.service_requests.update_one(
         {"_id": ObjectId(request_id)},
         {"$set": {
             "customerRating": review_data.rating,
             "customerReview": review_text,
-            "reviewedAt": datetime.utcnow()
+            "reviewedAt": datetime.utcnow(),
+            "status": "completed_reviewed"  # TRANSITION: Close the job and chat
         }}
     )
+    
+    # Add system message indicating chat is now closed
+    chat_closed_msg = {
+        "requestId": request_id,
+        "senderId": "system",
+        "senderName": "System",
+        "senderRole": "system",
+        "type": "system",
+        "text": "📝 Review submitted. Chat is now closed. Thank you for your feedback!",
+        "createdAt": datetime.utcnow(),
+        "deliveredAt": datetime.utcnow(),
+        "readAt": datetime.utcnow(),
+    }
+    await db.job_messages.insert_one(chat_closed_msg)
     
     # Update provider's average rating
     if request.get("providerId"):
@@ -2093,7 +2115,21 @@ async def submit_job_review(
                 }}
             )
     
-    return {"success": True, "message": "Thank you for your feedback"}
+    # Send notification to provider about the review
+    if request.get("providerId"):
+        provider = await db.providers.find_one({"_id": ObjectId(request["providerId"])})
+        if provider:
+            await send_push_notification(
+                user_id=provider["userId"],
+                title="New Review Received",
+                body=f"You received a {review_data.rating}-star review for your {request['service']} job.",
+                data={
+                    "type": NotificationType.REVIEW_RECEIVED,
+                    "requestId": str(request["_id"]),
+                }
+            )
+    
+    return {"success": True, "message": "Thank you for your feedback", "status": "completed_reviewed"}
 
 # ============================================
 # Phase 4: In-App Messaging (Basic)
