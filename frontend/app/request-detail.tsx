@@ -383,9 +383,13 @@ export default function RequestDetailScreen() {
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !request?._id) return;
     
-    // Prevent sending if job is completed
-    if (request.status === 'completed') {
-      Alert.alert('Chat Closed', 'Chat is read-only after job completion.');
+    // Prevent sending if job is fully completed (reviewed or skipped)
+    // Chat is OPEN for: in_progress, completed_pending_review
+    // Chat is CLOSED for: completed_reviewed (and legacy 'completed' with review)
+    const isChatClosed = request.status === 'completed_reviewed' || 
+                         (request.status === 'completed' && request.customerRating !== null);
+    if (isChatClosed) {
+      Alert.alert('Chat Closed', 'Chat is read-only after review submission.');
       return;
     }
 
@@ -421,9 +425,9 @@ export default function RequestDetailScreen() {
       setMessages(prev => prev.filter(m => m._id !== optimisticMessage._id));
       setNewMessage(messageText);
       
-      // Handle 403 - chat closed after job completion
+      // Handle 403 - chat closed after review submission
       if (err.response?.status === 403) {
-        Alert.alert('Chat Closed', 'Chat is read-only after job completion.');
+        Alert.alert('Chat Closed', 'Chat is read-only after review submission.');
         // Refetch request to update status
         fetchRequestDetail();
       } else {
@@ -436,8 +440,12 @@ export default function RequestDetailScreen() {
 
   // Image picker and upload
   const handlePickImage = async () => {
-    if (request?.status === 'completed') {
-      Alert.alert('Chat Closed', 'Chat is read-only after job completion.');
+    // Chat is OPEN for: in_progress, completed_pending_review
+    // Chat is CLOSED for: completed_reviewed
+    const isChatClosed = request?.status === 'completed_reviewed' || 
+                         (request?.status === 'completed' && request?.customerRating !== null);
+    if (isChatClosed) {
+      Alert.alert('Chat Closed', 'Chat is read-only after review submission.');
       return;
     }
 
