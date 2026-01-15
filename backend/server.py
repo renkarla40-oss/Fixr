@@ -1768,13 +1768,18 @@ async def accept_service_request(
     # Generate job code for customer to share on arrival
     job_code = generate_job_code()
     
+    # Build update fields - always include providerId and providerName for general requests
+    update_fields = {
+        "status": "accepted",
+        "jobCode": job_code,
+        "acceptedAt": datetime.utcnow(),
+        "providerId": str(provider["_id"]),  # Assign provider (important for general requests)
+        "providerName": provider.get("name", "Provider"),
+    }
+    
     await db.service_requests.update_one(
         {"_id": ObjectId(request_id)},
-        {"$set": {
-            "status": "accepted",
-            "jobCode": job_code,
-            "acceptedAt": datetime.utcnow()
-        }}
+        {"$set": update_fields}
     )
     
     updated_request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
