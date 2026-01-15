@@ -1773,6 +1773,27 @@ async def accept_service_request(
     updated_request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
     updated_request["_id"] = str(updated_request["_id"])
     
+    # ISSUE #2: Add system message when provider accepts (idempotent)
+    existing_accept_msg = await db.job_messages.find_one({
+        "requestId": request_id,
+        "type": "system",
+        "text": {"$regex": "Provider accepted"}
+    })
+    
+    if not existing_accept_msg:
+        accept_message = {
+            "requestId": request_id,
+            "senderId": "system",
+            "senderName": "Fixr",
+            "senderRole": "system",
+            "type": "system",
+            "text": "Fixr: Provider accepted your request.",
+            "createdAt": datetime.utcnow(),
+            "deliveredAt": datetime.utcnow(),
+            "readAt": datetime.utcnow(),
+        }
+        await db.job_messages.insert_one(accept_message)
+    
     # Send notification to customer
     await send_push_notification(
         user_id=updated_request["customerId"],
