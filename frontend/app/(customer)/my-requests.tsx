@@ -115,6 +115,8 @@ export default function MyRequestsScreen() {
     switch (status) {
       case 'accepted':
         return { bg: '#E8F5E9', text: '#2E7D32' };
+      case 'awaiting_payment':
+        return { bg: '#FFF3E0', text: '#E65100' };
       case 'in_progress':
         return { bg: '#EEF6FF', text: '#2C5AA0' };
       case 'declined':
@@ -136,13 +138,14 @@ export default function MyRequestsScreen() {
     switch (status) {
       case 'pending': return 'Pending';
       case 'accepted': return 'Accepted';
+      case 'awaiting_payment': return 'Awaiting Payment';
       case 'in_progress': return 'In Progress';
       case 'completed_pending_review': return 'Pending Review';
       case 'completed_reviewed': return 'Completed';
       case 'completed': return 'Completed';
       case 'declined': return 'Declined';
       case 'cancelled': return 'Cancelled';
-      default: return status.charAt(0).toUpperCase() + status.slice(1);
+      default: return status.charAt(0).toUpperCase() + status.slice(1).replace(/_/g, ' ');
     }
   };
 
