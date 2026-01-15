@@ -1177,7 +1177,7 @@ export default function ProviderRequestDetailScreen() {
           </ScrollView>
 
           {/* FIXED ACTION BUTTONS AT BOTTOM - Only for pending requests */}
-          {isPending && (
+          {canAcceptOrDecline && (
             <View style={[styles.fixedActionBar, { paddingBottom: insets.bottom + 12 }]}>
               <TouchableOpacity
                 style={styles.declineButton}
