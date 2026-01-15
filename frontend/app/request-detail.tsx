@@ -1177,10 +1177,10 @@ export default function RequestDetailScreen() {
                   </View>
                 </View>
               ) : (
-                // Show "Leave a Review" button
+                // Show "Leave a Review" button - Navigate to dedicated review screen
                 <TouchableOpacity
                   style={styles.leaveReviewButton}
-                  onPress={() => setShowReviewForm(true)}
+                  onPress={() => router.push({ pathname: '/leave-review', params: { requestId: request._id } })}
                 >
                   <Ionicons name="star-outline" size={20} color="#FFFFFF" />
                   <Text style={styles.leaveReviewButtonText}>Leave a Review</Text>
