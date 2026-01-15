@@ -331,6 +331,29 @@ export default function ProviderRequestDetailScreen() {
     }
   };
 
+  // Fetch payout info for completed jobs (read-only display)
+  const fetchPayoutInfo = async () => {
+    if (!request?._id) return;
+    
+    // Only fetch for completed jobs
+    const completedStates = ['completed_pending_review', 'completed_reviewed', 'completed'];
+    if (!completedStates.includes(request.status)) return;
+    
+    try {
+      const response = await axios.get(
+        `${BACKEND_URL}/api/payouts/by-request/${request._id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setPayoutInfo(response.data);
+    } catch (err: any) {
+      // Silent fail - payout may not exist yet
+      if (err.response?.status === 404) {
+        setPayoutInfo({ exists: false, message: 'Payout information will appear here once available.' });
+      }
+      // Don't set error state for other errors, just leave payoutInfo as null
+    }
+  };
+
   // Check for unread messages while on Details tab
   // Uses server-side readAt field for accurate unread detection
   const checkForUnreadMessages = async () => {
