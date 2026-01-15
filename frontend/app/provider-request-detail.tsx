@@ -1103,8 +1103,8 @@ export default function ProviderRequestDetailScreen() {
               </View>
             )}
 
-            {/* Job Started Confirmation - Shows after job code verified (in_progress or completed) */}
-            {(request.status === 'in_progress' || request.status === 'completed') && request.jobStartedAt && (
+            {/* Job Started Confirmation - Shows after job code verified (any in_progress or completed state) */}
+            {['in_progress', 'completed', 'completed_pending_review', 'completed_reviewed'].includes(request.status) && (request.jobStartedAt || request.startedAt) && (
               <View style={styles.jobStartedSection}>
                 <View style={styles.jobStartedHeader}>
                   <Ionicons name="play-circle" size={28} color="#2196F3" />
@@ -1119,14 +1119,14 @@ export default function ProviderRequestDetailScreen() {
                   )}
                   <View style={styles.startedDetailRow}>
                     <Text style={styles.startedDetailLabel}>Started At</Text>
-                    <Text style={styles.startedDetailValue}>{formatDateTime(request.jobStartedAt)}</Text>
+                    <Text style={styles.startedDetailValue}>{formatDateTime(request.jobStartedAt || request.startedAt)}</Text>
                   </View>
                 </View>
               </View>
             )}
 
-            {/* Job Completed Confirmation - Shows after successful completion */}
-            {request.status === 'completed' && (
+            {/* Job Completed Confirmation - Shows after successful completion (all completed states) */}
+            {['completed', 'completed_pending_review', 'completed_reviewed'].includes(request.status) && (
               <View style={styles.jobCompletedSection}>
                 <View style={styles.jobCompletedHeader}>
                   <Ionicons name="checkmark-done-circle" size={32} color="#4CAF50" />
@@ -1139,10 +1139,10 @@ export default function ProviderRequestDetailScreen() {
                       <Text style={styles.completedDetailValue}>{request.completionOtp}</Text>
                     </View>
                   )}
-                  {request.jobCompletedAt && (
+                  {(request.jobCompletedAt || request.completedAt) && (
                     <View style={styles.completedDetailRow}>
                       <Text style={styles.completedDetailLabel}>Completed At</Text>
-                      <Text style={styles.completedDetailValue}>{formatDateTime(request.jobCompletedAt)}</Text>
+                      <Text style={styles.completedDetailValue}>{formatDateTime(request.jobCompletedAt || request.completedAt)}</Text>
                     </View>
                   )}
                 </View>
