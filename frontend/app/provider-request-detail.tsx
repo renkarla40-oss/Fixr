@@ -52,7 +52,9 @@ interface ServiceRequest {
   jobTown?: string;
   jobCode?: string;
   jobStartedAt?: string;
+  startedAt?: string;
   jobCompletedAt?: string;
+  completedAt?: string;
   completionOtp?: string;
 }
 
