@@ -59,25 +59,15 @@ export default function LeaveReviewScreen() {
         `${BACKEND_URL}/api/service-requests/${requestId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setRequest(requestResponse.data);
+      const requestData = requestResponse.data;
+      setRequest(requestData);
 
-      // Check for existing review
-      try {
-        const reviewResponse = await axios.get(
-          `${BACKEND_URL}/api/reviews/by-job/${requestId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        if (reviewResponse.data) {
-          setExistingReview({
-            rating: reviewResponse.data.rating,
-            comment: reviewResponse.data.comment,
-          });
-        }
-      } catch (err: any) {
-        // 404 means no review yet - that's fine
-        if (err.response?.status !== 404) {
-          console.log('Error checking review:', err);
-        }
+      // Check if review already exists from the request data
+      if (requestData.customerRating !== null && requestData.customerRating !== undefined) {
+        setExistingReview({
+          rating: requestData.customerRating,
+          comment: requestData.customerReview,
+        });
       }
     } catch (err) {
       console.log('Error fetching request:', err);
@@ -95,12 +85,12 @@ export default function LeaveReviewScreen() {
 
     setSubmitting(true);
     try {
+      // Use the correct endpoint: /api/service-requests/{request_id}/review
       await axios.post(
-        `${BACKEND_URL}/api/reviews`,
+        `${BACKEND_URL}/api/service-requests/${requestId}/review`,
         {
-          jobId: requestId,
           rating: rating,
-          comment: comment.trim() || undefined,
+          review: comment.trim() || '',
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -117,7 +107,7 @@ export default function LeaveReviewScreen() {
       );
     } catch (err: any) {
       console.log('Submit review error:', err);
-      if (err.response?.data?.detail?.includes('already')) {
+      if (err.response?.data?.alreadyReviewed || err.response?.data?.detail?.includes('already')) {
         Alert.alert('Already Reviewed', 'You have already submitted a review for this job.');
         router.replace({ pathname: '/request-detail', params: { requestId } });
       } else {
@@ -128,7 +118,18 @@ export default function LeaveReviewScreen() {
     }
   };
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
+    // Call skip-review endpoint to properly transition the job state
+    try {
+      await axios.post(
+        `${BACKEND_URL}/api/service-requests/${requestId}/skip-review`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    } catch (err) {
+      console.log('Skip review error (non-critical):', err);
+      // Even if it fails, navigate back - user chose to skip
+    }
     router.replace({ pathname: '/request-detail', params: { requestId } });
   };
 
