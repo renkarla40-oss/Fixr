@@ -167,6 +167,34 @@ export default function RequestDetailScreen() {
     }
   }, [request?.status, request?._id]);
 
+  // AUTO-NAVIGATE to Leave Review screen when job status transitions to 'completed'
+  // Only triggers on actual status CHANGE (not on initial load as 'completed')
+  useEffect(() => {
+    if (!request?._id || !request?.status) return;
+    
+    const currentStatus = request.status;
+    const prevStatus = previousStatusRef.current;
+    
+    // Update previous status
+    previousStatusRef.current = currentStatus;
+    
+    // Only navigate if:
+    // 1. Status just changed TO 'completed' (was something else before)
+    // 2. We haven't already auto-navigated for this session
+    // 3. No existing review already submitted
+    const isStatusTransitionToCompleted = prevStatus !== null && prevStatus !== 'completed' && currentStatus === 'completed';
+    
+    if (isStatusTransitionToCompleted && !hasAutoNavigatedToReviewRef.current && !existingReview) {
+      // Mark as navigated to prevent loops
+      hasAutoNavigatedToReviewRef.current = true;
+      
+      // Small delay to let the UI settle and show "completed" state briefly
+      setTimeout(() => {
+        router.push({ pathname: '/leave-review', params: { requestId: request._id } });
+      }, 500);
+    }
+  }, [request?.status, request?._id, existingReview]);
+
   // CRITICAL: Continuous status polling - runs independently of tabs
   // This ensures customer sees OTP completion updates in real-time
   useEffect(() => {
