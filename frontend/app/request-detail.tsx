@@ -1560,7 +1560,8 @@ export default function RequestDetailScreen() {
                 </TouchableOpacity>
               </View>
             </View>
-          )}
+          );
+          })()}
         </KeyboardAvoidingView>
       )}
 
