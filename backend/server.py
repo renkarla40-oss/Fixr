@@ -2131,6 +2131,60 @@ async def submit_job_review(
     
     return {"success": True, "message": "Thank you for your feedback", "status": "completed_reviewed"}
 
+
+@api_router.post("/service-requests/{request_id}/skip-review")
+async def skip_review(
+    request_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Customer skips review for a completed job.
+    Transitions job from completed_pending_review -> completed_reviewed
+    CLOSES the chat. Job is fully complete without a review.
+    """
+    request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    # Verify the current user is the customer
+    if request["customerId"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Only allow skip for completed_pending_review state
+    if request["status"] not in ["completed_pending_review", "completed"]:
+        return {"success": True, "message": "Job is not pending review", "status": request["status"]}
+    
+    # Already reviewed or skipped
+    if request["status"] == "completed_reviewed":
+        return {"success": True, "message": "Review already completed or skipped", "status": "completed_reviewed"}
+    
+    # Transition to completed_reviewed (skipped)
+    await db.service_requests.update_one(
+        {"_id": ObjectId(request_id)},
+        {"$set": {
+            "status": "completed_reviewed",
+            "reviewSkipped": True,
+            "reviewSkippedAt": datetime.utcnow()
+        }}
+    )
+    
+    # Add system message indicating review was skipped and chat is closed
+    chat_closed_msg = {
+        "requestId": request_id,
+        "senderId": "system",
+        "senderName": "System",
+        "senderRole": "system",
+        "type": "system",
+        "text": "Chat is now closed. Job complete.",
+        "createdAt": datetime.utcnow(),
+        "deliveredAt": datetime.utcnow(),
+        "readAt": datetime.utcnow(),
+    }
+    await db.job_messages.insert_one(chat_closed_msg)
+    
+    return {"success": True, "message": "Review skipped", "status": "completed_reviewed"}
+
+
 # ============================================
 # Phase 4: In-App Messaging (Basic)
 # ============================================
