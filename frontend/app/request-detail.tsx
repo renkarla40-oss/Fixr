@@ -162,13 +162,15 @@ export default function RequestDetailScreen() {
 
   // Fetch existing review when request is loaded and completed
   useEffect(() => {
-    if (request?.status === 'completed' && request._id) {
+    // Check for review in any completed state
+    const completedStates = ['completed', 'completed_pending_review', 'completed_reviewed'];
+    if (request?._id && completedStates.includes(request?.status || '')) {
       fetchExistingReview();
     }
   }, [request?.status, request?._id]);
 
-  // AUTO-NAVIGATE to Leave Review screen when job status transitions to 'completed'
-  // Only triggers on actual status CHANGE (not on initial load as 'completed')
+  // AUTO-NAVIGATE to Leave Review screen when job status transitions to 'completed_pending_review'
+  // Only triggers on actual status CHANGE (not on initial load)
   useEffect(() => {
     if (!request?._id || !request?.status) return;
     
@@ -179,12 +181,15 @@ export default function RequestDetailScreen() {
     previousStatusRef.current = currentStatus;
     
     // Only navigate if:
-    // 1. Status just changed TO 'completed' (was something else before)
+    // 1. Status just changed TO 'completed_pending_review' (was 'in_progress' before)
     // 2. We haven't already auto-navigated for this session
     // 3. No existing review already submitted
-    const isStatusTransitionToCompleted = prevStatus !== null && prevStatus !== 'completed' && currentStatus === 'completed';
+    const isStatusTransitionToCompletedPendingReview = 
+      prevStatus !== null && 
+      prevStatus === 'in_progress' && 
+      currentStatus === 'completed_pending_review';
     
-    if (isStatusTransitionToCompleted && !hasAutoNavigatedToReviewRef.current && !existingReview) {
+    if (isStatusTransitionToCompletedPendingReview && !hasAutoNavigatedToReviewRef.current && !existingReview) {
       // Mark as navigated to prevent loops
       hasAutoNavigatedToReviewRef.current = true;
       
