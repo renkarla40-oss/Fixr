@@ -1008,8 +1008,8 @@ export default function RequestDetailScreen() {
             </View>
           )}
 
-          {/* JOB STARTED CONFIRMATION - Shows after job code verified (in_progress or completed) */}
-          {(request.status === 'in_progress' || request.status === 'completed') && (request.jobStartedAt || request.startedAt) && (
+          {/* JOB STARTED CONFIRMATION - Shows after job code verified */}
+          {['in_progress', 'completed', 'completed_pending_review', 'completed_reviewed'].includes(request.status) && (request.jobStartedAt || request.startedAt) && (
             <View style={styles.customerJobStartedCard}>
               <View style={styles.customerJobStartedHeader}>
                 <Ionicons name="play-circle" size={26} color="#2196F3" />
@@ -1030,8 +1030,8 @@ export default function RequestDetailScreen() {
             </View>
           )}
 
-          {/* JOB COMPLETED CONFIRMATION - Shows after job is completed */}
-          {request.status === 'completed' && (
+          {/* JOB COMPLETED CONFIRMATION - Shows after job is completed (any completed state) */}
+          {['completed', 'completed_pending_review', 'completed_reviewed'].includes(request.status) && (
             <View style={styles.customerJobCompletedCard}>
               <View style={styles.customerJobCompletedHeader}>
                 <Ionicons name="checkmark-done-circle" size={26} color="#4CAF50" />
@@ -1051,9 +1051,11 @@ export default function RequestDetailScreen() {
                   </View>
                 )}
               </View>
-              <Text style={styles.customerJobCompletedNote}>
-                This job has been successfully completed. You can now leave a review.
-              </Text>
+              {request.status === 'completed_pending_review' && !request.customerRating && (
+                <Text style={styles.customerJobCompletedNote}>
+                  This job has been successfully completed. Please leave a review for your provider.
+                </Text>
+              )}
             </View>
           )}
 
