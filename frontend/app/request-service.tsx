@@ -162,6 +162,7 @@ export default function RequestServiceScreen() {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
         <View style={styles.header}>
           <TouchableOpacity
@@ -175,10 +176,12 @@ export default function RequestServiceScreen() {
         </View>
 
         <ScrollView
+          ref={scrollViewRef}
           style={styles.content}
-          contentContainerStyle={styles.contentContainer}
+          contentContainerStyle={[styles.contentContainer, { paddingBottom: Math.max(140, insets.bottom + 120) }]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
         >
           <View style={styles.form}>
             <View style={styles.inputGroup}>
@@ -236,6 +239,12 @@ export default function RequestServiceScreen() {
                 numberOfLines={4}
                 textAlignVertical="top"
                 placeholderTextColor="#999"
+                onFocus={() => {
+                  // Scroll to show input when focused
+                  setTimeout(() => {
+                    scrollViewRef.current?.scrollTo({ y: 200, animated: true });
+                  }, 300);
+                }}
               />
             </View>
 
@@ -243,7 +252,10 @@ export default function RequestServiceScreen() {
               <Text style={styles.label}>Preferred Date</Text>
               <TouchableOpacity
                 style={styles.timePickerButton}
-                onPress={() => setShowDatePicker(true)}
+                onPress={() => {
+                  Keyboard.dismiss();
+                  setShowDatePicker(true);
+                }}
                 activeOpacity={0.7}
               >
                 <Ionicons name="calendar-outline" size={20} color="#666" style={styles.inputIcon} />
@@ -270,7 +282,10 @@ export default function RequestServiceScreen() {
               </Text>
               <TouchableOpacity
                 style={[styles.timePickerButton, timeError ? styles.timePickerError : null]}
-                onPress={() => setShowTimePicker(true)}
+                onPress={() => {
+                  Keyboard.dismiss();
+                  setShowTimePicker(true);
+                }}
                 activeOpacity={0.7}
               >
                 <Ionicons name="time-outline" size={20} color="#666" style={styles.inputIcon} />
@@ -298,22 +313,23 @@ export default function RequestServiceScreen() {
               Note: The provider will review your request and respond accordingly.
             </Text>
           </View>
-        </ScrollView>
 
-        <View style={[styles.footer, { paddingBottom: Math.max(24, insets.bottom + 16) }]}>
-          <TouchableOpacity
-            style={[styles.submitButton, loading && styles.submitButtonDisabled]}
-            onPress={handleSubmit}
-            disabled={loading}
-            activeOpacity={0.8}
-          >
-            {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text style={styles.submitButtonText}>Submit Request</Text>
-            )}
-          </TouchableOpacity>
-        </View>
+          {/* Submit button inside ScrollView for proper keyboard avoidance */}
+          <View style={[styles.submitButtonContainer, { marginBottom: insets.bottom + 16 }]}>
+            <TouchableOpacity
+              style={[styles.submitButton, loading && styles.submitButtonDisabled]}
+              onPress={handleSubmit}
+              disabled={loading}
+              activeOpacity={0.8}
+            >
+              {loading ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <Text style={styles.submitButtonText}>Submit Request</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </KeyboardAvoidingView>
 
       {/* Provider Unavailable Modal - Phase 3A */}
