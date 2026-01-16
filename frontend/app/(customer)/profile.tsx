@@ -23,13 +23,19 @@ export default function ProfileScreen() {
   const { user, logout, switchRole, refreshUser } = useAuth();
   const router = useRouter();
   const [switching, setSwitching] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Refresh user data when screen gains focus (e.g., after returning from edit-profile)
-  useFocusEffect(
-    useCallback(() => {
-      refreshUser();
-    }, [])
-  );
+  // Only refresh user data when explicitly returning from edit-profile
+  // Do NOT refresh on every focus as it triggers welcome.tsx redirect
+  const handleRefreshProfile = useCallback(async () => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    try {
+      await refreshUser();
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [isRefreshing, refreshUser]);
 
   // Get profile photo URL
   const getPhotoUrl = () => {
