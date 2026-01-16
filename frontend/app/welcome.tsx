@@ -36,31 +36,45 @@ const GoogleIcon = ({ size = 24 }) => (
 
 export default function WelcomeScreen() {
   const router = useRouter();
+  const segments = useSegments();
   const { user, loading, shouldShowBetaNotice, markBetaNoticeSeen } = useAuth();
-  const [hasRedirected, setHasRedirected] = useState(false);
+  const hasRedirectedRef = useRef(false);
 
   useEffect(() => {
-    console.log('Welcome useEffect - loading:', loading, 'user:', user?.email, 'shouldShowBetaNotice:', shouldShowBetaNotice, 'hasRedirected:', hasRedirected);
+    // Get current route segment
+    const currentSegment = segments[0] || '';
+    const isOnAuthenticatedRoute = currentSegment === '(customer)' || currentSegment === '(provider)';
     
-    // Only redirect ONCE on initial load - prevent re-redirecting when user state updates
-    if (hasRedirected) return;
+    console.log('Welcome useEffect - loading:', loading, 'user:', user?.email, 'segment:', currentSegment, 'isOnAuthenticatedRoute:', isOnAuthenticatedRoute);
+    
+    // If already on an authenticated route (customer/provider tabs), don't redirect
+    if (isOnAuthenticatedRoute) {
+      console.log('Welcome: Already on authenticated route, skipping redirect');
+      return;
+    }
+    
+    // Only redirect ONCE - use ref to persist across re-renders
+    if (hasRedirectedRef.current) {
+      console.log('Welcome: Already redirected, skipping');
+      return;
+    }
     
     // Only redirect if we have a valid user with a token
     // After logout, user will be null, so no redirect happens
     if (!loading && user) {
       if (!user.isBetaUser) {
         console.log('Welcome: Redirecting to beta-gate');
-        setHasRedirected(true);
+        hasRedirectedRef.current = true;
         router.replace('/beta-gate');
         return;
       }
       if (!shouldShowBetaNotice) {
         console.log('Welcome: User already seen beta notice, navigating to home');
-        setHasRedirected(true);
+        hasRedirectedRef.current = true;
         navigateToHome();
       }
     }
-  }, [user, loading, shouldShowBetaNotice, hasRedirected]);
+  }, [user, loading, shouldShowBetaNotice, segments]);
 
   const navigateToHome = () => {
     if (!user) return;
