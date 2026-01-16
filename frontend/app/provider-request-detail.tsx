@@ -1702,6 +1702,7 @@ export default function ProviderRequestDetailScreen() {
         <KeyboardAvoidingView 
           style={styles.quoteModalOverlay}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
         >
           <View style={styles.quoteModalContent}>
             <View style={styles.quoteModalHeader}>
@@ -1711,59 +1712,70 @@ export default function ProviderRequestDetailScreen() {
               </TouchableOpacity>
             </View>
             
-            {currentQuote && (
-              <View style={styles.reviseOriginalInfo}>
-                <Text style={styles.reviseOriginalLabel}>Original Quote:</Text>
-                <Text style={styles.reviseOriginalTitle}>{currentQuote.title}</Text>
-                <Text style={styles.reviseOriginalAmount}>${currentQuote.amount.toFixed(2)}</Text>
-                {currentQuote.counterAmount && (
-                  <View style={styles.reviseCounterInfo}>
-                    <Text style={styles.reviseCounterLabel}>Customer's counter offer:</Text>
-                    <Text style={styles.reviseCounterAmount}>${currentQuote.counterAmount.toFixed(2)}</Text>
-                  </View>
-                )}
+            <ScrollView 
+              style={styles.quoteModalScrollView}
+              contentContainerStyle={styles.quoteModalScrollContent}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="interactive"
+            >
+              {currentQuote && (
+                <View style={styles.reviseOriginalInfo}>
+                  <Text style={styles.reviseOriginalLabel}>Original Quote:</Text>
+                  <Text style={styles.reviseOriginalTitle}>{currentQuote.title}</Text>
+                  <Text style={styles.reviseOriginalAmount}>${currentQuote.amount.toFixed(2)}</Text>
+                  {currentQuote.counterAmount && (
+                    <View style={styles.reviseCounterInfo}>
+                      <Text style={styles.reviseCounterLabel}>Customer's counter offer:</Text>
+                      <Text style={styles.reviseCounterAmount}>${currentQuote.counterAmount.toFixed(2)}</Text>
+                    </View>
+                  )}
+                </View>
+              )}
+              
+              <View style={styles.quoteFormGroup}>
+                <Text style={styles.quoteFormLabel}>New Amount (TTD)</Text>
+                <View style={styles.quoteAmountRow}>
+                  <Text style={styles.quoteCurrency}>$</Text>
+                  <TextInput
+                    style={styles.quoteAmountInput}
+                    placeholder="0.00"
+                    placeholderTextColor="#999"
+                    value={reviseAmount}
+                    onChangeText={setReviseAmount}
+                    keyboardType="decimal-pad"
+                  />
+                </View>
               </View>
-            )}
-            
-            <View style={styles.quoteFormGroup}>
-              <Text style={styles.quoteFormLabel}>New Amount (TTD)</Text>
-              <View style={styles.quoteAmountRow}>
-                <Text style={styles.quoteCurrency}>$</Text>
+
+              <View style={styles.quoteFormGroup}>
+                <Text style={styles.quoteFormLabel}>Note (optional)</Text>
                 <TextInput
-                  style={styles.quoteAmountInput}
-                  placeholder="0.00"
+                  style={[styles.quoteFormInput, styles.quoteFormTextArea]}
+                  placeholder="Explain the revision..."
                   placeholderTextColor="#999"
-                  value={reviseAmount}
-                  onChangeText={setReviseAmount}
-                  keyboardType="decimal-pad"
+                  value={reviseNote}
+                  onChangeText={setReviseNote}
+                  multiline
+                  maxLength={500}
                 />
               </View>
-            </View>
-
-            <View style={styles.quoteFormGroup}>
-              <Text style={styles.quoteFormLabel}>Note (optional)</Text>
-              <TextInput
-                style={[styles.quoteFormInput, styles.quoteFormTextArea]}
-                placeholder="Explain the revision..."
-                placeholderTextColor="#999"
-                value={reviseNote}
-                onChangeText={setReviseNote}
-                multiline
-                maxLength={500}
-              />
-            </View>
-            
-            <TouchableOpacity
-              style={[styles.quoteSubmitButton, !reviseAmount && styles.quoteSubmitButtonDisabled]}
-              onPress={handleReviseAndResend}
-              disabled={!reviseAmount || sendingQuote}
-            >
-              {sendingQuote ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
-              ) : (
-                <Text style={styles.quoteSubmitButtonText}>Send Revised Quote</Text>
-              )}
-            </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[styles.quoteSubmitButton, !reviseAmount && styles.quoteSubmitButtonDisabled]}
+                onPress={handleReviseAndResend}
+                disabled={!reviseAmount || sendingQuote}
+              >
+                {sendingQuote ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text style={styles.quoteSubmitButtonText}>Send Revised Quote</Text>
+                )}
+              </TouchableOpacity>
+              
+              {/* Bottom padding for keyboard */}
+              <View style={{ height: 40 }} />
+            </ScrollView>
           </View>
         </KeyboardAvoidingView>
       </Modal>
