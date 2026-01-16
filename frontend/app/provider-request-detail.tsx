@@ -2564,12 +2564,11 @@ const styles = StyleSheet.create({
   chatContainer: {
     flex: 1,
   },
-  emptyChatContainer: {
+  emptyChatInner: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
-    minHeight: 200,
   },
   emptyChatTitle: {
     fontSize: 16,
@@ -2588,6 +2587,11 @@ const styles = StyleSheet.create({
   messagesContent: {
     padding: 16,
     paddingBottom: 8,
+  },
+  messagesContentEmpty: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   messageBubble: {
     maxWidth: '80%',
