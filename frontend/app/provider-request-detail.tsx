@@ -1306,85 +1306,90 @@ export default function ProviderRequestDetailScreen() {
             <View style={styles.centerContent}>
               <ActivityIndicator size="large" color="#E53935" />
             </View>
-          ) : messages.length === 0 ? (
-            <View style={styles.emptyChatContainer}>
-              <Ionicons name="chatbubbles-outline" size={48} color="#CCC" />
-              <Text style={styles.emptyChatTitle}>No messages yet</Text>
-              <Text style={styles.emptyChatText}>Keep all job communication in one place</Text>
-            </View>
           ) : (
             <ScrollView
               ref={scrollViewRef}
               style={styles.messagesContainer}
-              contentContainerStyle={styles.messagesContent}
+              contentContainerStyle={[
+                styles.messagesContent,
+                messages.length === 0 && styles.messagesContentEmpty
+              ]}
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
             >
-              {messages.map((msg) => {
-                const isMine = msg.senderId === user?._id;
-                const isSystem = msg.type === 'system' || (msg.senderRole as string) === 'system';
-                const isImage = (msg.type === 'image' || msg.imageUrl) && msg.imageUrl;
-                const imageUri = isImage ? `${BACKEND_URL}${msg.imageUrl}` : '';
-                
-                // Render system messages with special centered styling
-                if (isSystem) {
+              {messages.length === 0 ? (
+                <View style={styles.emptyChatInner}>
+                  <Ionicons name="chatbubbles-outline" size={48} color="#CCC" />
+                  <Text style={styles.emptyChatTitle}>No messages yet</Text>
+                  <Text style={styles.emptyChatText}>Keep all job communication in one place</Text>
+                </View>
+              ) : (
+                messages.map((msg) => {
+                  const isMine = msg.senderId === user?._id;
+                  const isSystem = msg.type === 'system' || (msg.senderRole as string) === 'system';
+                  const isImage = (msg.type === 'image' || msg.imageUrl) && msg.imageUrl;
+                  const imageUri = isImage ? `${BACKEND_URL}${msg.imageUrl}` : '';
+                  
+                  // Render system messages with special centered styling
+                  if (isSystem) {
+                    return (
+                      <View key={msg._id} style={styles.systemMessageContainer}>
+                        <View style={styles.systemMessageBubble}>
+                          <Text style={styles.systemMessageText}>{msg.text}</Text>
+                        </View>
+                      </View>
+                    );
+                  }
+                  
                   return (
-                    <View key={msg._id} style={styles.systemMessageContainer}>
-                      <View style={styles.systemMessageBubble}>
-                        <Text style={styles.systemMessageText}>{msg.text}</Text>
+                    <View key={msg._id} style={[styles.messageBubble, isMine ? styles.messageBubbleMine : styles.messageBubbleTheirs, isImage && styles.imageBubble]}>
+                      {!isMine && <Text style={styles.messageSender}>{msg.senderName}</Text>}
+                      {isImage ? (
+                        <TouchableOpacity 
+                          onPress={() => setFullScreenImage(imageUri)}
+                          style={styles.chatImageContainer}
+                          activeOpacity={0.9}
+                        >
+                          <Image
+                            source={{ uri: imageUri }}
+                            style={styles.chatImage}
+                            resizeMode="cover"
+                          />
+                          <View style={styles.imageOverlay}>
+                            <Ionicons name="expand-outline" size={18} color="rgba(255,255,255,0.9)" />
+                          </View>
+                        </TouchableOpacity>
+                      ) : (
+                        <Text style={[styles.messageText, isMine && styles.messageTextMine]}>{msg.text}</Text>
+                      )}
+                      <View style={styles.messageFooter}>
+                        <Text style={[styles.messageTime, isMine && styles.messageTimeMine]}>{formatMessageTime(msg.createdAt)}</Text>
+                        {/* Read indicators - only for messages I sent */}
+                        {isMine && (
+                          <View style={styles.tickContainer}>
+                            {msg.readAt ? (
+                              // Blue double tick - Read
+                              <View style={styles.ticksRow}>
+                                <Ionicons name="checkmark" size={14} color="#4FC3F7" />
+                                <Ionicons name="checkmark" size={14} color="#4FC3F7" style={styles.secondTick} />
+                              </View>
+                            ) : msg.deliveredAt ? (
+                              // Grey double tick - Delivered
+                              <View style={styles.ticksRow}>
+                                <Ionicons name="checkmark" size={14} color="rgba(255,255,255,0.6)" />
+                                <Ionicons name="checkmark" size={14} color="rgba(255,255,255,0.6)" style={styles.secondTick} />
+                              </View>
+                            ) : (
+                              // Single tick - Sent
+                              <Ionicons name="checkmark" size={14} color="rgba(255,255,255,0.6)" />
+                            )}
+                          </View>
+                        )}
                       </View>
                     </View>
                   );
-                }
-                
-                return (
-                  <View key={msg._id} style={[styles.messageBubble, isMine ? styles.messageBubbleMine : styles.messageBubbleTheirs, isImage && styles.imageBubble]}>
-                    {!isMine && <Text style={styles.messageSender}>{msg.senderName}</Text>}
-                    {isImage ? (
-                      <TouchableOpacity 
-                        onPress={() => setFullScreenImage(imageUri)}
-                        style={styles.chatImageContainer}
-                        activeOpacity={0.9}
-                      >
-                        <Image
-                          source={{ uri: imageUri }}
-                          style={styles.chatImage}
-                          resizeMode="cover"
-                        />
-                        <View style={styles.imageOverlay}>
-                          <Ionicons name="expand-outline" size={18} color="rgba(255,255,255,0.9)" />
-                        </View>
-                      </TouchableOpacity>
-                    ) : (
-                      <Text style={[styles.messageText, isMine && styles.messageTextMine]}>{msg.text}</Text>
-                    )}
-                    <View style={styles.messageFooter}>
-                      <Text style={[styles.messageTime, isMine && styles.messageTimeMine]}>{formatMessageTime(msg.createdAt)}</Text>
-                      {/* Read indicators - only for messages I sent */}
-                      {isMine && (
-                        <View style={styles.tickContainer}>
-                          {msg.readAt ? (
-                            // Blue double tick - Read
-                            <View style={styles.ticksRow}>
-                              <Ionicons name="checkmark" size={14} color="#4FC3F7" />
-                              <Ionicons name="checkmark" size={14} color="#4FC3F7" style={styles.secondTick} />
-                            </View>
-                          ) : msg.deliveredAt ? (
-                            // Grey double tick - Delivered
-                            <View style={styles.ticksRow}>
-                              <Ionicons name="checkmark" size={14} color="rgba(255,255,255,0.6)" />
-                              <Ionicons name="checkmark" size={14} color="rgba(255,255,255,0.6)" style={styles.secondTick} />
-                            </View>
-                          ) : (
-                            // Single tick - Sent
-                            <Ionicons name="checkmark" size={14} color="rgba(255,255,255,0.6)" />
-                          )}
-                        </View>
-                      )}
-                    </View>
-                  </View>
-                );
-              })}
+                })
+              )}
             </ScrollView>
           )}
 
