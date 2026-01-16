@@ -14,7 +14,6 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
-import { useFocusEffect } from '@react-navigation/native';
 
 const BETA_EMAIL = 'fixr.beta@gmail.com';
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
