@@ -3067,7 +3067,14 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
-    paddingBottom: 40,
+    paddingBottom: 20,
+    maxHeight: '85%',
+  },
+  quoteModalScrollView: {
+    flexGrow: 0,
+  },
+  quoteModalScrollContent: {
+    paddingBottom: 20,
   },
   quoteModalHeader: {
     flexDirection: 'row',
