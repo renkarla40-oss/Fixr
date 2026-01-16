@@ -37,24 +37,30 @@ const GoogleIcon = ({ size = 24 }) => (
 export default function WelcomeScreen() {
   const router = useRouter();
   const { user, loading, shouldShowBetaNotice, markBetaNoticeSeen } = useAuth();
+  const [hasRedirected, setHasRedirected] = useState(false);
 
   useEffect(() => {
-    console.log('Welcome useEffect - loading:', loading, 'user:', user?.email, 'shouldShowBetaNotice:', shouldShowBetaNotice);
+    console.log('Welcome useEffect - loading:', loading, 'user:', user?.email, 'shouldShowBetaNotice:', shouldShowBetaNotice, 'hasRedirected:', hasRedirected);
+    
+    // Only redirect ONCE on initial load - prevent re-redirecting when user state updates
+    if (hasRedirected) return;
     
     // Only redirect if we have a valid user with a token
     // After logout, user will be null, so no redirect happens
     if (!loading && user) {
       if (!user.isBetaUser) {
         console.log('Welcome: Redirecting to beta-gate');
+        setHasRedirected(true);
         router.replace('/beta-gate');
         return;
       }
       if (!shouldShowBetaNotice) {
         console.log('Welcome: User already seen beta notice, navigating to home');
+        setHasRedirected(true);
         navigateToHome();
       }
     }
-  }, [user, loading, shouldShowBetaNotice]);
+  }, [user, loading, shouldShowBetaNotice, hasRedirected]);
 
   const navigateToHome = () => {
     if (!user) return;
