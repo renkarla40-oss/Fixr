@@ -20,9 +20,16 @@ const BETA_EMAIL = 'fixr.beta@gmail.com';
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 export default function ProfileScreen() {
-  const { user, logout, switchRole } = useAuth();
+  const { user, logout, switchRole, refreshUser } = useAuth();
   const router = useRouter();
   const [switching, setSwitching] = useState(false);
+
+  // Refresh user data when screen gains focus (e.g., after returning from edit-profile)
+  useFocusEffect(
+    useCallback(() => {
+      refreshUser();
+    }, [])
+  );
 
   // Get profile photo URL
   const getPhotoUrl = () => {
