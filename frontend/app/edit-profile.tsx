@@ -154,7 +154,8 @@ export default function EditProfileScreen() {
           ? `${newPhotoUrl}&v=${Date.now()}`
           : `${newPhotoUrl}?v=${Date.now()}`;
         setProfilePhotoUrl(cacheBustedUrl);
-        await refreshUser();
+        // Note: Don't call refreshUser() here as it can trigger navigation side effects
+        // The profile screen will refresh user data when it regains focus
         Alert.alert('Success', 'Profile photo updated!');
       } else {
         // Revert to previous photo if upload didn't return a URL
