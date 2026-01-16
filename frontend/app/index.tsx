@@ -1,29 +1,31 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Image, Animated, Easing } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useAuth } from '../contexts/AuthContext';
 
 /**
- * Splash Screen - PURELY VISUAL
+ * Splash Screen - Waits for auth loading to complete
  * 
- * NO API calls, NO push notifications, NO Axios requests
- * This screen must NOT trigger any side effects
+ * Shows splash animation while AuthContext validates stored session.
+ * Only navigates to welcome AFTER loading is complete.
  */
 export default function SplashScreen() {
   const router = useRouter();
+  const { loading } = useAuth();
   const scaleAnim = useRef(new Animated.Value(0.5)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
+  const animationComplete = useRef(false);
+  const hasNavigated = useRef(false);
 
+  // Run splash animation
   useEffect(() => {
-    // Run both animations in parallel - logo zooms forward towards the screen
     Animated.parallel([
-      // Scale from small to large - creates "coming at you" effect
       Animated.timing(scaleAnim, {
         toValue: 1.4,
         duration: 1400,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }),
-      // Fade in quickly at the start
       Animated.timing(opacityAnim, {
         toValue: 1,
         duration: 400,
@@ -32,13 +34,34 @@ export default function SplashScreen() {
       }),
     ]).start();
 
-    // Navigate after animation completes
+    // Mark animation as complete after 1600ms
     const timer = setTimeout(() => {
-      router.replace('/welcome');
+      animationComplete.current = true;
     }, 1600);
 
     return () => clearTimeout(timer);
   }, []);
+
+  // Navigate only when BOTH animation is complete AND auth loading is done
+  useEffect(() => {
+    if (!loading && animationComplete.current && !hasNavigated.current) {
+      hasNavigated.current = true;
+      router.replace('/welcome');
+    }
+  }, [loading]);
+
+  // Also check periodically in case loading finished before animation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!loading && animationComplete.current && !hasNavigated.current) {
+        hasNavigated.current = true;
+        router.replace('/welcome');
+        clearInterval(interval);
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [loading]);
 
   return (
     <View style={styles.container}>
