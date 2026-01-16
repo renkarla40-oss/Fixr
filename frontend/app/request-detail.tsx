@@ -1167,116 +1167,123 @@ export default function RequestDetailScreen() {
             <View style={styles.centerContent}>
               <ActivityIndicator size="large" color="#E53935" />
             </View>
-          ) : messages.length === 0 ? (
-            <View style={styles.emptyChatContainer}>
-              <Ionicons name="chatbubbles-outline" size={48} color="#CCC" />
-              <Text style={styles.emptyChatTitle}>No messages yet</Text>
-              <Text style={styles.emptyChatText}>Keep all job communication in one place</Text>
-            </View>
           ) : (
             <ScrollView
               ref={scrollViewRef}
               style={styles.messagesContainer}
-              contentContainerStyle={styles.messagesContent}
+              contentContainerStyle={[
+                styles.messagesContent,
+                messages.length === 0 && styles.messagesContentEmpty
+              ]}
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
             >
-              {/* Payment confirmation and status banners - scroll with messages */}
-              {currentQuote && currentQuote.status === 'ACCEPTED' && currentQuote.paidAt && (
-                <View style={[styles.quoteCard, styles.quoteCardPaid, styles.scrollableQuoteCard]}>
-                  <View style={styles.quoteCardHeader}>
-                    <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-                    <Text style={styles.quoteCardTitle}>Payment Confirmed</Text>
-                  </View>
-                  <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
-                  <Text style={styles.quoteCardAmountPaid}>${currentQuote.amount.toFixed(2)} {currentQuote.currency}</Text>
-                  <TouchableOpacity 
-                    style={styles.viewReceiptButton}
-                    onPress={() => router.push({ pathname: '/receipt', params: { requestId: request._id } })}
-                  >
-                    <Ionicons name="receipt-outline" size={16} color="#2ecc71" />
-                    <Text style={styles.viewReceiptText}>View Receipt</Text>
-                  </TouchableOpacity>
+              {messages.length === 0 ? (
+                <View style={styles.emptyChatInner}>
+                  <Ionicons name="chatbubbles-outline" size={48} color="#CCC" />
+                  <Text style={styles.emptyChatTitle}>No messages yet</Text>
+                  <Text style={styles.emptyChatText}>Keep all job communication in one place</Text>
                 </View>
-              )}
-              {request.status === 'awaiting_payment' && request.paymentStatus === 'held' && (
-                <View style={[styles.statusBannerPaidScrollable]}>
-                  <Ionicons name="time-outline" size={16} color="#2E7D32" />
-                  <Text style={styles.statusBannerPaidText}>Payment secured! Waiting for provider to start.</Text>
-                </View>
-              )}
-              {request.status === 'in_progress' && (
-                <View style={[styles.statusBannerInProgressScrollable]}>
-                  <Ionicons name="construct" size={16} color="#1565C0" />
-                  <Text style={styles.statusBannerInProgressText}>Job in progress</Text>
-                </View>
-              )}
-              
-              {messages.map((msg) => {
-                const isMine = msg.senderId === user?._id;
-                const isSystem = msg.type === 'system' || (msg.senderRole as string) === 'system';
-                const isImage = (msg.type === 'image' || msg.imageUrl) && msg.imageUrl;
-                const imageUri = isImage ? `${BACKEND_URL}${msg.imageUrl}` : '';
-                
-                // Render system messages with special centered styling
-                if (isSystem) {
-                  return (
-                    <View key={msg._id} style={styles.systemMessageContainer}>
-                      <View style={styles.systemMessageBubble}>
-                        <Text style={styles.systemMessageText}>{msg.text}</Text>
+              ) : (
+                <>
+                  {/* Payment confirmation and status banners - scroll with messages */}
+                  {currentQuote && currentQuote.status === 'ACCEPTED' && currentQuote.paidAt && (
+                    <View style={[styles.quoteCard, styles.quoteCardPaid, styles.scrollableQuoteCard]}>
+                      <View style={styles.quoteCardHeader}>
+                        <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                        <Text style={styles.quoteCardTitle}>Payment Confirmed</Text>
                       </View>
-                    </View>
-                  );
-                }
-                
-                return (
-                  <View key={msg._id} style={[styles.messageBubble, isMine ? styles.messageBubbleMine : styles.messageBubbleTheirs, isImage && styles.imageBubble]}>
-                    {!isMine && <Text style={styles.messageSender}>{msg.senderName}</Text>}
-                    {isImage ? (
+                      <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
+                      <Text style={styles.quoteCardAmountPaid}>${currentQuote.amount.toFixed(2)} {currentQuote.currency}</Text>
                       <TouchableOpacity 
-                        style={styles.imageContainer} 
-                        onPress={() => setFullScreenImage(imageUri)}
-                        activeOpacity={0.9}
+                        style={styles.viewReceiptButton}
+                        onPress={() => router.push({ pathname: '/receipt', params: { requestId: request._id } })}
                       >
-                        <Image
-                          source={{ uri: imageUri }}
-                          style={styles.chatImage}
-                          resizeMode="cover"
-                        />
-                        <View style={styles.imageOverlay}>
-                          <Ionicons name="expand-outline" size={20} color="rgba(255,255,255,0.8)" />
-                        </View>
+                        <Ionicons name="receipt-outline" size={16} color="#2ecc71" />
+                        <Text style={styles.viewReceiptText}>View Receipt</Text>
                       </TouchableOpacity>
-                    ) : (
-                      <Text style={[styles.messageText, isMine && styles.messageTextMine]}>{msg.text}</Text>
-                    )}
-                    <View style={styles.messageFooter}>
-                      <Text style={[styles.messageTime, isMine && styles.messageTimeMine]}>{formatMessageTime(msg.createdAt)}</Text>
-                      {/* Read indicators - only for messages I sent */}
-                      {isMine && (
-                        <View style={styles.tickContainer}>
-                          {msg.readAt ? (
-                            // Blue double tick - Read
-                            <View style={styles.ticksRow}>
-                              <Ionicons name="checkmark" size={14} color="#4FC3F7" />
-                              <Ionicons name="checkmark" size={14} color="#4FC3F7" style={styles.secondTick} />
+                    </View>
+                  )}
+                  {request.status === 'awaiting_payment' && request.paymentStatus === 'held' && (
+                    <View style={[styles.statusBannerPaidScrollable]}>
+                      <Ionicons name="time-outline" size={16} color="#2E7D32" />
+                      <Text style={styles.statusBannerPaidText}>Payment secured! Waiting for provider to start.</Text>
+                    </View>
+                  )}
+                  {request.status === 'in_progress' && (
+                    <View style={[styles.statusBannerInProgressScrollable]}>
+                      <Ionicons name="construct" size={16} color="#1565C0" />
+                      <Text style={styles.statusBannerInProgressText}>Job in progress</Text>
+                    </View>
+                  )}
+                  
+                  {messages.map((msg) => {
+                    const isMine = msg.senderId === user?._id;
+                    const isSystem = msg.type === 'system' || (msg.senderRole as string) === 'system';
+                    const isImage = (msg.type === 'image' || msg.imageUrl) && msg.imageUrl;
+                    const imageUri = isImage ? `${BACKEND_URL}${msg.imageUrl}` : '';
+                    
+                    // Render system messages with special centered styling
+                    if (isSystem) {
+                      return (
+                        <View key={msg._id} style={styles.systemMessageContainer}>
+                          <View style={styles.systemMessageBubble}>
+                            <Text style={styles.systemMessageText}>{msg.text}</Text>
+                          </View>
+                        </View>
+                      );
+                    }
+                    
+                    return (
+                      <View key={msg._id} style={[styles.messageBubble, isMine ? styles.messageBubbleMine : styles.messageBubbleTheirs, isImage && styles.imageBubble]}>
+                        {!isMine && <Text style={styles.messageSender}>{msg.senderName}</Text>}
+                        {isImage ? (
+                          <TouchableOpacity 
+                            style={styles.imageContainer} 
+                            onPress={() => setFullScreenImage(imageUri)}
+                            activeOpacity={0.9}
+                          >
+                            <Image
+                              source={{ uri: imageUri }}
+                              style={styles.chatImage}
+                              resizeMode="cover"
+                            />
+                            <View style={styles.imageOverlay}>
+                              <Ionicons name="expand-outline" size={20} color="rgba(255,255,255,0.8)" />
                             </View>
-                          ) : msg.deliveredAt ? (
-                            // Grey double tick - Delivered
-                            <View style={styles.ticksRow}>
-                              <Ionicons name="checkmark" size={14} color="rgba(255,255,255,0.6)" />
-                              <Ionicons name="checkmark" size={14} color="rgba(255,255,255,0.6)" style={styles.secondTick} />
+                          </TouchableOpacity>
+                        ) : (
+                          <Text style={[styles.messageText, isMine && styles.messageTextMine]}>{msg.text}</Text>
+                        )}
+                        <View style={styles.messageFooter}>
+                          <Text style={[styles.messageTime, isMine && styles.messageTimeMine]}>{formatMessageTime(msg.createdAt)}</Text>
+                          {/* Read indicators - only for messages I sent */}
+                          {isMine && (
+                            <View style={styles.tickContainer}>
+                              {msg.readAt ? (
+                                // Blue double tick - Read
+                                <View style={styles.ticksRow}>
+                                  <Ionicons name="checkmark" size={14} color="#4FC3F7" />
+                                  <Ionicons name="checkmark" size={14} color="#4FC3F7" style={styles.secondTick} />
+                                </View>
+                              ) : msg.deliveredAt ? (
+                                // Grey double tick - Delivered
+                                <View style={styles.ticksRow}>
+                                  <Ionicons name="checkmark" size={14} color="rgba(255,255,255,0.6)" />
+                                  <Ionicons name="checkmark" size={14} color="rgba(255,255,255,0.6)" style={styles.secondTick} />
+                                </View>
+                              ) : (
+                                // Single tick - Sent
+                                <Ionicons name="checkmark" size={14} color="rgba(255,255,255,0.6)" />
+                              )}
                             </View>
-                          ) : (
-                            // Single tick - Sent
-                            <Ionicons name="checkmark" size={14} color="rgba(255,255,255,0.6)" />
                           )}
                         </View>
-                      )}
-                    </View>
-                  </View>
-                );
-              })}
+                      </View>
+                    );
+                  })}
+                </>
+              )}
             </ScrollView>
           )}
 
