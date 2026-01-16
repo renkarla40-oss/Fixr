@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 24,
-    paddingBottom: 140, // Increased to ensure helper text is visible above CTA
+    flexGrow: 1,
   },
   form: {
     gap: 24,
