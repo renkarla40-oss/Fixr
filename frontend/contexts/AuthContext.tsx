@@ -3,19 +3,21 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 /**
- * AUTH CONTEXT - STABILITY FIX
+ * AUTH CONTEXT - PERSISTENT LOGIN
  * 
- * NO automatic axios calls on mount.
- * NO side effects at app boot.
- * 
- * API calls only happen:
- * - On explicit login/signup
- * - On explicit refreshUser call
- * - AFTER user interaction
+ * Session persisted with: authToken, userId, currentRole
+ * On app launch:
+ * - Load stored credentials
+ * - Validate session via /me
+ * - If valid → set user state (welcome.tsx handles navigation)
+ * - If invalid → clear stored session
  */
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const BETA_NOTICE_KEY = 'betaNoticeSeen';
+const AUTH_TOKEN_KEY = 'authToken';
+const USER_ID_KEY = 'userId';
+const CURRENT_ROLE_KEY = 'currentRole';
 
 interface User {
   _id: string;
@@ -53,59 +55,73 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Computed property: show beta notice only when user is a beta user AND hasn't seen it
   const shouldShowBetaNotice = user !== null && user.isBetaUser && betaNoticeSeenByUser === false;
 
-  // Load stored token from AsyncStorage (LOCAL ONLY - no network)
+  // On mount: load stored session and auto-validate
   useEffect(() => {
-    loadStoredToken();
+    initializeStoredSession();
   }, []);
 
-  // Load token from storage WITHOUT making API calls
-  const loadStoredToken = async () => {
+  // Load and validate stored session on app launch
+  const initializeStoredSession = async () => {
     try {
-      const storedToken = await AsyncStorage.getItem('authToken');
-      if (storedToken) {
-        setToken(storedToken);
+      const storedToken = await AsyncStorage.getItem(AUTH_TOKEN_KEY);
+      
+      if (!storedToken) {
+        // No stored token - user needs to login
+        setLoading(false);
+        setInitialized(true);
+        return;
       }
-    } catch {
-      // Silent fail - local storage error
+
+      // Token exists - validate it via /me endpoint
+      console.log('AuthContext: Found stored token, validating...');
+      setToken(storedToken);
+
+      try {
+        const response = await axios.get(`${BACKEND_URL}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${storedToken}` },
+          timeout: 10000,
+        });
+        
+        const userData = response.data;
+        console.log('AuthContext: Session valid, user:', userData.email);
+        
+        // Session valid - set user state
+        setUser(userData);
+        
+        // Persist latest user data
+        await AsyncStorage.setItem(USER_ID_KEY, userData._id);
+        await AsyncStorage.setItem(CURRENT_ROLE_KEY, userData.currentRole);
+        
+        // Check beta notice flag
+        const userBetaKey = `${BETA_NOTICE_KEY}_${userData._id}`;
+        const hasSeenNotice = await AsyncStorage.getItem(userBetaKey);
+        setBetaNoticeSeenByUser(hasSeenNotice === 'true');
+        
+      } catch (error) {
+        // Session invalid - clear stored credentials
+        console.log('AuthContext: Session invalid, clearing stored credentials');
+        await clearStoredSession();
+      }
+    } catch (error) {
+      console.log('AuthContext: Error loading stored session');
     } finally {
       setLoading(false);
+      setInitialized(true);
     }
   };
 
-  // Initialize auth - called AFTER splash/welcome transition
-  // This is the ONLY place where we make the initial API call
+  // Clear all stored session data
+  const clearStoredSession = async () => {
+    await AsyncStorage.multiRemove([AUTH_TOKEN_KEY, USER_ID_KEY, CURRENT_ROLE_KEY]);
+    setToken(null);
+    setUser(null);
+  };
+
+  // Initialize auth - kept for backwards compatibility (now handled by initializeStoredSession)
   const initializeAuth = useCallback(async () => {
     if (initialized) return;
-    
-    const storedToken = token || await AsyncStorage.getItem('authToken');
-    if (!storedToken) {
-      setInitialized(true);
-      return;
-    }
-
-    try {
-      const response = await axios.get(`${BACKEND_URL}/api/auth/me`, {
-        headers: { Authorization: `Bearer ${storedToken}` },
-        timeout: 10000, // 10 second timeout
-      });
-      const userData = response.data;
-      setUser(userData);
-      setToken(storedToken);
-      
-      // Check user-specific beta notice flag
-      const userBetaKey = `${BETA_NOTICE_KEY}_${userData._id}`;
-      const hasSeenNotice = await AsyncStorage.getItem(userBetaKey);
-      setBetaNoticeSeenByUser(hasSeenNotice === 'true');
-    } catch {
-      // Silent fail - network error or invalid token
-      // Clear invalid token
-      await AsyncStorage.removeItem('authToken');
-      setToken(null);
-      setUser(null);
-    } finally {
-      setInitialized(true);
-    }
-  }, [token, initialized]);
+    // Session is already initialized on mount via initializeStoredSession
+  }, [initialized]);
 
   const login = async (email: string, password: string): Promise<User> => {
     try {
@@ -115,7 +131,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }, { timeout: 15000 });
       const { token: newToken, user: userData } = response.data;
       
-      await AsyncStorage.setItem('authToken', newToken);
+      // Persist session data
+      await AsyncStorage.setItem(AUTH_TOKEN_KEY, newToken);
+      await AsyncStorage.setItem(USER_ID_KEY, userData._id);
+      await AsyncStorage.setItem(CURRENT_ROLE_KEY, userData.currentRole);
+      
       setToken(newToken);
       setUser(userData);
       setInitialized(true);
@@ -127,7 +147,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       return userData;
     } catch (error: any) {
-      // Return user-friendly error message - NEVER expose technical details
       const detail = error.response?.data?.detail;
       if (detail && typeof detail === 'string' && detail.includes('Invalid')) {
         throw new Error('Invalid email or password');
@@ -153,7 +172,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }, { timeout: 15000 });
       const { token: newToken, user: userData } = response.data;
       
-      await AsyncStorage.setItem('authToken', newToken);
+      // Persist session data
+      await AsyncStorage.setItem(AUTH_TOKEN_KEY, newToken);
+      await AsyncStorage.setItem(USER_ID_KEY, userData._id);
+      await AsyncStorage.setItem(CURRENT_ROLE_KEY, userData.currentRole);
+      
       setToken(newToken);
       setUser(userData);
       setInitialized(true);
@@ -161,7 +184,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // New user has NOT seen beta notice
       setBetaNoticeSeenByUser(false);
     } catch (error: any) {
-      // Return user-friendly error message - NEVER expose technical details
       const detail = error.response?.data?.detail;
       if (detail && typeof detail === 'string' && detail.includes('already exists')) {
         throw new Error('An account with this email already exists');
@@ -174,7 +196,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     setToken(null);
     setBetaNoticeSeenByUser(null);
-    await AsyncStorage.removeItem('authToken');
+    // Clear all stored session data
+    await clearStoredSession();
   };
 
   const switchRole = async (role: 'customer' | 'provider') => {
@@ -186,6 +209,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         { headers: { Authorization: `Bearer ${token}` }, timeout: 10000 }
       );
       setUser(response.data);
+      // Persist the new role
+      await AsyncStorage.setItem(CURRENT_ROLE_KEY, role);
     } catch {
       throw new Error('Unable to switch mode. Please try again.');
     }
@@ -200,6 +225,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       const userData = response.data;
       setUser(userData);
+      
+      // Update stored data
+      await AsyncStorage.setItem(USER_ID_KEY, userData._id);
+      await AsyncStorage.setItem(CURRENT_ROLE_KEY, userData.currentRole);
       
       const userBetaKey = `${BETA_NOTICE_KEY}_${userData._id}`;
       const hasSeenNotice = await AsyncStorage.getItem(userBetaKey);
