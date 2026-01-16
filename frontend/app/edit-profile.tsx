@@ -154,9 +154,11 @@ export default function EditProfileScreen() {
           ? `${newPhotoUrl}&v=${Date.now()}`
           : `${newPhotoUrl}?v=${Date.now()}`;
         setProfilePhotoUrl(cacheBustedUrl);
-        // Note: Don't call refreshUser() here as it can trigger navigation side effects
-        // The profile screen will refresh user data when it regains focus
-        Alert.alert('Success', 'Profile photo updated!');
+        // Refresh user data after alert is dismissed - this ensures we stay on edit-profile
+        // until user taps OK, then the profile screen will show the updated photo
+        Alert.alert('Success', 'Profile photo updated!', [
+          { text: 'OK', onPress: () => refreshUser() }
+        ]);
       } else {
         // Revert to previous photo if upload didn't return a URL
         console.log('[PHOTO UPLOAD] No URL returned, reverting preview');
