@@ -505,15 +505,10 @@ const styles = StyleSheet.create({
     color: '#4A7DC4',
     lineHeight: 20,
   },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 24,
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+  submitButtonContainer: {
+    paddingHorizontal: 0,
+    paddingTop: 16,
+    marginTop: 8,
   },
   submitButton: {
     backgroundColor: '#E53935',
