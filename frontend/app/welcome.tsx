@@ -210,13 +210,13 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  loadingText: {
-    fontSize: 18,
-    color: '#1A1A1A',
+  loadingLogo: {
+    width: 260,
+    height: 130,
   },
   heroBackground: {
     flex: 1,
