@@ -48,6 +48,9 @@ export default function RequestServiceScreen() {
   // Phase 3A: Provider unavailable modal
   const [showUnavailableModal, setShowUnavailableModal] = useState(false);
 
+  // ScrollView ref for keyboard handling
+  const scrollViewRef = useRef<ScrollView>(null);
+
   // Get display label from catalog
   const categoryLabel = getServiceLabel(category);
 
