@@ -1603,6 +1603,7 @@ export default function ProviderRequestDetailScreen() {
         <KeyboardAvoidingView 
           style={styles.quoteModalOverlay}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
         >
           <View style={styles.quoteModalContent}>
             <View style={styles.quoteModalHeader}>
@@ -1612,70 +1613,81 @@ export default function ProviderRequestDetailScreen() {
               </TouchableOpacity>
             </View>
             
-            <View style={styles.quoteFormGroup}>
-              <Text style={styles.quoteFormLabel}>Title</Text>
-              <TextInput
-                style={styles.quoteFormInput}
-                placeholder="e.g., Deep Cleaning Service"
-                placeholderTextColor="#999"
-                value={quoteTitle}
-                onChangeText={setQuoteTitle}
-                maxLength={100}
-              />
-            </View>
-            
-            <View style={styles.quoteFormGroup}>
-              <Text style={styles.quoteFormLabel}>Description (optional)</Text>
-              <TextInput
-                style={[styles.quoteFormInput, styles.quoteFormTextArea]}
-                placeholder="Work details, materials included, etc."
-                placeholderTextColor="#999"
-                value={quoteDescription}
-                onChangeText={setQuoteDescription}
-                multiline
-                maxLength={500}
-              />
-            </View>
-            
-            <View style={styles.quoteFormGroup}>
-              <Text style={styles.quoteFormLabel}>Amount (TTD)</Text>
-              <View style={styles.quoteAmountRow}>
-                <Text style={styles.quoteCurrency}>$</Text>
+            <ScrollView 
+              style={styles.quoteModalScrollView}
+              contentContainerStyle={styles.quoteModalScrollContent}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="interactive"
+            >
+              <View style={styles.quoteFormGroup}>
+                <Text style={styles.quoteFormLabel}>Title</Text>
                 <TextInput
-                  style={styles.quoteAmountInput}
-                  placeholder="0.00"
+                  style={styles.quoteFormInput}
+                  placeholder="e.g., Deep Cleaning Service"
                   placeholderTextColor="#999"
-                  value={quoteAmount}
-                  onChangeText={setQuoteAmount}
-                  keyboardType="decimal-pad"
+                  value={quoteTitle}
+                  onChangeText={setQuoteTitle}
+                  maxLength={100}
                 />
               </View>
-            </View>
+              
+              <View style={styles.quoteFormGroup}>
+                <Text style={styles.quoteFormLabel}>Description (optional)</Text>
+                <TextInput
+                  style={[styles.quoteFormInput, styles.quoteFormTextArea]}
+                  placeholder="Work details, materials included, etc."
+                  placeholderTextColor="#999"
+                  value={quoteDescription}
+                  onChangeText={setQuoteDescription}
+                  multiline
+                  maxLength={500}
+                />
+              </View>
+              
+              <View style={styles.quoteFormGroup}>
+                <Text style={styles.quoteFormLabel}>Amount (TTD)</Text>
+                <View style={styles.quoteAmountRow}>
+                  <Text style={styles.quoteCurrency}>$</Text>
+                  <TextInput
+                    style={styles.quoteAmountInput}
+                    placeholder="0.00"
+                    placeholderTextColor="#999"
+                    value={quoteAmount}
+                    onChangeText={setQuoteAmount}
+                    keyboardType="decimal-pad"
+                  />
+                </View>
+              </View>
 
-            <View style={styles.quoteFormGroup}>
-              <Text style={styles.quoteFormLabel}>Note (optional)</Text>
-              <TextInput
-                style={[styles.quoteFormInput, styles.quoteFormTextArea]}
-                placeholder="Additional notes for the customer"
-                placeholderTextColor="#999"
-                value={quoteNote}
-                onChangeText={setQuoteNote}
-                multiline
-                maxLength={500}
-              />
-            </View>
-            
-            <TouchableOpacity
-              style={[styles.quoteSubmitButton, (!quoteTitle.trim() || !quoteAmount) && styles.quoteSubmitButtonDisabled]}
-              onPress={handleSendQuote}
-              disabled={!quoteTitle.trim() || !quoteAmount || sendingQuote}
-            >
-              {sendingQuote ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
-              ) : (
-                <Text style={styles.quoteSubmitButtonText}>Send Quote to Customer</Text>
-              )}
-            </TouchableOpacity>
+              <View style={styles.quoteFormGroup}>
+                <Text style={styles.quoteFormLabel}>Note (optional)</Text>
+                <TextInput
+                  style={[styles.quoteFormInput, styles.quoteFormTextArea]}
+                  placeholder="Additional notes for the customer"
+                  placeholderTextColor="#999"
+                  value={quoteNote}
+                  onChangeText={setQuoteNote}
+                  multiline
+                  maxLength={500}
+                />
+              </View>
+              
+              <TouchableOpacity
+                style={[styles.quoteSubmitButton, (!quoteTitle.trim() || !quoteAmount) && styles.quoteSubmitButtonDisabled]}
+                onPress={handleSendQuote}
+                disabled={!quoteTitle.trim() || !quoteAmount || sendingQuote}
+              >
+                {sendingQuote ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text style={styles.quoteSubmitButtonText}>Send Quote to Customer</Text>
+                )}
+              </TouchableOpacity>
+              
+              {/* Bottom padding for keyboard */}
+              <View style={{ height: 40 }} />
+            </ScrollView>
           </View>
         </KeyboardAvoidingView>
       </Modal>
