@@ -109,7 +109,11 @@ export default function WelcomeScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading...</Text>
+        <Image 
+          source={require('../assets/images/fixr-logo.png')} 
+          style={styles.loadingLogo}
+          resizeMode="contain"
+        />
       </View>
     );
   }
