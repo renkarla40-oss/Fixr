@@ -309,14 +309,20 @@ export default function RequestDetailScreen() {
       setLoadingMessages(true);
     }
     try {
-      const response = await axios.get(`${BACKEND_URL}/api/service-requests/${request._id}/messages`, {
+      const url = `${BACKEND_URL}/api/service-requests/${request._id}/messages`;
+      console.log(`[Messages Debug] Fetching from: ${url}`);
+      
+      const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const newMessages: Message[] = response.data.messages || [];
       
       // DEBUG LOG: Count total and system messages
       const systemMessages = newMessages.filter(m => m.type === 'system' || m.senderRole === 'system');
-      console.log(`[Messages Debug] Total: ${newMessages.length}, System: ${systemMessages.length}`);
+      console.log(`[Messages Debug] RequestId: ${request._id}, Total: ${newMessages.length}, System: ${systemMessages.length}`);
+      if (systemMessages.length > 0) {
+        console.log(`[Messages Debug] First system message:`, JSON.stringify(systemMessages[0]));
+      }
       
       // Update messages state
       setMessages(newMessages);
