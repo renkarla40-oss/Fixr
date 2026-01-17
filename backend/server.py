@@ -1204,10 +1204,12 @@ async def get_providers(
     # All providers matching service are returned nationwide
     # =======================================================
     
-    # Base query: Only show providers who are set up and accepting jobs
+    # Base query: Only show providers who are set up, accepting jobs, and AVAILABLE
     query = {
         "setupComplete": True, 
         "isAcceptingJobs": {"$ne": False},
+        # Phase 3A: Exclude providers who set availability to "away"
+        "availabilityStatus": {"$ne": "away"},
         # Require photo and ID uploads to be visible
         "profilePhotoUrl": {"$ne": None, "$exists": True},
         "governmentIdFrontUrl": {"$ne": None, "$exists": True}
