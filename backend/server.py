@@ -1205,11 +1205,10 @@ async def get_providers(
     # =======================================================
     
     # Base query: Only show providers who are set up and have required uploads
-    # Note: We NO LONGER filter by availabilityStatus - customers see "Away" providers
-    # with disabled styling instead of hiding them completely
+    # Note: We NO LONGER filter by availabilityStatus or isAcceptingJobs
+    # Customers see "Away" providers with disabled styling instead of hiding them
     query = {
         "setupComplete": True, 
-        "isAcceptingJobs": {"$ne": False},
         # Require photo and ID uploads to be visible
         "profilePhotoUrl": {"$ne": None, "$exists": True},
         "governmentIdFrontUrl": {"$ne": None, "$exists": True}
