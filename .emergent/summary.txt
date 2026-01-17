@@ -1,54 +1,49 @@
 <analysis>
 
-**original_problem_statement**: The user has requested a series of features and bug fixes, with a strong emphasis on stabilizing the application's core logic and improving the user experience for both customers and providers.
+**original_problem_statement**: The user has requested a series of features and bug fixes focused on improving core application stability, enhancing user experience for both customers and providers, and adding new functionality.
 
-The work has progressed through several phases:
-1.  **Reviews Flow Rework (P0):** A major P0 request to fix a broken and inconsistent review process. This involved a complete reset of the job completion state machine.
-2.  **State Machine Implementation:** A new, more robust state machine was implemented on the backend:  →  →  →  →  → . This dictates chat availability and UI states.
-3.  **UI/UX Stability Fixes (P0):** A series of high-priority fixes were requested to address regressions and UI inconsistencies, including:
-    *   Fixing stale status badges on the customer's job list.
-    *   Adding a system message to chat when a provider accepts a job.
-    *   Restoring missing OTP proof cards on the provider's job detail screen.
-    *   Fixing a critical blocker that prevented providers from accepting general requests.
-4.  **Provider Payout UX (P1):** The current task is to improve the user experience for providers by creating a dedicated screen to view their payout status for a completed job.
+The high-priority tasks included:
+- **P1 Provider Payout UX:** Create a dedicated screen for providers to view their payout status.
+- **P0 Keyboard Bug (Customer):** Fix an issue where the keyboard hides input fields on the customer's Create Request screen.
+- **P0 Keyboard Bug (Provider):** Fix a similar keyboard issue on the provider's Send Quote modal.
+- **P0 Chat Stability:** Fix the chat screen UI jumping when it's empty.
+- **P0 Profile Navigation Bugs:** Fix issues where updating a profile photo or tapping the profile tab would incorrectly navigate the user to the home screen.
+- **P0 Persistent Login:** Implement session persistence so users remain logged in between app launches.
+- **P0 Login Flash Fix:** Remove the visual flash of the Welcome/Login screen for authenticated users on app launch.
+- **P0 Provider Decline UX:** Implement system messages and UI indicators when a provider declines a job request.
+- **P0 Provider Availability Feature:** Allow providers to set their status to available or away and reflect this to customers.
 
 **User's preferred language**: English
 
 **what currently exists?**
-The application now has a stable and well-defined job lifecycle state machine on the backend. This state machine correctly controls UI elements and application logic, such as chat availability (open during , closed after ).
+The application's core logic has been significantly stabilized. A series of high-priority UI/UX bugs have been resolved, and several new features have been implemented.
 
-Key features and fixes implemented include:
-- A dedicated customer-facing  screen with auto-navigation logic.
-- A fix for the P0 blocker preventing providers from accepting general (unassigned) requests.
-- Automatic status updates on the customer's My Requests screen via polling.
-- System messages are now added to the chat when a provider accepts a job.
-- A critical regression was fixed, restoring the Job Started and Job Completed OTP proof cards to the provider's job detail screen, ensuring parity with the customer view.
-- A new backend endpoint  exists to fetch payout information for a specific job.
-- A read-only Payout section has been added to the provider's job detail screen, which successfully displays the amount and pending status for completed jobs.
-- A new, empty file  has been created in preparation for the current task.
+- **Provider Payout Flow:** A dedicated, read-only Payout Status screen () has been created and fully integrated. It is reachable via auto-navigation after job completion and manual navigation from the job details screen.
+- **Keyboard Handling:** Keyboard-hiding bugs have been fixed on the customer Request Service screen () and the provider's Send Quote / Revise Quote modals () by correctly implementing  and .
+- **Chat Stability:** The chat UI jump on both customer () and provider () screens has been fixed by using a consistent layout structure () for both empty and non-empty message states.
+- **Navigation & Session:**
+    - A critical regression where the Profile tab redirected to Home has been fixed by making the redirect logic in  smarter.
+    - Persistent login has been implemented via  in , storing tokens and user roles.
+    - The flash of the Welcome screen on app launch for logged-in users has been eliminated by gating navigation in  until authentication status is resolved.
+- **Decline Flow UX:**
+    - The backend now inserts an idempotent system message when a provider declines a request.
+    - This system message is correctly marked as unread ().
+    - The frontend  interface was fixed to correctly display these system messages.
+    - A Declined banner is now shown on the customer's request details screen.
+- **Backend Stability:** Several pre-existing backend bugs were fixed, including ObjectId serialization errors and authorization logic in the service request and decline endpoints.
 
 **Last working item**:
-    - Last item agent was working: The agent was starting the implementation of the P1 UX EXTENSION to create a dedicated provider payout status screen. The first step taken was to create the new screen file using the  tool.
-    - Status: NOT STARTED
+    - Last item agent was working: The agent was implementing the **P0 Provider Availability feature**. The backend work was in progress. The agent had already updated the User model and created the availability update endpoint in . The last action was to begin modifying the provider matching logic () to filter by the new  field.
+    - Status: IN PROGRESS
     - Agent Testing Done: N
-    - Which testing method agent to use? screenshot tool
+    - Which testing method agent to use? The backend changes can be tested via . The frontend changes will require the .
     - User Testing Done: N
 
 **All Pending/In progress Issue list**:
-  - Issue 1: P1: Implement the dedicated Provider Payout Status screen. (This is the current task, not an issue but the primary work item).
-  - Issue 2: P2: The bottom tab bar has curved edges, which the user wants flattened.
-  
+  - Issue 1: P2: The bottom tab bar has curved edges, which the user wants flattened.
+
   Issues Detail:
   - Issue 1: 
-     - **Description**: This is the current, active task requested by the user. It is not a bug, but a feature implementation.
-     - **Attempted fixes**: None, work has just begun.
-     - **Next debug checklist**: N/A, this is a feature implementation. See In progress Task List for next steps.
-     - **Why fix this issue and what will be achieved with the fix?**: To improve the provider's user experience by giving them a clear, dedicated screen to view payout details for a completed job.
-     - **Status**:  NOT STARTED
-     - **Is recurring issue?**: N
-     - **Should Test frontend/backend/both after fix?**: Frontend
-     - **Blocked on other issue**: None
-  - Issue 2: 
      - **Description**: A low-priority, recurring UI bug where the bottom tab bar has rounded corners instead of the flat design requested by the user. An earlier fix was ineffective.
      - **Attempted fixes**: A previous agent attempted to fix this by modifying  and  to set , which did not work.
      - **Next debug checklist**:
@@ -61,96 +56,98 @@ Key features and fixes implemented include:
      - **Blocked on other issue**: None
 
 **In progress Task List**:
-  - Task 1: P1: Implement the dedicated Provider Payout Status screen and navigation.
+  - Task 1:  P0: Complete the Provider Availability feature.
 
  Task Detail:
   - Task 1: 
-     - **Where to resume**: The file  has been created. The next steps are:
-        1.  **Build the UI** for . It should fetch data using the existing  endpoint and display the job reference, payout amount, status, and helper text, along with a Done button.
-        2.  **Implement Auto-Navigation**: In , modify the logic that handles the completion OTP verification. After a successful completion, it should auto-navigate the provider to this new payout status screen.
-        3.  **Implement Manual Navigation**: In , make the existing Payout section tappable. This  should navigate to the  screen, passing the .
-     - **What will be achieved with this?**: A complete, user-friendly flow for providers to view their payout status, both immediately after job completion and later on.
+     - **Where to resume**: 
+        1. **Backend:** In , modify the  endpoint (the  function) to filter out providers where  is .
+        2. **Frontend (Provider):** In the provider's home screen (likely ), add a UI toggle (e.g., Switch) that calls the  endpoint.
+        3. **Frontend (Customer):** In the component that displays provider cards (likely part of the service selection flow), add an Available now badge. Update the no providers message as requested.
+     - **What will be achieved with this?**: Providers will be able to control their visibility for new jobs, and customers will only see available providers, improving the matching experience.
      - **Status**:  IN PROGRESS
-     - **Should Test frontend/backend/both after fix?**: Frontend
+     - **Should Test frontend/backend/both after fix?**: Both
      - **Blocked on something**: No.
 
 **Upcoming and Future Tasks**
     - **Future Tasks:**
         - P1: VAT Implementation: The  collection has fields for VAT, but the logic is dormant. A future task is to enable and calculate VAT.
-        - P1: Payout Release Automation: Implement a system to automatically release provider payouts after a set holding period, removing the need for manual admin action.
-        - P2: Address the Chat screens jump/flicker when empty bug. This was de-prioritized but remains a known UX issue.
+        - P1: Payout Release Automation: Implement a system to automatically release provider payouts after a set holding period.
+        - P2: Address the Chat screens jump/flicker when empty bug. This was de-prioritized but remains a known UX issue (Note: This was fixed in the session, but keeping it here for historical context as it was in the initial prompt).
 
 **Completed work in this session**
-- **P0 Reviews Flow Reset**: Implemented a new, stable job state machine (, ) in  and updated all relevant frontend components (, , , ).
-- **P0 Chat Logic Fix**: Updated chat authorization in  and UI in  to ensure chat remains open for  and closes only for .
-- **P0 Stale Status Fix**: Implemented polling in  to automatically refresh the job list status.
-- **P0 System Message on Accept**: Added logic to  in the accept request endpoint to insert a system message into the chat.
-- **P0 Provider OTP Card Regression Fix**: Restored the Job Started and Job Completed confirmation cards to .
-- **P0 Provider Accept Blocker Fix**: Fixed the authorization logic in  to allow providers to accept general requests (where  is null) and assign themselves to the job.
-- **P1 Payout Status Display (Read-only)**: Created the  endpoint in  and added the corresponding display section to .
+- **P1 Provider Payout Screen:** Created and integrated the dedicated payout status screen () with auto and manual navigation from .
+- **P0 Keyboard Bug Fixes:** Resolved keyboard-hiding issues on the customer's  screen and the provider's quote modals in .
+- **P0 Chat UI Stability Fix:** Eliminated the jumping layout in empty chat screens by refactoring the message list in  and .
+- **P0 Profile Navigation Fix:** Resolved a critical bug where updating a profile photo () or tapping the profile tab () would cause an incorrect redirect to the home screen. This involved fixing flawed effect logic in .
+- **P0 Persistent Login:** Implemented session persistence using  in  to keep users logged in.
+- **P0 Login Flash Fix:** Removed the visual flash of the Welcome/Login screen on app launch for authenticated users by adding a loading gate in  and .
+- **P0 Provider Decline UX:**
+    - **Backend ():** Added an idempotent system message insertion when a provider declines a request.
+    - **Backend ():** Fixed the system message to be marked as unread ().
+    - **Frontend (, ):** Updated the  interface to allow system messages to be rendered.
+    - **Frontend ():** Added a Declined banner to the customer's request details view.
+- **Backend Stability Fixes ():**
+    - Fixed an ObjectId-to-string serialization error in the  endpoint.
+    - Fixed authorization logic in the  endpoint to allow providers to decline general requests.
 
 **Earlier issues found/mentioned but not fixed**
    - **Issue 1**: The bottom tab bar has curved edges. This was reported by the user and an attempted fix was ineffective. The task was superseded by higher-priority bugs.
 
 **Known issue recurrence from previous fork**
-  - **Issue recurrence in previous fork**: The curved tab bar edges issue was mentioned in the initial handoff from the previous session and was not addressed.
-  - **Recurrence count**: 2+
+  - **Issue recurrence in previous fork**: The curved tab bar edges issue was mentioned in the initial handoff and remains unresolved.
+  - **Recurrence count**: 3+
   - **Status**: NOT STARTED
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **State Machine**: The core of the recent work was implementing a robust job lifecycle state machine (, , , , ) which dictates application behavior.
-- **Conditional UI Rendering**: Extensive use of conditional rendering in React Native based on the job's  to show/hide buttons (Accept/Decline), UI sections (Payout, Review), and state indicators (chat closed banner).
-- **API Design**: Created new, single-responsibility endpoints like  and fixed authorization logic in existing endpoints.
-- **Idempotent Operations**: Ensured that actions like adding a system message are idempotent to prevent duplicates on retries.
-- **Frontend State Management**: Use of , , and  to manage component state, fetch data, and implement polling for real-time updates.
+- **Session Persistence:** Using  to store authentication tokens and user roles, and restoring the session on app launch within .
+- **UI Loading Gates:** Preventing UI flashes and premature navigation by gating rendering (, ) based on an  state.
+- **Robust Navigation Logic:** Debugging and fixing complex navigation side effects caused by  and  by using  and  to make navigation decisions more reliable.
+- **Idempotent API Operations:** Ensuring backend actions, like adding a system message on decline, do not create duplicates on retries.
+- **Keyboard-Aware UI:** Using  and  to prevent the software keyboard from obscuring text inputs in forms and modals.
+- **Consistent UI Layout:** Refactoring conditional rendering to use a single, stable layout tree (e.g., for the chat screen) to prevent UI jumps.
 
 **key DB schema**
-- **service_requests**:  (now includes 'completed_pending_review', 'completed_reviewed'), , , , , , , 
-- **provider_payouts**: , , , , 
+- **users**: (for providers)  (NEW, default: available)
+- **job_messages**: , , 
 
 **All files of reference**
-- : **New file**. The starting point for the current task.
-- : Will need to be modified to navigate to the new payout screen.
-- : Contains all the backend logic, including the new state machine and API endpoints.
-
-**Areas that need refactoring**:
-- The status label and color logic is duplicated across  and . This could be centralized into a shared utility function.
-
-**key api endpoints**
-- ****: (New) Fetches payout information for a specific job, for the provider.
-- ****: (Modified) Now correctly handles general requests and assigns the provider. Inserts a system message in chat.
-- ****: (Modified) Transitions job status to .
-- ****: (Modified) Transitions job status to .
-- ****: (New) Transitions job status to .
+- : The core of all recent backend changes. Contains the in-progress availability logic.
+- : The heart of the new persistent session logic.
+- : Contains the critical navigation logic that was fixed to prevent redirects.
+- : Customer-facing screen where the Declined banner and chat fixes were implemented.
+- : Provider-facing screen where payout navigation and modal keyboard fixes were implemented.
 
 **Critical Info for New Agent**
-- Your highest priority (P1) is to implement the dedicated **Provider Payout Status screen**. You must start by populating the newly created  file.
-- The core logic is now stable. **Do not modify the state machine, payment, OTP, or review flows.** This task is purely a UI/UX enhancement for displaying existing data.
-- The backend endpoint  is already built and working. You need to call it from your new screen.
-- Remember to implement both auto-navigation (after OTP completion) and manual navigation (from the tappable Payout section on the job detail screen).
-- The low-priority  bug still exists. Do not work on it unless specifically instructed.
+- **Testing Environment Instability:** The  (using Playwright) is highly unreliable for testing authenticated user flows. It frequently loses session state, leading to 401 errors and failed navigations. **Do not waste time debugging the testing tool.** Rely on  for backend verification and direct code inspection for frontend logic. Final UI verification may require user feedback from a real device.
+- **Backend Fixes:** Several critical but pre-existing backend bugs were fixed during this session (ObjectId serialization, auth logic on decline). Be aware that other such issues may exist.
+- **Current Task:** Your immediate priority is to complete the **Provider Availability** feature. Resume by modifying the  endpoint in , then build the frontend components.
 
 **documents created in this job**
-- 
+- None.
 
 **Last 10 User Messages and any pending HUMAN messages**
-- 10. **(IN PROGRESS)** P1 UX EXTENSION: Create a dedicated Provider Payout Status screen with auto and manual navigation.
-- 9. **(DONE)** P0 BLOCKER: Fixed the Failed to accept request bug for providers on general requests.
-- 8. **(DONE)** P1 UX IMPLEMENTATION: Added a read-only Payout status display to the Provider Job Details screen.
-- 7. **(DONE)** P0 REGRESSION: Fixed missing OTP proof cards on the Provider Job Details screen.
-- 6. **(DONE)** P0 STABILITY-FIRST FIXES: Implemented auto-refresh for customer job list and added a system message to chat when provider accepts.
-- 5. **(USER FEEDBACK)** User reported Failed to accept request error after the state machine reset, leading to the next fix.
-- 4. **(DONE)** UI GUARD FIX: Fixed an issue where Accept/Decline buttons were incorrectly visible on the provider's job detail screen for non-pending jobs.
-- 3. **(USER FEEDBACK)** User reported the UI Guard bug.
-- 2. **(DONE)** P0 STATE MACHINE RESET: Successfully implemented the new state machine (, ) and fixed all related UI/chat logic.
-- 1. **(USER REQUEST)** User provided a detailed P0 request to reset the job state machine and fix numerous regressions related to the review flow and chat.
+- 10. **(IN PROGRESS)** P0 FEATURE: Provider Availability - Implement availability toggle for providers and filter for customers.
+- 9. **(DONE)** P0 FIX: Make the Declined banner visible in the customer's Details tab.
+- 8. **(DONE)** P0 FIX: Add an unread indicator and a Declined banner for declined requests.
+- 7. **(DONE)** P0 PROOF: Provide DB, API, and frontend proof that the decline system message works.
+- 6. **(DONE)** P0 FIX: Ensure system messages (like on decline) are returned by the API and rendered in the frontend chat.
+- 5. **(DONE)** P0 FEATURE: Add a system message for the customer when a provider declines a request.
+- 4. **(DONE)** P0 FIX: Remove the Welcome/Login screen flash on app launch for authenticated users.
+- 3. **(DONE)** P0 FEATURE: Implement persistent login so users don't have to log in on every app launch.
+- 2. **(DONE)** P0 REGRESSION: Fix the critical bug where tapping the Profile tab redirected to the Home screen.
+- 1. **(DONE)** P0 FIX: Prevent the app from navigating to Home after a customer updates their profile photo.
 
 **Project Health Check:**
-- **Broken**: The bottom tab bar styling is incorrect (has curved edges).
-- **Mocked**: The payment flow still uses  as a placeholder for a real payment gateway integration.
+- **Broken**:
+  - The bottom tab bar styling has incorrect curved edges (low-priority visual bug).
+- **Mocked**:
+  - The payment flow still uses  for a mock payment gateway.
+- **At Risk**:
+  - Frontend UI testing is severely hampered by the unreliability of the  for authenticated sessions. This slows down verification.
 
 **3rd Party Integrations**
 - No new integrations were added. The project uses 
@@ -222,15 +219,15 @@ Key features and fixes implemented include:
     upload:ios [path]                 Superseded by eas submit in eas-cli
     client:ios [path]                 Superseded by Expo Dev Clients
 
-[21:35:11]   Run a command with --help for more info 💡
-[21:35:11]     $ expo start --help
-[21:35:11] libraries,  components, and  for the backend.
+[21:15:22]   Run a command with --help for more info 💡
+[21:15:22]     $ expo start --help
+[21:15:22] libraries,  components, and  for the backend.
 
 **Testing status**
-  - Testing agent used after significant changes: NO (Agent used  for API-level E2E tests and  for frontend UI verification).
+  - Testing agent used after significant changes: NO. Agent used  with  for extensive backend API testing and  for frontend UI verification, though the latter was unreliable.
   - Troubleshoot agent used after agent stuck in loop: NO
-  - Test files created: Numerous temporary bash scripts (e.g., ) were created and used for backend testing but not persisted.
-  - Known regressions: Several major regressions were introduced and subsequently fixed during this session (missing OTP cards, broken accept flow).
+  - Test files created: Numerous temporary bash scripts were used for  tests but not persisted.
+  - Known regressions: A major navigation regression (Profile tab redirect) was introduced and fixed during this session.
 
 **Credentials to test flow:**
 | Role | Email | Password |
@@ -239,6 +236,6 @@ Key features and fixes implemented include:
 | Provider |  |  |
 
 **What agent forgot to execute**
-- The agent has consistently de-prioritized the user's request to fix the curved edges on the bottom tab bar, as it has been superseded by higher-priority P0 tasks.
+- The agent has consistently de-prioritized the user's request to fix the curved edges on the bottom tab bar in favor of higher-priority P0 tasks. This was an appropriate decision given the priorities.
 
 </analysis>
