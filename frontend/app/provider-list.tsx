@@ -754,6 +754,62 @@ const styles = StyleSheet.create({
     color: '#2E7D32',
     fontWeight: '500',
   },
+  // Away badge (gray/orange)
+  awayBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  awayDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#9E9E9E',
+  },
+  awayBadgeText: {
+    fontSize: 12,
+    color: '#757575',
+    fontWeight: '500',
+  },
+  // Away helper text
+  awayHelperContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginBottom: 8,
+    gap: 8,
+  },
+  awayHelperText: {
+    fontSize: 13,
+    color: '#757575',
+    flex: 1,
+    lineHeight: 18,
+  },
+  // Disabled styles for away providers
+  providerCardDisabled: {
+    opacity: 0.7,
+    borderColor: '#E0E0E0',
+    backgroundColor: '#FAFAFA',
+  },
+  disabledContent: {
+    opacity: 0.8,
+  },
+  textDisabled: {
+    color: '#9E9E9E',
+  },
+  avatarImageDisabled: {
+    opacity: 0.6,
+  },
+  badgeDisabled: {
+    backgroundColor: '#F5F5F5',
+  },
   acceptingBadge: {
     flexDirection: 'row',
     alignItems: 'center',
