@@ -3661,7 +3661,8 @@ async def decline_request(request_id: str, current_user: User = Depends(get_curr
             "deliveredAt": datetime.utcnow(),
             "readAt": datetime.utcnow(),
         }
-        await db.job_messages.insert_one(decline_message)
+        result = await db.job_messages.insert_one(decline_message)
+        logger.info(f"[Decline Debug] Inserted system message for requestId={request_id}, messageId={result.inserted_id}")
     
     # Ensure new fields have defaults
     updated_request["jobCode"] = updated_request.get("jobCode")
