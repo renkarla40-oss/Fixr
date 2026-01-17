@@ -62,8 +62,8 @@ interface Message {
   _id: string;
   senderId: string;
   senderName: string;
-  senderRole: 'customer' | 'provider';
-  type?: 'text' | 'image' | 'quote' | 'payment';
+  senderRole: 'customer' | 'provider' | 'system';
+  type?: 'text' | 'image' | 'quote' | 'payment' | 'system';
   text?: string;
   imageUrl?: string;
   quoteId?: string;
