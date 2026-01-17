@@ -367,16 +367,11 @@ export default function ProviderListScreen() {
                     </View>
                   )}
                   
-                  {/* Availability status badge - Phase 3A */}
-                  {provider.isAcceptingJobs !== false ? (
-                    <View style={styles.acceptingBadge}>
-                      <View style={styles.acceptingDot} />
-                      <Text style={styles.acceptingBadgeText}>Accepting jobs</Text>
-                    </View>
-                  ) : (
-                    <View style={styles.unavailableBadge}>
-                      <View style={styles.unavailableDot} />
-                      <Text style={styles.unavailableBadgeText}>Unavailable</Text>
+                  {/* Availability status badge - Phase 3A - Show "Available now" for available providers */}
+                  {(provider.availabilityStatus === 'available' || provider.isAcceptingJobs !== false) && (
+                    <View style={styles.availableNowBadge}>
+                      <View style={styles.availableNowDot} />
+                      <Text style={styles.availableNowBadgeText}>Available now</Text>
                     </View>
                   )}
                   
