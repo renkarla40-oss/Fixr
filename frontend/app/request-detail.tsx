@@ -1704,6 +1704,37 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 16,
   },
+  // DECLINED BANNER - Red theme
+  declinedBanner: {
+    backgroundColor: '#FFEBEE',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#FFCDD2',
+    alignItems: 'center',
+  },
+  declinedBannerIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#FFCDD2',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  declinedBannerTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#D32F2F',
+    marginBottom: 8,
+  },
+  declinedBannerText: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
   // WAITING FOR QUOTE CARD - Orange theme
   waitingForQuoteCard: {
     backgroundColor: '#FFF8E1',
