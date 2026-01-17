@@ -1227,6 +1227,11 @@ export default function RequestDetailScreen() {
                     const isImage = (msg.type === 'image' || msg.imageUrl) && msg.imageUrl;
                     const imageUri = isImage ? `${BACKEND_URL}${msg.imageUrl}` : '';
                     
+                    // DEBUG: Log when rendering system message
+                    if (isSystem) {
+                      console.log(`[Render] system message ${msg._id}: ${msg.text?.substring(0, 50)}...`);
+                    }
+                    
                     // Render system messages with special centered styling
                     if (isSystem) {
                       return (
