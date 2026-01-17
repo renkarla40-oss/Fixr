@@ -3666,7 +3666,7 @@ async def decline_request(request_id: str, current_user: User = Depends(get_curr
             "text": decline_message_text,
             "createdAt": datetime.utcnow(),
             "deliveredAt": datetime.utcnow(),
-            "readAt": datetime.utcnow(),
+            "readAt": None,  # Leave unread so customer sees red dot indicator
         }
         result = await db.job_messages.insert_one(decline_message)
         logger.info(f"[Decline Debug] Inserted system message for requestId={request_id}, messageId={result.inserted_id}")
