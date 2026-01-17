@@ -248,8 +248,7 @@ class ProviderSetup(BaseModel):
 
 # Provider Availability Update Model (Phase 3A)
 class ProviderAvailabilityUpdate(BaseModel):
-    isAcceptingJobs: bool
-    availabilityNote: Optional[str] = None  # max 60 chars
+    availabilityStatus: str  # "available" | "away"
 
 # Provider Photo Upload Model (Phase 4)
 class PhotoUploadRequest(BaseModel):
