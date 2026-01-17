@@ -70,10 +70,46 @@ export default function ProviderMyJobsScreen() {
   const [availabilityStatus, setAvailabilityStatus] = useState<'available' | 'away'>('available');
   const [isTogglingAvailability, setIsTogglingAvailability] = useState(false);
 
+  // Fetch provider profile to get current availability status
+  const fetchProviderProfile = async () => {
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/providers/me/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const status = response.data.availabilityStatus || 'available';
+      setAvailabilityStatus(status);
+    } catch {
+      // Silent fail - default to available
+    }
+  };
+
+  // Toggle availability status
+  const toggleAvailability = async (newValue: boolean) => {
+    const newStatus = newValue ? 'available' : 'away';
+    setIsTogglingAvailability(true);
+    
+    try {
+      await axios.patch(
+        `${BACKEND_URL}/api/providers/me/availability`,
+        { availabilityStatus: newStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setAvailabilityStatus(newStatus);
+    } catch {
+      // Revert on error - do nothing, keep current state
+      if (__DEV__) {
+        console.warn('Failed to update availability');
+      }
+    } finally {
+      setIsTogglingAvailability(false);
+    }
+  };
+
   // Refetch on screen focus to get latest status
   useFocusEffect(
     useCallback(() => {
       fetchJobs();
+      fetchProviderProfile();
       
       // Poll for updates every 3 seconds
       pollingRef.current = setInterval(() => {
