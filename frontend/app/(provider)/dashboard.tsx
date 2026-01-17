@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  Switch,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -64,6 +65,10 @@ export default function ProviderMyJobsScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Availability status state (Phase 3A)
+  const [availabilityStatus, setAvailabilityStatus] = useState<'available' | 'away'>('available');
+  const [isTogglingAvailability, setIsTogglingAvailability] = useState(false);
 
   // Refetch on screen focus to get latest status
   useFocusEffect(
