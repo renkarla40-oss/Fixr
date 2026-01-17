@@ -314,6 +314,10 @@ export default function RequestDetailScreen() {
       });
       const newMessages: Message[] = response.data.messages || [];
       
+      // DEBUG LOG: Count total and system messages
+      const systemMessages = newMessages.filter(m => m.type === 'system' || m.senderRole === 'system');
+      console.log(`[Messages Debug] Total: ${newMessages.length}, System: ${systemMessages.length}`);
+      
       // Update messages state
       setMessages(newMessages);
       
