@@ -334,7 +334,8 @@ class Provider(BaseModel):
     travelDistanceKm: int = 16  # Stored in km (default ~10 mi)
     travelAnywhere: bool = False
     # Availability fields (Phase 3A)
-    isAcceptingJobs: bool = True
+    availabilityStatus: str = "available"  # "available" | "away"
+    isAcceptingJobs: bool = True  # Legacy - kept for compatibility
     availabilityNote: Optional[str] = None  # e.g., "Weekends only", "After 5pm"
     # Trust/Verification fields (Phase 4)
     profilePhotoUrl: Optional[str] = None  # Public - shown on provider cards
