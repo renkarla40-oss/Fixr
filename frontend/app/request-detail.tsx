@@ -966,6 +966,19 @@ export default function RequestDetailScreen() {
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         >
+          {/* DECLINED STATUS BANNER - Show when provider has declined */}
+          {request.status === 'declined' && (
+            <View style={styles.declinedBanner}>
+              <View style={styles.declinedBannerIcon}>
+                <Ionicons name="close-circle" size={28} color="#D32F2F" />
+              </View>
+              <Text style={styles.declinedBannerTitle}>Request Declined</Text>
+              <Text style={styles.declinedBannerText}>
+                This request was declined by the provider. You can submit the request again to reach other available providers.
+              </Text>
+            </View>
+          )}
+
           {/* WAITING FOR QUOTE - Show when accepted but no quote sent yet */}
           {request.status === 'accepted' && (!currentQuote || !['SENT', 'ACCEPTED'].includes(currentQuote.status)) && (
             <View style={styles.waitingForQuoteCard}>
