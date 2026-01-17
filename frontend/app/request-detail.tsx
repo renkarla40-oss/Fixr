@@ -285,6 +285,7 @@ export default function RequestDetailScreen() {
       const response = await axios.get(`${BACKEND_URL}/api/service-requests/${requestId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      console.log(`[Fetch Debug] requestId=${requestId} status='${response.data.status}'`);
       setRequest(response.data);
     } catch (err: any) {
       console.log('Request detail fetch error:', err.response?.status);
