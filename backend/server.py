@@ -3640,6 +3640,29 @@ async def decline_request(request_id: str, current_user: User = Depends(get_curr
     
     updated_request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
     updated_request["_id"] = str(updated_request["_id"])
+    
+    # Add system message for customer when provider declines (idempotent)
+    decline_message_text = "This request was declined by the provider. You can submit the request again to reach other available providers."
+    existing_decline_msg = await db.job_messages.find_one({
+        "requestId": request_id,
+        "type": "system",
+        "text": decline_message_text
+    })
+    
+    if not existing_decline_msg:
+        decline_message = {
+            "requestId": request_id,
+            "senderId": "system",
+            "senderName": "Fixr",
+            "senderRole": "system",
+            "type": "system",
+            "text": decline_message_text,
+            "createdAt": datetime.utcnow(),
+            "deliveredAt": datetime.utcnow(),
+            "readAt": datetime.utcnow(),
+        }
+        await db.job_messages.insert_one(decline_message)
+    
     # Ensure new fields have defaults
     updated_request["jobCode"] = updated_request.get("jobCode")
     updated_request["startedAt"] = updated_request.get("startedAt")
