@@ -286,6 +286,31 @@ export default function ProviderMyJobsScreen() {
           <Text style={styles.title}>My Jobs</Text>
           <NotificationBell color="#1A1A1A" size={24} />
         </View>
+        {/* Availability Toggle - Phase 3A */}
+        <View style={styles.availabilityContainer}>
+          <View style={styles.availabilityLeft}>
+            <View style={[
+              styles.availabilityDot,
+              { backgroundColor: availabilityStatus === 'available' ? '#4CAF50' : '#9E9E9E' }
+            ]} />
+            <View>
+              <Text style={styles.availabilityLabel}>Availability</Text>
+              <Text style={[
+                styles.availabilityStatus,
+                { color: availabilityStatus === 'available' ? '#2E7D32' : '#757575' }
+              ]}>
+                {availabilityStatus === 'available' ? 'Available' : 'Away'}
+              </Text>
+            </View>
+          </View>
+          <Switch
+            value={availabilityStatus === 'available'}
+            onValueChange={toggleAvailability}
+            trackColor={{ false: '#E0E0E0', true: '#A5D6A7' }}
+            thumbColor={availabilityStatus === 'available' ? '#4CAF50' : '#9E9E9E'}
+            disabled={isTogglingAvailability}
+          />
+        </View>
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color="#E53935" />
         </View>
