@@ -600,6 +600,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  // Error toast styles for availability toggle
+  availabilityErrorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFEBEE',
+    marginHorizontal: 16,
+    marginBottom: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    gap: 8,
+  },
+  availabilityErrorText: {
+    fontSize: 13,
+    color: '#C62828',
+    flex: 1,
+  },
   centerContent: {
     flex: 1,
     justifyContent: 'center',
