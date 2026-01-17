@@ -3624,9 +3624,16 @@ async def decline_request(request_id: str, current_user: User = Depends(get_curr
     if not request:
         raise HTTPException(status_code=404, detail="Request not found")
     
-    # Verify the current user is the provider
+    # Verify the current user is a valid provider
     provider = await db.providers.find_one({"userId": current_user.id})
-    if not provider or str(provider["_id"]) != request.get("providerId"):
+    if not provider:
+        raise HTTPException(status_code=403, detail="Not authorized - provider profile not found")
+    
+    # Authorization check:
+    # - If request has a specific providerId, only that provider can decline
+    # - If providerId is None (general request), any provider can decline
+    request_provider_id = request.get("providerId")
+    if request_provider_id is not None and str(provider["_id"]) != request_provider_id:
         raise HTTPException(status_code=403, detail="Not authorized to decline this request")
     
     # Enforce valid status transition: can only decline pending requests
