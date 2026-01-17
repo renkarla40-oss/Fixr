@@ -377,6 +377,13 @@ export default function ProviderMyJobsScreen() {
             disabled={isTogglingAvailability}
           />
         </View>
+        {/* Error toast for availability toggle */}
+        {availabilityError && (
+          <View style={styles.availabilityErrorContainer}>
+            <Ionicons name="warning-outline" size={14} color="#C62828" />
+            <Text style={styles.availabilityErrorText}>{availabilityError}</Text>
+          </View>
+        )}
         <ScrollView
           contentContainerStyle={styles.emptyContainer}
           refreshControl={
