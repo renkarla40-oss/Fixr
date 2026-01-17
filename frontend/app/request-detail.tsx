@@ -966,8 +966,7 @@ export default function RequestDetailScreen() {
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         >
-          {/* DEBUG: Log status value */}
-          {console.log(`[Details Debug] requestId=${request._id} status='${request.status}'`)}
+          {(() => { console.log(`[Details Debug] requestId=${request._id} status='${request.status}'`); return null; })()}
           
           {/* DECLINED STATUS BANNER - Show when provider has declined */}
           {request.status === 'declined' && (
