@@ -1236,6 +1236,8 @@ async def get_providers(
             provider["travelAnywhere"] = False
         if "isAcceptingJobs" not in provider:
             provider["isAcceptingJobs"] = True
+        if "availabilityStatus" not in provider:
+            provider["availabilityStatus"] = "available"
         if "availabilityNote" not in provider:
             provider["availabilityNote"] = None
         if "profilePhotoUrl" not in provider:
