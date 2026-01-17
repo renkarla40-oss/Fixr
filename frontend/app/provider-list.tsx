@@ -33,6 +33,7 @@ interface Provider {
   distanceFromJob?: number;
   isOutsideSelectedArea?: boolean;
   isAcceptingJobs?: boolean;
+  availabilityStatus?: string;  // "available" | "away"
   availabilityNote?: string;
   profilePhotoUrl?: string;
   // Trust badges (Phase 4)
