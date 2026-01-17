@@ -1378,22 +1378,22 @@ async def update_provider_availability(
     availability_data: ProviderAvailabilityUpdate,
     current_user: User = Depends(get_current_user)
 ):
-    """Update provider's availability settings"""
+    """Update provider's availability status (available/away)"""
     # Find provider profile
     provider = await db.providers.find_one({"userId": current_user.id})
     if not provider:
         raise HTTPException(status_code=404, detail="Provider profile not found")
     
-    # Validate availability note length
-    if availability_data.availabilityNote and len(availability_data.availabilityNote) > 60:
-        raise HTTPException(status_code=400, detail="Availability note must be 60 characters or less")
+    # Validate status value
+    if availability_data.availabilityStatus not in ["available", "away"]:
+        raise HTTPException(status_code=400, detail="Invalid availability status. Use 'available' or 'away'")
     
-    # Update availability settings
+    # Update availability status
     await db.providers.update_one(
         {"userId": current_user.id},
         {"$set": {
-            "isAcceptingJobs": availability_data.isAcceptingJobs,
-            "availabilityNote": availability_data.availabilityNote,
+            "availabilityStatus": availability_data.availabilityStatus,
+            "isAcceptingJobs": availability_data.availabilityStatus == "available",
             "updatedAt": datetime.utcnow()
         }}
     )
@@ -1401,6 +1401,9 @@ async def update_provider_availability(
     # Return updated provider
     updated_provider = await db.providers.find_one({"userId": current_user.id})
     updated_provider["_id"] = str(updated_provider["_id"])
+    # Ensure defaults for optional fields
+    updated_provider.setdefault("availabilityStatus", "available")
+    updated_provider.setdefault("availabilityNote", None)
     return Provider(**updated_provider)
 
 # Phase 4: Provider Photo Upload Endpoint
