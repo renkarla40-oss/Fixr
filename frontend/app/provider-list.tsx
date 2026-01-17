@@ -708,7 +708,27 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 12,
   },
-  // Availability badges - Phase 3A
+  // Availability badges - Phase 3A - "Available now" badge (green)
+  availableNowBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F5E9',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  availableNowDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#4CAF50',
+  },
+  availableNowBadgeText: {
+    fontSize: 12,
+    color: '#2E7D32',
+    fontWeight: '500',
+  },
   acceptingBadge: {
     flexDirection: 'row',
     alignItems: 'center',
