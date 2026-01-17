@@ -69,24 +69,39 @@ export default function ProviderMyJobsScreen() {
   // Availability status state (Phase 3A)
   const [availabilityStatus, setAvailabilityStatus] = useState<'available' | 'away'>('available');
   const [isTogglingAvailability, setIsTogglingAvailability] = useState(false);
+  const [availabilityError, setAvailabilityError] = useState<string | null>(null);
 
   // Fetch provider profile to get current availability status
   const fetchProviderProfile = async () => {
+    // Don't fetch if we're in the middle of toggling (prevents bounce)
+    if (isTogglingAvailability) return;
+    
     try {
       const response = await axios.get(`${BACKEND_URL}/api/providers/me/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const status = response.data.availabilityStatus || 'available';
-      setAvailabilityStatus(status);
+      // Only update if not currently toggling
+      if (!isTogglingAvailability) {
+        setAvailabilityStatus(status);
+      }
     } catch {
-      // Silent fail - default to available
+      // Silent fail - keep current state
     }
   };
 
-  // Toggle availability status
+  // Toggle availability status with optimistic UI + in-flight lock
   const toggleAvailability = async (newValue: boolean) => {
+    // Prevent double-taps while request is in flight
+    if (isTogglingAvailability) return;
+    
     const newStatus = newValue ? 'available' : 'away';
+    const previousStatus = availabilityStatus;
+    
+    // OPTIMISTIC UI: Update immediately
+    setAvailabilityStatus(newStatus);
     setIsTogglingAvailability(true);
+    setAvailabilityError(null);
     
     try {
       await axios.patch(
@@ -94,12 +109,13 @@ export default function ProviderMyJobsScreen() {
         { availabilityStatus: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setAvailabilityStatus(newStatus);
+      // Success - state already updated optimistically
     } catch {
-      // Revert on error - do nothing, keep current state
-      if (__DEV__) {
-        console.warn('Failed to update availability');
-      }
+      // REVERT on error
+      setAvailabilityStatus(previousStatus);
+      setAvailabilityError('Failed to update. Try again.');
+      // Clear error after 3 seconds
+      setTimeout(() => setAvailabilityError(null), 3000);
     } finally {
       setIsTogglingAvailability(false);
     }
