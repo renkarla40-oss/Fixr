@@ -228,14 +228,12 @@ export default function ProviderListScreen() {
               <Ionicons name="people-outline" size={48} color="#E53935" />
             </View>
             <Text style={styles.emptyTitle}>
-              No {displayName} Providers Yet
+              No Providers Available
             </Text>
             <Text style={styles.emptySubtitle}>
               {isOtherCategory 
                 ? "This is a beta category. You can still submit a request and we'll try to match you with an available provider."
-                : location 
-                  ? `We couldn't find any providers within ${searchDistanceKm} km of ${location}.`
-                  : `We're actively onboarding verified ${(categoryName || 'service').toLowerCase()} professionals in your area.`}
+                : "No providers are available right now. Please try again later."}
             </Text>
             {isOtherCategory ? (
               <TouchableOpacity
