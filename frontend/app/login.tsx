@@ -77,11 +77,23 @@ export default function LoginScreen() {
     
     console.log('Navigating user:', userData.email, 'role:', userData.currentRole, 'isBetaUser:', userData.isBetaUser);
     
-    // Check if user has beta access
-    if (!userData.isBetaUser) {
+    // DEV/TEST ONLY: Allow TEST users to bypass beta gate
+    // TEST users are identified by email starting with "test.provider." or isTest flag
+    const isTestUser = __DEV__ && (
+      userData.email?.startsWith('test.provider.') ||
+      userData.email?.includes('@example.com') ||
+      (userData as any).isTest === true
+    );
+    
+    // Check if user has beta access (or is a TEST user in DEV mode)
+    if (!userData.isBetaUser && !isTestUser) {
       console.log('Redirecting to beta-gate');
       router.replace('/beta-gate');
       return;
+    }
+    
+    if (isTestUser) {
+      console.log('DEV/TEST: Bypassing beta gate for TEST user');
     }
     
     // Navigate based on role
