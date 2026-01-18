@@ -1830,6 +1830,81 @@ async def accept_service_request(
     
     return {"success": True, "message": "Job accepted", "jobCode": job_code}
 
+# Phase 1B: Assign provider to existing request (customer selecting from provider list)
+class AssignProviderRequest(BaseModel):
+    providerId: str
+
+@api_router.patch("/service-requests/{request_id}/assign-provider")
+async def assign_provider_to_request(
+    request_id: str,
+    assign_data: AssignProviderRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Phase 1B: Customer selects a provider from the list, assigning them to an existing request.
+    This does NOT create a new request - it attaches a provider to an existing pending request.
+    The provider will then see this request in their job list.
+    """
+    # Verify the request exists
+    request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    # Verify the current user is the customer who created this request
+    if request.get("customerId") != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to modify this request")
+    
+    # Can only assign provider to pending requests
+    current_status = request.get("status", "pending")
+    if current_status != "pending":
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Provider can only be assigned to pending requests. Current status: {current_status}"
+        )
+    
+    # Verify the provider exists
+    provider = await db.providers.find_one({"_id": ObjectId(assign_data.providerId)})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Provider not found")
+    
+    # Check if provider is available (not Away)
+    if provider.get("availabilityStatus") == "away":
+        raise HTTPException(status_code=400, detail="This provider is currently away and not accepting jobs.")
+    
+    # Get provider's name from their user record
+    provider_user = await db.users.find_one({"_id": ObjectId(provider["userId"])})
+    provider_name = provider_user["name"] if provider_user else provider.get("name", "Provider")
+    
+    # Assign the provider to this request
+    await db.service_requests.update_one(
+        {"_id": ObjectId(request_id)},
+        {
+            "$set": {
+                "providerId": assign_data.providerId,
+                "providerName": provider_name,
+                "isGeneralRequest": False,  # No longer a general request
+                "providerAssignedAt": datetime.utcnow(),
+            }
+        }
+    )
+    
+    # Send notification to provider about the new job
+    await send_push_notification(
+        user_id=provider["userId"],
+        title="New Job Request",
+        body=f"{current_user.name} has selected you for a {request.get('service', 'service')} job",
+        data={
+            "type": NotificationType.REQUEST_RECEIVED,
+            "requestId": request_id,
+            "customerId": current_user.id,
+            "providerId": assign_data.providerId,
+        }
+    )
+    
+    logger.info(f"Provider {assign_data.providerId} assigned to request {request_id}")
+    
+    return {"success": True, "message": "Provider assigned successfully", "requestId": request_id}
+
 @api_router.post("/service-requests/{request_id}/confirm-arrival")
 async def confirm_job_arrival(
     request_id: str,
