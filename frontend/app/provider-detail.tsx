@@ -687,4 +687,28 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     lineHeight: 20,
   },
+  // Away notice in footer
+  awayNotice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginBottom: 12,
+    gap: 10,
+  },
+  awayNoticeText: {
+    fontSize: 14,
+    color: '#757575',
+    flex: 1,
+    lineHeight: 20,
+  },
+  // Disabled button styles
+  requestButtonDisabled: {
+    backgroundColor: '#E0E0E0',
+  },
+  requestButtonTextDisabled: {
+    color: '#9E9E9E',
+  },
 });
