@@ -28,6 +28,7 @@ interface Provider {
   profilePhotoUrl?: string | null;
   averageRating?: number;
   totalReviews?: number;
+  availabilityStatus?: string;  // "available" | "away"
 }
 
 interface PublicReview {
