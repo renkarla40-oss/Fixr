@@ -121,7 +121,7 @@ export default function RequestServiceScreen() {
         ? `${BACKEND_URL}/api/service-requests?provider_id=general`
         : `${BACKEND_URL}/api/service-requests?provider_id=${providerId}`;
 
-      await axios.post(
+      const response = await axios.post(
         apiUrl,
         {
           service: category,
@@ -135,10 +135,31 @@ export default function RequestServiceScreen() {
         }
       );
 
-      // Navigate to confirmation
+      // Phase 1 Enforcement: Get requestId from response and navigate to provider list
+      const requestId = response.data._id || response.data.id;
+      
+      if (!requestId) {
+        // Fallback to confirmation if requestId not returned (safety)
+        router.replace({
+          pathname: '/request-confirmation',
+          params: { category: categoryLabel },
+        });
+        return;
+      }
+
+      // Navigate to Provider Results List with valid requestId
       router.replace({
-        pathname: '/request-confirmation',
-        params: { category: categoryLabel },
+        pathname: '/provider-list',
+        params: {
+          requestId,
+          category,
+          categoryName: categoryName || categoryLabel,
+          subCategory: subCategory || '',
+          subcategoryKey: subcategoryKey || '',
+          location: location || '',
+          searchDistanceKm: searchDistanceKm || '16',
+          jobDuration: jobDuration || '',
+        },
       });
     } catch (error: any) {
       if (__DEV__) {
