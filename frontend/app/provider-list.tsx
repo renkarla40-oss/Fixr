@@ -50,6 +50,9 @@ export default function ProviderListScreen() {
   const { token } = useAuth();
   const insets = useSafeAreaInsets();
   
+  // Phase 1 Enforcement: requestId is REQUIRED
+  const requestId = params.requestId as string | undefined;
+  
   // Extract params with clear variable names
   const categoryId = params.category as string;
   const categoryName = params.categoryName as string;
@@ -72,9 +75,23 @@ export default function ProviderListScreen() {
   const [initialSearchComplete, setInitialSearchComplete] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
+  // Phase 1 Enforcement: Guard - redirect if requestId is missing
   useEffect(() => {
-    fetchProviders(false); // Initial fetch with travel-anywhere OFF
-  }, [categoryId, location, searchDistanceKm]);
+    if (!requestId || requestId === '' || requestId === 'undefined' || requestId === 'null') {
+      // Redirect back to home after a brief delay
+      const timer = setTimeout(() => {
+        router.replace('/(customer)');
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [requestId]);
+
+  useEffect(() => {
+    // Only fetch if we have a valid requestId
+    if (requestId && requestId !== '' && requestId !== 'undefined' && requestId !== 'null') {
+      fetchProviders(false); // Initial fetch with travel-anywhere OFF
+    }
+  }, [categoryId, location, searchDistanceKm, requestId]);
 
   useEffect(() => {
     if (initialSearchComplete) {
