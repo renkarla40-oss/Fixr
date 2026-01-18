@@ -111,16 +111,46 @@ export default function ProviderDetailScreen() {
     }
   };
 
-  const handleRequestService = () => {
-    router.push({
-      pathname: '/request-service',
-      params: { 
-        providerId, 
-        category,
-        subCategory: subCategory || '',
-        location: location || '',
-      },
-    });
+  const handleRequestService = async () => {
+    // Phase 1B: If no valid requestId, show error (shouldn't happen in normal flow)
+    if (!hasValidRequestId) {
+      Alert.alert(
+        'Request Required',
+        'Please submit your request first before selecting a provider.',
+        [{ text: 'OK', onPress: () => router.back() }]
+      );
+      return;
+    }
+
+    // Phase 1B: Check provider availability before assigning
+    if (provider?.availabilityStatus === 'away') {
+      return; // Button should be disabled, but double-check
+    }
+
+    setAssigning(true);
+    try {
+      // Phase 1B: Assign provider to existing request (NOT create new)
+      const response = await axios.patch(
+        `${BACKEND_URL}/api/service-requests/${requestId}/assign-provider`,
+        { providerId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Navigate to request detail/job state (not request form!)
+      router.replace({
+        pathname: '/request-detail',
+        params: { requestId },
+      });
+    } catch (error: any) {
+      if (__DEV__) {
+        console.warn('Error assigning provider:', error);
+      }
+      
+      const errorMessage = error.response?.data?.detail || 'Unable to select this provider. Please try again.';
+      Alert.alert('Selection Failed', errorMessage);
+    } finally {
+      setAssigning(false);
+    }
   };
 
   const handleReportProvider = () => {
