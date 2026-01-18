@@ -41,7 +41,13 @@ export default function ProfileScreen() {
         style: 'destructive',
         onPress: async () => {
           await logout();
-          router.replace('/welcome');
+          // In DEV mode, go directly to login to allow switching accounts
+          // In production, go to welcome
+          if (__DEV__) {
+            router.replace('/login');
+          } else {
+            router.replace('/welcome');
+          }
         },
       },
     ]);
