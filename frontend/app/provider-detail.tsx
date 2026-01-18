@@ -246,39 +246,53 @@ export default function ProviderDetailScreen() {
             </View>
             <View style={styles.nameContainer}>
               <Text style={styles.providerName}>{provider.name}</Text>
-              <View
-                style={[
-                  styles.verificationBadge,
-                  provider.verificationStatus === 'verified'
-                    ? styles.verifiedBadge
-                    : styles.pendingBadge,
-                ]}
-              >
-                <Ionicons
-                  name={
-                    provider.verificationStatus === 'verified'
-                      ? 'checkmark-circle'
-                      : 'time'
-                  }
-                  size={16}
-                  color={
-                    provider.verificationStatus === 'verified'
-                      ? '#2E7D32'
-                      : '#4A7DC4'
-                  }
-                />
-                <Text
+              <View style={styles.badgeRow}>
+                <View
                   style={[
-                    styles.verificationText,
+                    styles.verificationBadge,
                     provider.verificationStatus === 'verified'
-                      ? styles.verifiedText
-                      : styles.pendingText,
+                      ? styles.verifiedBadge
+                      : styles.pendingBadge,
                   ]}
                 >
-                  {provider.verificationStatus === 'verified'
-                    ? 'Verified'
-                    : 'Pending Verification'}
-                </Text>
+                  <Ionicons
+                    name={
+                      provider.verificationStatus === 'verified'
+                        ? 'checkmark-circle'
+                        : 'time'
+                    }
+                    size={16}
+                    color={
+                      provider.verificationStatus === 'verified'
+                        ? '#2E7D32'
+                        : '#4A7DC4'
+                    }
+                  />
+                  <Text
+                    style={[
+                      styles.verificationText,
+                      provider.verificationStatus === 'verified'
+                        ? styles.verifiedText
+                        : styles.pendingText,
+                    ]}
+                  >
+                    {provider.verificationStatus === 'verified'
+                      ? 'Verified'
+                      : 'Pending Verification'}
+                  </Text>
+                </View>
+                {/* Away badge - shown when provider is away */}
+                {provider.availabilityStatus === 'away' ? (
+                  <View style={styles.awayBadge}>
+                    <View style={styles.awayDot} />
+                    <Text style={styles.awayBadgeText}>Away</Text>
+                  </View>
+                ) : (
+                  <View style={styles.availableNowBadge}>
+                    <View style={styles.availableNowDot} />
+                    <Text style={styles.availableNowBadgeText}>Available now</Text>
+                  </View>
+                )}
               </View>
             </View>
           </View>
