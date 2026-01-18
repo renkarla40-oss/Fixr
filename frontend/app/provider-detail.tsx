@@ -396,12 +396,30 @@ export default function ProviderDetailScreen() {
         </ScrollView>
 
         <View style={[styles.footer, { paddingBottom: Math.max(24, insets.bottom + 16) }]}>
+          {/* Away notice - shown when provider is away */}
+          {provider.availabilityStatus === 'away' && (
+            <View style={styles.awayNotice}>
+              <Ionicons name="time-outline" size={18} color="#757575" />
+              <Text style={styles.awayNoticeText}>
+                This provider is away and not accepting new jobs right now.
+              </Text>
+            </View>
+          )}
           <TouchableOpacity
-            style={styles.requestButton}
+            style={[
+              styles.requestButton,
+              provider.availabilityStatus === 'away' && styles.requestButtonDisabled
+            ]}
             onPress={handleRequestService}
             activeOpacity={0.8}
+            disabled={provider.availabilityStatus === 'away'}
           >
-            <Text style={styles.requestButtonText}>Request Service</Text>
+            <Text style={[
+              styles.requestButtonText,
+              provider.availabilityStatus === 'away' && styles.requestButtonTextDisabled
+            ]}>
+              {provider.availabilityStatus === 'away' ? 'Provider Away' : 'Request Service'}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
