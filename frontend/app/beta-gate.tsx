@@ -161,6 +161,25 @@ export default function BetaGateScreen() {
           >
             <Text style={styles.logoutText}>Sign out</Text>
           </TouchableOpacity>
+
+          {/* DEV/TEST ONLY: Sign In button for QA testing */}
+          {__DEV__ && (
+            <View style={styles.devSection}>
+              <View style={styles.devDivider}>
+                <View style={styles.devDividerLine} />
+                <Text style={styles.devDividerText}>DEV/TEST</Text>
+                <View style={styles.devDividerLine} />
+              </View>
+              <TouchableOpacity
+                style={styles.devSignInButton}
+                onPress={() => router.push('/login')}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="log-in-outline" size={20} color="#E53935" />
+                <Text style={styles.devSignInText}>Sign In (Test Account)</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
