@@ -62,12 +62,24 @@ export default function WelcomeScreen() {
     // Only redirect if we have a valid user with a token
     // After logout, user will be null, so no redirect happens
     if (!loading && user) {
-      if (!user.isBetaUser) {
+      // DEV/TEST ONLY: Allow TEST users to bypass beta gate
+      const isTestUser = __DEV__ && (
+        user.email?.startsWith('test.provider.') ||
+        user.email?.includes('@example.com') ||
+        (user as any).isTest === true
+      );
+      
+      if (!user.isBetaUser && !isTestUser) {
         console.log('Welcome: Redirecting to beta-gate');
         hasRedirectedRef.current = true;
         router.replace('/beta-gate');
         return;
       }
+      
+      if (isTestUser) {
+        console.log('DEV/TEST: Bypassing beta gate for TEST user in welcome');
+      }
+      
       if (!shouldShowBetaNotice) {
         console.log('Welcome: User already seen beta notice, navigating to home');
         hasRedirectedRef.current = true;
