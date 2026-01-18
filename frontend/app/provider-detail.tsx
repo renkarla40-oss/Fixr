@@ -47,12 +47,19 @@ export default function ProviderDetailScreen() {
   const category = params.category as string;
   const subCategory = params.subCategory as string | undefined;
   const location = params.location as string | undefined;
+  // Phase 1B: Receive requestId from provider list
+  const requestId = params.requestId as string | undefined;
 
   const [provider, setProvider] = useState<Provider | null>(null);
   const [loading, setLoading] = useState(true);
   const [reporting, setReporting] = useState(false);
   const [reviews, setReviews] = useState<PublicReview[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(false);
+  // Phase 1B: Loading state for assigning provider
+  const [assigning, setAssigning] = useState(false);
+
+  // Phase 1B: Check if requestId is valid
+  const hasValidRequestId = requestId && requestId !== '' && requestId !== 'undefined' && requestId !== 'null';
 
   useEffect(() => {
     fetchProvider();
