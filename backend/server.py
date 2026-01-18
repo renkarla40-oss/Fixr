@@ -1360,6 +1360,7 @@ async def get_provider(provider_id: str, current_user: User = Depends(get_curren
     provider.setdefault("travelDistanceKm", 16)
     provider.setdefault("travelAnywhere", True)
     provider.setdefault("isAcceptingJobs", True)
+    provider.setdefault("availabilityStatus", "available")  # Phase 3A: availability status
     provider.setdefault("availabilityNote", None)
     provider.setdefault("profilePhotoUrl", None)
     provider.setdefault("governmentIdFrontUrl", None)
