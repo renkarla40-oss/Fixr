@@ -292,35 +292,31 @@ export default function ProviderListScreen() {
               return (
               <TouchableOpacity
                 key={provider._id}
-                style={[
-                  styles.providerCard,
-                  isAway && styles.providerCardDisabled
-                ]}
-                onPress={() => !isAway && handleProviderPress(provider._id)}
-                activeOpacity={isAway ? 1 : 0.7}
-                disabled={isAway}
+                style={styles.providerCard}
+                onPress={() => handleProviderPress(provider._id)}
+                activeOpacity={0.7}
               >
-                <View style={[styles.providerHeader, isAway && styles.disabledContent]}>
+                <View style={styles.providerHeader}>
                   <View style={styles.avatarContainer}>
                     {provider.profilePhotoUrl ? (
                       <Image
                         source={{ uri: provider.profilePhotoUrl.startsWith('/') ? `${BACKEND_URL}${provider.profilePhotoUrl}` : provider.profilePhotoUrl }}
-                        style={[styles.avatarImage, isAway && styles.avatarImageDisabled]}
+                        style={styles.avatarImage}
                         resizeMode="cover"
                       />
                     ) : (
-                      <Ionicons name="person" size={24} color={isAway ? "#AAA" : "#666"} />
+                      <Ionicons name="person" size={24} color="#666" />
                     )}
                   </View>
                   <View style={styles.providerInfo}>
                     <View style={styles.nameRow}>
-                      <Text style={[styles.providerName, isAway && styles.textDisabled]}>{provider.name}</Text>
+                      <Text style={styles.providerName}>{provider.name}</Text>
                     </View>
                     <View style={styles.statusRow}>
                       <Ionicons 
                         name={provider.verificationStatus === 'verified' ? 'checkmark-circle' : 'time-outline'} 
                         size={14} 
-                        color={isAway ? '#AAA' : (provider.verificationStatus === 'verified' ? '#2E7D32' : '#4A7DC4')} 
+                        color={provider.verificationStatus === 'verified' ? '#2E7D32' : '#4A7DC4'} 
                       />
                       <Text
                         style={[
@@ -328,7 +324,6 @@ export default function ProviderListScreen() {
                           provider.verificationStatus === 'verified'
                             ? styles.statusTextVerified
                             : styles.statusTextPending,
-                          isAway && styles.textDisabled,
                         ]}
                       >
                         {provider.verificationStatus === 'verified'
@@ -356,59 +351,59 @@ export default function ProviderListScreen() {
                   
                   {/* Trust Badges - Phase 4 (Positive framing only) */}
                   {provider.uploadsComplete && (
-                    <View style={[styles.trustBadge, isAway && styles.badgeDisabled]}>
-                      <Ionicons name="checkmark-circle" size={12} color={isAway ? "#AAA" : "#2E7D32"} />
-                      <Text style={[styles.trustBadgeText, isAway && styles.textDisabled]}>ID on file</Text>
+                    <View style={styles.trustBadge}>
+                      <Ionicons name="checkmark-circle" size={12} color="#2E7D32" />
+                      <Text style={styles.trustBadgeText}>ID on file</Text>
                     </View>
                   )}
                   
                   {provider.phoneVerified && (
-                    <View style={[styles.trustBadge, isAway && styles.badgeDisabled]}>
-                      <Ionicons name="call" size={12} color={isAway ? "#AAA" : "#2E7D32"} />
-                      <Text style={[styles.trustBadgeText, isAway && styles.textDisabled]}>Phone verified</Text>
+                    <View style={styles.trustBadge}>
+                      <Ionicons name="call" size={12} color="#2E7D32" />
+                      <Text style={styles.trustBadgeText}>Phone verified</Text>
                     </View>
                   )}
                   
                   {(provider.completedJobsCount || 0) > 0 && (
-                    <View style={[styles.jobsBadge, isAway && styles.badgeDisabled]}>
-                      <Ionicons name="briefcase-outline" size={12} color={isAway ? "#AAA" : "#1565C0"} />
-                      <Text style={[styles.jobsBadgeText, isAway && styles.textDisabled]}>
+                    <View style={styles.jobsBadge}>
+                      <Ionicons name="briefcase-outline" size={12} color="#1565C0" />
+                      <Text style={styles.jobsBadgeText}>
                         {provider.completedJobsCount} job{(provider.completedJobsCount || 0) !== 1 ? 's' : ''} completed
                       </Text>
                     </View>
                   )}
                   
                   {provider.averageRating && provider.averageRating > 0 && (
-                    <View style={[styles.ratingBadge, isAway && styles.badgeDisabled]}>
-                      <Ionicons name="star" size={12} color={isAway ? "#AAA" : "#FFB300"} />
-                      <Text style={[styles.ratingBadgeText, isAway && styles.textDisabled]}>
+                    <View style={styles.ratingBadge}>
+                      <Ionicons name="star" size={12} color="#FFB300" />
+                      <Text style={styles.ratingBadgeText}>
                         {provider.averageRating.toFixed(1)} ({provider.totalReviews || 0})
                       </Text>
                     </View>
                   )}
                   
                   {provider.baseTown && (
-                    <View style={[styles.locationBadge, isAway && styles.badgeDisabled]}>
-                      <Ionicons name="location-outline" size={12} color={isAway ? "#AAA" : "#1565C0"} />
-                      <Text style={[styles.locationBadgeText, isAway && styles.textDisabled]}>{provider.baseTown}</Text>
+                    <View style={styles.locationBadge}>
+                      <Ionicons name="location-outline" size={12} color="#1565C0" />
+                      <Text style={styles.locationBadgeText}>{provider.baseTown}</Text>
                     </View>
                   )}
                   
-                  {provider.travelAnywhere && !isAway && (
+                  {provider.travelAnywhere && (
                     <View style={styles.travelBadge}>
                       <Ionicons name="globe-outline" size={12} color="#1976D2" />
                       <Text style={styles.travelBadgeText}>Willing to travel</Text>
                     </View>
                   )}
                   
-                  {provider.isOutsideSelectedArea && !isAway && (
+                  {provider.isOutsideSelectedArea && (
                     <View style={styles.outsideAreaBadge}>
                       <Ionicons name="car-outline" size={12} color="#4A7DC4" />
                       <Text style={styles.outsideAreaBadgeText}>Outside selected area</Text>
                     </View>
                   )}
                   
-                  {provider.distanceFromJob !== undefined && provider.distanceFromJob !== null && !provider.isOutsideSelectedArea && !isAway && (
+                  {provider.distanceFromJob !== undefined && provider.distanceFromJob !== null && !provider.isOutsideSelectedArea && (
                     <View style={styles.distanceBadge}>
                       <Ionicons name="navigate-outline" size={12} color="#1565C0" />
                       <Text style={styles.distanceBadgeText}>~{provider.distanceFromJob} km away</Text>
@@ -416,11 +411,11 @@ export default function ProviderListScreen() {
                   )}
                 </View>
 
-                {/* Away helper text */}
+                {/* Away helper text - shown for away providers */}
                 {isAway && (
                   <View style={styles.awayHelperContainer}>
-                    <Ionicons name="information-circle-outline" size={16} color="#757575" />
-                    <Text style={styles.awayHelperText}>This provider is away and not accepting jobs right now.</Text>
+                    <Ionicons name="time-outline" size={16} color="#757575" />
+                    <Text style={styles.awayHelperText}>Away — not accepting new jobs right now</Text>
                   </View>
                 )}
 
@@ -433,18 +428,16 @@ export default function ProviderListScreen() {
                 )}
 
                 {provider.bio && (
-                  <Text style={[styles.providerBio, isAway && styles.textDisabled]} numberOfLines={2}>
+                  <Text style={styles.providerBio} numberOfLines={2}>
                     {provider.bio}
                   </Text>
                 )}
                 
-                {/* Footer - hide for away providers */}
-                {!isAway && (
-                  <View style={styles.cardFooter}>
-                    <Text style={styles.viewDetailsText}>View Details</Text>
-                    <Ionicons name="chevron-forward" size={20} color="#E53935" />
-                  </View>
-                )}
+                {/* View Details - always enabled */}
+                <View style={styles.cardFooter}>
+                  <Text style={styles.viewDetailsText}>View Details</Text>
+                  <Ionicons name="chevron-forward" size={20} color="#E53935" />
+                </View>
               </TouchableOpacity>
               );
             })}
