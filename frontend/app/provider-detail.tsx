@@ -597,16 +597,14 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   serviceChip: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#E53935',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
   },
   serviceChipText: {
     fontSize: 14,
-    color: '#666',
+    color: '#FFFFFF',
     fontWeight: '500',
   },
   bioText: {
