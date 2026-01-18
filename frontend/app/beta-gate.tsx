@@ -323,4 +323,40 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
   },
+  // DEV/TEST only styles
+  devSection: {
+    marginTop: 32,
+    paddingTop: 16,
+  },
+  devDivider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  devDividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#FFD54F',
+  },
+  devDividerText: {
+    paddingHorizontal: 12,
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#FFA000',
+  },
+  devSignInButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#E53935',
+    gap: 8,
+  },
+  devSignInText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#E53935',
+  },
 });
