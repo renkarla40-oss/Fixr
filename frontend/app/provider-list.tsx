@@ -183,6 +183,40 @@ export default function ProviderListScreen() {
   const localProviders = providers.filter(p => !p.isOutsideSelectedArea);
   const travelAnywhereProviders = providers.filter(p => p.isOutsideSelectedArea);
 
+  // Phase 1 Enforcement: Guard - show message if requestId is missing
+  const isRequestIdMissing = !requestId || requestId === '' || requestId === 'undefined' || requestId === 'null';
+  
+  if (isRequestIdMissing) {
+    return (
+      <View style={[styles.safeArea, { paddingTop: insets.top }]}>
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <TouchableOpacity
+              onPress={() => router.replace('/(customer)')}
+              style={styles.backButton}
+            >
+              <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+            </TouchableOpacity>
+            <Text style={styles.title}>Providers</Text>
+            <View style={styles.backButton} />
+          </View>
+          <View style={styles.centerContent}>
+            <View style={styles.emptyIconContainer}>
+              <Ionicons name="document-text-outline" size={48} color="#E53935" />
+            </View>
+            <Text style={styles.emptyTitle}>Request Required</Text>
+            <Text style={styles.emptySubtitle}>
+              Please submit your request first.
+            </Text>
+            <Text style={[styles.emptySubtitle, { marginTop: 8, color: '#999' }]}>
+              Redirecting...
+            </Text>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.safeArea, { paddingTop: insets.top }]}>
       <View style={styles.container}>
