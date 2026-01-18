@@ -31,8 +31,12 @@ export default function RequestServiceScreen() {
   const insets = useSafeAreaInsets();
   const providerId = params.providerId as string;
   const category = params.category as string;
+  const categoryName = params.categoryName as string | undefined;
   const subCategory = params.subCategory as string | undefined;
+  const subcategoryKey = params.subcategoryKey as string | undefined;
   const location = params.location as string | undefined;
+  const searchDistanceKm = params.searchDistanceKm as string | undefined;
+  const jobDuration = params.jobDuration as string | undefined;
 
   // Check if this is a general request (no specific provider)
   const isGeneralRequest = providerId === 'general' || category === 'other';
