@@ -497,10 +497,59 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
+  badgeRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 4,
+  },
   providerName: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#1A1A1A',
+  },
+  // Away badge styles
+  awayBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    gap: 6,
+  },
+  awayDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#9E9E9E',
+  },
+  awayBadgeText: {
+    fontSize: 14,
+    color: '#757575',
+    fontWeight: '500',
+  },
+  // Available now badge
+  availableNowBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F5E9',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    gap: 6,
+  },
+  availableNowDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#4CAF50',
+  },
+  availableNowBadgeText: {
+    fontSize: 14,
+    color: '#2E7D32',
+    fontWeight: '500',
   },
   verificationBadge: {
     flexDirection: 'row',
