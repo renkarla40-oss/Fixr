@@ -156,6 +156,8 @@ export default function ProviderListScreen() {
         location: location || '',
         searchDistanceKm: searchDistanceKm.toString(),
         jobDuration: jobDuration || '',
+        // Phase 1B: Pass requestId to provider detail
+        requestId: requestId || '',
       },
     });
   };
