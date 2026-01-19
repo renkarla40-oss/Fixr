@@ -12,7 +12,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 # Configuration
-BACKEND_URL = "https://cta-blocker.preview.emergentagent.com/api"
+BACKEND_URL = "https://cta-clearance.preview.emergentagent.com/api"
 
 # Test credentials
 CUSTOMER_EMAIL = "customer003@test.com"
