@@ -59,16 +59,7 @@ export default function WelcomeScreen() {
       return;
     }
     
-    // DEV/QA MODE: Do NOT auto-route to home for any user
-    // User must explicitly tap "Sign In" to login
-    // This allows QA to choose which account to use
-    if (__DEV__) {
-      console.log('DEV/QA: Auto-routing disabled. User must tap Sign In.');
-      // Don't auto-redirect - show welcome screen with Sign In option
-      return;
-    }
-    
-    // PRODUCTION: Auto-route logged-in users to their home screen
+    // Auto-route logged-in users to their home screen
     if (!loading && user) {
       if (!user.isBetaUser) {
         console.log('Welcome: Redirecting to beta-gate');
