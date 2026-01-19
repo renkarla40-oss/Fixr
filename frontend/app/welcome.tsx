@@ -59,25 +59,22 @@ export default function WelcomeScreen() {
       return;
     }
     
-    // Only redirect if we have a valid user with a token
-    // After logout, user will be null, so no redirect happens
+    // DEV/QA MODE: Do NOT auto-route to home for any user
+    // User must explicitly tap "Sign In" to login
+    // This allows QA to choose which account to use
+    if (__DEV__) {
+      console.log('DEV/QA: Auto-routing disabled. User must tap Sign In.');
+      // Don't auto-redirect - show welcome screen with Sign In option
+      return;
+    }
+    
+    // PRODUCTION: Auto-route logged-in users to their home screen
     if (!loading && user) {
-      // DEV/TEST ONLY: Allow TEST users to bypass beta gate
-      const isTestUser = __DEV__ && (
-        user.email?.startsWith('test.provider.') ||
-        user.email?.includes('@example.com') ||
-        (user as any).isTest === true
-      );
-      
-      if (!user.isBetaUser && !isTestUser) {
+      if (!user.isBetaUser) {
         console.log('Welcome: Redirecting to beta-gate');
         hasRedirectedRef.current = true;
         router.replace('/beta-gate');
         return;
-      }
-      
-      if (isTestUser) {
-        console.log('DEV/TEST: Bypassing beta gate for TEST user in welcome');
       }
       
       if (!shouldShowBetaNotice) {
