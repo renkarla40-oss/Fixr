@@ -135,6 +135,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 24,
+    paddingBottom: 100,  // Extra padding to prevent content from being blocked by nav bar
   },
   lastUpdated: {
     fontSize: 14,

@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     paddingHorizontal: 24,
-    paddingBottom: 32,
+    paddingBottom: 80,  // Extra padding to prevent CTA from being blocked by nav bar
     paddingTop: 16,
     backgroundColor: '#FFFFFF',
   },
