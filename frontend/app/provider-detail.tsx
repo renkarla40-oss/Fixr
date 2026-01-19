@@ -432,7 +432,7 @@ export default function ProviderDetailScreen() {
           </TouchableOpacity>
         </ScrollView>
 
-        <View style={[styles.footer, { paddingBottom: Math.max(24, insets.bottom + 16) }]}>
+        <View style={[styles.footer, { paddingBottom: Math.max(24, insets.bottom + 80) }]}>
           {/* Phase 1B: Missing requestId notice */}
           {!hasValidRequestId && (
             <View style={styles.awayNotice}>
