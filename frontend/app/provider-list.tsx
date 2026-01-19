@@ -706,6 +706,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 16,
+    paddingBottom: 100,  // Extra padding to prevent cards from being blocked by nav bar
     gap: 16,
   },
   resultsSummary: {
