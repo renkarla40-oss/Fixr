@@ -7,7 +7,8 @@ import { useAuth } from '../contexts/AuthContext';
  * Splash Screen - Waits for auth loading to complete
  * 
  * Shows splash animation while AuthContext validates stored session.
- * Only navigates to welcome AFTER loading is complete.
+ * In DEV/QA mode: Always routes to Login (no auto-login)
+ * In Production: Routes to welcome (which handles auth state)
  */
 export default function SplashScreen() {
   const router = useRouter();
@@ -46,7 +47,13 @@ export default function SplashScreen() {
   useEffect(() => {
     if (!loading && animationComplete.current && !hasNavigated.current) {
       hasNavigated.current = true;
-      router.replace('/welcome');
+      // DEV/QA: Always go to login (no auto-login)
+      // Production: Go to welcome (handles auth state)
+      if (__DEV__) {
+        router.replace('/login');
+      } else {
+        router.replace('/welcome');
+      }
     }
   }, [loading]);
 
@@ -55,7 +62,13 @@ export default function SplashScreen() {
     const interval = setInterval(() => {
       if (!loading && animationComplete.current && !hasNavigated.current) {
         hasNavigated.current = true;
-        router.replace('/welcome');
+        // DEV/QA: Always go to login (no auto-login)
+        // Production: Go to welcome (handles auth state)
+        if (__DEV__) {
+          router.replace('/login');
+        } else {
+          router.replace('/welcome');
+        }
         clearInterval(interval);
       }
     }, 100);
