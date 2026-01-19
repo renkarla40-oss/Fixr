@@ -321,7 +321,7 @@ export default function EditProfileScreen() {
           </View>
         </ScrollView>
 
-        <View style={[styles.footer, { paddingBottom: Math.max(24, insets.bottom + 16) }]}>
+        <View style={[styles.footer, { paddingBottom: Math.max(24, insets.bottom + 80) }]}>
           <TouchableOpacity
             style={[styles.saveButton, loading && styles.saveButtonDisabled]}
             onPress={handleSave}
