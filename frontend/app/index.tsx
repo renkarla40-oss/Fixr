@@ -46,13 +46,8 @@ export default function SplashScreen() {
   useEffect(() => {
     if (!loading && animationComplete.current && !hasNavigated.current) {
       hasNavigated.current = true;
-      // DEV/QA: Always go to login (no auto-login)
-      // Production: Go to welcome (handles auth state)
-      if (__DEV__) {
-        router.replace('/login');
-      } else {
-        router.replace('/welcome');
-      }
+      // Always route to welcome - it handles authenticated user redirection
+      router.replace('/welcome');
     }
   }, [loading]);
 
