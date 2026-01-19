@@ -206,7 +206,7 @@ export default function PhoneVerificationScreen() {
           )}
         </View>
 
-        <View style={[styles.footer, { paddingBottom: Math.max(24, insets.bottom + 16) }]}>
+        <View style={[styles.footer, { paddingBottom: Math.max(24, insets.bottom + 80) }]}>
           <TouchableOpacity
             style={[styles.primaryButton, loading && styles.primaryButtonDisabled]}
             onPress={step === 'phone' ? handleSendOtp : handleVerifyOtp}
