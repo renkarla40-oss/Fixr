@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 24,
     paddingTop: 60,
-    paddingBottom: 32,
+    paddingBottom: 100,  // Extra padding to prevent CTA from being blocked by nav bar
   },
   header: {
     marginBottom: 40,
