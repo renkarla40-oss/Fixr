@@ -7,8 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
  * Splash Screen - Waits for auth loading to complete
  * 
  * Shows splash animation while AuthContext validates stored session.
- * In DEV/QA mode: Always routes to Login (no auto-login)
- * In Production: Routes to welcome (which handles auth state)
+ * Routes to welcome screen which handles authenticated user routing.
  */
 export default function SplashScreen() {
   const router = useRouter();
