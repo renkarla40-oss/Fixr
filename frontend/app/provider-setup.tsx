@@ -528,7 +528,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 24,
-    paddingBottom: 40,
+    paddingBottom: 100,  // Extra padding to prevent CTA from being blocked by nav bar
   },
   header: {
     alignItems: 'center',
