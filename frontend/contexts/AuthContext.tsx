@@ -63,6 +63,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Load and validate stored session on app launch
   const initializeStoredSession = async () => {
     try {
+      // DEV/QA MODE: Skip session restoration to allow account switching
+      // In DEV, user must explicitly login each time
+      if (__DEV__) {
+        console.log('AuthContext: DEV mode - skipping session restoration for QA testing');
+        setLoading(false);
+        setInitialized(true);
+        return;
+      }
+      
       const storedToken = await AsyncStorage.getItem(AUTH_TOKEN_KEY);
       
       if (!storedToken) {
