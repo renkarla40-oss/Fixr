@@ -3539,6 +3539,50 @@ async def get_payment_status(
     }
 
 
+@api_router.get("/payments/by-job")
+async def get_payment_by_job(
+    jobId: str = Query(..., description="Job ID to get payment details"),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get full payment record for a job (for frontend paid-state authority).
+    Returns: { paymentId, status, amount, currency, gateway, updatedAt }
+    """
+    # Verify job exists and user has access
+    job = await db.service_requests.find_one({"_id": ObjectId(jobId)})
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    # Allow customer or provider to check payment
+    if job.get("customerId") != current_user.id and job.get("providerId") != current_user.id:
+        raise HTTPException(status_code=403, detail="You don't have access to this job's payment")
+    
+    # Find latest payment for this job
+    payment = await db.payments.find_one(
+        {"jobId": jobId},
+        sort=[("createdAt", -1)]
+    )
+    
+    if not payment:
+        return {
+            "paymentId": None,
+            "status": None,
+            "amount": None,
+            "currency": None,
+            "gateway": None,
+            "updatedAt": None
+        }
+    
+    return {
+        "paymentId": str(payment["_id"]),
+        "status": payment["status"],
+        "amount": payment["amount"],
+        "currency": payment["currency"],
+        "gateway": payment.get("gateway"),
+        "updatedAt": payment.get("updatedAt").isoformat() if payment.get("updatedAt") else None
+    }
+
+
 # =============================================================================
 # RECEIPT ENDPOINTS
 # =============================================================================
