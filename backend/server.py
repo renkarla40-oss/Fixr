@@ -3238,6 +3238,234 @@ async def sandbox_pay_quote(
 
 
 # =============================================================================
+# PAYMENTS SKELETON (PHASE 0)
+# Internal payment records for future gateway integration
+# =============================================================================
+
+class PaymentStatus:
+    DRAFT = "draft"
+    PENDING = "pending"
+    PAID = "paid"
+    FAILED = "failed"
+    REFUNDED = "refunded"
+
+class CreateDraftPaymentRequest(BaseModel):
+    jobId: str
+
+class MarkPaidRequest(BaseModel):
+    paymentId: str
+
+@api_router.post("/payments/create-draft")
+async def create_draft_payment(
+    request: CreateDraftPaymentRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Create or return existing draft payment record for a job.
+    Amount is computed server-side from the accepted quote.
+    """
+    job_id = request.jobId
+    
+    # Verify job exists
+    job = await db.service_requests.find_one({"_id": ObjectId(job_id)})
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    # Verify requester is the customer for this job
+    if job.get("customerId") != current_user.id:
+        raise HTTPException(status_code=403, detail="Only the customer can create payment for this job")
+    
+    # Check for existing payment that is not yet paid
+    existing_payment = await db.payments.find_one({
+        "jobId": job_id,
+        "status": {"$ne": PaymentStatus.PAID}
+    })
+    
+    if existing_payment:
+        # Return existing draft/pending payment
+        return {
+            "paymentId": str(existing_payment["_id"]),
+            "amount": existing_payment["amount"],
+            "currency": existing_payment["currency"],
+            "status": existing_payment["status"]
+        }
+    
+    # Check if already paid
+    paid_payment = await db.payments.find_one({
+        "jobId": job_id,
+        "status": PaymentStatus.PAID
+    })
+    if paid_payment:
+        return {
+            "paymentId": str(paid_payment["_id"]),
+            "amount": paid_payment["amount"],
+            "currency": paid_payment["currency"],
+            "status": paid_payment["status"],
+            "message": "Payment already completed"
+        }
+    
+    # Get accepted quote to compute amount
+    quote = await db.quotes.find_one({
+        "requestId": job_id,
+        "status": QuoteStatus.ACCEPTED
+    })
+    
+    if not quote:
+        raise HTTPException(
+            status_code=400, 
+            detail="No accepted quote found for this job. Quote must be accepted before payment."
+        )
+    
+    # Compute amount from quote (SERVER-SIDE - never trust client)
+    SERVICE_FEE_FLAT = 40.00  # TTD flat fee
+    job_price = float(quote["amount"])
+    total_amount = round(job_price + SERVICE_FEE_FLAT, 2)
+    
+    now = datetime.utcnow()
+    
+    # Create new payment record
+    payment = {
+        "jobId": job_id,
+        "customerId": current_user.id,
+        "providerId": quote.get("providerId"),
+        "amount": total_amount,
+        "currency": "TTD",
+        "status": PaymentStatus.DRAFT,
+        "gateway": "none",
+        "gatewayRef": None,
+        "createdAt": now,
+        "updatedAt": now,
+    }
+    
+    result = await db.payments.insert_one(payment)
+    payment_id = str(result.inserted_id)
+    
+    logger.info(f"[PAYMENTS] Created draft payment {payment_id} for job {job_id}, amount={total_amount} TTD")
+    
+    return {
+        "paymentId": payment_id,
+        "amount": total_amount,
+        "currency": "TTD",
+        "status": PaymentStatus.DRAFT
+    }
+
+
+@api_router.post("/payments/mark-paid")
+async def mark_payment_paid(
+    request: MarkPaidRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    DEV/SANDBOX ONLY: Mark a payment as paid.
+    This simulates payment completion until real gateway is integrated.
+    Protected to DEV mode or admin users only.
+    """
+    # DEV/SANDBOX PROTECTION: Only allow in non-production or for test accounts
+    is_dev_mode = FLAGS.MVP_MODE  # In MVP mode, allow sandbox payments
+    is_test_account = current_user.email and (
+        current_user.email.startswith("test.") or 
+        current_user.email.endswith("@test.com")
+    )
+    
+    if not is_dev_mode and not is_test_account:
+        raise HTTPException(
+            status_code=403, 
+            detail="This endpoint is only available in development/sandbox mode"
+        )
+    
+    payment_id = request.paymentId
+    
+    # Find payment record
+    payment = await db.payments.find_one({"_id": ObjectId(payment_id)})
+    if not payment:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    
+    # Verify requester is the customer for this payment
+    if payment.get("customerId") != current_user.id:
+        raise HTTPException(status_code=403, detail="Only the customer can confirm this payment")
+    
+    # IDEMPOTENCY: If already paid, return success
+    if payment["status"] == PaymentStatus.PAID:
+        return {
+            "success": True,
+            "paymentId": payment_id,
+            "status": PaymentStatus.PAID,
+            "message": "Payment already completed"
+        }
+    
+    now = datetime.utcnow()
+    
+    # Update payment status to PAID
+    await db.payments.update_one(
+        {"_id": ObjectId(payment_id)},
+        {"$set": {
+            "status": PaymentStatus.PAID,
+            "updatedAt": now
+        }}
+    )
+    
+    # Update job paymentStatus to "held" (escrow)
+    job_id = payment["jobId"]
+    await db.service_requests.update_one(
+        {"_id": ObjectId(job_id)},
+        {"$set": {
+            "paymentStatus": "held",
+            "paidAt": now,
+            "updatedAt": now
+        }}
+    )
+    
+    logger.info(f"[PAYMENTS] Marked payment {payment_id} as PAID for job {job_id}")
+    
+    return {
+        "success": True,
+        "paymentId": payment_id,
+        "status": PaymentStatus.PAID,
+        "message": "Payment confirmed (sandbox)"
+    }
+
+
+@api_router.get("/payments/status")
+async def get_payment_status(
+    jobId: str = Query(..., description="Job ID to check payment status"),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get the latest payment record for a job.
+    """
+    # Verify job exists and user has access
+    job = await db.service_requests.find_one({"_id": ObjectId(jobId)})
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    # Allow customer or provider to check payment status
+    if job.get("customerId") != current_user.id and job.get("providerId") != current_user.id:
+        raise HTTPException(status_code=403, detail="You don't have access to this job's payment status")
+    
+    # Find latest payment for this job
+    payment = await db.payments.find_one(
+        {"jobId": jobId},
+        sort=[("createdAt", -1)]
+    )
+    
+    if not payment:
+        return {
+            "paymentId": None,
+            "status": "none",
+            "amount": None,
+            "currency": None,
+            "message": "No payment record found"
+        }
+    
+    return {
+        "paymentId": str(payment["_id"]),
+        "status": payment["status"],
+        "amount": payment["amount"],
+        "currency": payment["currency"]
+    }
+
+
+# =============================================================================
 # RECEIPT ENDPOINTS
 # =============================================================================
 @api_router.get("/receipts/by-job/{request_id}")
