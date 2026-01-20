@@ -2394,6 +2394,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  testModeNotice: {
+    fontSize: 12,
+    color: '#FF9800',
+    textAlign: 'center',
+    marginBottom: 8,
+    fontStyle: 'italic',
+  },
   // Quote negotiation styles
   quoteCardNote: {
     fontSize: 13,
