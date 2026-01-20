@@ -35,10 +35,18 @@ export default function CustomerInboxScreen() {
   const router = useRouter();
   const { token } = useAuth();
   const insets = useSafeAreaInsets();
+  const { markAllAsRead } = useNotifications();
   
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Clear unread badge when Inbox screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      markAllAsRead();
+    }, [markAllAsRead])
+  );
 
   const fetchConversations = useCallback(async () => {
     try {
