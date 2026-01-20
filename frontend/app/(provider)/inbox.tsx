@@ -51,12 +51,20 @@ export default function ProviderInboxScreen() {
   const router = useRouter();
   const { token, user } = useAuth();
   const insets = useSafeAreaInsets();
+  const { markAllAsRead } = useNotifications();
   
   const [jobsWithMessages, setJobsWithMessages] = useState<JobWithMessages[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [debugInfo, setDebugInfo] = useState<DebugInfo>({ jobsLoaded: 0, jobsWithMessages: 0, threadsRendered: 0, errors: [] });
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Clear unread badge when Inbox screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      markAllAsRead();
+    }, [markAllAsRead])
+  );
 
   const fetchJobsWithMessages = useCallback(async (showLoading = true) => {
     if (showLoading) setLoading(true);
