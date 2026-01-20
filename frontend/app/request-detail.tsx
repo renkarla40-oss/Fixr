@@ -693,9 +693,10 @@ export default function RequestDetailScreen() {
       
       setCurrentQuote(payResponse.data.quote);
       
-      // Refresh request and messages
+      // Refresh request, messages, and payment status
       fetchRequestDetail();
       fetchMessagesQuietly();
+      fetchPaymentStatus();
     } catch (err: any) {
       Alert.alert('Error', getUserFriendlyError(err, 'Payment failed. Please try again.'));
     } finally {
