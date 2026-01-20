@@ -3485,8 +3485,9 @@ async def mark_payment_paid(
         }
     
     now = datetime.utcnow()
+    job_id = payment["jobId"]
     
-    # Update payment status to PAID
+    # Update payment status to PAID (PRIMARY AUTHORITY)
     await db.payments.update_one(
         {"_id": ObjectId(payment_id)},
         {"$set": {
@@ -3495,16 +3496,8 @@ async def mark_payment_paid(
         }}
     )
     
-    # Update job paymentStatus to "held" (escrow)
-    job_id = payment["jobId"]
-    await db.service_requests.update_one(
-        {"_id": ObjectId(job_id)},
-        {"$set": {
-            "paymentStatus": "held",
-            "paidAt": now,
-            "updatedAt": now
-        }}
-    )
+    # Sync legacy fields (job.paymentStatus, job.paidAt, quote.paidAt)
+    await sync_paid_state(job_id, PaymentStatus.PAID)
     
     logger.info(f"[PAYMENTS] Marked payment {payment_id} as PAID for job {job_id}")
     
