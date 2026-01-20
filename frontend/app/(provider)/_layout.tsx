@@ -8,6 +8,9 @@ export default function ProviderLayout() {
   const insets = useSafeAreaInsets();
   const { unreadCount } = useNotifications();
   
+  // Debug log for badge count
+  console.log('[ProviderLayout] unreadCount for badge:', unreadCount);
+  
   // Calculate proper bottom padding respecting safe area
   // Keep it minimal but respect system gesture areas
   const bottomInset = insets.bottom;
