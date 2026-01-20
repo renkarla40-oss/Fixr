@@ -3189,6 +3189,37 @@ async def sandbox_pay_quote(
         await db.provider_payouts.insert_one(provider_payout)
         
         logger.info(f"Payment Breakdown: jobPrice={job_price}, serviceFee={service_fee}, commission={commission}, providerPayout={provider_payout_amount}, transactionFee={transaction_fee}, fixrGross={fixr_gross}, fixrNet={fixr_net}, txnId={payment_provider_txn_id}")
+        
+        # PAYMENTS SKELETON INTEGRATION: Create/update payment record
+        existing_payment = await db.payments.find_one({"jobId": quote["requestId"]})
+        if existing_payment:
+            # Update existing payment to PAID
+            await db.payments.update_one(
+                {"_id": existing_payment["_id"]},
+                {"$set": {
+                    "status": "paid",
+                    "gateway": "sandbox",
+                    "gatewayRef": payment_provider_txn_id,
+                    "updatedAt": now
+                }}
+            )
+        else:
+            # Create new payment record as PAID
+            payment_record = {
+                "jobId": quote["requestId"],
+                "customerId": current_user.id,
+                "providerId": quote.get("providerId"),
+                "amount": total_paid_by_customer,
+                "currency": CURRENCY,
+                "status": "paid",
+                "gateway": "sandbox",
+                "gatewayRef": payment_provider_txn_id,
+                "createdAt": now,
+                "updatedAt": now,
+            }
+            await db.payments.insert_one(payment_record)
+        
+        logger.info(f"[PAYMENTS] Sandbox payment recorded for job {quote['requestId']}")
     else:
         logger.info(f"Payment transaction already exists for txnId={payment_provider_txn_id}, skipping (idempotent)")
     
