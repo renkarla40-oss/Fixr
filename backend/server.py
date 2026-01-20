@@ -3280,6 +3280,66 @@ class PaymentStatus:
     FAILED = "failed"
     REFUNDED = "refunded"
 
+
+async def sync_paid_state(job_id: str, payment_status: str, quote_id: str = None):
+    """
+    Sync legacy paid fields when payments.status changes.
+    Called AFTER payments.status is updated to keep job/quote fields in sync.
+    
+    This is IDEMPOTENT - safe to call multiple times.
+    
+    When payment_status == "paid":
+      - Set job.paymentStatus = "held"
+      - Set job.paidAt if null
+      - Set quote.paidAt for the accepted/paid quote if null
+    
+    When payment_status != "paid":
+      - Do NOT automatically revert paid fields (preserve historical states)
+    """
+    if payment_status != PaymentStatus.PAID:
+        # Do not revert paid fields for non-paid statuses
+        logger.debug(f"[sync_paid_state] Skipping sync for job {job_id}, payment_status={payment_status}")
+        return
+    
+    now = datetime.utcnow()
+    
+    # Sync job fields
+    job = await db.service_requests.find_one({"_id": ObjectId(job_id)})
+    if not job:
+        logger.warning(f"[sync_paid_state] Job {job_id} not found")
+        return
+    
+    job_update = {"updatedAt": now}
+    
+    # Set paymentStatus to "held" if not already
+    if job.get("paymentStatus") != "held":
+        job_update["paymentStatus"] = "held"
+    
+    # Set paidAt if not already set
+    if not job.get("paidAt"):
+        job_update["paidAt"] = now
+    
+    if len(job_update) > 1:  # More than just updatedAt
+        await db.service_requests.update_one(
+            {"_id": ObjectId(job_id)},
+            {"$set": job_update}
+        )
+        logger.info(f"[sync_paid_state] Synced job {job_id}: {list(job_update.keys())}")
+    
+    # Sync quote paidAt - find the accepted quote for this job
+    quote_query = {"requestId": job_id, "status": QuoteStatus.ACCEPTED}
+    if quote_id:
+        quote_query["_id"] = ObjectId(quote_id)
+    
+    quote = await db.quotes.find_one(quote_query)
+    if quote and not quote.get("paidAt"):
+        await db.quotes.update_one(
+            {"_id": quote["_id"]},
+            {"$set": {"paidAt": now}}
+        )
+        logger.info(f"[sync_paid_state] Synced quote {quote['_id']} paidAt")
+
+
 class CreateDraftPaymentRequest(BaseModel):
     jobId: str
 
