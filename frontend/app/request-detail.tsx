@@ -1540,7 +1540,8 @@ export default function RequestDetailScreen() {
               )}
 
               {/* Quote Card - ACCEPTED status (payment required) */}
-              {currentQuote && currentQuote.status === 'ACCEPTED' && !currentQuote.paidAt && (
+              {/* Uses isPaid() which checks payments.status (PRIMARY) with legacy fallback */}
+              {currentQuote && currentQuote.status === 'ACCEPTED' && !isPaid() && (
                 <View style={[styles.quoteCard, styles.quoteCardAccepted]}>
                   <View style={styles.quoteCardHeader}>
                     <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
@@ -1548,6 +1549,7 @@ export default function RequestDetailScreen() {
                   </View>
                   <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
                   <Text style={styles.quoteCardAmount}>${currentQuote.amount.toFixed(2)} {currentQuote.currency}</Text>
+                  <Text style={styles.testModeNotice}>Payments are in testing mode</Text>
                   <TouchableOpacity
                     style={styles.acceptPayButton}
                     onPress={processPayment}
