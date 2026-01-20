@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useAuth } from './AuthContext';
 
@@ -8,8 +9,11 @@ const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
  * NOTIFICATION CONTEXT - UNREAD MESSAGE TRACKING
  * 
  * Tracks unread message counts by polling the server.
- * Push notifications are still disabled for stability.
+ * lastSeenMessages is persisted to AsyncStorage per user for deterministic behavior.
  */
+
+// Storage key prefix for lastSeenMessages
+const LAST_SEEN_KEY_PREFIX = 'lastSeenMessages:';
 
 interface NotificationContextType {
   unreadCount: number;
@@ -36,14 +40,68 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [unreadCount, setUnreadCount] = useState(0);
   const [expoPushToken] = useState<string | null>(null);
   const [lastSeenMessages, setLastSeenMessages] = useState<Record<string, string>>({});
+  const [initialized, setInitialized] = useState(false);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   
   // Track all current message IDs for "mark all as read"
   const allCurrentMessagesRef = useRef<Record<string, string>>({});
+  
+  // Get storage key for current user
+  const getStorageKey = useCallback(() => {
+    if (!user?._id) return null;
+    return `${LAST_SEEN_KEY_PREFIX}${user._id}`;
+  }, [user?._id]);
+
+  // Load lastSeenMessages from AsyncStorage on user login
+  useEffect(() => {
+    const loadLastSeenMessages = async () => {
+      const key = getStorageKey();
+      if (!key) {
+        setInitialized(true);
+        return;
+      }
+      
+      try {
+        const stored = await AsyncStorage.getItem(key);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          console.log('[NotificationContext] Loaded lastSeenMessages from storage:', Object.keys(parsed).length, 'threads');
+          setLastSeenMessages(parsed);
+        } else {
+          console.log('[NotificationContext] No stored lastSeenMessages found');
+          setLastSeenMessages({});
+        }
+      } catch (err) {
+        console.log('[NotificationContext] Error loading lastSeenMessages:', err);
+        setLastSeenMessages({});
+      }
+      setInitialized(true);
+    };
+    
+    if (user?._id) {
+      loadLastSeenMessages();
+    } else {
+      setLastSeenMessages({});
+      setInitialized(true);
+    }
+  }, [user?._id, getStorageKey]);
+
+  // Save lastSeenMessages to AsyncStorage
+  const persistLastSeenMessages = useCallback(async (messages: Record<string, string>) => {
+    const key = getStorageKey();
+    if (!key) return;
+    
+    try {
+      await AsyncStorage.setItem(key, JSON.stringify(messages));
+      console.log('[NotificationContext] Persisted lastSeenMessages to storage:', Object.keys(messages).length, 'threads');
+    } catch (err) {
+      console.log('[NotificationContext] Error persisting lastSeenMessages:', err);
+    }
+  }, [getStorageKey]);
 
   // Fetch unread message count by checking all conversations
   const refreshUnreadCount = useCallback(async () => {
-    if (!token || !user) return;
+    if (!token || !user || !initialized) return;
     
     try {
       // Get all requests for this user - use the unified endpoint
@@ -90,39 +148,51 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     } catch (err) {
       // Silent fail
     }
-  }, [token, user, lastSeenMessages]);
+  }, [token, user, lastSeenMessages, initialized]);
 
   // Mark a specific thread as read
-  const markThreadAsRead = useCallback((requestId: string) => {
-    // This will be called when user opens a chat
-    // For now, we'll track by storing the last message ID when they open the thread
-    // The actual marking happens when user navigates to the chat
-  }, []);
+  const markThreadAsRead = useCallback(async (requestId: string) => {
+    const lastMsgId = allCurrentMessagesRef.current[requestId];
+    if (!lastMsgId) return;
+    
+    const updatedMessages = {
+      ...lastSeenMessages,
+      [requestId]: lastMsgId,
+    };
+    
+    setLastSeenMessages(updatedMessages);
+    await persistLastSeenMessages(updatedMessages);
+  }, [lastSeenMessages, persistLastSeenMessages]);
 
-  // Mark all as read - update lastSeenMessages to include all current messages
+  // Mark all as read - update lastSeenMessages to include all current messages AND persist
   const markAllAsRead = useCallback(async () => {
     console.log('[NotificationContext] markAllAsRead called');
-    console.log('[NotificationContext] Current messages to mark:', allCurrentMessagesRef.current);
+    console.log('[NotificationContext] Current messages to mark:', Object.keys(allCurrentMessagesRef.current).length, 'threads');
     
-    // Update lastSeenMessages to include all current message IDs
-    // This ensures polling won't re-count these as unread
-    setLastSeenMessages(prev => ({
-      ...prev,
+    // Merge current messages into lastSeenMessages
+    const updatedMessages = {
+      ...lastSeenMessages,
       ...allCurrentMessagesRef.current,
-    }));
+    };
+    
+    // Update state
+    setLastSeenMessages(updatedMessages);
+    
+    // Persist to AsyncStorage (CRITICAL for surviving app restart)
+    await persistLastSeenMessages(updatedMessages);
     
     // Immediately set count to 0
     setUnreadCount(0);
-    console.log('[NotificationContext] unreadCount set to 0');
-  }, []);
+    console.log('[NotificationContext] unreadCount set to 0, persisted to storage');
+  }, [lastSeenMessages, persistLastSeenMessages]);
 
-  // Start polling when user is logged in
+  // Start polling when user is logged in AND lastSeenMessages is initialized
   useEffect(() => {
-    if (token && user) {
+    if (token && user && initialized) {
       // Initial fetch
       refreshUnreadCount();
       
-      // Poll every 10 seconds for new messages (less aggressive than chat polling)
+      // Poll every 10 seconds for new messages
       pollingRef.current = setInterval(() => {
         refreshUnreadCount();
       }, 10000);
@@ -134,7 +204,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         pollingRef.current = null;
       }
     };
-  }, [token, user]);
+  }, [token, user, initialized]);
 
   return (
     <NotificationContext.Provider
