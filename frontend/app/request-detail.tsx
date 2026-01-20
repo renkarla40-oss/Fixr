@@ -311,6 +311,45 @@ export default function RequestDetailScreen() {
     }
   };
 
+  // Fetch payment record from Payments table (PRIMARY AUTHORITY for paid state)
+  const fetchPaymentStatus = async () => {
+    if (!requestId || !token) return;
+    try {
+      const response = await axios.get(
+        `${BACKEND_URL}/api/payments/by-job?jobId=${requestId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setPaymentRecord(response.data);
+    } catch (err) {
+      // Silent fail - fallback to legacy fields
+      console.log('[Payment] Failed to fetch payment status, using legacy fallback');
+    }
+  };
+
+  // Helper: Determine if job is PAID using payments.status as PRIMARY authority
+  // Falls back to legacy fields (request.paymentStatus, currentQuote.paidAt) for backward compatibility
+  const isPaid = (): boolean => {
+    // PRIMARY: Check payments.status from Payments table
+    if (paymentRecord?.status === 'paid') {
+      return true;
+    }
+    // FALLBACK (legacy): Check request.paymentStatus or quote.paidAt
+    if (request?.paymentStatus === 'held') {
+      return true;
+    }
+    if (currentQuote?.paidAt) {
+      return true;
+    }
+    return false;
+  };
+
+  // Fetch payment status when requestId changes
+  useEffect(() => {
+    if (requestId && token) {
+      fetchPaymentStatus();
+    }
+  }, [requestId, token]);
+
   const fetchMessages = async (showLoading = true) => {
     if (!request?._id) return;
     
