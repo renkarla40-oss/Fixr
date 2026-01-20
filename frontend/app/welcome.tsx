@@ -82,10 +82,12 @@ export default function WelcomeScreen() {
     // Auto-route logged-in users to their home screen
     if (user) {
       // TEST accounts ALWAYS bypass beta gate (DEV/QA requirement)
-      const isTest = isTestAccount(user.email);
-      const shouldBypassBetaGate = user.isBetaUser || isTest;
+      // Bypass if: isBetaUser flag, isTest flag, OR email matches test pattern
+      const isTestByEmail = isTestAccount(user.email);
+      const isTestByFlag = (user as any).isTest === true;
+      const shouldBypassBetaGate = user.isBetaUser || isTestByFlag || isTestByEmail;
       
-      console.log('Welcome: User authenticated -', user.email, 'isBetaUser:', user.isBetaUser, 'isTestAccount:', isTest, 'bypass:', shouldBypassBetaGate);
+      console.log('Welcome: User authenticated -', user.email, 'isBetaUser:', user.isBetaUser, 'isTestFlag:', isTestByFlag, 'isTestByEmail:', isTestByEmail, 'bypass:', shouldBypassBetaGate);
       
       if (!shouldBypassBetaGate) {
         console.log('Welcome: Redirecting to beta-gate');
