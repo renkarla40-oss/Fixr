@@ -62,6 +62,7 @@ export default function ProviderInboxScreen() {
   // Clear unread badge when Inbox screen is focused
   useFocusEffect(
     useCallback(() => {
+      console.log('[ProviderInbox] useFocusEffect fired - calling markAllAsRead');
       markAllAsRead();
     }, [markAllAsRead])
   );
