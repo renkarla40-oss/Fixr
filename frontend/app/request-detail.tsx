@@ -1262,7 +1262,8 @@ export default function RequestDetailScreen() {
               ) : (
                 <>
                   {/* Payment confirmation and status banners - scroll with messages */}
-                  {currentQuote && currentQuote.status === 'ACCEPTED' && currentQuote.paidAt && (
+                  {/* Uses isPaid() which checks payments.status (PRIMARY) with legacy fallback */}
+                  {currentQuote && currentQuote.status === 'ACCEPTED' && isPaid() && (
                     <View style={[styles.quoteCard, styles.quoteCardPaid, styles.scrollableQuoteCard]}>
                       <View style={styles.quoteCardHeader}>
                         <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
@@ -1279,7 +1280,7 @@ export default function RequestDetailScreen() {
                       </TouchableOpacity>
                     </View>
                   )}
-                  {request.status === 'awaiting_payment' && request.paymentStatus === 'held' && (
+                  {request.status === 'awaiting_payment' && isPaid() && (
                     <View style={[styles.statusBannerPaidScrollable]}>
                       <Ionicons name="time-outline" size={16} color="#2E7D32" />
                       <Text style={styles.statusBannerPaidText}>Payment secured! Waiting for provider to start.</Text>
