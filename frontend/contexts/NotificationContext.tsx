@@ -37,6 +37,9 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [expoPushToken] = useState<string | null>(null);
   const [lastSeenMessages, setLastSeenMessages] = useState<Record<string, string>>({});
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Track all current message IDs for "mark all as read"
+  const allCurrentMessagesRef = useRef<Record<string, string>>({});
 
   // Fetch unread message count by checking all conversations
   const refreshUnreadCount = useCallback(async () => {
@@ -50,6 +53,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       
       const requests = response.data || [];
       let totalUnread = 0;
+      const currentMessages: Record<string, string> = {};
       
       // Check each request for new messages
       for (const req of requests) {
@@ -62,13 +66,14 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
           const messages = msgResponse.data.messages || [];
           if (messages.length > 0) {
             const lastMsgId = messages[messages.length - 1]._id;
+            currentMessages[req._id] = lastMsgId;
             const lastSeen = lastSeenMessages[req._id];
             
             // If we haven't seen this thread's last message, count as unread
             if (lastSeen !== lastMsgId) {
               // Only count messages from OTHER party as unread
               const lastMsg = messages[messages.length - 1];
-              if (lastMsg.senderId !== user.id) {
+              if (lastMsg.senderId !== user._id) {
                 totalUnread++;
               }
             }
@@ -77,6 +82,9 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
           // Skip errors
         }
       }
+      
+      // Store current messages for "mark all as read"
+      allCurrentMessagesRef.current = currentMessages;
       
       setUnreadCount(totalUnread);
     } catch (err) {
@@ -91,9 +99,21 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     // The actual marking happens when user navigates to the chat
   }, []);
 
-  // Mark all as read
+  // Mark all as read - update lastSeenMessages to include all current messages
   const markAllAsRead = useCallback(async () => {
+    console.log('[NotificationContext] markAllAsRead called');
+    console.log('[NotificationContext] Current messages to mark:', allCurrentMessagesRef.current);
+    
+    // Update lastSeenMessages to include all current message IDs
+    // This ensures polling won't re-count these as unread
+    setLastSeenMessages(prev => ({
+      ...prev,
+      ...allCurrentMessagesRef.current,
+    }));
+    
+    // Immediately set count to 0
     setUnreadCount(0);
+    console.log('[NotificationContext] unreadCount set to 0');
   }, []);
 
   // Start polling when user is logged in
