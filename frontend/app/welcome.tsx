@@ -34,6 +34,20 @@ const GoogleIcon = ({ size = 24 }) => (
   </Svg>
 );
 
+/**
+ * Check if user is a TEST account that should bypass beta gate
+ * TEST accounts: test.provider.*@example.com, *@test.com, or isTest flag
+ */
+const isTestAccount = (email: string | undefined): boolean => {
+  if (!email) return false;
+  const lowerEmail = email.toLowerCase();
+  return (
+    lowerEmail.startsWith('test.provider.') ||
+    lowerEmail.endsWith('@test.com') ||
+    lowerEmail.includes('test.') // Catches test.provider.*, test.customer.*, etc.
+  );
+};
+
 export default function WelcomeScreen() {
   const router = useRouter();
   const segments = useSegments();
@@ -41,6 +55,12 @@ export default function WelcomeScreen() {
   const hasRedirectedRef = useRef(false);
 
   useEffect(() => {
+    // CRITICAL: Do NOT evaluate routing until auth loading is complete
+    if (loading) {
+      console.log('Welcome: Auth still loading, waiting...');
+      return;
+    }
+    
     // Get current route segment
     const currentSegment = segments[0] || '';
     const isOnAuthenticatedRoute = currentSegment === '(customer)' || currentSegment === '(provider)';
@@ -60,8 +80,14 @@ export default function WelcomeScreen() {
     }
     
     // Auto-route logged-in users to their home screen
-    if (!loading && user) {
-      if (!user.isBetaUser) {
+    if (user) {
+      // TEST accounts ALWAYS bypass beta gate (DEV/QA requirement)
+      const isTest = isTestAccount(user.email);
+      const shouldBypassBetaGate = user.isBetaUser || isTest;
+      
+      console.log('Welcome: User authenticated -', user.email, 'isBetaUser:', user.isBetaUser, 'isTestAccount:', isTest, 'bypass:', shouldBypassBetaGate);
+      
+      if (!shouldBypassBetaGate) {
         console.log('Welcome: Redirecting to beta-gate');
         hasRedirectedRef.current = true;
         router.replace('/beta-gate');
@@ -69,7 +95,7 @@ export default function WelcomeScreen() {
       }
       
       if (!shouldShowBetaNotice) {
-        console.log('Welcome: User already seen beta notice, navigating to home');
+        console.log('Welcome: User bypasses beta gate, navigating to home');
         hasRedirectedRef.current = true;
         navigateToHome();
       }
