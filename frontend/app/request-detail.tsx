@@ -1042,7 +1042,8 @@ export default function RequestDetailScreen() {
           )}
 
           {/* JOB CODE CARD - ONLY show when payment is confirmed AND job has NOT started yet */}
-          {request.paymentStatus === 'held' && request.jobCode && !request.jobStartedAt && !request.startedAt && (
+          {/* Uses isPaid() which checks payments.status (PRIMARY) with legacy fallback */}
+          {isPaid() && request.jobCode && !request.jobStartedAt && !request.startedAt && (
             <View style={styles.jobCodeCard}>
               <View style={styles.jobCodeHeader}>
                 <Ionicons name="key-outline" size={20} color="#1976D2" />
