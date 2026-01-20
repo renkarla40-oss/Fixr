@@ -3079,23 +3079,44 @@ async def sandbox_pay_quote(
     
     now = datetime.utcnow()
     
-    # Update quote with payment timestamp (quote status stays at ACCEPTED)
-    await db.quotes.update_one(
-        {"_id": ObjectId(quote_id)},
-        {"$set": {
-            "paidAt": now,
-        }}
-    )
+    # =============================================================================
+    # PAYMENTS SKELETON: Update/create payment record FIRST (PRIMARY AUTHORITY)
+    # =============================================================================
+    existing_payment = await db.payments.find_one({"jobId": quote["requestId"]})
+    if existing_payment:
+        await db.payments.update_one(
+            {"_id": existing_payment["_id"]},
+            {"$set": {
+                "status": PaymentStatus.PAID,
+                "gateway": "sandbox",
+                "gatewayRef": f"sandbox_{quote_id}_{quote['requestId']}",
+                "updatedAt": now
+            }}
+        )
+    else:
+        # Create new payment record as PAID
+        SERVICE_FEE_FLAT = 40.00
+        job_price = float(quote["amount"])
+        total_paid_by_customer = round(job_price + SERVICE_FEE_FLAT, 2)
+        
+        payment_record = {
+            "jobId": quote["requestId"],
+            "customerId": current_user.id,
+            "providerId": quote.get("providerId"),
+            "amount": total_paid_by_customer,
+            "currency": "TTD",
+            "status": PaymentStatus.PAID,
+            "gateway": "sandbox",
+            "gatewayRef": f"sandbox_{quote_id}_{quote['requestId']}",
+            "createdAt": now,
+            "updatedAt": now,
+        }
+        await db.payments.insert_one(payment_record)
     
-    # Update job paymentStatus to "held" (escrow - funds held until job completion)
-    await db.service_requests.update_one(
-        {"_id": ObjectId(quote["requestId"])},
-        {"$set": {
-            "paymentStatus": "held",
-            "paidAt": now,
-            "updatedAt": now
-        }}
-    )
+    # =============================================================================
+    # Sync legacy fields via sync_paid_state (job.paymentStatus, job.paidAt, quote.paidAt)
+    # =============================================================================
+    await sync_paid_state(quote["requestId"], PaymentStatus.PAID, quote_id)
     
     # =============================================================================
     # PAYMENT BREAKDOWN ENGINE
