@@ -10,6 +10,8 @@ const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
  * 
  * Tracks unread message counts by polling the server.
  * lastSeenMessages is persisted to AsyncStorage per user for deterministic behavior.
+ * 
+ * Key format: { [requestId]: lastMessageId }
  */
 
 // Storage key prefix for lastSeenMessages
@@ -39,9 +41,17 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const { token, user } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
   const [expoPushToken] = useState<string | null>(null);
-  const [lastSeenMessages, setLastSeenMessages] = useState<Record<string, string>>({});
   const [initialized, setInitialized] = useState(false);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Use REF for lastSeenMessages to avoid stale closure issues
+  const lastSeenMessagesRef = useRef<Record<string, string>>({});
+  const [lastSeenMessages, setLastSeenMessages] = useState<Record<string, string>>({});
+  
+  // Keep ref in sync with state
+  useEffect(() => {
+    lastSeenMessagesRef.current = lastSeenMessages;
+  }, [lastSeenMessages]);
   
   // Track all current message IDs for "mark all as read"
   const allCurrentMessagesRef = useRef<Record<string, string>>({});
@@ -67,13 +77,16 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
           const parsed = JSON.parse(stored);
           console.log('[NotificationContext] Loaded lastSeenMessages from storage:', Object.keys(parsed).length, 'threads');
           setLastSeenMessages(parsed);
+          lastSeenMessagesRef.current = parsed;
         } else {
           console.log('[NotificationContext] No stored lastSeenMessages found');
           setLastSeenMessages({});
+          lastSeenMessagesRef.current = {};
         }
       } catch (err) {
         console.log('[NotificationContext] Error loading lastSeenMessages:', err);
         setLastSeenMessages({});
+        lastSeenMessagesRef.current = {};
       }
       setInitialized(true);
     };
@@ -82,6 +95,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       loadLastSeenMessages();
     } else {
       setLastSeenMessages({});
+      lastSeenMessagesRef.current = {};
       setInitialized(true);
     }
   }, [user?._id, getStorageKey]);
@@ -100,11 +114,11 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, [getStorageKey]);
 
   // Fetch unread message count by checking all conversations
+  // Uses REF to always get latest lastSeenMessages (avoids stale closure)
   const refreshUnreadCount = useCallback(async () => {
     if (!token || !user || !initialized) return;
     
     try {
-      // Get all requests for this user - use the unified endpoint
       const response = await axios.get(`${BACKEND_URL}/api/service-requests`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -112,8 +126,11 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const requests = response.data || [];
       let totalUnread = 0;
       const currentMessages: Record<string, string> = {};
+      const unreadIds: string[] = [];
       
-      // Check each request for new messages
+      // Use REF to get latest lastSeenMessages (not stale closure)
+      const seenMessages = lastSeenMessagesRef.current;
+      
       for (const req of requests) {
         try {
           const msgResponse = await axios.get(
@@ -125,14 +142,14 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
           if (messages.length > 0) {
             const lastMsgId = messages[messages.length - 1]._id;
             currentMessages[req._id] = lastMsgId;
-            const lastSeen = lastSeenMessages[req._id];
+            const lastSeen = seenMessages[req._id];
             
             // If we haven't seen this thread's last message, count as unread
             if (lastSeen !== lastMsgId) {
-              // Only count messages from OTHER party as unread
               const lastMsg = messages[messages.length - 1];
               if (lastMsg.senderId !== user._id) {
                 totalUnread++;
+                unreadIds.push(req._id);
               }
             }
           }
@@ -144,11 +161,16 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       // Store current messages for "mark all as read"
       allCurrentMessagesRef.current = currentMessages;
       
+      // DEBUG: Log unread request IDs
+      if (unreadIds.length > 0) {
+        console.log('[UNREAD] counting requestIds:', unreadIds.slice(0, 10), 'total:', totalUnread);
+      }
+      
       setUnreadCount(totalUnread);
     } catch (err) {
       // Silent fail
     }
-  }, [token, user, lastSeenMessages, initialized]);
+  }, [token, user, initialized]);
 
   // Mark a specific thread as read
   const markThreadAsRead = useCallback(async (requestId: string) => {
@@ -156,35 +178,47 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     if (!lastMsgId) return;
     
     const updatedMessages = {
-      ...lastSeenMessages,
+      ...lastSeenMessagesRef.current,
       [requestId]: lastMsgId,
     };
     
     setLastSeenMessages(updatedMessages);
+    lastSeenMessagesRef.current = updatedMessages;
     await persistLastSeenMessages(updatedMessages);
-  }, [lastSeenMessages, persistLastSeenMessages]);
+  }, [persistLastSeenMessages]);
 
   // Mark all as read - update lastSeenMessages to include all current messages AND persist
   const markAllAsRead = useCallback(async () => {
+    const currentMsgs = allCurrentMessagesRef.current;
+    const currentKeys = Object.keys(currentMsgs);
+    
     console.log('[NotificationContext] markAllAsRead called');
-    console.log('[NotificationContext] Current messages to mark:', Object.keys(allCurrentMessagesRef.current).length, 'threads');
+    console.log('[SEEN] saving requestIds:', currentKeys.slice(0, 10), 'total:', currentKeys.length);
+    
+    if (currentKeys.length === 0) {
+      console.log('[NotificationContext] WARNING: No current messages to mark as seen!');
+      // Still set count to 0 to clear badge immediately
+      setUnreadCount(0);
+      return;
+    }
     
     // Merge current messages into lastSeenMessages
     const updatedMessages = {
-      ...lastSeenMessages,
-      ...allCurrentMessagesRef.current,
+      ...lastSeenMessagesRef.current,
+      ...currentMsgs,
     };
     
-    // Update state
+    // Update state AND ref immediately
     setLastSeenMessages(updatedMessages);
+    lastSeenMessagesRef.current = updatedMessages;
     
-    // Persist to AsyncStorage (CRITICAL for surviving app restart)
+    // Persist to AsyncStorage
     await persistLastSeenMessages(updatedMessages);
     
-    // Immediately set count to 0
+    // Set count to 0
     setUnreadCount(0);
-    console.log('[NotificationContext] unreadCount set to 0, persisted to storage');
-  }, [lastSeenMessages, persistLastSeenMessages]);
+    console.log('[NotificationContext] unreadCount set to 0, lastSeenMessages updated');
+  }, [persistLastSeenMessages]);
 
   // Start polling when user is logged in AND lastSeenMessages is initialized
   useEffect(() => {
@@ -204,7 +238,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         pollingRef.current = null;
       }
     };
-  }, [token, user, initialized]);
+  }, [token, user, initialized, refreshUnreadCount]);
 
   return (
     <NotificationContext.Provider
