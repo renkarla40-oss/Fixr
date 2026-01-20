@@ -136,6 +136,15 @@ export default function RequestDetailScreen() {
   const [reviewComment, setReviewComment] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
   
+  // Payment status state (PRIMARY AUTHORITY for paid state)
+  const [paymentRecord, setPaymentRecord] = useState<{
+    paymentId: string | null;
+    status: string | null;
+    amount: number | null;
+    currency: string | null;
+    gateway: string | null;
+  } | null>(null);
+  
   const scrollViewRef = useRef<ScrollView>(null);
   const inputRef = useRef<TextInput>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
