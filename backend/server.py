@@ -3642,10 +3642,12 @@ async def get_favorites(current_user: User = Depends(get_current_user)):
     provider_ids = favorites_doc.get("providerIds", [])
     
     # Fetch provider details for each favorited provider
+    # Check both providers collection (provider document) and users collection (user with role=provider)
     providers = []
     for pid in provider_ids:
         try:
-            provider = await db.users.find_one({"_id": ObjectId(pid), "role": "provider"})
+            # First try providers collection
+            provider = await db.providers.find_one({"_id": ObjectId(pid)})
             if provider:
                 providers.append({
                     "_id": str(provider["_id"]),
@@ -3658,6 +3660,21 @@ async def get_favorites(current_user: User = Depends(get_current_user)):
                     "totalReviews": provider.get("totalReviews", 0),
                     "availabilityStatus": provider.get("availabilityStatus", "available"),
                 })
+            else:
+                # Fall back to users collection
+                user_provider = await db.users.find_one({"_id": ObjectId(pid), "role": "provider"})
+                if user_provider:
+                    providers.append({
+                        "_id": str(user_provider["_id"]),
+                        "name": user_provider.get("name", "Provider"),
+                        "profilePhotoUrl": user_provider.get("profilePhotoUrl"),
+                        "services": user_provider.get("services", []),
+                        "bio": user_provider.get("bio", ""),
+                        "verificationStatus": user_provider.get("verificationStatus", "pending"),
+                        "averageRating": user_provider.get("averageRating"),
+                        "totalReviews": user_provider.get("totalReviews", 0),
+                        "availabilityStatus": user_provider.get("availabilityStatus", "available"),
+                    })
         except:
             pass  # Skip invalid IDs
     
