@@ -193,6 +193,7 @@ export default function ProviderProfileScreen() {
             <Text style={styles.phone}>{user?.phone}</Text>
             <View style={styles.badgesRow}>
               <View style={styles.roleBadge}>
+                <Ionicons name="briefcase" size={14} color="#4CAF50" />
                 <Text style={styles.roleText}>Provider</Text>
               </View>
               {providerProfile?.phoneVerified && (
