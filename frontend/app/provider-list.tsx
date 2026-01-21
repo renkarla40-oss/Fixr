@@ -1344,15 +1344,43 @@ const styles = StyleSheet.create({
     color: '#999',
     fontSize: 14,
   },
-  // Sort & Filter Bar Styles
+  // Sort & Filter Bar Styles - Full width, evenly distributed
   sortFilterBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 4,
-    gap: 6,
-    flexWrap: 'nowrap',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingVertical: 12,
+    paddingHorizontal: 0,
+    gap: 8,
   },
+  filterPillBase: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 10,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: '#E53935',
+    gap: 4,
+    minHeight: 40,
+  },
+  filterPillActive: {
+    backgroundColor: '#E53935',
+    borderColor: '#E53935',
+  },
+  filterPillText: {
+    fontSize: 12,
+    color: '#E53935',
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  filterPillTextActive: {
+    color: '#FFFFFF',
+  },
+  // Keep old styles for backwards compatibility (unused now)
   sortButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1386,18 +1414,6 @@ const styles = StyleSheet.create({
     borderColor: '#E53935',
     gap: 3,
     flexShrink: 1,
-  },
-  filterPillActive: {
-    backgroundColor: '#E53935',
-    borderColor: '#E53935',
-  },
-  filterPillText: {
-    fontSize: 11,
-    color: '#E53935',
-    fontWeight: '500',
-  },
-  filterPillTextActive: {
-    color: '#FFFFFF',
   },
   filterStatusBar: {
     flexDirection: 'row',
