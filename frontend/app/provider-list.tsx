@@ -416,55 +416,81 @@ export default function ProviderListScreen() {
               </View>
             )}
 
-            {/* Filter & Sort Controls */}
+            {/* Filter & Sort Controls - Full width, evenly distributed */}
             <View style={styles.sortFilterBar}>
               {/* Sort Button */}
               <TouchableOpacity 
-                style={styles.sortButton}
+                style={[
+                  styles.filterPillBase,
+                  sortBy !== 'default' && styles.filterPillActive
+                ]}
                 onPress={() => setShowSortModal(true)}
               >
-                <Ionicons name="swap-vertical" size={14} color="#E53935" />
-                <Text style={styles.sortButtonText} numberOfLines={1}>
+                <Ionicons 
+                  name="swap-vertical" 
+                  size={14} 
+                  color={sortBy !== 'default' ? '#FFFFFF' : '#E53935'} 
+                />
+                <Text 
+                  style={[
+                    styles.filterPillText,
+                    sortBy !== 'default' && styles.filterPillTextActive
+                  ]}
+                  numberOfLines={1}
+                >
                   {SORT_OPTIONS.find(o => o.value === sortBy)?.label || 'Sort'}
                 </Text>
-                <Ionicons name="chevron-down" size={12} color="#E53935" />
               </TouchableOpacity>
               
-              {/* Availability Filter */}
-              <View style={styles.filterPills}>
-                {AVAILABILITY_OPTIONS.map((option) => (
-                  <TouchableOpacity
-                    key={option.value}
-                    style={[
-                      styles.filterPill,
-                      availabilityFilter === option.value && styles.filterPillActive
-                    ]}
-                    onPress={() => setAvailabilityFilter(option.value)}
-                  >
-                    <Text 
-                      style={[
-                        styles.filterPillText,
-                        availabilityFilter === option.value && styles.filterPillTextActive
-                      ]}
-                      numberOfLines={1}
-                    >
-                      {option.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
+              {/* All Filter */}
+              <TouchableOpacity
+                style={[
+                  styles.filterPillBase,
+                  availabilityFilter === 'all' && styles.filterPillActive
+                ]}
+                onPress={() => setAvailabilityFilter('all')}
+              >
+                <Text 
+                  style={[
+                    styles.filterPillText,
+                    availabilityFilter === 'all' && styles.filterPillTextActive
+                  ]}
+                  numberOfLines={1}
+                >
+                  All
+                </Text>
+              </TouchableOpacity>
+              
+              {/* Available Now Filter */}
+              <TouchableOpacity
+                style={[
+                  styles.filterPillBase,
+                  availabilityFilter === 'available' && styles.filterPillActive
+                ]}
+                onPress={() => setAvailabilityFilter('available')}
+              >
+                <Text 
+                  style={[
+                    styles.filterPillText,
+                    availabilityFilter === 'available' && styles.filterPillTextActive
+                  ]}
+                  numberOfLines={1}
+                >
+                  Available
+                </Text>
+              </TouchableOpacity>
               
               {/* Verified Toggle */}
               <TouchableOpacity
                 style={[
-                  styles.filterPill,
+                  styles.filterPillBase,
                   verifiedOnly && styles.filterPillActive
                 ]}
                 onPress={() => setVerifiedOnly(!verifiedOnly)}
               >
                 <Ionicons 
                   name="checkmark-circle" 
-                  size={12} 
+                  size={14} 
                   color={verifiedOnly ? '#FFFFFF' : '#E53935'} 
                 />
                 <Text 
