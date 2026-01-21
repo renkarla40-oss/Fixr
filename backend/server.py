@@ -3674,14 +3674,22 @@ async def add_favorite(
 ):
     """
     Add a provider to customer's favorites list.
+    provider_id can be either the provider document _id OR the user _id.
     """
-    # Verify provider exists
+    # Verify provider exists - check both providers collection and users collection
+    provider = None
     try:
-        provider = await db.users.find_one({"_id": ObjectId(provider_id), "role": "provider"})
+        # First try providers collection (provider document ID)
+        provider = await db.providers.find_one({"_id": ObjectId(provider_id)})
         if not provider:
-            raise HTTPException(status_code=404, detail="Provider not found")
-    except:
+            # Fall back to users collection (user ID with role=provider)
+            provider = await db.users.find_one({"_id": ObjectId(provider_id), "role": "provider"})
+    except Exception as e:
+        logger.warning(f"[FAVORITES] Invalid provider ID format: {provider_id}, error: {e}")
         raise HTTPException(status_code=404, detail="Invalid provider ID")
+    
+    if not provider:
+        raise HTTPException(status_code=404, detail="Provider not found")
     
     # Upsert favorites document
     await db.customer_favorites.update_one(
