@@ -499,16 +499,17 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   roleBadge: {
-    backgroundColor: '#F5F5F5',
-    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F5E9',
+    paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
+    gap: 4,
   },
   roleText: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 13,
+    color: '#4CAF50',
     fontWeight: '600',
   },
   badgesRow: {
