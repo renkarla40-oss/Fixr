@@ -1342,18 +1342,21 @@ const styles = StyleSheet.create({
   filterPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E53935',
     gap: 4,
   },
   filterPillActive: {
     backgroundColor: '#E53935',
+    borderColor: '#E53935',
   },
   filterPillText: {
     fontSize: 12,
-    color: '#666',
+    color: '#E53935',
     fontWeight: '500',
   },
   filterPillTextActive: {
