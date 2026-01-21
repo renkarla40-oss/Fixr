@@ -149,7 +149,27 @@ export default function ProviderListScreen() {
     }
   };
 
-  const handleProviderPress = (providerId: string) => {
+  const handleProviderPress = (providerId: string, isAway: boolean = false) => {
+    // If provider is away, show informational alert but still allow viewing
+    if (isAway) {
+      Alert.alert(
+        'Provider Unavailable',
+        'This provider is currently away and not accepting new jobs. You can still view their profile.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'View Profile', 
+            onPress: () => navigateToProviderDetail(providerId)
+          },
+        ]
+      );
+      return;
+    }
+    
+    navigateToProviderDetail(providerId);
+  };
+  
+  const navigateToProviderDetail = (providerId: string) => {
     router.push({
       pathname: '/provider-detail',
       params: { 
