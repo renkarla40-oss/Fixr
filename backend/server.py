@@ -3624,6 +3624,104 @@ async def get_receipt_by_job(
 
 
 # =============================================================================
+# CUSTOMER FAVORITES (FAVOURITE PROVIDERS)
+# =============================================================================
+
+@api_router.get("/favorites")
+async def get_favorites(current_user: User = Depends(get_current_user)):
+    """
+    Get list of favourited provider IDs for the current customer.
+    Returns array of provider objects with basic info.
+    """
+    # Get customer's favorites document
+    favorites_doc = await db.customer_favorites.find_one({"customerId": current_user.id})
+    
+    if not favorites_doc or not favorites_doc.get("providerIds"):
+        return {"favorites": [], "providerIds": []}
+    
+    provider_ids = favorites_doc.get("providerIds", [])
+    
+    # Fetch provider details for each favorited provider
+    providers = []
+    for pid in provider_ids:
+        try:
+            provider = await db.users.find_one({"_id": ObjectId(pid), "role": "provider"})
+            if provider:
+                providers.append({
+                    "_id": str(provider["_id"]),
+                    "name": provider.get("name", "Provider"),
+                    "profilePhotoUrl": provider.get("profilePhotoUrl"),
+                    "services": provider.get("services", []),
+                    "bio": provider.get("bio", ""),
+                    "verificationStatus": provider.get("verificationStatus", "pending"),
+                    "averageRating": provider.get("averageRating"),
+                    "totalReviews": provider.get("totalReviews", 0),
+                    "availabilityStatus": provider.get("availabilityStatus", "available"),
+                })
+        except:
+            pass  # Skip invalid IDs
+    
+    return {
+        "favorites": providers,
+        "providerIds": provider_ids
+    }
+
+
+@api_router.post("/favorites/{provider_id}")
+async def add_favorite(
+    provider_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Add a provider to customer's favorites list.
+    """
+    # Verify provider exists
+    try:
+        provider = await db.users.find_one({"_id": ObjectId(provider_id), "role": "provider"})
+        if not provider:
+            raise HTTPException(status_code=404, detail="Provider not found")
+    except:
+        raise HTTPException(status_code=404, detail="Invalid provider ID")
+    
+    # Upsert favorites document
+    await db.customer_favorites.update_one(
+        {"customerId": current_user.id},
+        {
+            "$addToSet": {"providerIds": provider_id},
+            "$set": {"updatedAt": datetime.utcnow()},
+            "$setOnInsert": {"createdAt": datetime.utcnow()}
+        },
+        upsert=True
+    )
+    
+    logger.info(f"[FAVORITES] Customer {current_user.id} added provider {provider_id} to favorites")
+    
+    return {"success": True, "message": "Provider added to favorites"}
+
+
+@api_router.delete("/favorites/{provider_id}")
+async def remove_favorite(
+    provider_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Remove a provider from customer's favorites list.
+    """
+    # Update favorites document
+    result = await db.customer_favorites.update_one(
+        {"customerId": current_user.id},
+        {
+            "$pull": {"providerIds": provider_id},
+            "$set": {"updatedAt": datetime.utcnow()}
+        }
+    )
+    
+    logger.info(f"[FAVORITES] Customer {current_user.id} removed provider {provider_id} from favorites")
+    
+    return {"success": True, "message": "Provider removed from favorites"}
+
+
+# =============================================================================
 # ADMIN PAYOUT RELEASE ENDPOINTS
 # =============================================================================
 
