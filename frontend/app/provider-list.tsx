@@ -423,11 +423,11 @@ export default function ProviderListScreen() {
                 style={styles.sortButton}
                 onPress={() => setShowSortModal(true)}
               >
-                <Ionicons name="swap-vertical" size={16} color="#E53935" />
-                <Text style={styles.sortButtonText}>
+                <Ionicons name="swap-vertical" size={14} color="#E53935" />
+                <Text style={styles.sortButtonText} numberOfLines={1}>
                   {SORT_OPTIONS.find(o => o.value === sortBy)?.label || 'Sort'}
                 </Text>
-                <Ionicons name="chevron-down" size={14} color="#E53935" />
+                <Ionicons name="chevron-down" size={12} color="#E53935" />
               </TouchableOpacity>
               
               {/* Availability Filter */}
@@ -441,10 +441,13 @@ export default function ProviderListScreen() {
                     ]}
                     onPress={() => setAvailabilityFilter(option.value)}
                   >
-                    <Text style={[
-                      styles.filterPillText,
-                      availabilityFilter === option.value && styles.filterPillTextActive
-                    ]}>
+                    <Text 
+                      style={[
+                        styles.filterPillText,
+                        availabilityFilter === option.value && styles.filterPillTextActive
+                      ]}
+                      numberOfLines={1}
+                    >
                       {option.label}
                     </Text>
                   </TouchableOpacity>
@@ -461,13 +464,16 @@ export default function ProviderListScreen() {
               >
                 <Ionicons 
                   name="checkmark-circle" 
-                  size={14} 
+                  size={12} 
                   color={verifiedOnly ? '#FFFFFF' : '#E53935'} 
                 />
-                <Text style={[
-                  styles.filterPillText,
-                  verifiedOnly && styles.filterPillTextActive
-                ]}>
+                <Text 
+                  style={[
+                    styles.filterPillText,
+                    verifiedOnly && styles.filterPillTextActive
+                  ]}
+                  numberOfLines={1}
+                >
                   Verified
                 </Text>
               </TouchableOpacity>
