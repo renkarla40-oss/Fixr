@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useAuth } from './AuthContext';
 
@@ -48,36 +48,63 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [favoriteProviderIds, setFavoriteProviderIds] = useState<string[]>([]);
   const [favoriteProviders, setFavoriteProviders] = useState<FavoriteProvider[]>([]);
   const [loading, setLoading] = useState(false);
+  
+  // Use ref for token to avoid stale closures
+  const tokenRef = useRef(token);
+  useEffect(() => {
+    tokenRef.current = token;
+  }, [token]);
 
   // Check if a provider is favorited
   const isFavorite = useCallback((providerId: string): boolean => {
-    return favoriteProviderIds.includes(providerId);
+    const result = favoriteProviderIds.includes(providerId);
+    return result;
   }, [favoriteProviderIds]);
 
   // Fetch favorites from backend
   const refreshFavorites = useCallback(async () => {
-    if (!token || !user) return;
+    const currentToken = tokenRef.current;
+    if (!currentToken) {
+      console.log('[Favorites] No token, skipping refresh');
+      return;
+    }
     
     setLoading(true);
     try {
+      console.log('[Favorites] Fetching from:', `${BACKEND_URL}/api/favorites`);
       const response = await axios.get(`${BACKEND_URL}/api/favorites`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${currentToken}` },
       });
       
-      setFavoriteProviderIds(response.data.providerIds || []);
-      setFavoriteProviders(response.data.favorites || []);
-    } catch (err) {
-      console.log('[Favorites] Failed to fetch favorites:', err);
+      console.log('[Favorites] GET response:', JSON.stringify(response.data));
+      const ids = response.data.providerIds || [];
+      const providers = response.data.favorites || [];
+      
+      console.log('[Favorites] Setting providerIds:', ids.length, 'providers:', providers.length);
+      setFavoriteProviderIds(ids);
+      setFavoriteProviders(providers);
+    } catch (err: any) {
+      console.error('[Favorites] GET failed:', err?.response?.status, err?.response?.data || err?.message);
+      // Keep empty state on error
+      setFavoriteProviderIds([]);
+      setFavoriteProviders([]);
     } finally {
       setLoading(false);
     }
-  }, [token, user]);
+  }, []);
 
   // Toggle favorite status for a provider
   const toggleFavorite = useCallback(async (providerId: string) => {
-    if (!token) return;
+    const currentToken = tokenRef.current;
+    if (!currentToken) {
+      console.log('[Favorites] No token, cannot toggle');
+      return;
+    }
+    
+    console.log('[Favorites] toggleFavorite called with providerId:', providerId);
     
     const currentlyFavorited = favoriteProviderIds.includes(providerId);
+    console.log('[Favorites] Currently favorited:', currentlyFavorited);
     
     // Optimistic update
     if (currentlyFavorited) {
@@ -90,22 +117,28 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       if (currentlyFavorited) {
         // Remove from favorites
-        await axios.delete(`${BACKEND_URL}/api/favorites/${providerId}`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const url = `${BACKEND_URL}/api/favorites/${providerId}`;
+        console.log('[Favorites] DELETE:', url);
+        const response = await axios.delete(url, {
+          headers: { Authorization: `Bearer ${currentToken}` },
         });
+        console.log('[Favorites] DELETE response:', response.status, response.data);
       } else {
         // Add to favorites
-        await axios.post(`${BACKEND_URL}/api/favorites/${providerId}`, {}, {
-          headers: { Authorization: `Bearer ${token}` },
+        const url = `${BACKEND_URL}/api/favorites/${providerId}`;
+        console.log('[Favorites] POST:', url);
+        const response = await axios.post(url, {}, {
+          headers: { Authorization: `Bearer ${currentToken}` },
         });
+        console.log('[Favorites] POST response:', response.status, response.data);
       }
       
-      // Refresh to get updated provider details
-      if (!currentlyFavorited) {
-        refreshFavorites();
-      }
-    } catch (err) {
-      console.log('[Favorites] Toggle failed, reverting:', err);
+      // ALWAYS refresh after successful toggle to get full provider data
+      console.log('[Favorites] Refreshing after toggle...');
+      await refreshFavorites();
+      
+    } catch (err: any) {
+      console.error('[Favorites] Toggle API failed:', err?.response?.status, err?.response?.data || err?.message);
       // Revert on error
       if (currentlyFavorited) {
         setFavoriteProviderIds(prev => [...prev, providerId]);
@@ -113,18 +146,20 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setFavoriteProviderIds(prev => prev.filter(id => id !== providerId));
       }
     }
-  }, [token, favoriteProviderIds, refreshFavorites]);
+  }, [favoriteProviderIds, refreshFavorites]);
 
   // Fetch favorites when user logs in
   useEffect(() => {
     if (token && user) {
+      console.log('[Favorites] User logged in, fetching favorites...');
       refreshFavorites();
     } else {
       // Clear on logout
+      console.log('[Favorites] No user, clearing favorites');
       setFavoriteProviderIds([]);
       setFavoriteProviders([]);
     }
-  }, [token, user]);
+  }, [token, user?._id]);
 
   return (
     <FavoritesContext.Provider
