@@ -93,6 +93,45 @@ export default function ProviderListScreen() {
   const [showNoProvidersModal, setShowNoProvidersModal] = useState(false);
   const [initialSearchComplete, setInitialSearchComplete] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  
+  // Sorting & Filtering state
+  const [sortBy, setSortBy] = useState<SortOption>('default');
+  const [availabilityFilter, setAvailabilityFilter] = useState<AvailabilityFilter>('all');
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [showSortModal, setShowSortModal] = useState(false);
+
+  // Memoized filtered and sorted providers
+  const filteredAndSortedProviders = useMemo(() => {
+    let result = [...providers];
+    
+    // Apply availability filter
+    if (availabilityFilter === 'available') {
+      result = result.filter(p => p.availabilityStatus !== 'away');
+    }
+    
+    // Apply verified filter
+    if (verifiedOnly) {
+      result = result.filter(p => p.verificationStatus === 'verified');
+    }
+    
+    // Apply sorting
+    switch (sortBy) {
+      case 'rating':
+        result.sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0));
+        break;
+      case 'distance':
+        result.sort((a, b) => (a.distanceFromJob || 999) - (b.distanceFromJob || 999));
+        break;
+      case 'jobs':
+        result.sort((a, b) => (b.completedJobsCount || 0) - (a.completedJobsCount || 0));
+        break;
+      default:
+        // Keep original order
+        break;
+    }
+    
+    return result;
+  }, [providers, sortBy, availabilityFilter, verifiedOnly]);
 
   // Phase 1 Enforcement: Guard - redirect if requestId is missing
   useEffect(() => {
