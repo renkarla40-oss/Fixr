@@ -109,6 +109,13 @@ export default function CustomerLayout() {
           ),
         }}
       />
+      {/* Hide provider-directory from tabs - it's accessed via Home screen */}
+      <Tabs.Screen
+        name="provider-directory"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
