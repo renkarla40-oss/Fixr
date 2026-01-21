@@ -462,7 +462,7 @@ export default function ProviderListScreen() {
                 <Ionicons 
                   name="checkmark-circle" 
                   size={14} 
-                  color={verifiedOnly ? '#FFFFFF' : '#666'} 
+                  color={verifiedOnly ? '#FFFFFF' : '#E53935'} 
                 />
                 <Text style={[
                   styles.filterPillText,
