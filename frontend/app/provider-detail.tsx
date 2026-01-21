@@ -791,4 +791,36 @@ const styles = StyleSheet.create({
   requestButtonTextDisabled: {
     color: '#9E9E9E',
   },
+  // Directory browsing mode styles
+  directoryNotice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E3F2FD',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginBottom: 12,
+    gap: 10,
+  },
+  directoryNoticeText: {
+    fontSize: 14,
+    color: '#1565C0',
+    flex: 1,
+    lineHeight: 20,
+  },
+  createRequestButton: {
+    flexDirection: 'row',
+    backgroundColor: '#E53935',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 56,
+    gap: 8,
+  },
+  createRequestButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '600',
+  },
 });
