@@ -452,48 +452,57 @@ export default function ProviderDetailScreen() {
         </ScrollView>
 
         <View style={[styles.footer, { paddingBottom: Math.max(24, insets.bottom + 80) }]}>
-          {/* Phase 1B: Missing requestId notice */}
-          {!hasValidRequestId && (
-            <View style={styles.awayNotice}>
-              <Ionicons name="document-text-outline" size={18} color="#757575" />
-              <Text style={styles.awayNoticeText}>
-                Please submit your request first.
-              </Text>
-            </View>
+          {/* Directory browsing mode - show "Create Request" CTA */}
+          {isBrowsingOnly ? (
+            <>
+              <View style={styles.directoryNotice}>
+                <Ionicons name="information-circle-outline" size={18} color="#1565C0" />
+                <Text style={styles.directoryNoticeText}>
+                  Create a request first to contact this provider
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={styles.createRequestButton}
+                onPress={() => router.push('/(customer)/home')}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="add-circle-outline" size={20} color="#FFFFFF" />
+                <Text style={styles.createRequestButtonText}>Create Request</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              {/* Away notice - shown when provider is away */}
+              {provider.availabilityStatus === 'away' && (
+                <View style={styles.awayNotice}>
+                  <Ionicons name="time-outline" size={18} color="#757575" />
+                  <Text style={styles.awayNoticeText}>
+                    This provider is away and not accepting new jobs right now.
+                  </Text>
+                </View>
+              )}
+              <TouchableOpacity
+                style={[
+                  styles.requestButton,
+                  (provider.availabilityStatus === 'away' || assigning) && styles.requestButtonDisabled
+                ]}
+                onPress={handleRequestService}
+                activeOpacity={0.8}
+                disabled={provider.availabilityStatus === 'away' || assigning}
+              >
+                {assigning ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text style={[
+                    styles.requestButtonText,
+                    provider.availabilityStatus === 'away' && styles.requestButtonTextDisabled
+                  ]}>
+                    {provider.availabilityStatus === 'away' ? 'Provider Away' : 'Select Provider'}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </>
           )}
-          {/* Away notice - shown when provider is away */}
-          {hasValidRequestId && provider.availabilityStatus === 'away' && (
-            <View style={styles.awayNotice}>
-              <Ionicons name="time-outline" size={18} color="#757575" />
-              <Text style={styles.awayNoticeText}>
-                This provider is away and not accepting new jobs right now.
-              </Text>
-            </View>
-          )}
-          <TouchableOpacity
-            style={[
-              styles.requestButton,
-              (provider.availabilityStatus === 'away' || !hasValidRequestId || assigning) && styles.requestButtonDisabled
-            ]}
-            onPress={handleRequestService}
-            activeOpacity={0.8}
-            disabled={provider.availabilityStatus === 'away' || !hasValidRequestId || assigning}
-          >
-            {assigning ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
-            ) : (
-              <Text style={[
-                styles.requestButtonText,
-                (provider.availabilityStatus === 'away' || !hasValidRequestId) && styles.requestButtonTextDisabled
-              ]}>
-                {!hasValidRequestId 
-                  ? 'Request Required' 
-                  : provider.availabilityStatus === 'away' 
-                    ? 'Provider Away' 
-                    : 'Select Provider'}
-              </Text>
-            )}
-          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>
