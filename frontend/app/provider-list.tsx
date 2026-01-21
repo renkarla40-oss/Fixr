@@ -343,6 +343,7 @@ export default function ProviderListScreen() {
             {providers.map((provider) => {
               // Check if provider is away
               const isAway = provider.availabilityStatus === 'away';
+              const favorited = isFavorite(provider._id);
               
               return (
               <TouchableOpacity
@@ -387,6 +388,21 @@ export default function ProviderListScreen() {
                       </Text>
                     </View>
                   </View>
+                  {/* Favorite heart button */}
+                  <TouchableOpacity
+                    style={styles.favoriteButton}
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(provider._id);
+                    }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <Ionicons 
+                      name={favorited ? "heart" : "heart-outline"} 
+                      size={22} 
+                      color={favorited ? "#E53935" : "#999"} 
+                    />
+                  </TouchableOpacity>
                 </View>
 
                 {/* Badges */}
