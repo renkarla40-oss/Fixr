@@ -289,6 +289,26 @@ export default function CustomerHomeScreen() {
               ))}
             </View>
           </View>
+
+          {/* ===== BROWSE PROVIDERS CARD ===== */}
+          <View style={styles.sectionOnGradient}>
+            <TouchableOpacity
+              style={styles.browseProvidersCard}
+              onPress={() => router.push('/(customer)/provider-directory')}
+              activeOpacity={0.9}
+            >
+              <View style={styles.browseProvidersIcon}>
+                <Ionicons name="people" size={28} color="#E53935" />
+              </View>
+              <View style={styles.browseProvidersContent}>
+                <Text style={styles.browseProvidersTitle}>Browse Providers</Text>
+                <Text style={styles.browseProvidersSubtitle}>
+                  View all available service providers
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color="#E53935" />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* ===== POPULAR PROJECTS CAROUSEL (All Tappable) ===== */}
