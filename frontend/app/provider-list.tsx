@@ -416,7 +416,82 @@ export default function ProviderListScreen() {
               </View>
             )}
 
-            {providers.map((provider) => {
+            {/* Filter & Sort Controls */}
+            <View style={styles.filterBar}>
+              {/* Sort Button */}
+              <TouchableOpacity 
+                style={styles.sortButton}
+                onPress={() => setShowSortModal(true)}
+              >
+                <Ionicons name="swap-vertical" size={16} color="#666" />
+                <Text style={styles.sortButtonText}>
+                  {SORT_OPTIONS.find(o => o.value === sortBy)?.label || 'Sort'}
+                </Text>
+                <Ionicons name="chevron-down" size={14} color="#666" />
+              </TouchableOpacity>
+              
+              {/* Availability Filter */}
+              <View style={styles.filterPills}>
+                {AVAILABILITY_OPTIONS.map((option) => (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={[
+                      styles.filterPill,
+                      availabilityFilter === option.value && styles.filterPillActive
+                    ]}
+                    onPress={() => setAvailabilityFilter(option.value)}
+                  >
+                    <Text style={[
+                      styles.filterPillText,
+                      availabilityFilter === option.value && styles.filterPillTextActive
+                    ]}>
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              
+              {/* Verified Toggle */}
+              <TouchableOpacity
+                style={[
+                  styles.filterPill,
+                  verifiedOnly && styles.filterPillActive
+                ]}
+                onPress={() => setVerifiedOnly(!verifiedOnly)}
+              >
+                <Ionicons 
+                  name="checkmark-circle" 
+                  size={14} 
+                  color={verifiedOnly ? '#FFFFFF' : '#666'} 
+                />
+                <Text style={[
+                  styles.filterPillText,
+                  verifiedOnly && styles.filterPillTextActive
+                ]}>
+                  Verified
+                </Text>
+              </TouchableOpacity>
+            </View>
+            
+            {/* Filtered results count */}
+            {(availabilityFilter !== 'all' || verifiedOnly || sortBy !== 'default') && (
+              <View style={styles.filterStatusBar}>
+                <Text style={styles.filterStatusText}>
+                  Showing {filteredAndSortedProviders.length} of {providers.length} providers
+                </Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    setSortBy('default');
+                    setAvailabilityFilter('all');
+                    setVerifiedOnly(false);
+                  }}
+                >
+                  <Text style={styles.clearFiltersText}>Clear all</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {filteredAndSortedProviders.map((provider) => {
               // Check if provider is away
               const isAway = provider.availabilityStatus === 'away';
               const favorited = isFavorite(provider._id);
