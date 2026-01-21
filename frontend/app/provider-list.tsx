@@ -1324,15 +1324,17 @@ const styles = StyleSheet.create({
   sortButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#E53935',
     gap: 4,
   },
   sortButtonText: {
     fontSize: 13,
-    color: '#666',
+    color: '#E53935',
     fontWeight: '500',
   },
   filterPills: {
