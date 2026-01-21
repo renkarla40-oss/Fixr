@@ -104,6 +104,7 @@ export default function ProfileScreen() {
             <Text style={styles.email}>{user?.email}</Text>
             <Text style={styles.phone}>{user?.phone}</Text>
             <View style={styles.roleBadge}>
+              <Ionicons name="person" size={14} color="#4CAF50" />
               <Text style={styles.roleText}>Customer</Text>
             </View>
           </View>
