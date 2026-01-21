@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -22,6 +22,22 @@ import { getServiceLabel } from '../constants/serviceCategories';
 import { kmToMiles } from '../constants/distanceUtils';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+
+// Sort options
+type SortOption = 'default' | 'rating' | 'distance' | 'jobs';
+const SORT_OPTIONS: { value: SortOption; label: string }[] = [
+  { value: 'default', label: 'Default' },
+  { value: 'rating', label: 'Highest Rated' },
+  { value: 'distance', label: 'Nearest' },
+  { value: 'jobs', label: 'Most Jobs' },
+];
+
+// Availability filter options
+type AvailabilityFilter = 'all' | 'available';
+const AVAILABILITY_OPTIONS: { value: AvailabilityFilter; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'available', label: 'Available Now' },
+];
 
 interface Provider {
   _id: string;
