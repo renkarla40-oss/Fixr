@@ -423,11 +423,11 @@ export default function ProviderListScreen() {
                 style={styles.sortButton}
                 onPress={() => setShowSortModal(true)}
               >
-                <Ionicons name="swap-vertical" size={16} color="#666" />
+                <Ionicons name="swap-vertical" size={16} color="#E53935" />
                 <Text style={styles.sortButtonText}>
                   {SORT_OPTIONS.find(o => o.value === sortBy)?.label || 'Sort'}
                 </Text>
-                <Ionicons name="chevron-down" size={14} color="#666" />
+                <Ionicons name="chevron-down" size={14} color="#E53935" />
               </TouchableOpacity>
               
               {/* Availability Filter */}
