@@ -264,7 +264,16 @@ export default function ProviderDetailScreen() {
             <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
           </TouchableOpacity>
           <Text style={styles.title}>Provider Details</Text>
-          <View style={styles.backButton} />
+          <TouchableOpacity
+            onPress={() => toggleFavorite(providerId)}
+            style={styles.backButton}
+          >
+            <Ionicons 
+              name={favorited ? "heart" : "heart-outline"} 
+              size={24} 
+              color={favorited ? "#E53935" : "#666"} 
+            />
+          </TouchableOpacity>
         </View>
 
         <ScrollView
