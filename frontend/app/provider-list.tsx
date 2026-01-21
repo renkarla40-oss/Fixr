@@ -49,6 +49,7 @@ export default function ProviderListScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { token } = useAuth();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const insets = useSafeAreaInsets();
   
   // Phase 1 Enforcement: requestId is REQUIRED
