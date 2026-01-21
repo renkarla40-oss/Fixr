@@ -714,6 +714,47 @@ export default function ProviderListScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Sort Modal */}
+      <Modal
+        visible={showSortModal}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setShowSortModal(false)}
+      >
+        <TouchableOpacity 
+          style={styles.sortModalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowSortModal(false)}
+        >
+          <View style={styles.sortModalContent}>
+            <Text style={styles.sortModalTitle}>Sort By</Text>
+            {SORT_OPTIONS.map((option) => (
+              <TouchableOpacity
+                key={option.value}
+                style={[
+                  styles.sortOption,
+                  sortBy === option.value && styles.sortOptionActive
+                ]}
+                onPress={() => {
+                  setSortBy(option.value);
+                  setShowSortModal(false);
+                }}
+              >
+                <Text style={[
+                  styles.sortOptionText,
+                  sortBy === option.value && styles.sortOptionTextActive
+                ]}>
+                  {option.label}
+                </Text>
+                {sortBy === option.value && (
+                  <Ionicons name="checkmark" size={20} color="#E53935" />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 }
