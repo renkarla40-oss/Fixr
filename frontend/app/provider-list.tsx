@@ -417,7 +417,7 @@ export default function ProviderListScreen() {
             )}
 
             {/* Filter & Sort Controls */}
-            <View style={styles.filterBar}>
+            <View style={styles.sortFilterBar}>
               {/* Sort Button */}
               <TouchableOpacity 
                 style={styles.sortButton}
