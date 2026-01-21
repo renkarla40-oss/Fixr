@@ -668,6 +668,45 @@ const styles = StyleSheet.create({
     color: '#4A7DC4',
   },
 
+  // ===== BROWSE PROVIDERS CARD =====
+  browseProvidersCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 16,
+    padding: 16,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  browseProvidersIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#FFF5F5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  browseProvidersContent: {
+    flex: 1,
+  },
+  browseProvidersTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    marginBottom: 2,
+  },
+  browseProvidersSubtitle: {
+    fontSize: 13,
+    color: '#666',
+  },
+
   // ===== PROJECT CARDS (Carousel - All Tappable) =====
   carouselContent: {
     paddingHorizontal: 16,
