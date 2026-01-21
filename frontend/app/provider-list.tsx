@@ -370,7 +370,7 @@ export default function ProviderListScreen() {
               <TouchableOpacity
                 key={provider._id}
                 style={styles.providerCard}
-                onPress={() => handleProviderPress(provider._id)}
+                onPress={() => handleProviderPress(provider._id, isAway)}
                 activeOpacity={0.7}
               >
                 <View style={styles.providerHeader}>
