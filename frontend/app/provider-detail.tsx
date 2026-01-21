@@ -51,6 +51,8 @@ export default function ProviderDetailScreen() {
   const location = params.location as string | undefined;
   // Phase 1B: Receive requestId from provider list
   const requestId = params.requestId as string | undefined;
+  // Directory browsing mode - no request yet
+  const fromDirectory = params.fromDirectory === 'true';
 
   const [provider, setProvider] = useState<Provider | null>(null);
   const [loading, setLoading] = useState(true);
@@ -62,6 +64,9 @@ export default function ProviderDetailScreen() {
 
   // Phase 1B: Check if requestId is valid
   const hasValidRequestId = requestId && requestId !== '' && requestId !== 'undefined' && requestId !== 'null';
+  
+  // Check if user is browsing from directory (no request context)
+  const isBrowsingOnly = fromDirectory || !hasValidRequestId;
   
   // Check if this provider is favorited
   const favorited = providerId ? isFavorite(providerId) : false;
