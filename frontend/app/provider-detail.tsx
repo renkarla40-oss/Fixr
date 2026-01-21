@@ -43,6 +43,7 @@ export default function ProviderDetailScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { token } = useAuth();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const insets = useSafeAreaInsets();
   const providerId = params.providerId as string;
   const category = params.category as string;
@@ -61,6 +62,9 @@ export default function ProviderDetailScreen() {
 
   // Phase 1B: Check if requestId is valid
   const hasValidRequestId = requestId && requestId !== '' && requestId !== 'undefined' && requestId !== 'null';
+  
+  // Check if this provider is favorited
+  const favorited = providerId ? isFavorite(providerId) : false;
 
   useEffect(() => {
     fetchProvider();
