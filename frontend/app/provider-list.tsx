@@ -1312,4 +1312,108 @@ const styles = StyleSheet.create({
     color: '#999',
     fontSize: 14,
   },
+  // Sort & Filter Bar Styles
+  sortFilterBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  sortButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    gap: 4,
+  },
+  sortButtonText: {
+    fontSize: 13,
+    color: '#666',
+    fontWeight: '500',
+  },
+  filterPills: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  filterPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
+    gap: 4,
+  },
+  filterPillActive: {
+    backgroundColor: '#E53935',
+  },
+  filterPillText: {
+    fontSize: 12,
+    color: '#666',
+    fontWeight: '500',
+  },
+  filterPillTextActive: {
+    color: '#FFFFFF',
+  },
+  filterStatusBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+    paddingBottom: 8,
+  },
+  filterStatusText: {
+    fontSize: 12,
+    color: '#666',
+  },
+  clearFiltersText: {
+    fontSize: 12,
+    color: '#E53935',
+    fontWeight: '600',
+  },
+  // Sort Modal Styles
+  sortModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  sortModalContent: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingTop: 20,
+    paddingBottom: 34,
+    paddingHorizontal: 16,
+  },
+  sortModalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  sortOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  sortOptionActive: {
+    backgroundColor: '#FFF5F5',
+  },
+  sortOptionText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  sortOptionTextActive: {
+    color: '#E53935',
+    fontWeight: '600',
+  },
 });
