@@ -1,66 +1,65 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Image, Animated, Easing } from 'react-native';
+import { View, StyleSheet, Image, Animated, Easing, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
 
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+// Metro-style logo sizing: 70% of screen width
+const LOGO_WIDTH = SCREEN_WIDTH * 0.7;
+const LOGO_HEIGHT = LOGO_WIDTH * 0.5; // Maintain aspect ratio
+
 /**
- * Splash Screen - Waits for auth loading to complete
+ * Splash Screen - Metro by T-Mobile Style
  * 
- * Shows splash animation while AuthContext validates stored session.
- * Routes to welcome screen which handles authenticated user routing.
+ * BRAND-FIRST splash with bold, dominant Fixr logo.
+ * Animation: Scale down from 110% to 100% with ease-out (600-800ms).
+ * No fade, no bounce, no gimmicks.
  */
 export default function SplashScreen() {
   const router = useRouter();
   const { loading } = useAuth();
-  const scaleAnim = useRef(new Animated.Value(0.5)).current;
-  const opacityAnim = useRef(new Animated.Value(0)).current;
+  
+  // Metro-style animation: starts slightly larger (1.1x), scales down to 1.0x
+  const scaleAnim = useRef(new Animated.Value(1.1)).current;
   const animationComplete = useRef(false);
   const hasNavigated = useRef(false);
 
-  // Run splash animation
+  // Run Metro-style scale-down animation
   useEffect(() => {
-    Animated.parallel([
-      Animated.timing(scaleAnim, {
-        toValue: 1.4,
-        duration: 1400,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-      Animated.timing(opacityAnim, {
-        toValue: 1,
-        duration: 400,
-        easing: Easing.out(Easing.ease),
-        useNativeDriver: true,
-      }),
-    ]).start();
+    Animated.timing(scaleAnim, {
+      toValue: 1.0,
+      duration: 700, // 600-800ms range
+      easing: Easing.out(Easing.cubic), // ease-out
+      useNativeDriver: true,
+    }).start(() => {
+      // Animation complete callback
+      animationComplete.current = true;
+    });
 
-    // Mark animation as complete after 1600ms
+    // Fallback: mark animation complete after duration + buffer
     const timer = setTimeout(() => {
       animationComplete.current = true;
-    }, 1600);
+    }, 800);
 
     return () => clearTimeout(timer);
   }, []);
 
-  // Navigate only when BOTH animation is complete AND auth loading is done
+  // Navigate when BOTH animation is complete AND auth loading is done
   useEffect(() => {
-    if (!loading && animationComplete.current && !hasNavigated.current) {
-      hasNavigated.current = true;
-      // Always route to welcome - it handles authenticated user redirection
-      router.replace('/welcome');
-    }
-  }, [loading]);
-
-  // Also check periodically in case loading finished before animation
-  useEffect(() => {
-    const interval = setInterval(() => {
+    const checkAndNavigate = () => {
       if (!loading && animationComplete.current && !hasNavigated.current) {
         hasNavigated.current = true;
-        // Always route to welcome - it handles authenticated user redirection
+        // Transition directly to welcome screen
         router.replace('/welcome');
-        clearInterval(interval);
       }
-    }, 100);
+    };
+
+    // Check immediately
+    checkAndNavigate();
+
+    // Also check periodically in case loading finished before animation
+    const interval = setInterval(checkAndNavigate, 50);
 
     return () => clearInterval(interval);
   }, [loading]);
@@ -72,12 +71,11 @@ export default function SplashScreen() {
           styles.logoWrapper,
           {
             transform: [{ scale: scaleAnim }],
-            opacity: opacityAnim,
           },
         ]}
       >
-        <Image 
-          source={require('../assets/images/fixr-logo.png')} 
+        <Image
+          source={require('../assets/images/fixr-logo.png')}
           style={styles.logo}
           resizeMode="contain"
         />
@@ -89,7 +87,7 @@ export default function SplashScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#000000', // Solid black background
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -98,7 +96,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logo: {
-    width: 260,
-    height: 130,
+    width: LOGO_WIDTH,
+    height: LOGO_HEIGHT,
   },
 });

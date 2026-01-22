@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ImageBackground, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ImageBackground, ActivityIndicator } from 'react-native';
 import { useRouter, useSegments } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -134,14 +134,11 @@ export default function WelcomeScreen() {
     router.push('/login');
   };
 
+  // Loading state - simple spinner, NO logo (logo is on splash only)
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <Image 
-          source={require('../assets/images/fixr-logo.png')} 
-          style={styles.loadingLogo}
-          resizeMode="contain"
-        />
+        <ActivityIndicator size="large" color="#E53935" />
       </View>
     );
   }
@@ -164,20 +161,13 @@ export default function WelcomeScreen() {
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
         >
-          {/* Logo at top - White circular background with correct Fixr logo for light backdrop */}
-          <View style={styles.logoSection}>
-            <View style={styles.logoContainer}>
-              <Image 
-                source={require('../assets/images/fixr-logo-welcome.png')} 
-                style={styles.logo}
-                resizeMode="contain"
-              />
-            </View>
-          </View>
+          {/* NO LOGO - Branding lives ONLY on splash screen */}
+          {/* Top spacer to replace former logo section */}
+          <View style={styles.topSpacer} />
 
           {/* Content Section */}
           <View style={styles.contentSection}>
-            <Text style={styles.tagline}>Where Trinis{'\n'}Get Things Done</Text>
+            <Text style={styles.tagline}>Where Trinis{"\n"}Get Things Done</Text>
             <Text style={styles.subtitle}>
               Book trusted Fixrs faster, track your jobs, and manage everything in one place.
             </Text>
@@ -238,13 +228,9 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  loadingLogo: {
-    width: 260,
-    height: 130,
   },
   heroBackground: {
     flex: 1,
@@ -256,28 +242,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     justifyContent: 'space-between',
   },
-  logoSection: {
-    alignItems: 'center',
-    paddingTop: 56,
-  },
-  logoContainer: {
-    width: 72,
-    height: 72,
-    backgroundColor: 'rgba(255,255,255,0.80)',
-    borderRadius: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    // Subtle shadow for premium feel
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  logo: {
-    width: 64,
-    height: 64,
+  // Top spacer replaces former logo section
+  topSpacer: {
+    height: 80,
   },
   contentSection: {
     flex: 1,
