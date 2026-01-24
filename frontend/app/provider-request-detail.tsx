@@ -1558,7 +1558,7 @@ export default function ProviderRequestDetailScreen() {
                     <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
                     <Text style={styles.paidJobCodeTitle}>Payment Secured!</Text>
                   </View>
-                  <Text style={styles.paidJobCodeHint}>Ask the customer for the 6-digit code to start</Text>
+                  <Text style={styles.paidJobCodeHint}>Payment secured. Start Code is collected ON-SITE. When you arrive at the job location, ask the customer to reveal the 6-digit Start Code to officially begin the job.</Text>
                   <View style={styles.paidJobCodeInputRow}>
                     <TextInput
                       style={styles.paidJobCodeInput}
