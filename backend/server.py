@@ -4300,6 +4300,30 @@ async def cancel_request(request_id: str, current_user: User = Depends(get_curre
             body=f"Your {request['service']} request was cancelled by the provider.",
             data={"type": "request_cancelled", "requestId": str(request["_id"])}
         )
+        
+        # Add system message for customer when provider cancels after accepting (idempotent)
+        if current_status == "accepted":
+            cancel_message_text = "The provider has cancelled this job. You can submit a new request to reach other available providers."
+            existing_cancel_msg = await db.job_messages.find_one({
+                "requestId": request_id,
+                "type": "system",
+                "text": cancel_message_text
+            })
+            
+            if not existing_cancel_msg:
+                cancel_message = {
+                    "requestId": request_id,
+                    "senderId": "system",
+                    "senderName": "Fixr",
+                    "senderRole": "system",
+                    "type": "system",
+                    "text": cancel_message_text,
+                    "createdAt": datetime.utcnow(),
+                    "deliveredAt": datetime.utcnow(),
+                    "readAt": None,
+                }
+                await db.job_messages.insert_one(cancel_message)
+                logger.info(f"[Cancel Debug] Inserted system message for provider cancellation, requestId={request_id}")
     
     return {"success": True, "message": "Request cancelled"}
 
