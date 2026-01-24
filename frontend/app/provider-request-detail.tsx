@@ -1021,7 +1021,7 @@ export default function ProviderRequestDetailScreen() {
             {request.paymentStatus === 'held' && request.status === 'awaiting_payment' && (
               <View style={styles.jobCodeSection}>
                 <Text style={styles.jobCodeLabel}>✓ Payment Confirmed! Start Job</Text>
-                <Text style={styles.jobCodeHint}>Ask the customer for the 6-digit code to begin</Text>
+                <Text style={styles.jobCodeHint}>Payment secured. Start Code is collected ON-SITE. When you arrive at the job location, ask the customer to reveal the 6-digit Start Code to officially begin the job.</Text>
                 <View style={styles.jobCodeInputRow}>
                   <TextInput
                     style={styles.jobCodeInput}
