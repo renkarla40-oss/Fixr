@@ -174,6 +174,15 @@ export default function ProviderRequestDetailScreen() {
     }, [requestId, token])
   );
 
+  // Refetch messages when screen gains focus (if on chat tab)
+  useFocusEffect(
+    useCallback(() => {
+      if (activeTab === 'chat' && request?._id) {
+        fetchMessages();
+      }
+    }, [activeTab, request?._id])
+  );
+
   // CRITICAL: Continuous status polling - runs independently of tabs
   // This ensures provider sees payment confirmation in real-time
   useEffect(() => {
