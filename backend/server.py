@@ -4281,23 +4281,12 @@ async def cancel_request(request_id: str, current_user: User = Depends(get_curre
     if not request:
         raise HTTPException(status_code=404, detail="Request not found")
     
-    # TEMPORARY DEBUG LOGS - START
-    logger.info(f"[CANCEL_DEBUG] ========== CANCEL REQUEST START ==========")
-    logger.info(f"[CANCEL_DEBUG] requestId={request_id}")
-    logger.info(f"[CANCEL_DEBUG] request.status (before)={request.get('status')}")
-    logger.info(f"[CANCEL_DEBUG] customerId value={request.get('customerId')}, type={type(request.get('customerId'))}")
-    logger.info(f"[CANCEL_DEBUG] providerId value={request.get('providerId')}, type={type(request.get('providerId'))}")
-    logger.info(f"[CANCEL_DEBUG] current_user.id={current_user.id}")
-    # TEMPORARY DEBUG LOGS - END
-    
     # Verify the current user is either the customer or the provider
     # Handle both string and ObjectId comparison for customerId
     request_customer_id = str(request.get("customerId", ""))
     is_customer = request_customer_id == current_user.id
     provider = await db.providers.find_one({"userId": current_user.id})
     is_provider = provider and str(provider["_id"]) == request.get("providerId")
-    
-    logger.info(f"[CANCEL_DEBUG] is_customer={is_customer}, is_provider={is_provider}")
     
     if not is_customer and not is_provider:
         raise HTTPException(status_code=403, detail="Not authorized to cancel this request")
@@ -4317,7 +4306,6 @@ async def cancel_request(request_id: str, current_user: User = Depends(get_curre
     
     # Determine cancelledBy
     cancelled_by = "customer" if is_customer else "provider"
-    logger.info(f"[CANCEL_DEBUG] cancelledBy={cancelled_by}")
     
     await db.service_requests.update_one(
         {"_id": ObjectId(request_id)},
@@ -4330,12 +4318,9 @@ async def cancel_request(request_id: str, current_user: User = Depends(get_curre
     
     # Determine who to notify
     has_provider_id = bool(request.get("providerId"))
-    logger.info(f"[CANCEL_DEBUG] has_provider_id={has_provider_id}")
     
     if is_customer and has_provider_id:
         # Customer cancelled an accepted request - ALWAYS insert system message for provider
-        logger.info(f"[CANCEL_DEBUG] ATTEMPTING to insert system message for provider")
-        
         customer_cancel_message_text = "The customer has cancelled this request."
         existing_customer_cancel_msg = await db.job_messages.find_one({
             "requestId": request_id,
@@ -4345,9 +4330,7 @@ async def cancel_request(request_id: str, current_user: User = Depends(get_curre
             "text": customer_cancel_message_text
         })
         
-        if existing_customer_cancel_msg:
-            logger.info(f"[CANCEL_DEBUG] SKIPPED - message already exists (idempotency)")
-        else:
+        if not existing_customer_cancel_msg:
             customer_cancel_message = {
                 "requestId": request_id,
                 "senderId": "system",
@@ -4359,8 +4342,7 @@ async def cancel_request(request_id: str, current_user: User = Depends(get_curre
                 "deliveredAt": datetime.utcnow(),
                 "readAt": None,
             }
-            result = await db.job_messages.insert_one(customer_cancel_message)
-            logger.info(f"[CANCEL_DEBUG] INSERTED system message, _id={result.inserted_id}")
+            await db.job_messages.insert_one(customer_cancel_message)
         
         # Try to notify provider via push (optional, doesn't affect message insertion)
         try:
@@ -4375,9 +4357,7 @@ async def cancel_request(request_id: str, current_user: User = Depends(get_curre
                         data={"type": "request_cancelled", "requestId": str(request["_id"])}
                     )
         except Exception as e:
-            logger.warning(f"[CANCEL_DEBUG] Failed to send push notification to provider: {e}")
-    else:
-        logger.info(f"[CANCEL_DEBUG] NOT inserting provider message: is_customer={is_customer}, has_provider_id={has_provider_id}")
+            logger.warning(f"Failed to send push notification to provider: {e}")
     
     if is_provider:
         # Provider cancelled - notify customer
