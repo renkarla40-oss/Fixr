@@ -703,6 +703,38 @@ export default function ProviderRequestDetailScreen() {
     );
   };
 
+  // Provider cancels job (after accepting, before starting)
+  const handleCancelJob = () => {
+    Alert.alert(
+      'Cancel this job?',
+      'This will notify the customer and close this job.',
+      [
+        { text: 'No, keep job', style: 'cancel' },
+        { 
+          text: 'Yes, cancel job', 
+          style: 'destructive', 
+          onPress: async () => {
+            setCancellingJob(true);
+            try {
+              await axios.patch(
+                `${BACKEND_URL}/api/service-requests/${requestId}/cancel`,
+                {},
+                { headers: { Authorization: `Bearer ${token}` } }
+              );
+              await fetchRequestDetail();
+              Alert.alert('Job Cancelled', 'The customer has been notified.');
+            } catch (err: any) {
+              const message = err?.response?.data?.detail || 'Failed to cancel job. Please try again.';
+              Alert.alert('Error', message);
+            } finally {
+              setCancellingJob(false);
+            }
+          }
+        },
+      ]
+    );
+  };
+
   const updateRequestStatus = async (action: 'accept' | 'decline') => {
     setActionLoading(true);
     try {
