@@ -4297,11 +4297,19 @@ async def cancel_request(request_id: str, current_user: User = Depends(get_curre
     
     # Enforce valid status transition: cannot cancel after in_progress or completed
     current_status = request.get("status")
+    payment_status = request.get("paymentStatus")
+    
     if current_status in ["in_progress", "started", "completed"]:
         raise HTTPException(status_code=400, detail="This job cannot be cancelled as it has already started or completed")
     
     if current_status in ["cancelled", "declined"]:
         raise HTTPException(status_code=400, detail="This request has already been cancelled or declined")
+    
+    # Block customer cancellation if payment is already secured
+    if is_customer and current_status == "awaiting_payment" and payment_status == "held":
+        raise HTTPException(status_code=400, detail="This job cannot be cancelled as payment has already been secured. Please contact the provider or support.")
+    
+    logger.info(f"[Cancel Debug] Proceeding with cancellation: status={current_status}, payment_status={payment_status}, is_customer={is_customer}")
     
     await db.service_requests.update_one(
         {"_id": ObjectId(request_id)},
