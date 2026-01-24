@@ -890,8 +890,13 @@ export default function RequestDetailScreen() {
     }
   };
 
-  // Check if customer can cancel this request (only pending or accepted)
-  const canCancel = request && ['pending', 'accepted'].includes(request.status);
+  // Check if customer can cancel this request
+  // Allowed: pending, accepted, awaiting_payment (if payment NOT held)
+  // Blocked: in_progress, started, completed, cancelled, declined, or awaiting_payment with payment held
+  const canCancel = request && (
+    ['pending', 'accepted'].includes(request.status) ||
+    (request.status === 'awaiting_payment' && request.paymentStatus !== 'held')
+  );
 
   const handleCancelRequest = async () => {
     if (!request?._id) return;
@@ -916,7 +921,8 @@ export default function RequestDetailScreen() {
               fetchRequestDetail();
               Alert.alert('Cancelled', 'Your request has been cancelled.');
             } catch (err: any) {
-              Alert.alert('Unable to Cancel', 'We couldn\'t cancel this request. Please try again.');
+              const errorMessage = err?.response?.data?.detail || 'We couldn\'t cancel this request. Please try again.';
+              Alert.alert('Unable to Cancel', errorMessage);
             }
           },
         },
