@@ -1136,6 +1136,24 @@ export default function ProviderRequestDetailScreen() {
               </View>
             )}
 
+            {/* Cancel Job Button - Only show when job is accepted/awaiting_payment but NOT started */}
+            {['accepted', 'awaiting_payment'].includes(request.status) && (
+              <TouchableOpacity
+                style={styles.cancelJobButton}
+                onPress={handleCancelJob}
+                disabled={cancellingJob}
+              >
+                {cancellingJob ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <>
+                    <Ionicons name="close-circle-outline" size={20} color="#FFFFFF" />
+                    <Text style={styles.cancelJobButtonText}>Cancel Job</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            )}
+
             {/* Finish Job Button and OTP Input - MOVED UP for visibility (when in_progress) */}
             {request.status === 'in_progress' && (
               <View style={styles.finishJobSection}>
