@@ -4321,19 +4321,8 @@ async def cancel_request(request_id: str, current_user: User = Depends(get_curre
     
     # Determine who to notify
     if is_customer and request.get("providerId"):
-        # Customer cancelled - notify provider
-        provider_user = await db.providers.find_one({"_id": ObjectId(request["providerId"])})
-        if provider_user:
-            notify_user_id = provider_user.get("userId")
-            if notify_user_id:
-                await send_push_notification(
-                    user_id=notify_user_id,
-                    title="Request Cancelled",
-                    body=f"A {request['service']} request was cancelled by the customer.",
-                    data={"type": "request_cancelled", "requestId": str(request["_id"])}
-                )
-        
-        # Add system message for provider when customer cancels (idempotent)
+        # Customer cancelled an accepted request - ALWAYS insert system message for provider
+        # Do this BEFORE provider lookup so it doesn't depend on lookup success
         customer_cancel_message_text = "The customer has cancelled this request."
         existing_customer_cancel_msg = await db.job_messages.find_one({
             "requestId": request_id,
@@ -4357,6 +4346,21 @@ async def cancel_request(request_id: str, current_user: User = Depends(get_curre
             }
             await db.job_messages.insert_one(customer_cancel_message)
             logger.info(f"[Cancel Debug] Inserted system message for customer cancellation, requestId={request_id}")
+        
+        # Try to notify provider via push (optional, doesn't affect message insertion)
+        try:
+            provider_user = await db.providers.find_one({"_id": ObjectId(request["providerId"])})
+            if provider_user:
+                notify_user_id = provider_user.get("userId")
+                if notify_user_id:
+                    await send_push_notification(
+                        user_id=notify_user_id,
+                        title="Request Cancelled",
+                        body=f"A {request['service']} request was cancelled by the customer.",
+                        data={"type": "request_cancelled", "requestId": str(request["_id"])}
+                    )
+        except Exception as e:
+            logger.warning(f"[Cancel Debug] Failed to send push notification to provider: {e}")
     elif is_provider:
         # Provider cancelled - notify customer
         await send_push_notification(
