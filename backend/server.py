@@ -4306,6 +4306,8 @@ async def cancel_request(request_id: str, current_user: User = Depends(get_curre
             cancel_message_text = "The provider has cancelled this job. You can submit a new request to reach other available providers."
             existing_cancel_msg = await db.job_messages.find_one({
                 "requestId": request_id,
+                "senderId": "system",
+                "senderName": "Fixr",
                 "type": "system",
                 "text": cancel_message_text
             })
