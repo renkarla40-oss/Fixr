@@ -41,6 +41,23 @@ export default function CustomerInboxScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  // Guard to prevent double-tap navigation
+  const isNavigatingRef = useRef(false);
+
+  const handleConversationPress = (requestId: string) => {
+    // Prevent double-tap: if already navigating, ignore
+    if (isNavigatingRef.current) return;
+    
+    isNavigatingRef.current = true;
+    
+    router.push({ pathname: '/request-detail', params: { requestId } });
+    
+    // Reset after 1000ms to allow future taps
+    setTimeout(() => {
+      isNavigatingRef.current = false;
+    }, 1000);
+  };
+
   // Clear unread badge when Inbox screen is focused
   useFocusEffect(
     useCallback(() => {
