@@ -4281,8 +4281,14 @@ async def cancel_request(request_id: str, current_user: User = Depends(get_curre
     if not request:
         raise HTTPException(status_code=404, detail="Request not found")
     
+    # Debug logging
+    logger.info(f"[Cancel Debug] request_id={request_id}, current_user.id={current_user.id}")
+    logger.info(f"[Cancel Debug] request.customerId={request.get('customerId')}, type={type(request.get('customerId'))}")
+    
     # Verify the current user is either the customer or the provider
-    is_customer = request["customerId"] == current_user.id
+    # Handle both string and ObjectId comparison for customerId
+    request_customer_id = str(request.get("customerId", ""))
+    is_customer = request_customer_id == current_user.id
     provider = await db.providers.find_one({"userId": current_user.id})
     is_provider = provider and str(provider["_id"]) == request.get("providerId")
     
