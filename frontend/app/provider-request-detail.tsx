@@ -1136,8 +1136,8 @@ export default function ProviderRequestDetailScreen() {
               </View>
             )}
 
-            {/* Cancel Job Button - Only show when job is accepted/awaiting_payment but NOT started */}
-            {['accepted', 'awaiting_payment'].includes(request.status) && (
+            {/* Cancel Job Button - Only show when job is accepted AND no quote sent yet */}
+            {request.status === 'accepted' && (!currentQuote || currentQuote.status === 'VOID') && (
               <TouchableOpacity
                 style={styles.cancelJobButton}
                 onPress={handleCancelJob}
