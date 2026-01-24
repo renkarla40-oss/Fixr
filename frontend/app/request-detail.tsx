@@ -891,12 +891,9 @@ export default function RequestDetailScreen() {
   };
 
   // Check if customer can cancel this request
-  // Allowed: pending, accepted, awaiting_payment (if payment NOT held)
-  // Blocked: in_progress, started, completed, cancelled, declined, or awaiting_payment with payment held
-  const canCancel = request && (
-    ['pending', 'accepted'].includes(request.status) ||
-    (request.status === 'awaiting_payment' && request.paymentStatus !== 'held')
-  );
+  // Allowed: pending, accepted ONLY
+  // Blocked: awaiting_payment (quote sent), in_progress, completed, etc.
+  const canCancel = request && ['pending', 'accepted'].includes(request.status);
 
   const handleCancelRequest = async () => {
     if (!request?._id) return;
