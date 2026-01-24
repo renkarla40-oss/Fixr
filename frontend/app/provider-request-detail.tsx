@@ -2362,6 +2362,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
+  // Cancel Job Button
+  cancelJobButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#757575',
+    paddingVertical: 14,
+    borderRadius: 12,
+    gap: 8,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  cancelJobButtonText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '600',
+  },
   // Finish Job Section
   finishJobSection: {
     marginTop: 16,
