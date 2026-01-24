@@ -4025,6 +4025,33 @@ async def create_service_request(
         result = await db.service_requests.insert_one(request_dict)
         request_dict["_id"] = str(result.inserted_id)
         
+        # Insert expectation-setting system message (idempotent)
+        request_id_str = str(result.inserted_id)
+        expectation_message_text = "Fixr: Your request was sent. Providers have up to 24 hours to respond. If this is urgent, you can cancel this request anytime and choose another provider."
+        
+        existing_expectation_msg = await db.job_messages.find_one({
+            "requestId": request_id_str,
+            "senderId": "system",
+            "senderName": "Fixr",
+            "type": "system",
+            "text": expectation_message_text
+        })
+        
+        if not existing_expectation_msg:
+            expectation_message = {
+                "requestId": request_id_str,
+                "senderId": "system",
+                "senderName": "Fixr",
+                "senderRole": "system",
+                "type": "system",
+                "text": expectation_message_text,
+                "createdAt": datetime.utcnow(),
+                "deliveredAt": datetime.utcnow(),
+                "readAt": None,
+            }
+            await db.job_messages.insert_one(expectation_message)
+            logger.info(f"[Request Create] Inserted expectation system message for requestId={request_id_str}")
+        
         # Send notification to provider for new job request
         if not is_general_request and provider_id:
             provider = await db.providers.find_one({"_id": ObjectId(provider_id)})
