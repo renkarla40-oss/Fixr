@@ -138,6 +138,9 @@ export default function ProviderRequestDetailScreen() {
   const [completionOtpInput, setCompletionOtpInput] = useState('');
   const [showCompletionOtpInput, setShowCompletionOtpInput] = useState(false);
   const [completingJob, setCompletingJob] = useState(false);
+  
+  // Cancel job state
+  const [cancellingJob, setCancellingJob] = useState(false);
 
   // Payout info (read-only display)
   const [payoutInfo, setPayoutInfo] = useState<{
