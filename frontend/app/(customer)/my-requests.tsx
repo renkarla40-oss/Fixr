@@ -96,11 +96,24 @@ export default function MyRequestsScreen() {
     fetchRequests();
   };
 
+  // Guard to prevent double-tap navigation
+  const isNavigatingRef = useRef(false);
+
   const handleRequestPress = (requestId: string) => {
+    // Prevent double-tap: if already navigating, ignore
+    if (isNavigatingRef.current) return;
+    
+    isNavigatingRef.current = true;
+    
     router.push({
       pathname: '/request-detail',
       params: { requestId },
     });
+    
+    // Reset after 1000ms to allow future taps
+    setTimeout(() => {
+      isNavigatingRef.current = false;
+    }, 1000);
   };
 
   const categoryNames: { [key: string]: string } = {
