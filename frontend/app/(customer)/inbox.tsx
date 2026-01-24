@@ -163,7 +163,7 @@ export default function CustomerInboxScreen() {
   const renderConversation = ({ item }: { item: Conversation }) => (
     <TouchableOpacity
       style={styles.conversationItem}
-      onPress={() => router.push({ pathname: '/request-detail', params: { requestId: item.requestId } })}
+      onPress={() => handleConversationPress(item.requestId)}
       activeOpacity={0.7}
     >
       <View style={styles.avatar}>
