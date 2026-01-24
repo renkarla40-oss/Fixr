@@ -246,11 +246,24 @@ export default function ProviderMyJobsScreen() {
     fetchJobs();
   };
 
+  // Guard to prevent double-tap navigation
+  const isNavigatingRef = useRef(false);
+
   const handleJobPress = (jobId: string) => {
+    // Prevent double-tap: if already navigating, ignore
+    if (isNavigatingRef.current) return;
+    
+    isNavigatingRef.current = true;
+    
     router.push({
       pathname: '/provider-request-detail',
       params: { requestId: jobId },
     });
+    
+    // Reset after 1000ms to allow future taps
+    setTimeout(() => {
+      isNavigatingRef.current = false;
+    }, 1000);
   };
 
   const getStatusBadge = (status: string) => {
