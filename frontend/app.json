@@ -35,7 +35,10 @@
           "resizeMode": "contain",
           "backgroundColor": "#000000"
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker",
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
@@ -43,7 +46,11 @@
     "extra": {
       "appName": "Fixr",
       "appVersion": "1.0.0-beta",
-      "buildDate": "2025-12-24"
+      "buildDate": "2025-12-24",
+      "router": {},
+      "eas": {
+        "projectId": "98c9885e-66a0-451b-91eb-0b5061ef14ca"
+      }
     }
   }
 }
