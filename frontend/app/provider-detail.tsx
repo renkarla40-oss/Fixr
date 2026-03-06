@@ -1,0 +1,826 @@
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
+  ActivityIndicator,
+  Alert,
+  Image,
+} from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import axios from 'axios';
+import { useAuth } from '../contexts/AuthContext';
+import { useFavorites } from '../contexts/FavoritesContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+
+interface Provider {
+  _id: string;
+  name: string;
+  phone: string;
+  services: string[];
+  bio: string;
+  verificationStatus: string;
+  profilePhotoUrl?: string | null;
+  averageRating?: number;
+  totalReviews?: number;
+  availabilityStatus?: string;  // "available" | "away"
+}
+
+interface PublicReview {
+  _id: string;
+  rating: number;
+  comment?: string;
+  createdAt?: string;
+}
+
+export default function ProviderDetailScreen() {
+  const router = useRouter();
+  const params = useLocalSearchParams();
+  const { token } = useAuth();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const insets = useSafeAreaInsets();
+  const providerId = params.providerId as string;
+  const category = params.category as string;
+  const subCategory = params.subCategory as string | undefined;
+  const location = params.location as string | undefined;
+  // Phase 1B: Receive requestId from provider list
+  const requestId = params.requestId as string | undefined;
+  // Directory browsing mode - no request yet
+  const fromDirectory = params.fromDirectory === 'true';
+
+  const [provider, setProvider] = useState<Provider | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [reporting, setReporting] = useState(false);
+  const [reviews, setReviews] = useState<PublicReview[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(false);
+  // Phase 1B: Loading state for assigning provider
+  const [assigning, setAssigning] = useState(false);
+
+  // Phase 1B: Check if requestId is valid
+  const hasValidRequestId = requestId && requestId !== '' && requestId !== 'undefined' && requestId !== 'null';
+  
+  // Check if user is browsing from directory (no request context)
+  const isBrowsingOnly = fromDirectory || !hasValidRequestId;
+  
+  // Check if this provider is favorited
+  const favorited = providerId ? isFavorite(providerId) : false;
+
+  useEffect(() => {
+    fetchProvider();
+  }, [providerId]);
+
+  // Fetch reviews when provider is loaded
+  useEffect(() => {
+    if (provider?._id) {
+      fetchReviews();
+    }
+  }, [provider?._id]);
+
+  const fetchReviews = async () => {
+    if (!provider?._id) return;
+    setLoadingReviews(true);
+    try {
+      const response = await axios.get(
+        `${BACKEND_URL}/api/reviews/by-provider/${provider._id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setReviews(response.data.reviews || []);
+    } catch (err) {
+      // Reviews may not exist yet - that's fine
+      if (__DEV__) {
+        console.warn('Error fetching reviews:', err);
+      }
+    } finally {
+      setLoadingReviews(false);
+    }
+  };
+
+  const fetchProvider = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `${BACKEND_URL}/api/providers/${providerId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setProvider(response.data);
+    } catch (error) {
+      if (__DEV__) {
+        console.warn('Error fetching provider:', error);
+      }
+      // Silent fail - will show empty state
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRequestService = async () => {
+    // Phase 1B: If no valid requestId, show error (shouldn't happen in normal flow)
+    if (!hasValidRequestId) {
+      Alert.alert(
+        'Request Required',
+        'Please submit your request first before selecting a provider.',
+        [{ text: 'OK', onPress: () => router.back() }]
+      );
+      return;
+    }
+
+    // Phase 1B: Check provider availability before assigning
+    if (provider?.availabilityStatus === 'away') {
+      return; // Button should be disabled, but double-check
+    }
+
+    setAssigning(true);
+    try {
+      // Phase 1B: Assign provider to existing request (NOT create new)
+      const response = await axios.patch(
+        `${BACKEND_URL}/api/service-requests/${requestId}/assign-provider`,
+        { providerId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Navigate to request detail/job state (not request form!)
+      router.replace({
+        pathname: '/(customer)/request-detail',
+        params: { requestId },
+      });
+    } catch (error: any) {
+      if (__DEV__) {
+        console.warn('Error assigning provider:', error);
+      }
+      
+      const errorMessage = error.response?.data?.detail || 'Unable to select this provider. Please try again.';
+      Alert.alert('Selection Failed', errorMessage);
+    } finally {
+      setAssigning(false);
+    }
+  };
+
+  const handleReportProvider = () => {
+    if (!provider) return;
+    
+    Alert.alert(
+      'Report Provider',
+      `Are you sure you want to report ${provider.name}? This will be reviewed by our support team.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Report',
+          style: 'destructive',
+          onPress: submitReport,
+        },
+      ]
+    );
+  };
+
+  const submitReport = async () => {
+    if (!provider) return;
+    
+    setReporting(true);
+    try {
+      await axios.post(
+        `${BACKEND_URL}/api/feedback`,
+        {
+          type: 'report',
+          subject: 'Provider Report',
+          message: `User reported provider: ${provider.name}`,
+          providerId: provider._id,
+          providerName: provider.name,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      
+      Alert.alert(
+        'Report Submitted',
+        'Thank you for your report. Our team will review it and take appropriate action.',
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      if (__DEV__) {
+        console.warn('Error submitting report:', error);
+      }
+      Alert.alert('Unable to Submit', 'We couldn\'t send your report. Please try again.');
+    } finally {
+      setReporting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.backButton}
+            >
+              <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+            </TouchableOpacity>
+            <Text style={styles.title}>Provider Details</Text>
+            <View style={styles.backButton} />
+          </View>
+          <View style={styles.centerContent}>
+            <ActivityIndicator size="large" color="#E53935" />
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (!provider) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.backButton}
+            >
+              <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+            </TouchableOpacity>
+            <Text style={styles.title}>Provider Details</Text>
+            <View style={styles.backButton} />
+          </View>
+          <View style={styles.centerContent}>
+            <Text style={styles.errorText}>Provider not found</Text>
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backButton}
+          >
+            <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+          </TouchableOpacity>
+          <Text style={styles.title}>Provider Details</Text>
+          <TouchableOpacity
+            onPress={() => toggleFavorite(providerId)}
+            style={styles.backButton}
+          >
+            <Ionicons 
+              name={favorited ? "heart" : "heart-outline"} 
+              size={24} 
+              color={favorited ? "#E53935" : "#666"} 
+            />
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView
+          style={styles.content}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.profileSection}>
+            <View style={styles.avatarLarge}>
+              {provider.profilePhotoUrl ? (
+                <Image
+                  source={{ uri: provider.profilePhotoUrl.startsWith('http') 
+                    ? provider.profilePhotoUrl 
+                    : `${BACKEND_URL}${provider.profilePhotoUrl}` 
+                  }}
+                  style={styles.avatarImage}
+                />
+              ) : (
+                <Ionicons name="person" size={64} color="#666" />
+              )}
+            </View>
+            <View style={styles.nameContainer}>
+              <Text style={styles.providerName}>{provider.name}</Text>
+              <View style={styles.badgeRow}>
+                <View
+                  style={[
+                    styles.verificationBadge,
+                    provider.verificationStatus === 'verified'
+                      ? styles.verifiedBadge
+                      : styles.pendingBadge,
+                  ]}
+                >
+                  <Ionicons
+                    name={
+                      provider.verificationStatus === 'verified'
+                        ? 'checkmark-circle'
+                        : 'time'
+                    }
+                    size={16}
+                    color={
+                      provider.verificationStatus === 'verified'
+                        ? '#2E7D32'
+                        : '#4A7DC4'
+                    }
+                  />
+                  <Text
+                    style={[
+                      styles.verificationText,
+                      provider.verificationStatus === 'verified'
+                        ? styles.verifiedText
+                        : styles.pendingText,
+                    ]}
+                  >
+                    {provider.verificationStatus === 'verified'
+                      ? 'Verified'
+                      : 'Pending Verification'}
+                  </Text>
+                </View>
+                {/* Away badge - shown when provider is away */}
+                {provider.availabilityStatus === 'away' ? (
+                  <View style={styles.awayBadge}>
+                    <View style={styles.awayDot} />
+                    <Text style={styles.awayBadgeText}>Away</Text>
+                  </View>
+                ) : (
+                  <View style={styles.availableNowBadge}>
+                    <View style={styles.availableNowDot} />
+                    <Text style={styles.availableNowBadgeText}>Available now</Text>
+                  </View>
+                )}
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="construct" size={20} color="#666" />
+              <Text style={styles.sectionTitle}>Services Offered</Text>
+            </View>
+            <View style={styles.servicesGrid}>
+              {provider.services.map((service, index) => (
+                <View key={index} style={styles.serviceChip}>
+                  <Text style={styles.serviceChipText}>
+                    {service.charAt(0).toUpperCase() + service.slice(1)}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          {provider.bio && (
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Ionicons name="information-circle" size={20} color="#666" />
+                <Text style={styles.sectionTitle}>About</Text>
+              </View>
+              <Text style={styles.bioText}>{provider.bio}</Text>
+            </View>
+          )}
+
+          {/* Rating Summary Section */}
+          {(provider.averageRating || provider.totalReviews) && (
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Ionicons name="star" size={20} color="#FFB300" />
+                <Text style={styles.sectionTitle}>Rating</Text>
+              </View>
+              <View style={styles.ratingSummary}>
+                <View style={styles.ratingStarsRow}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Ionicons
+                      key={star}
+                      name={star <= (provider.averageRating || 0) ? 'star' : star - 0.5 <= (provider.averageRating || 0) ? 'star-half' : 'star-outline'}
+                      size={28}
+                      color="#FFB300"
+                    />
+                  ))}
+                </View>
+                <Text style={styles.ratingText}>
+                  {provider.averageRating ? provider.averageRating.toFixed(1) : 'No ratings'} ({provider.totalReviews || 0} review{(provider.totalReviews || 0) !== 1 ? 's' : ''})
+                </Text>
+              </View>
+            </View>
+          )}
+
+          {/* Reviews List Section */}
+          {reviews.length > 0 && (
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Ionicons name="chatbubbles" size={20} color="#666" />
+                <Text style={styles.sectionTitle}>Reviews</Text>
+              </View>
+              {reviews.map((review) => (
+                <View key={review._id} style={styles.reviewCard}>
+                  <View style={styles.reviewCardHeader}>
+                    <View style={styles.reviewStarsSmall}>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Ionicons
+                          key={star}
+                          name={star <= review.rating ? 'star' : 'star-outline'}
+                          size={16}
+                          color="#FFB300"
+                        />
+                      ))}
+                    </View>
+                    {review.createdAt && (
+                      <Text style={styles.reviewDate}>
+                        {new Date(review.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </Text>
+                    )}
+                  </View>
+                  {review.comment && (
+                    <Text style={styles.reviewComment}>"{review.comment}"</Text>
+                  )}
+                </View>
+              ))}
+            </View>
+          )}
+
+          <TouchableOpacity
+            style={styles.reportButton}
+            onPress={handleReportProvider}
+            disabled={reporting}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="flag-outline" size={18} color="#999" />
+            <Text style={styles.reportButtonText}>
+              {reporting ? 'Submitting...' : 'Report this provider'}
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
+
+        <View style={[styles.footer, { paddingBottom: Math.max(24, insets.bottom + 80) }]}>
+          {/* Directory browsing mode - show "Create Request" CTA */}
+          {isBrowsingOnly ? (
+            <>
+              <View style={styles.directoryNotice}>
+                <Ionicons name="information-circle-outline" size={18} color="#1565C0" />
+                <Text style={styles.directoryNoticeText}>
+                  Create a request first to contact this provider
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={styles.createRequestButton}
+                onPress={() => router.push('/(customer)/home')}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="add-circle-outline" size={20} color="#FFFFFF" />
+                <Text style={styles.createRequestButtonText}>Create Request</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              {/* Away notice - shown when provider is away */}
+              {provider.availabilityStatus === 'away' && (
+                <View style={styles.awayNotice}>
+                  <Ionicons name="time-outline" size={18} color="#757575" />
+                  <Text style={styles.awayNoticeText}>
+                    This provider is away and not accepting new jobs right now.
+                  </Text>
+                </View>
+              )}
+              <TouchableOpacity
+                style={[
+                  styles.requestButton,
+                  (provider.availabilityStatus === 'away' || assigning) && styles.requestButtonDisabled
+                ]}
+                onPress={handleRequestService}
+                activeOpacity={0.8}
+                disabled={provider.availabilityStatus === 'away' || assigning}
+              >
+                {assigning ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text style={[
+                    styles.requestButtonText,
+                    provider.availabilityStatus === 'away' && styles.requestButtonTextDisabled
+                  ]}>
+                    {provider.availabilityStatus === 'away' ? 'Provider Away' : 'Select Provider'}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  backButton: {
+    width: 44,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+  },
+  centerContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#999',
+  },
+  content: {
+    flex: 1,
+  },
+  contentContainer: {
+    padding: 24,
+    paddingBottom: 100,
+  },
+  profileSection: {
+    alignItems: 'center',
+    paddingVertical: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  avatarLarge: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#F5F5F5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+  },
+  nameContainer: {
+    alignItems: 'center',
+    gap: 8,
+  },
+  badgeRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 4,
+  },
+  providerName: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+  },
+  // Away badge styles
+  awayBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    gap: 6,
+  },
+  awayDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#9E9E9E',
+  },
+  awayBadgeText: {
+    fontSize: 14,
+    color: '#757575',
+    fontWeight: '500',
+  },
+  // Available now badge
+  availableNowBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F5E9',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    gap: 6,
+  },
+  availableNowDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#4CAF50',
+  },
+  availableNowBadgeText: {
+    fontSize: 14,
+    color: '#2E7D32',
+    fontWeight: '500',
+  },
+  verificationBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  verifiedBadge: {
+    backgroundColor: '#E8F5E9',
+  },
+  pendingBadge: {
+    backgroundColor: '#EAF3FF',
+  },
+  verificationText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  verifiedText: {
+    color: '#2E7D32',
+  },
+  pendingText: {
+    color: '#4A7DC4',
+  },
+  section: {
+    paddingVertical: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+  },
+  servicesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  serviceChip: {
+    backgroundColor: '#E53935',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  serviceChipText: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    fontWeight: '500',
+  },
+  bioText: {
+    fontSize: 16,
+    color: '#666',
+    lineHeight: 24,
+  },
+  footer: {
+    padding: 24,
+    paddingBottom: 40,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+  },
+  requestButton: {
+    backgroundColor: '#E53935',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    minHeight: 56,
+    justifyContent: 'center',
+  },
+  requestButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  reportButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 16,
+    marginTop: 16,
+  },
+  reportButtonText: {
+    fontSize: 14,
+    color: '#999',
+  },
+  // Rating and Reviews Styles
+  ratingSummary: {
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  ratingStarsRow: {
+    flexDirection: 'row',
+    gap: 4,
+    marginBottom: 8,
+  },
+  ratingText: {
+    fontSize: 16,
+    color: '#666',
+    fontWeight: '500',
+  },
+  reviewCard: {
+    backgroundColor: '#F8F8F8',
+    borderRadius: 10,
+    padding: 14,
+    marginTop: 10,
+  },
+  reviewCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  reviewStarsSmall: {
+    flexDirection: 'row',
+    gap: 2,
+  },
+  reviewDate: {
+    fontSize: 12,
+    color: '#999',
+  },
+  reviewComment: {
+    fontSize: 14,
+    color: '#444',
+    fontStyle: 'italic',
+    lineHeight: 20,
+  },
+  // Away notice in footer
+  awayNotice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginBottom: 12,
+    gap: 10,
+  },
+  awayNoticeText: {
+    fontSize: 14,
+    color: '#757575',
+    flex: 1,
+    lineHeight: 20,
+  },
+  // Disabled button styles
+  requestButtonDisabled: {
+    backgroundColor: '#E0E0E0',
+  },
+  requestButtonTextDisabled: {
+    color: '#9E9E9E',
+  },
+  // Directory browsing mode styles
+  directoryNotice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E3F2FD',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginBottom: 12,
+    gap: 10,
+  },
+  directoryNoticeText: {
+    fontSize: 14,
+    color: '#1565C0',
+    flex: 1,
+    lineHeight: 20,
+  },
+  createRequestButton: {
+    flexDirection: 'row',
+    backgroundColor: '#E53935',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 56,
+    gap: 8,
+  },
+  createRequestButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '600',
+  },
+});

@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "Fixr",
+    "slug": "fixr",
+    "version": "1.0.0-beta",
+    "orientation": "portrait",
+    "icon": "./assets/images/fixr-icon.png",
+    "scheme": "fixr",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.fixr.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/fixr-adaptive-icon.png",
+        "backgroundColor": "#000000"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.fixr.app"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/fixr-favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/fixr-splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#000000"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "appName": "Fixr",
+      "appVersion": "1.0.0-beta",
+      "buildDate": "2025-12-24"
+    }
+  }
+}

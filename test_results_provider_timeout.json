@@ -1,0 +1,59 @@
+{
+  "timestamp": "2026-01-27T00:47:27.449300",
+  "test_suites": [
+    {
+      "endpoint": "release-provider",
+      "tests": [
+        {
+          "name": "Release provider - success case",
+          "status": "PASSED",
+          "details": {
+            "provider_cleared": true,
+            "provider_excluded": true,
+            "status_remains_pending": true
+          }
+        },
+        {
+          "name": "Release provider - non-pending request error",
+          "status": "PASSED",
+          "details": "Correctly rejected release from non-pending request"
+        },
+        {
+          "name": "Release provider - no provider assigned error",
+          "status": "FAILED",
+          "error": "Should have returned 400, got 200"
+        }
+      ]
+    },
+    {
+      "endpoint": "accept-guard",
+      "tests": [
+        {
+          "name": "Accept endpoint guard test",
+          "status": "FAILED",
+          "error": "Could not set up test scenario with excluded provider"
+        }
+      ]
+    },
+    {
+      "endpoint": "assign-exclusion",
+      "tests": [
+        {
+          "name": "Assign provider exclusion check",
+          "status": "SKIPPED",
+          "reason": "No requests with excluded providers and no current provider found"
+        }
+      ]
+    },
+    {
+      "endpoint": "system-messages",
+      "tests": [
+        {
+          "name": "System messages test",
+          "status": "PASSED",
+          "details": "Both customer and provider system messages created correctly"
+        }
+      ]
+    }
+  ]
+}
