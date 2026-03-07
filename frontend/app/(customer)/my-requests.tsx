@@ -13,7 +13,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from 'expo-router';
 import { api, formatApiError } from '../../utils/apiClient';
 import { getStatusColor, STATUS_LABELS, getEffectiveStatus } from '../../constants/statusStyles';
 import {
