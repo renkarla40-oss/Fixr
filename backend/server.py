@@ -4080,7 +4080,10 @@ async def get_provider_earnings(current_user: User = Depends(get_current_user)):
             recent_transactions.append({
                 "jobId": job_id,
                 "service": job.get("service", "Service"),
-                "amount": provider_earnings,
+                "jobAmount": job_price,
+                "commission": commission,
+                "netEarnings": provider_earnings,
+                "amount": provider_earnings,  # Keep for backward compatibility
                 "currency": txn.get("currency", "TTD"),
                 "status": "available",
                 "date": job.get("completedAt") or txn.get("createdAt"),
@@ -4093,7 +4096,10 @@ async def get_provider_earnings(current_user: User = Depends(get_current_user)):
             recent_transactions.append({
                 "jobId": job_id,
                 "service": job.get("service", "Service"),
-                "amount": provider_earnings,
+                "jobAmount": job_price,
+                "commission": commission,
+                "netEarnings": provider_earnings,
+                "amount": provider_earnings,  # Keep for backward compatibility
                 "currency": txn.get("currency", "TTD"),
                 "status": "held",
                 "date": txn.get("createdAt"),

@@ -32,7 +32,10 @@ const CACHE_KEY = 'provider_earnings';
 interface Transaction {
   jobId: string;
   service: string;
-  amount: number;
+  jobAmount: number;
+  commission: number;
+  netEarnings: number;
+  amount: number;  // Keep for backward compatibility
   currency: string;
   status: 'held' | 'available' | 'released';
   date: string;
@@ -266,32 +269,50 @@ export default function EarningsScreen() {
           {earnings?.recentTransactions && earnings.recentTransactions.length > 0 ? (
             earnings.recentTransactions.map((txn, index) => {
               const statusStyle = getStatusStyle(txn.status);
+              const serviceName = txn.service.charAt(0).toUpperCase() + txn.service.slice(1);
               return (
                 <View key={txn.jobId + index}>
-                  <View style={styles.transactionRow}>
-                    <View style={styles.transactionLeft}>
-                      <View style={styles.transactionInfo}>
-                        <Text style={styles.transactionService}>
-                          {txn.service.charAt(0).toUpperCase() + txn.service.slice(1)}
-                        </Text>
-                        <Text style={styles.transactionMeta}>
-                          {txn.customerName} • {formatDate(txn.date)}
-                        </Text>
-                      </View>
-                    </View>
-                    <View style={styles.transactionRight}>
-                      <Text style={styles.transactionAmount}>
-                        {formatCurrency(txn.amount, txn.currency)}
-                      </Text>
+                  <View style={styles.transactionCard}>
+                    {/* Header: Service name + Status */}
+                    <View style={styles.transactionHeader}>
+                      <Text style={styles.transactionService}>{serviceName}</Text>
                       <View style={[styles.statusBadge, { backgroundColor: statusStyle.bg }]}>
                         <Text style={[styles.statusText, { color: statusStyle.text }]}>
                           {statusStyle.label}
                         </Text>
                       </View>
                     </View>
+                    
+                    {/* Customer + Date */}
+                    <Text style={styles.transactionMeta}>
+                      {txn.customerName} • {formatDate(txn.date)}
+                    </Text>
+                    
+                    {/* Earnings Breakdown */}
+                    <View style={styles.breakdownContainer}>
+                      <View style={styles.breakdownRow}>
+                        <Text style={styles.breakdownLabel}>Job Amount</Text>
+                        <Text style={styles.breakdownValue}>
+                          {formatCurrency(txn.jobAmount || txn.amount, txn.currency)}
+                        </Text>
+                      </View>
+                      <View style={styles.breakdownRow}>
+                        <Text style={styles.breakdownLabelDeduct}>Fixr Commission</Text>
+                        <Text style={styles.breakdownValueDeduct}>
+                          −{formatCurrency(txn.commission || 0, txn.currency)}
+                        </Text>
+                      </View>
+                      <View style={styles.breakdownDivider} />
+                      <View style={styles.breakdownRow}>
+                        <Text style={styles.breakdownLabelNet}>Net Earnings</Text>
+                        <Text style={styles.breakdownValueNet}>
+                          {formatCurrency(txn.netEarnings || txn.amount, txn.currency)}
+                        </Text>
+                      </View>
+                    </View>
                   </View>
                   {index < earnings.recentTransactions.length - 1 && (
-                    <View style={styles.divider} />
+                    <View style={styles.cardSpacer} />
                   )}
                 </View>
               );
@@ -512,5 +533,67 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 18,
     paddingHorizontal: 16,
+  },
+  // New transaction card styles for earnings breakdown
+  transactionCard: {
+    backgroundColor: '#FAFAFA',
+    borderRadius: 10,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+  },
+  transactionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  cardSpacer: {
+    height: 10,
+  },
+  breakdownContainer: {
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#E8E8E8',
+  },
+  breakdownRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 3,
+  },
+  breakdownLabel: {
+    fontSize: 13,
+    color: '#666',
+  },
+  breakdownValue: {
+    fontSize: 13,
+    color: '#333',
+    fontWeight: '500',
+  },
+  breakdownLabelDeduct: {
+    fontSize: 13,
+    color: '#E53935',
+  },
+  breakdownValueDeduct: {
+    fontSize: 13,
+    color: '#E53935',
+    fontWeight: '500',
+  },
+  breakdownDivider: {
+    height: 1,
+    backgroundColor: '#E0E0E0',
+    marginVertical: 6,
+  },
+  breakdownLabelNet: {
+    fontSize: 14,
+    color: '#1A1A1A',
+    fontWeight: '600',
+  },
+  breakdownValueNet: {
+    fontSize: 14,
+    color: '#2E7D32',
+    fontWeight: '700',
   },
 });
