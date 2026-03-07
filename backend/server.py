@@ -4064,8 +4064,11 @@ async def get_provider_earnings(current_user: User = Depends(get_current_user)):
         if not txn:
             continue
         
-        # Provider earnings = totalPaidByCustomer - serviceFee
-        provider_earnings = txn.get("totalPaidByCustomer", 0) - txn.get("serviceFee", 0)
+        # Provider earnings = jobPrice - commission (net after Fixr commission)
+        # jobPrice is the quote amount, commission is Fixr's 10% cut
+        job_price = txn.get("jobPrice", 0)
+        commission = txn.get("commission", 0)
+        provider_earnings = job_price - commission
         
         job_status = job.get("status", "")
         

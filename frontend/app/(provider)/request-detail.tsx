@@ -1651,22 +1651,6 @@ export default function ProviderRequestDetailScreen() {
                   const isImage = (msg.type === 'image' || msg.imageUrl) && msg.imageUrl;
                   const imageUri = isImage ? `${BACKEND_URL}${msg.imageUrl}` : '';
                   
-                  // HIDE early-lifecycle system messages for completed jobs
-                  const completedStatuses = ['completed', 'completed_pending_review', 'completed_reviewed'];
-                  if (isSystem && completedStatuses.includes(request.status)) {
-                    const earlyLifecyclePatterns = [
-                      'Providers have up to 24 hours',
-                      'Provider accepted your request',
-                      'has been assigned to your request',
-                      'You have a new job request',
-                      'has up to 24 hours to accept',
-                    ];
-                    const shouldHide = earlyLifecyclePatterns.some(pattern => 
-                      msg.text?.toLowerCase().includes(pattern.toLowerCase())
-                    );
-                    if (shouldHide) return null;
-                  }
-                  
                   // Render system messages with special centered styling
                   if (isSystem) {
                     return (
