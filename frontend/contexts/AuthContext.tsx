@@ -19,6 +19,16 @@ const AUTH_TOKEN_KEY = 'authToken';
 const USER_ID_KEY = 'userId';
 const CURRENT_ROLE_KEY = 'currentRole';
 
+/**
+ * Check if email belongs to a test account.
+ * Test accounts bypass beta notice in development to enable smooth testing.
+ */
+const isTestAccount = (email: string | undefined): boolean => {
+  if (!email) return false;
+  const lowerEmail = email.toLowerCase();
+  return lowerEmail.endsWith('@test.com') || lowerEmail.includes('test.');
+};
+
 interface User {
   _id: string;
   email: string;
@@ -96,10 +106,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await AsyncStorage.setItem(USER_ID_KEY, userData._id);
         await AsyncStorage.setItem(CURRENT_ROLE_KEY, userData.currentRole);
         
-        // Check beta notice flag
+        // Check beta notice flag - test accounts bypass
         const userBetaKey = `${BETA_NOTICE_KEY}_${userData._id}`;
         const hasSeenNotice = await AsyncStorage.getItem(userBetaKey);
-        setBetaNoticeSeenByUser(hasSeenNotice === 'true');
+        const skipBetaNotice = isTestAccount(userData.email) || hasSeenNotice === 'true';
+        setBetaNoticeSeenByUser(skipBetaNotice);
         
       } catch (error) {
         // Session invalid - clear stored credentials
@@ -144,10 +155,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(userData);
       setInitialized(true);
       
-      // Check if this specific user has seen the beta notice
+      // Check if this specific user has seen the beta notice - test accounts bypass
       const userBetaKey = `${BETA_NOTICE_KEY}_${userData._id}`;
       const hasSeenNotice = await AsyncStorage.getItem(userBetaKey);
-      setBetaNoticeSeenByUser(hasSeenNotice === 'true');
+      const skipBetaNotice = isTestAccount(userData.email) || hasSeenNotice === 'true';
+      setBetaNoticeSeenByUser(skipBetaNotice);
       
       return userData;
     } catch (error: any) {
@@ -234,9 +246,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await AsyncStorage.setItem(USER_ID_KEY, userData._id);
       await AsyncStorage.setItem(CURRENT_ROLE_KEY, userData.currentRole);
       
+      // Check beta notice - test accounts bypass
       const userBetaKey = `${BETA_NOTICE_KEY}_${userData._id}`;
       const hasSeenNotice = await AsyncStorage.getItem(userBetaKey);
-      setBetaNoticeSeenByUser(hasSeenNotice === 'true');
+      const skipBetaNotice = isTestAccount(userData.email) || hasSeenNotice === 'true';
+      setBetaNoticeSeenByUser(skipBetaNotice);
     } catch {
       // Silent fail - don't disrupt user
     }
