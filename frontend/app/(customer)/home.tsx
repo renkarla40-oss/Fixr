@@ -239,7 +239,7 @@ export default function CustomerHomeScreen() {
             {/* Header with notification bell */}
             <View style={styles.heroHeader}>
               <View style={styles.heroHeaderSpacer} />
-              <NotificationBell color="#FFFFFF" size={26} />
+              <NotificationBell color="#FFFFFF" size={24} />
             </View>
             <Text style={styles.heroTitle}>What do you need{'\n'}help with today?</Text>
             
