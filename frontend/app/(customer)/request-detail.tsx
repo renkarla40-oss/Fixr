@@ -1204,7 +1204,6 @@ export default function RequestDetailScreen() {
         <View style={styles.centerContent}>
           <Ionicons name="document-text-outline" size={64} color="#CCC" />
           <Text style={styles.errorTitle}>Unable to Load</Text>
-          <Text style={styles.errorText}>{error || 'This request could not be found.'}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={() => { setLoading(true); fetchRequestDetail(); }}>
             <Text style={styles.retryButtonText}>Try Again</Text>
           </TouchableOpacity>
