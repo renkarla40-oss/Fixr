@@ -38,8 +38,18 @@ export default function RequestServiceScreen() {
   const searchDistanceKm = params.searchDistanceKm as string | undefined;
   const jobDuration = params.jobDuration as string | undefined;
 
-  // Check if this is a general request (no specific provider)
-  const isGeneralRequest = providerId === 'general' || category === 'other';
+  const providerName = params.providerName as string | undefined;
+
+  // Guard: a valid specific provider is always required
+  const hasValidProvider =
+    !!providerId &&
+    providerId !== '' &&
+    providerId !== 'undefined' &&
+    providerId !== 'null' &&
+    providerId !== 'general';
+
+  // isGeneralRequest controls UI copy only — not request creation
+  const isGeneralRequest = category === 'other';
 
   const [description, setDescription] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -116,10 +126,18 @@ export default function RequestServiceScreen() {
       // Combine in ISO format
       const preferredDateTime = `${dateStr}T${timeStr}:00.000Z`;
 
-      // Build API URL - for general requests, use 'general' as provider_id
-      const apiUrl = isGeneralRequest 
-        ? `${BACKEND_URL}/api/service-requests?provider_id=general`
-        : `${BACKEND_URL}/api/service-requests?provider_id=${providerId}`;
+      // Hard guard: never create a request without a valid provider
+      if (!hasValidProvider) {
+        Alert.alert(
+          'No Provider Selected',
+          'Please select a provider before submitting a request.',
+          [{ text: 'OK', onPress: () => router.back() }]
+        );
+        setLoading(false);
+        return;
+      }
+
+      const apiUrl = `${BACKEND_URL}/api/service-requests?provider_id=${providerId}`;
 
       const response = await axios.post(
         apiUrl,
@@ -147,19 +165,10 @@ export default function RequestServiceScreen() {
         return;
       }
 
-      // Navigate to Provider Results List with valid requestId
+      // Provider already attached — go directly to the request thread
       router.replace({
-        pathname: '/provider-list',
-        params: {
-          requestId,
-          category,
-          categoryName: categoryName || categoryLabel,
-          subCategory: subCategory || '',
-          subcategoryKey: subcategoryKey || '',
-          location: location || '',
-          searchDistanceKm: searchDistanceKm || '16',
-          jobDuration: jobDuration || '',
-        },
+        pathname: '/(customer)/request-detail',
+        params: { requestId },
       });
     } catch (error: any) {
       if (__DEV__) {
