@@ -106,13 +106,14 @@ export default function ServiceLocationScreen() {
 
   const handleContinue = () => {
     if (!location.trim()) return;
-    
-    // Phase 1 Enforcement: Navigate to request-service to create request FIRST
-    // Provider list will only be shown AFTER request is created with valid requestId
+
+    // Route to provider-list so customer selects a specific provider first.
+    // The chosen provider carries through provider-detail -> all-services-directory
+    // -> service-subcategory -> request-service -> request creation.
+    // No request is created here — providerId must come from a real provider selection.
     router.push({
-      pathname: '/request-service',
+      pathname: '/provider-list',
       params: {
-        providerId: 'general',  // General request - no specific provider yet
         category,
         categoryName,
         subCategory: subCategory || '',
