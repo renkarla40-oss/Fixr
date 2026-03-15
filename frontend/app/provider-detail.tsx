@@ -398,8 +398,8 @@ export default function ProviderDetailScreen() {
                   ))}
                 </View>
                 <Text style={styles.ratingText}>
-                  {provider.averageRating ? provider.averageRating.toFixed(1) : 'No ratings'} ({provider.totalReviews || 0} review{(provider.totalReviews || 0) !== 1 ? 's' : ''})
-                </Text>
+  {`${provider.averageRating ? provider.averageRating.toFixed(1) : 'No ratings'} (${provider.totalReviews || 0} review${(provider.totalReviews || 0) !== 1 ? 's' : ''})`}
+</Text>
               </View>
             </View>
           )}

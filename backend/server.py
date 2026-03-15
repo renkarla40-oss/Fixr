@@ -1277,7 +1277,31 @@ async def get_providers(
         if job_town and provider.get("baseTown"):
             provider["distanceFromJob"] = estimate_distance(job_town, provider["baseTown"])
         
-        result.append(Provider(**provider))
+        # Fix 1: Defensive defaults — guard all Pydantic-required fields.
+        # A single malformed document must NOT crash the whole directory.
+        provider.setdefault("userId", "")
+        provider.setdefault("name", "Unknown Provider")
+        provider.setdefault("phone", "")
+        provider.setdefault("services", [])
+        provider.setdefault("bio", "")
+        provider.setdefault("verificationStatus", "pending")
+        provider.setdefault("setupComplete", False)
+        provider.setdefault("travelDistanceKm", 16)
+        provider.setdefault("travelAnywhere", False)
+        provider.setdefault("completedJobsCount", 0)
+        provider.setdefault("averageRating", None)
+        provider.setdefault("totalReviews", 0)
+        provider.setdefault("phoneVerified", False)
+        provider.setdefault("uploadsComplete", False)
+        provider.setdefault("riskFlags", [])
+        provider.setdefault("isOutsideSelectedArea", False)
+        try:
+            result.append(Provider(**provider))
+        except Exception as _err:
+            logger.warning(
+                f"get_providers: skipping malformed provider "
+                f"{provider.get('_id')} — {_err}"
+            )
     
     return result
 
@@ -1815,7 +1839,35 @@ async def accept_service_request(
             {"_id": ObjectId(request_id)},
             {"$set": {"last_message_at": msg_time}}
         )
-    
+
+    # Fix 3: Provider-side acceptance message — mirrors the customer message above.
+    # Without this the provider thread is empty after accepting a job.
+    existing_provider_accept_msg = await db.job_messages.find_one({
+        "requestId": request_id,
+        "type": "system",
+        "text": {"$regex": "You accepted this job"},
+        "targetRole": "provider"
+    })
+    if not existing_provider_accept_msg:
+        prov_accept_time = datetime.utcnow()
+        provider_accept_message = {
+            "requestId": request_id,
+            "senderId": "system",
+            "senderName": "Fixr",
+            "senderRole": "system",
+            "type": "system",
+            "text": "Fixr: You accepted this job. The customer has been notified. Send a quote when ready.",
+            "targetRole": "provider",
+            "createdAt": prov_accept_time,
+            "deliveredAt": prov_accept_time,
+            "readAt": None,
+        }
+        await db.job_messages.insert_one(provider_accept_message)
+        await db.service_requests.update_one(
+            {"_id": ObjectId(request_id)},
+            {"$set": {"last_message_at": prov_accept_time}}
+        )
+
     # Send notification to customer
     await send_push_notification(
         user_id=updated_request["customerId"],
@@ -4634,11 +4686,17 @@ async def get_service_requests(current_user: User = Depends(get_current_user)):
         if not provider:
             return []
         
-        # Providers see their specific requests AND all general "other services" requests
+        # Fix 2: Providers see their own requests + ONLY unassigned pending general requests.
+        # Restricting to status=pending + providerId=None prevents old/completed/demo
+        # general requests from appearing in every provider's job list.
         query = {
             "$or": [
                 {"providerId": str(provider["_id"])},  # Requests specifically for this provider
-                {"isGeneralRequest": True}  # General requests visible to all providers
+                {                                       # General requests: pending + unassigned only
+                    "isGeneralRequest": True,
+                    "status": "pending",
+                    "providerId": None,
+                },
             ]
         }
     

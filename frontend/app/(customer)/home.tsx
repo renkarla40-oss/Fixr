@@ -36,7 +36,6 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const categories = getDisplayableCategories();
 
 // ── FEATURED SERVICES 
-──────────────────────────────────────────────────────────
 const FEATURED_SERVICES = [
   { serviceKey: 'plumbing', label: 'Plumbing', emoji: '🔧', bg: '#E3F2FD' 
 },
