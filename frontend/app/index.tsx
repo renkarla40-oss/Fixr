@@ -6,8 +6,8 @@ import { useAuth } from '../contexts/AuthContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const LOGO_WIDTH = SCREEN_WIDTH * 0.72;
-const LOGO_HEIGHT = LOGO_WIDTH * 0.5;
+const LOGO_WIDTH = SCREEN_WIDTH * 0.75;
+const LOGO_HEIGHT = LOGO_WIDTH * 0.75;
 
 /**
  * Splash Screen — Spin & Settle Animation
@@ -120,5 +120,6 @@ const styles = StyleSheet.create({
   logo: {
     width: LOGO_WIDTH,
     height: LOGO_HEIGHT,
+    resizeMode: 'contain',
   },
 });
