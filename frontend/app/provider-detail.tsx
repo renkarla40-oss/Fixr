@@ -463,7 +463,13 @@ export default function ProviderDetailScreen() {
               </View>
               <TouchableOpacity
                 style={styles.createRequestButton}
-                onPress={() => router.push('/(customer)/home')}
+                onPress={() => router.push({
+              pathname: '/all-services-directory',
+              params: {
+                providerId: providerId,
+                providerName: provider?.name || '',
+              },
+            })}
                 activeOpacity={0.8}
               >
                 <Ionicons name="add-circle-outline" size={20} color="#FFFFFF" />
