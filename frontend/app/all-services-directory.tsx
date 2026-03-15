@@ -8,275 +8,197 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import {
-  getDisplayableCategories,
-  ServiceCategory,
-  SubCategory,
-} from '../constants/serviceCategories';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const COLUMN_COUNT = 2; // 2 columns for better mobile readability
+const CARD_GAP = 12;
+const H_PAD = 16;
+const CARD_WIDTH = (SCREEN_WIDTH - H_PAD * 2 - CARD_GAP) / 2;
 
-// Get all displayable categories
-const allCategories = getDisplayableCategories();
+const SERVICES = [
+  { key: 'plumbing',         label: 'Plumbing',          subtitle: 'Leaks \u2022 Pipes \u2022 Toilets',          icon: 'water-outline'          },
+  { key: 'electrical',       label: 'Electrical',         subtitle: 'Wiring \u2022 Lighting \u2022 Breakers',     icon: 'flash-outline'          },
+  { key: 'ac_hvac',          label: 'Air Conditioning',   subtitle: 'Repair \u2022 Service \u2022 Install',       icon: 'snow-outline'           },
+  { key: 'appliance_repair', label: 'Appliance Repair',   subtitle: 'Fridge \u2022 Washer \u2022 Oven',          icon: 'hardware-chip-outline'  },
+  { key: 'carpentry',        label: 'Carpentry',          subtitle: 'Furniture \u2022 Cabinets \u2022 Woodwork',  icon: 'hammer-outline'         },
+  { key: 'welding',          label: 'Welding',            subtitle: 'Gates \u2022 Metal \u2022 Fabrication',      icon: 'flame-outline'          },
+  { key: 'handyman',         label: 'Handyman',           subtitle: 'General Repairs \u2022 Installations',       icon: 'construct-outline'      },
+  { key: 'landscaping',      label: 'Landscaping',        subtitle: 'Lawn \u2022 Trees \u2022 Garden',           icon: 'leaf-outline'           },
+  { key: 'cleaning',         label: 'Cleaning',           subtitle: 'Home \u2022 Deep \u2022 Office',            icon: 'sparkles-outline'       },
+  { key: 'renovation',       label: 'Renovation',         subtitle: 'Painting \u2022 Tiling \u2022 Remodeling',  icon: 'color-palette-outline'  },
+] as const;
 
-// Split categories into 2 columns for balanced display
-const splitIntoColumns = (categories: ServiceCategory[], columns: number): ServiceCategory[][] => {
-  const result: ServiceCategory[][] = Array.from({ length: columns }, () => []);
-  
-  // Calculate total subcategories per category to balance column heights
-  const categoriesWithWeight = categories.map(cat => ({
-    category: cat,
-    weight: cat.subcategories.length + 2, // +2 for title spacing
-  }));
-  
-  // Distribute categories to columns based on weight
-  const columnWeights = Array(columns).fill(0);
-  
-  categoriesWithWeight.forEach(({ category, weight }) => {
-    // Find column with minimum weight
-    const minIndex = columnWeights.indexOf(Math.min(...columnWeights));
-    result[minIndex].push(category);
-    columnWeights[minIndex] += weight;
-  });
-  
-  return result;
-};
-
-const columns = splitIntoColumns(allCategories, COLUMN_COUNT);
+export type ServiceEntry = typeof SERVICES[number];
+export { SERVICES };
 
 export default function AllServicesDirectoryScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const params = useLocalSearchParams();
 
-  // Handle subcategory tap - starts the request flow
-  const handleSubcategoryPress = (category: ServiceCategory, subcategory: SubCategory) => {
+  const providerId   = params.providerId   as string | undefined;
+  const providerName = params.providerName as string | undefined;
+
+  const handleDescribeJob = () => {
     router.push({
-      pathname: '/service-location',
+      pathname: '/request-service',
       params: {
-        category: category.serviceKey,
-        categoryName: category.label,
-        subCategory: subcategory.subcategoryKey,
-        subCategoryName: subcategory.label,
+        providerId:   providerId   || '',
+        providerName: providerName || '',
+        category:     'other',
+        categoryName: 'Other',
+        subCategory:  '',
+        location:     '',
       },
     });
   };
 
-  // Render a single category block
-  const renderCategoryBlock = (category: ServiceCategory) => (
-    <View key={category.serviceKey} style={styles.categoryBlock}>
-      {/* Category Title */}
-      <View style={styles.categoryHeader}>
-        <Ionicons
-          name={category.icon as any}
-          size={16}
-          color="#E53935"
-          style={styles.categoryIcon}
-        />
-        <Text style={styles.categoryTitle} numberOfLines={1}>
-          {category.label}
-        </Text>
-        {category.status === 'beta' && (
-          <View style={styles.betaBadge}>
-            <Text style={styles.betaBadgeText}>β</Text>
-          </View>
-        )}
-      </View>
+  const handleServicePress = (service: ServiceEntry) => {
+    router.push({
+      pathname: '/service-subcategory',
+      params: {
+        serviceKey:   service.key,
+        serviceLabel: service.label,
+        providerId:   providerId   || '',
+        providerName: providerName || '',
+      },
+    });
+  };
 
-      {/* Subcategories List */}
-      <View style={styles.subcategoriesList}>
-        {category.subcategories.slice(0, 8).map((sub) => (
-          <TouchableOpacity
-            key={sub.subcategoryKey}
-            style={styles.subcategoryItem}
-            onPress={() => handleSubcategoryPress(category, sub)}
-            activeOpacity={0.6}
-          >
-            <Text style={styles.subcategoryText} numberOfLines={1}>
-              {sub.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-        {category.subcategories.length > 8 && (
-          <TouchableOpacity
-            style={styles.moreLink}
-            onPress={() => {
-              router.push({
-                pathname: '/subcategory-screen',
-                params: { serviceKey: category.serviceKey },
-              });
-            }}
-            activeOpacity={0.6}
-          >
-            <Text style={styles.moreLinkText}>
-              +{category.subcategories.length - 8} more
-            </Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    </View>
-  );
+  const rows: ServiceEntry[][] = [];
+  for (let i = 0; i < SERVICES.length; i += 2) {
+    rows.push([SERVICES[i], SERVICES[i + 1]] as ServiceEntry[]);
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
+        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>All Services</Text>
-        <View style={styles.headerSpacer} />
+        <View style={styles.headerCenter}>
+          <Text style={styles.headerTitle}>All Services</Text>
+          <Text style={styles.headerSub}>Find the right professional for the job</Text>
+        </View>
+        <View style={styles.backBtn} />
       </View>
 
-      {/* Subtitle */}
-      <View style={styles.subtitleContainer}>
-        <Text style={styles.subtitle}>
-          Browse all services or tap a subcategory to get started
-        </Text>
-      </View>
-
-      {/* 2-Column Directory */}
       <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingBottom: insets.bottom + 100 },
-        ]}
+        style={styles.scroll}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 40 }]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.columnsContainer}>
-          {columns.map((columnCategories, columnIndex) => (
-            <View key={columnIndex} style={styles.column}>
-              {columnCategories.map(renderCategoryBlock)}
-            </View>
-          ))}
-        </View>
+        <TouchableOpacity style={styles.describeCard} onPress={handleDescribeJob} activeOpacity={0.85}>
+          <View style={styles.describeIconWrap}>
+            <Ionicons name="chatbubble-ellipses-outline" size={24} color="#E53935" />
+          </View>
+          <View style={styles.describeTextWrap}>
+            <Text style={styles.describeTitle}>Describe Your Job</Text>
+            <Text style={styles.describeSub}>Tell us what needs fixing</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#E53935" />
+        </TouchableOpacity>
+
+        <Text style={styles.sectionLabel}>Browse by Service</Text>
+
+        {rows.map((pair, rowIdx) => (
+          <View key={rowIdx} style={styles.row}>
+            {pair.map((service) => (
+              <TouchableOpacity
+                key={service.key}
+                style={styles.serviceCard}
+                onPress={() => handleServicePress(service)}
+                activeOpacity={0.82}
+              >
+                <View style={styles.iconWrap}>
+                  <Ionicons name={service.icon as any} size={22} color="#E53935" />
+                </View>
+                <View style={styles.textWrap}>
+                  <Text style={styles.cardLabel} numberOfLines={1}>{service.label}</Text>
+                  <Text style={styles.cardSubtitle} numberOfLines={2}>{service.subtitle}</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={15} color="#CCC" />
+              </TouchableOpacity>
+            ))}
+          </View>
+        ))}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-  },
+  safeArea: { flex: 1, backgroundColor: '#F7F7F7' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
+    paddingHorizontal: H_PAD,
     paddingVertical: 14,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
-  backButton: {
-    width: 44,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1A1A1A',
-  },
-  headerSpacer: {
-    width: 44,
-  },
-  subtitleContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: 12,
-    paddingTop: 16,
-  },
-  columnsContainer: {
+  backBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  headerCenter: { flex: 1, alignItems: 'center' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: '#1A1A1A' },
+  headerSub: { fontSize: 12, color: '#888', marginTop: 2 },
+  scroll: { flex: 1 },
+  scrollContent: { paddingHorizontal: H_PAD, paddingTop: 20, gap: CARD_GAP },
+  describeCard: {
     flexDirection: 'row',
-    gap: 14, // Horizontal gutter between columns: 12-16px
-  },
-  column: {
-    flex: 1,
-    gap: 18, // Vertical spacing between category cards: 16-20px
-  },
-  categoryBlock: {
+    alignItems: 'center',
     backgroundColor: '#FFFFFF',
     borderRadius: 14,
-    padding: 16, // Category card internal padding: 16px all sides
-    shadowColor: '#000',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderWidth: 1.5,
+    borderColor: '#E53935',
+    shadowColor: '#E53935',
     shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
+    marginBottom: 4,
+  },
+  describeIconWrap: {
+    width: 44, height: 44, borderRadius: 22,
+    backgroundColor: '#FFF5F5',
+    alignItems: 'center', justifyContent: 'center',
+    marginRight: 14,
+  },
+  describeTextWrap: { flex: 1 },
+  describeTitle: { fontSize: 15, fontWeight: '700', color: '#1A1A1A', marginBottom: 2 },
+  describeSub: { fontSize: 12, color: '#666' },
+  sectionLabel: {
+    fontSize: 12, fontWeight: '600', color: '#999',
+    textTransform: 'uppercase', letterSpacing: 0.8,
+    marginBottom: 2,
+  },
+  row: { flexDirection: 'row', gap: CARD_GAP },
+  serviceCard: {
+    width: CARD_WIDTH,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
     shadowRadius: 6,
     elevation: 2,
   },
-  categoryHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12, // Space between category title and first subcategory: 12px
-    paddingBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+  iconWrap: {
+    width: 38, height: 38, borderRadius: 19,
+    backgroundColor: '#FFF5F5',
+    alignItems: 'center', justifyContent: 'center',
+    marginRight: 10,
+    flexShrink: 0,
   },
-  categoryIcon: {
-    marginRight: 8,
-  },
-  categoryTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#1A1A1A',
-    flex: 1,
-  },
-  betaBadge: {
-    backgroundColor: '#EAF3FF',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-    marginLeft: 6,
-  },
-  betaBadgeText: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: '#4A7DC4',
-  },
-  subcategoriesList: {
-    gap: 0, // Using paddingVertical on items for 12px total spacing between rows
-  },
-  subcategoryItem: {
-    paddingVertical: 6, // 6px top + 6px bottom = 12px between rows
-  },
-  subcategoryText: {
-    fontSize: 13,
-    color: '#444',
-    lineHeight: 18,
-  },
-  moreLink: {
-    paddingVertical: 6, // Consistent with subcategory items
-    marginTop: 0,
-  },
-  moreLinkText: {
-    fontSize: 13,
-    color: '#E53935',
-    fontWeight: '600',
-    lineHeight: 18,
-  },
+  textWrap: { flex: 1, marginRight: 4 },
+  cardLabel: { fontSize: 13, fontWeight: '700', color: '#1A1A1A', marginBottom: 2 },
+  cardSubtitle: { fontSize: 10, color: '#888', lineHeight: 13 },
 });
