@@ -94,3 +94,6 @@ android-sdk/ -e
 *.env
 *.env.*
 frontend/.metro-cache/
+backend/uploads/
+*.bak
+frontend/debug_api.txt
