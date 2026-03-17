@@ -37,23 +37,16 @@ const categories = getDisplayableCategories();
 
 // ── FEATURED SERVICES 
 const FEATURED_SERVICES = [
-  { serviceKey: 'plumbing', label: 'Plumbing', emoji: '🔧', bg: '#E3F2FD' 
-},
-  { serviceKey: 'electrical', label: 'Electrical', emoji: '⚡', bg: 
-'#FFF8E1' },
-  { serviceKey: 'carpentry', label: 'Carpentry', emoji: '🪚', bg: 
-'#F3E5F5' },
-  { serviceKey: 'welding', label: 'Welding', emoji: '🔥', bg: '#FBE9E7' },
-  { serviceKey: 'handyman', label: 'Handyman', emoji: '🛠️', bg: '#E8F5E9' 
-},
-  { serviceKey: 'landscaping', label: 'Landscaping', emoji: '🌿', bg: 
-'#E0F2F1' },
-  { serviceKey: 'cleaning', label: 'Cleaning', emoji: '✨', bg: '#F3E5F5' 
-},
-  { serviceKey: 'renovation', label: 'Renovation', emoji: '🏠', bg: 
-'#FFF3E0' },
-  { serviceKey: 'ac_hvac', label: 'A/C Repair', emoji: '❄️', bg: '#E3F2FD' 
-},
+  { serviceKey: 'plumbing',         label: 'Plumbing',          emoji: '🔧', bg: '#E3F2FD' },
+  { serviceKey: 'electrical',       label: 'Electrical',         emoji: '⚡',       bg: '#FFF8E1' },
+  { serviceKey: 'ac_hvac',          label: 'Air Conditioning',   emoji: '❄️', bg: '#E3F2FD' },
+  { serviceKey: 'appliance_repair', label: 'Appliance Repair',   emoji: '🧹', bg: '#F3E5F5' },
+  { serviceKey: 'carpentry',        label: 'Carpentry',          emoji: '🪚', bg: '#F3E5F5' },
+  { serviceKey: 'welding',          label: 'Welding',            emoji: '🔥', bg: '#FBE9E7' },
+  { serviceKey: 'handyman',         label: 'Handyman',           emoji: '🛠️', bg: '#E8F5E9' },
+  { serviceKey: 'landscaping',      label: 'Landscaping',        emoji: '🌿', bg: '#E0F2F1' },
+  { serviceKey: 'cleaning',         label: 'Cleaning',           emoji: '✨',       bg: '#F3E5F5' },
+  { serviceKey: 'renovation',       label: 'Renovation',         emoji: '🏠', bg: '#FFF3E0' },
 ];
 
 // Popular Projects Data - each links to a specific category
@@ -329,28 +322,19 @@ item.bg }]}
               <>
                 <Text style={styles.sectionTitleOnGradient}>Results</Text>
                 {hasResults ? (
-                  <View style={styles.servicesGrid}>
+                  <View style={styles.servicesStackedList}>
                     {searchResults.matchingSubCategories.map((subCat) => (
                       <TouchableOpacity
                         key={subCat.id}
-                        style={styles.serviceCard}
+                        style={styles.serviceStackedCard}
                         onPress={() => handleSubCategoryPress(subCat)}
                         activeOpacity={0.7}
                       >
-                        <View style={styles.serviceIconContainer}>
-                          <Ionicons
-                            name={subCat.icon as any}
-                            size={26}
-                            color="#E53935"
-                          />
+                        <View style={styles.serviceStackedIconContainer}>
+                          <Ionicons name={subCat.icon as any} size={22} color="#E53935" />
                         </View>
-                        <Text
-                          style={styles.serviceName}
-                          numberOfLines={2}
-                          ellipsizeMode="tail"
-                        >
-                          {subCat.label}
-                        </Text>
+                        <Text style={styles.serviceStackedName} numberOfLines={1}>{subCat.label}</Text>
+                        <Ionicons name="chevron-forward" size={16} color="#CCC" />
                       </TouchableOpacity>
                     ))}
                   </View>
@@ -781,6 +765,20 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
+  servicesStackedList: { gap: 10, paddingHorizontal: 20 },
+  serviceStackedCard: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: '#FFFFFF', borderRadius: 14,
+    paddingVertical: 14, paddingHorizontal: 16,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06, shadowRadius: 6, elevation: 2,
+  },
+  serviceStackedIconContainer: {
+    width: 40, height: 40, borderRadius: 20,
+    backgroundColor: '#FFF5F5',
+    alignItems: 'center', justifyContent: 'center', marginRight: 14,
+  },
+  serviceStackedName: { flex: 1, fontSize: 15, fontWeight: '600', color: '#1A1A1A' },
   serviceCardBeta: {
     backgroundColor: '#FFFBF5',
   },
