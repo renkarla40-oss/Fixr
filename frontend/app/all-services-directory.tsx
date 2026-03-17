@@ -17,17 +17,18 @@ const CARD_GAP = 12;
 const H_PAD = 16;
 const CARD_WIDTH = (SCREEN_WIDTH - H_PAD * 2 - CARD_GAP) / 2;
 
+// Approved 10 services — emoji + pastel bg matches Home screen featured card language
 const SERVICES = [
-  { key: 'plumbing',         label: 'Plumbing',          subtitle: 'Leaks \u2022 Pipes \u2022 Toilets',          icon: 'water-outline'          },
-  { key: 'electrical',       label: 'Electrical',         subtitle: 'Wiring \u2022 Lighting \u2022 Breakers',     icon: 'flash-outline'          },
-  { key: 'ac_hvac',          label: 'Air Conditioning',   subtitle: 'Repair \u2022 Service \u2022 Install',       icon: 'snow-outline'           },
-  { key: 'appliance_repair', label: 'Appliance Repair',   subtitle: 'Fridge \u2022 Washer \u2022 Oven',          icon: 'hardware-chip-outline'  },
-  { key: 'carpentry',        label: 'Carpentry',          subtitle: 'Furniture \u2022 Cabinets \u2022 Woodwork',  icon: 'hammer-outline'         },
-  { key: 'welding',          label: 'Welding',            subtitle: 'Gates \u2022 Metal \u2022 Fabrication',      icon: 'flame-outline'          },
-  { key: 'handyman',         label: 'Handyman',           subtitle: 'General Repairs \u2022 Installations',       icon: 'construct-outline'      },
-  { key: 'landscaping',      label: 'Landscaping',        subtitle: 'Lawn \u2022 Trees \u2022 Garden',           icon: 'leaf-outline'           },
-  { key: 'cleaning',         label: 'Cleaning',           subtitle: 'Home \u2022 Deep \u2022 Office',            icon: 'sparkles-outline'       },
-  { key: 'renovation',       label: 'Renovation',         subtitle: 'Painting \u2022 Tiling \u2022 Remodeling',  icon: 'color-palette-outline'  },
+  { key: 'plumbing',         label: 'Plumbing',          subtitle: 'Leaks • Pipes • Toilets',          emoji: '🔧', bg: '#E3F2FD' },
+  { key: 'electrical',       label: 'Electrical',         subtitle: 'Wiring • Lighting • Breakers',     emoji: '⚡',       bg: '#FFF8E1' },
+  { key: 'ac_hvac',          label: 'Air Conditioning',   subtitle: 'Repair • Service • Install',       emoji: '❄️', bg: '#E3F2FD' },
+  { key: 'appliance_repair', label: 'Appliance Repair',   subtitle: 'Fridge • Washer • Oven',          emoji: '🧹', bg: '#F3E5F5' },
+  { key: 'carpentry',        label: 'Carpentry',          subtitle: 'Furniture • Cabinets • Woodwork',  emoji: '🪚', bg: '#F3E5F5' },
+  { key: 'welding',          label: 'Welding',            subtitle: 'Gates • Metal • Fabrication',      emoji: '🔥', bg: '#FBE9E7' },
+  { key: 'handyman',         label: 'Handyman',           subtitle: 'General Repairs • Installs',           emoji: '🔨', bg: '#E8F5E9' },
+  { key: 'landscaping',      label: 'Landscaping',        subtitle: 'Lawn • Trees • Garden',           emoji: '🌿', bg: '#E0F2F1' },
+  { key: 'cleaning',         label: 'Cleaning',           subtitle: 'Home • Deep • Office',            emoji: '✨',       bg: '#F3E5F5' },
+  { key: 'renovation',       label: 'Renovation',         subtitle: 'Painting • Tiling • Remodeling',  emoji: '🏠', bg: '#FFF3E0' },
 ] as const;
 
 export type ServiceEntry = typeof SERVICES[number];
@@ -67,6 +68,7 @@ export default function AllServicesDirectoryScreen() {
     });
   };
 
+  // Pair services into rows of 2
   const rows: ServiceEntry[][] = [];
   for (let i = 0; i < SERVICES.length; i += 2) {
     rows.push([SERVICES[i], SERVICES[i + 1]] as ServiceEntry[]);
@@ -74,7 +76,9 @@ export default function AllServicesDirectoryScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
+
+      {/* Header — padded below notch/camera */}
+      <View style={[styles.header, { paddingTop: Math.max(insets.top, 12) + 8 }]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
         </TouchableOpacity>
@@ -87,12 +91,13 @@ export default function AllServicesDirectoryScreen() {
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 40 }]}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom + 24, 40) }]}
         showsVerticalScrollIndicator={false}
       >
+        {/* Describe Your Job — top quick-action */}
         <TouchableOpacity style={styles.describeCard} onPress={handleDescribeJob} activeOpacity={0.85}>
           <View style={styles.describeIconWrap}>
-            <Ionicons name="chatbubble-ellipses-outline" size={24} color="#E53935" />
+            <Text style={styles.describeEmoji}>{'\uD83D\uDCAC'}</Text>
           </View>
           <View style={styles.describeTextWrap}>
             <Text style={styles.describeTitle}>Describe Your Job</Text>
@@ -103,25 +108,22 @@ export default function AllServicesDirectoryScreen() {
 
         <Text style={styles.sectionLabel}>Browse by Service</Text>
 
+        {/* 2-column grid — each card matches Home featured card style */}
         {rows.map((pair, rowIdx) => (
           <View key={rowIdx} style={styles.row}>
             {pair.map((service) => (
               <TouchableOpacity
                 key={service.key}
-                style={styles.serviceCard}
+                style={[styles.serviceCard, { backgroundColor: service.bg }]}
                 onPress={() => handleServicePress(service)}
                 activeOpacity={0.82}
               >
-                <View style={styles.iconWrap}>
-                  <Ionicons name={service.icon as any} size={22} color="#E53935" />
-                </View>
-                <View style={styles.textWrap}>
-                  <Text style={styles.cardLabel} numberOfLines={1}>{service.label}</Text>
-                  <Text style={styles.cardSubtitle} numberOfLines={2}>{service.subtitle}</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={15} color="#CCC" />
+                <Text style={styles.serviceEmoji}>{service.emoji}</Text>
+                <Text style={styles.serviceLabel} numberOfLines={1}>{service.label}</Text>
+                <Text style={styles.serviceSubtitle} numberOfLines={2}>{service.subtitle}</Text>
               </TouchableOpacity>
             ))}
+            {pair.length === 1 && <View style={[styles.serviceCard, styles.ghostCard]} />}
           </View>
         ))}
       </ScrollView>
@@ -130,12 +132,15 @@ export default function AllServicesDirectoryScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#F7F7F7' },
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#F7F7F7',
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: H_PAD,
-    paddingVertical: 14,
+    paddingBottom: 14,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
@@ -145,12 +150,17 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 18, fontWeight: '700', color: '#1A1A1A' },
   headerSub: { fontSize: 12, color: '#888', marginTop: 2 },
   scroll: { flex: 1 },
-  scrollContent: { paddingHorizontal: H_PAD, paddingTop: 20, gap: CARD_GAP },
+  scrollContent: {
+    paddingHorizontal: H_PAD,
+    paddingTop: 20,
+    gap: CARD_GAP,
+  },
+  // Describe card — red border accent, matches home CTA style
   describeCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: 14,
+    borderRadius: 16,
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderWidth: 1.5,
@@ -168,6 +178,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
     marginRight: 14,
   },
+  describeEmoji: { fontSize: 22 },
   describeTextWrap: { flex: 1 },
   describeTitle: { fontSize: 15, fontWeight: '700', color: '#1A1A1A', marginBottom: 2 },
   describeSub: { fontSize: 12, color: '#666' },
@@ -176,29 +187,44 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase', letterSpacing: 0.8,
     marginBottom: 2,
   },
+  // Grid
   row: { flexDirection: 'row', gap: CARD_GAP },
+  // Service card — square, emoji centered on top, label + subtitle below
+  // Matches Home featuredCard: same border radius, shadow, emoji-first layout
   serviceCard: {
     width: CARD_WIDTH,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    paddingVertical: 14,
+    borderRadius: 18,
+    paddingVertical: 18,
     paddingHorizontal: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07,
+    shadowRadius: 8,
     elevation: 2,
+    minHeight: 130,
   },
-  iconWrap: {
-    width: 38, height: 38, borderRadius: 19,
-    backgroundColor: '#FFF5F5',
-    alignItems: 'center', justifyContent: 'center',
-    marginRight: 10,
-    flexShrink: 0,
+  ghostCard: {
+    backgroundColor: 'transparent',
+    shadowOpacity: 0,
+    elevation: 0,
   },
-  textWrap: { flex: 1, marginRight: 4 },
-  cardLabel: { fontSize: 13, fontWeight: '700', color: '#1A1A1A', marginBottom: 2 },
-  cardSubtitle: { fontSize: 10, color: '#888', lineHeight: 13 },
+  serviceEmoji: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  serviceLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  serviceSubtitle: {
+    fontSize: 10,
+    color: '#555',
+    textAlign: 'center',
+    lineHeight: 14,
+  },
 });
