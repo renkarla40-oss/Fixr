@@ -198,7 +198,7 @@ export default function RequestServiceScreen() {
         style={styles.container}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: Math.max(insets.top, 12) + 4 }]}>
           <TouchableOpacity
             onPress={() => router.back()}
             style={styles.backButton}
@@ -212,7 +212,7 @@ export default function RequestServiceScreen() {
         <ScrollView
           ref={scrollViewRef}
           style={styles.content}
-          contentContainerStyle={[styles.contentContainer, { paddingBottom: Math.max(140, insets.bottom + 120) }]}
+          contentContainerStyle={[styles.contentContainer, { paddingBottom: Math.max(insets.bottom + 32, 48) }]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="interactive"
@@ -349,7 +349,7 @@ export default function RequestServiceScreen() {
           </View>
 
           {/* Submit button inside ScrollView for proper keyboard avoidance */}
-          <View style={[styles.submitButtonContainer, { marginBottom: insets.bottom + 16 }]}>
+          <View style={[styles.submitButtonContainer, { marginBottom: Math.max(insets.bottom + 16, 24) }]}>
             <TouchableOpacity
               style={[styles.submitButton, loading && styles.submitButtonDisabled]}
               onPress={handleSubmit}
@@ -414,7 +414,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
   },
