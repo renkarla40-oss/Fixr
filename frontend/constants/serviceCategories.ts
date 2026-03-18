@@ -248,7 +248,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     label: 'Roofing',
     icon: 'home',
     description: 'Roof repair, replacement, and maintenance',
-    status: 'core',
+    status: 'coming_soon',
     subcategories: createSubs([
       'Roof Repair',
       'Roof Replacement',
@@ -299,7 +299,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     label: 'Masonry & Concrete',
     icon: 'cube',
     description: 'Concrete work, block laying, and stone work',
-    status: 'core',
+    status: 'coming_soon',
     subcategories: createSubs([
       'Concrete Pouring',
       'Concrete Repair',
@@ -381,7 +381,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     label: 'Fencing & Gates',
     icon: 'apps',
     description: 'Fence and gate installation, repair, and maintenance',
-    status: 'core',
+    status: 'coming_soon',
     subcategories: createSubs([
       'Wood Fence Installation',
       'Chain Link Fence',
@@ -428,7 +428,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     label: 'Outdoor Structures',
     icon: 'business',
     description: 'Decks, patios, pergolas, and outdoor living spaces',
-    status: 'beta',
+    status: 'coming_soon',
     subcategories: createSubs([
       'Deck Building',
       'Deck Repair',
@@ -478,7 +478,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     label: 'Security Systems',
     icon: 'shield-checkmark',
     description: 'Home security installation and monitoring',
-    status: 'beta',
+    status: 'coming_soon',
     subcategories: createSubs([
       'Security Camera Installation',
       'CCTV Installation',
@@ -500,7 +500,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     label: 'Smart Home',
     icon: 'phone-portrait',
     description: 'Smart home device installation and setup',
-    status: 'beta',
+    status: 'coming_soon',
     subcategories: createSubs([
       'Smart Thermostat Installation',
       'Smart Lighting Setup',
@@ -595,7 +595,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     label: 'Garage Doors',
     icon: 'car',
     description: 'Garage door installation, repair, and maintenance',
-    status: 'beta',
+    status: 'coming_soon',
     subcategories: createSubs([
       'Garage Door Repair',
       'Garage Door Installation',
