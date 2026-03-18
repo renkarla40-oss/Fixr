@@ -133,22 +133,10 @@ export default function ProviderListScreen() {
     return result;
   }, [providers, sortBy, availabilityFilter, verifiedOnly]);
 
-  // Phase 1 Enforcement: Guard - redirect if requestId is missing
-  useEffect(() => {
-    if (!requestId || requestId === '' || requestId === 'undefined' || requestId === 'null') {
-      // Redirect back to home after a brief delay
-      const timer = setTimeout(() => {
-        router.replace('/(customer)');
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [requestId]);
+  // Browse flow: provider-list works without requestId (pre-submission browse);
 
   useEffect(() => {
-    // Only fetch if we have a valid requestId
-    if (requestId && requestId !== '' && requestId !== 'undefined' && requestId !== 'null') {
-      fetchProviders(false); // Initial fetch with travel-anywhere OFF
-    }
+    fetchProviders(false)
   }, [categoryId, location, searchDistanceKm, requestId]);
 
   useEffect(() => {
@@ -263,39 +251,7 @@ export default function ProviderListScreen() {
   const localProviders = providers.filter(p => !p.isOutsideSelectedArea);
   const travelAnywhereProviders = providers.filter(p => p.isOutsideSelectedArea);
 
-  // Phase 1 Enforcement: Guard - show message if requestId is missing
-  const isRequestIdMissing = !requestId || requestId === '' || requestId === 'undefined' || requestId === 'null';
-  
-  if (isRequestIdMissing) {
-    return (
-      <View style={[styles.safeArea, { paddingTop: insets.top }]}>
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <TouchableOpacity
-              onPress={() => router.replace('/(customer)')}
-              style={styles.backButton}
-            >
-              <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
-            </TouchableOpacity>
-            <Text style={styles.title}>Providers</Text>
-            <View style={styles.backButton} />
-          </View>
-          <View style={styles.centerContent}>
-            <View style={styles.emptyIconContainer}>
-              <Ionicons name="document-text-outline" size={48} color="#E53935" />
-            </View>
-            <Text style={styles.emptyTitle}>Request Required</Text>
-            <Text style={styles.emptySubtitle}>
-              Please submit your request first.
-            </Text>
-            <Text style={[styles.emptySubtitle, { marginTop: 8, color: '#999' }]}>
-              Redirecting...
-            </Text>
-          </View>
-        </View>
-      </View>
-    );
-  }
+  // Browse flow: no requestId guard — providers load from category + location
 
   return (
     <View style={[styles.safeArea, { paddingTop: insets.top }]}>
