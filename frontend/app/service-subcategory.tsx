@@ -105,6 +105,21 @@ const SUBCATEGORIES: Record<string, { key: string; label: string; icon: string }
   ],
 };
 
+// Emoji + pastel bg per service — unified with Home and All Services
+const SERVICE_EMOJI: Record<string, {emoji: string; bg: string}> = {
+  plumbing:         {emoji: '🔧', bg: '#E3F2FD'},
+  electrical:       {emoji: '⚡', bg: '#FFF8E1'},
+  ac_hvac:          {emoji: '❄️', bg: '#E3F2FD'},
+  appliance_repair: {emoji: '🧹', bg: '#F3E5F5'},
+  carpentry:        {emoji: '🪚', bg: '#F3E5F5'},
+  welding:          {emoji: '🔥', bg: '#FBE9E7'},
+  handyman:         {emoji: '🛠️', bg: '#E8F5E9'},
+  landscaping:      {emoji: '🌿', bg: '#E0F2F1'},
+  cleaning:         {emoji: '✨', bg: '#F3E5F5'},
+  renovation:       {emoji: '🏠', bg: '#FFF3E0'},
+  other:            {emoji: '💬', bg: '#F5F5F5'},
+};
+
 export default function ServiceSubcategoryScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -112,6 +127,7 @@ export default function ServiceSubcategoryScreen() {
 
   const serviceKey   = params.serviceKey   as string;
   const serviceLabel = params.serviceLabel as string;
+  const serviceStyle = SERVICE_EMOJI[serviceKey as string] || SERVICE_EMOJI.other;
   const providerId   = params.providerId   as string | undefined;
   const providerName = params.providerName as string | undefined;
 
@@ -175,8 +191,8 @@ export default function ServiceSubcategoryScreen() {
               onPress={() => goToRequestForm(sub.key, sub.label)}
               activeOpacity={0.75}
             >
-              <View style={styles.subIcon}>
-                <Ionicons name={sub.icon as any} size={18} color="#E53935" />
+              <View style={[styles.subIcon, {backgroundColor: serviceStyle.bg}]}>
+                <Text style={styles.subEmoji}>{serviceStyle.emoji}</Text>
               </View>
               <Text style={styles.subLabel}>{sub.label}</Text>
               <Ionicons name="chevron-forward" size={17} color="#CCC" />
@@ -204,14 +220,16 @@ const styles = StyleSheet.create({
   scrollContent: { paddingHorizontal: 16, paddingTop: 20 },
   describeCard: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#FFFFFF', borderRadius: 14, padding: 16,
-    marginBottom: 24, borderWidth: 1.5, borderColor: '#E53935',
-    shadowColor: '#E53935', shadowOffset: { width: 0, height: 2 },
+    backgroundColor: '#F8F8F9', borderRadius: 14, padding: 16,
+    marginBottom: 24, borderWidth: 1, borderColor: '#E5E5E7',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,
+  },
     shadowOpacity: 0.07, shadowRadius: 6, elevation: 2,
   },
   describeIconWrap: {
     width: 40, height: 40, borderRadius: 20,
-    backgroundColor: '#FFF5F5',
+    backgroundColor: '#EFEFEF',
     alignItems: 'center', justifyContent: 'center', marginRight: 12,
   },
   describeTextWrap: { flex: 1 },
@@ -233,9 +251,11 @@ const styles = StyleSheet.create({
   },
   subRowLast: { borderBottomWidth: 0 },
   subIcon: {
-    width: 34, height: 34, borderRadius: 17,
-    backgroundColor: '#FFF5F5',
+    width: 36, height: 36, borderRadius: 18,
     alignItems: 'center', justifyContent: 'center', marginRight: 14,
+  },
+  subEmoji: {
+    fontSize: 18,
   },
   subLabel: { flex: 1, fontSize: 15, color: '#1A1A1A', fontWeight: '500' },
 });
