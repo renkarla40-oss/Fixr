@@ -11,7 +11,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getDisplayableCategories, ServiceCategory } from '../../constants/serviceCategories';
+import { getDisplayableCategories, ServiceCategory } from '../constants/serviceCategories';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_GAP = 12;
