@@ -39,14 +39,14 @@ const categories = getDisplayableCategories();
 const FEATURED_SERVICES = [
   { serviceKey: 'plumbing',         label: 'Plumbing',          emoji: '🔧', bg: '#E3F2FD' },
   { serviceKey: 'electrical',       label: 'Electrical',         emoji: '⚡',       bg: '#FFF8E1' },
-  { serviceKey: 'ac_hvac',          label: 'Air Conditioning',   emoji: '❄️', bg: '#E3F2FD' },
-  { serviceKey: 'appliance_repair', label: 'Appliance Repair',   emoji: '🧹', bg: '#F3E5F5' },
+  { serviceKey: 'ac',               label: 'Air Conditioning',   emoji: '❄️', bg: '#E3F2FD' },
+  { serviceKey: 'appliance',        label: 'Appliance Repair',   emoji: '🧹', bg: '#F3E5F5' },
   { serviceKey: 'carpentry',        label: 'Carpentry',          emoji: '🪚', bg: '#F3E5F5' },
   { serviceKey: 'welding',          label: 'Welding',            emoji: '🔥', bg: '#FBE9E7' },
   { serviceKey: 'handyman',         label: 'Handyman',           emoji: '🛠️', bg: '#E8F5E9' },
   { serviceKey: 'landscaping',      label: 'Landscaping',        emoji: '🌿', bg: '#E0F2F1' },
   { serviceKey: 'cleaning',         label: 'Cleaning',           emoji: '✨',       bg: '#F3E5F5' },
-  { serviceKey: 'renovation',       label: 'Renovation',         emoji: '🏠', bg: '#FFF3E0' },
+  { serviceKey: 'roofing',          label: 'Roofing',            emoji: '🏠', bg: '#FFF3E0' },
 ];
 
 // Popular Projects Data - each links to a specific category
