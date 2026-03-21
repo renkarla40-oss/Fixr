@@ -126,18 +126,9 @@ export default function RequestServiceScreen() {
       // Combine in ISO format
       const preferredDateTime = `${dateStr}T${timeStr}:00.000Z`;
 
-      // Hard guard: never create a request without a valid provider
-      if (!hasValidProvider) {
-        Alert.alert(
-          'No Provider Selected',
-          'Please select a provider before submitting a request.',
-          [{ text: 'OK', onPress: () => router.back() }]
-        );
-        setLoading(false);
-        return;
-      }
-
-      const apiUrl = `${BACKEND_URL}/api/service-requests?provider_id=${providerId}`;
+      const apiUrl = hasValidProvider
+        ? `${BACKEND_URL}/api/service-requests?provider_id=${providerId}`
+        : `${BACKEND_URL}/api/service-requests`;
 
       const response = await axios.post(
         apiUrl,
@@ -165,11 +156,27 @@ export default function RequestServiceScreen() {
         return;
       }
 
-      // Provider already attached — go directly to the request thread
-      router.replace({
-        pathname: '/(customer)/request-detail',
-        params: { requestId },
-      });
+      // Route based on whether a provider was pre-selected:
+      // - No provider: go to provider-list for matching/selection
+      // - Provider pre-selected: go directly to request thread
+      if (hasValidProvider) {
+        router.replace({
+          pathname: '/(customer)/request-detail',
+          params: { requestId },
+        });
+      } else {
+        router.replace({
+          pathname: '/provider-list',
+          params: {
+            requestId,
+            categoryId: category,
+            categoryName: categoryLabel,
+            subCategory: subCategory || '',
+            subcategoryKey: subCategory || '',
+            location: location || '',
+          },
+        });
+      }
     } catch (error: any) {
       if (__DEV__) {
         console.warn('Error creating request:', error);
