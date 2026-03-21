@@ -21,14 +21,14 @@ const CARD_WIDTH = (SCREEN_WIDTH - H_PAD * 2 - CARD_GAP) / 2;
 const SERVICES = [
   { key: 'plumbing',         label: 'Plumbing',          subtitle: 'Leaks • Pipes • Toilets',          emoji: '🔧', bg: '#E3F2FD' },
   { key: 'electrical',       label: 'Electrical',         subtitle: 'Wiring • Lighting • Breakers',     emoji: '⚡',       bg: '#FFF8E1' },
-  { key: 'ac_hvac',          label: 'Air Conditioning',   subtitle: 'Repair • Service • Install',       emoji: '❄️', bg: '#E3F2FD' },
-  { key: 'appliance_repair', label: 'Appliance Repair',   subtitle: 'Fridge • Washer • Oven',          emoji: '🧹', bg: '#F3E5F5' },
+  { key: 'ac',               label: 'Air Conditioning',   subtitle: 'Repair • Service • Install',       emoji: '❄️', bg: '#E3F2FD' },
+  { key: 'appliance',        label: 'Appliance Repair',   subtitle: 'Fridge • Washer • Oven',          emoji: '🧹', bg: '#F3E5F5' },
   { key: 'carpentry',        label: 'Carpentry',          subtitle: 'Furniture • Cabinets • Woodwork',  emoji: '🪚', bg: '#F3E5F5' },
   { key: 'welding',          label: 'Welding',            subtitle: 'Gates • Metal • Fabrication',      emoji: '🔥', bg: '#FBE9E7' },
   { key: 'handyman',         label: 'Handyman',           subtitle: 'General Repairs • Installs',           emoji: '🔨', bg: '#E8F5E9' },
   { key: 'landscaping',      label: 'Landscaping',        subtitle: 'Lawn • Trees • Garden',           emoji: '🌿', bg: '#E0F2F1' },
   { key: 'cleaning',         label: 'Cleaning',           subtitle: 'Home • Deep • Office',            emoji: '✨',       bg: '#F3E5F5' },
-  { key: 'renovation',       label: 'Renovation',         subtitle: 'Painting • Tiling • Remodeling',  emoji: '🏠', bg: '#FFF3E0' },
+  { key: 'roofing',          label: 'Roofing',            subtitle: 'Repair • Replace • Waterproof',   emoji: '🏠', bg: '#FFF3E0' },
 ] as const;
 
 export type ServiceEntry = typeof SERVICES[number];
