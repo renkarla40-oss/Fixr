@@ -32,7 +32,7 @@ const SUBCATEGORIES: Record<string, { key: string; label: string; icon: string }
     { key: 'security_cam',     label: 'Security Camera Install',  icon: 'camera-outline'        },
     { key: 'doorbell',         label: 'Doorbell Installation',    icon: 'notifications-outline' },
   ],
-  ac_hvac: [
+  ac: [
     { key: 'ac_repair',        label: 'A/C Repair',               icon: 'build-outline'         },
     { key: 'ac_service',       label: 'A/C Servicing',            icon: 'settings-outline'      },
     { key: 'ac_install',       label: 'A/C Installation',         icon: 'add-circle-outline'    },
@@ -42,7 +42,7 @@ const SUBCATEGORIES: Record<string, { key: string; label: string; icon: string }
     { key: 'split_unit',       label: 'Split Unit Maintenance',   icon: 'construct-outline'     },
     { key: 'indoor_cleaning',  label: 'Indoor Unit Cleaning',     icon: 'brush-outline'         },
   ],
-  appliance_repair: [
+  appliance: [
     { key: 'fridge',           label: 'Refrigerator Repair',      icon: 'snow-outline'          },
     { key: 'washing_machine',  label: 'Washing Machine Repair',   icon: 'water-outline'         },
     { key: 'dryer',            label: 'Dryer Repair',             icon: 'flame-outline'         },
@@ -93,7 +93,7 @@ const SUBCATEGORIES: Record<string, { key: string; label: string; icon: string }
     { key: 'bathroom_clean',   label: 'Bathroom Cleaning',        icon: 'water-outline'         },
     { key: 'kitchen_clean',    label: 'Kitchen Cleaning',         icon: 'restaurant-outline'    },
   ],
-  renovation: [
+  roofing: [
     { key: 'interior_paint',   label: 'Interior Painting',        icon: 'color-fill-outline'    },
     { key: 'exterior_paint',   label: 'Exterior Painting',        icon: 'brush-outline'         },
     { key: 'floor_tiling',     label: 'Floor Tiling',             icon: 'grid-outline'          },
@@ -109,14 +109,14 @@ const SUBCATEGORIES: Record<string, { key: string; label: string; icon: string }
 const SERVICE_EMOJI: Record<string, {emoji: string; bg: string}> = {
   plumbing:         {emoji: '🔧', bg: '#E3F2FD'},
   electrical:       {emoji: '⚡', bg: '#FFF8E1'},
-  ac_hvac:          {emoji: '❄️', bg: '#E3F2FD'},
-  appliance_repair: {emoji: '🧹', bg: '#F3E5F5'},
+  ac:          {emoji: '❄️', bg: '#E3F2FD'},
+  appliance:   {emoji: '🧹', bg: '#F3E5F5'},
   carpentry:        {emoji: '🪚', bg: '#F3E5F5'},
   welding:          {emoji: '🔥', bg: '#FBE9E7'},
   handyman:         {emoji: '🛠️', bg: '#E8F5E9'},
   landscaping:      {emoji: '🌿', bg: '#E0F2F1'},
   cleaning:         {emoji: '✨', bg: '#F3E5F5'},
-  renovation:       {emoji: '🏠', bg: '#FFF3E0'},
+  roofing:     {emoji: '🏠', bg: '#FFF3E0'},
   other:            {emoji: '💬', bg: '#F5F5F5'},
 };
 
