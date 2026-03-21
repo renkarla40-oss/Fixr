@@ -198,3 +198,7 @@ export const SERVICE_CATEGORIES = [
   ]
 }
 ];
+
+export const getDisplayableCategories = () => {
+  return SERVICE_CATEGORIES;
+};
