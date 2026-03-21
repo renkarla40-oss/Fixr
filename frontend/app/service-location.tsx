@@ -107,12 +107,10 @@ export default function ServiceLocationScreen() {
   const handleContinue = () => {
     if (!location.trim()) return;
 
-    // Route to provider-list so customer selects a specific provider first.
-    // The chosen provider carries through provider-detail -> all-services-directory
-    // -> service-subcategory -> request-service -> request creation.
-    // No request is created here — providerId must come from a real provider selection.
+    // Route directly to request-service. Customer creates the request first,
+    // then continues into provider selection/matching after successful submission.
     router.push({
-      pathname: '/provider-list',
+      pathname: '/request-service',
       params: {
         category,
         categoryName,
