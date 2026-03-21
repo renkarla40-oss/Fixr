@@ -199,6 +199,75 @@ export const SERVICE_CATEGORIES = [
 }
 ];
 
-export const getDisplayableCategories = () => {
-  return SERVICE_CATEGORIES;
+// ─── Compatibility layer ─────────────────────────────────────────────────────
+// The interfaces and helpers below restore exports expected by existing UI screens.
+// Do not remove. Do not refactor. Taxonomy data above is the source of truth.
+
+export interface SubCategory {
+  subcategoryKey: string;
+  label: string;
+}
+
+export interface ServiceCategory {
+  serviceKey: string;
+  label: string;
+  icon: string;
+  description: string;
+  subcategories: SubCategory[];
+  status: 'core' | 'beta' | 'coming_soon';
+}
+
+const ICON_MAP: Record<string, string> = {
+  plumbing:    'water',
+  electrical:  'flash',
+  ac:          'snow',
+  appliance:   'settings',
+  carpentry:   'construct',
+  welding:     'flame',
+  handyman:    'hammer',
+  cleaning:    'sparkles',
+  landscaping: 'leaf',
+  painting:    'color-palette',
+  flooring:    'grid',
+  roofing:     'home',
 };
+
+const DESCRIPTION_MAP: Record<string, string> = {
+  plumbing:    'Plumbing repairs, installations, and maintenance',
+  electrical:  'Electrical repairs, installations, and maintenance',
+  ac:          'Air conditioning repair, service, and installation',
+  appliance:   'Home appliance repair and installation',
+  carpentry:   'Carpentry, cabinetry, and woodwork',
+  welding:     'Welding, gates, railings, and metalwork',
+  handyman:    'General handyman and minor home repairs',
+  cleaning:    'Home and office cleaning services',
+  landscaping: 'Yard care, landscaping, and garden services',
+  painting:    'Interior and exterior painting services',
+  flooring:    'Flooring installation, repair, and finishing',
+  roofing:     'Roofing repair, replacement, and waterproofing',
+};
+
+const _mapped: ServiceCategory[] = SERVICE_CATEGORIES.map(cat => ({
+  serviceKey:    cat.key,
+  label:         cat.label,
+  icon:          ICON_MAP[cat.key] || 'construct',
+  description:   DESCRIPTION_MAP[cat.key] || cat.label,
+  status:        'core' as const,
+  subcategories: cat.subcategories.map(sub => ({
+    subcategoryKey: sub.key,
+    label:          sub.label,
+  })),
+}));
+
+export const getCategoryByKey = (serviceKey: string): ServiceCategory | undefined =>
+  _mapped.find(cat => cat.serviceKey === serviceKey);
+
+export const getServiceLabel = (serviceKey: string): string =>
+  getCategoryByKey(serviceKey)?.label || serviceKey;
+
+export const requiresSubcategorySelection = (serviceKey: string): boolean => {
+  const category = getCategoryByKey(serviceKey);
+  return category ? category.subcategories.length > 0 : false;
+};
+
+export const getDisplayableCategories = (): ServiceCategory[] => _mapped;
