@@ -271,3 +271,8 @@ export const requiresSubcategorySelection = (serviceKey: string): boolean => {
 };
 
 export const getDisplayableCategories = (): ServiceCategory[] => _mapped;
+
+export const getSubcategoriesByKey = (serviceKey: string): SubCategory[] => {
+  const category = _mapped.find(cat => cat.serviceKey === serviceKey);
+  return category ? category.subcategories : [];
+};
