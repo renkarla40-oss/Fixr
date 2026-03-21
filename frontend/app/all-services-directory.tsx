@@ -11,27 +11,15 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getDisplayableCategories, ServiceCategory } from '../../constants/serviceCategories';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_GAP = 12;
 const H_PAD = 16;
 const CARD_WIDTH = (SCREEN_WIDTH - H_PAD * 2 - CARD_GAP) / 2;
 
-// Approved 10 services — emoji + pastel bg matches Home screen featured card language
-const SERVICES = [
-  { key: 'plumbing',         label: 'Plumbing',          subtitle: 'Leaks • Pipes • Toilets',          emoji: '🔧', bg: '#E3F2FD' },
-  { key: 'electrical',       label: 'Electrical',         subtitle: 'Wiring • Lighting • Breakers',     emoji: '⚡',       bg: '#FFF8E1' },
-  { key: 'ac',               label: 'Air Conditioning',   subtitle: 'Repair • Service • Install',       emoji: '❄️', bg: '#E3F2FD' },
-  { key: 'appliance',        label: 'Appliance Repair',   subtitle: 'Fridge • Washer • Oven',          emoji: '🧹', bg: '#F3E5F5' },
-  { key: 'carpentry',        label: 'Carpentry',          subtitle: 'Furniture • Cabinets • Woodwork',  emoji: '🪚', bg: '#F3E5F5' },
-  { key: 'welding',          label: 'Welding',            subtitle: 'Gates • Metal • Fabrication',      emoji: '🔥', bg: '#FBE9E7' },
-  { key: 'handyman',         label: 'Handyman',           subtitle: 'General Repairs • Installs',           emoji: '🔨', bg: '#E8F5E9' },
-  { key: 'landscaping',      label: 'Landscaping',        subtitle: 'Lawn • Trees • Garden',           emoji: '🌿', bg: '#E0F2F1' },
-  { key: 'cleaning',         label: 'Cleaning',           subtitle: 'Home • Deep • Office',            emoji: '✨',       bg: '#F3E5F5' },
-  { key: 'roofing',          label: 'Roofing',            subtitle: 'Repair • Replace • Waterproof',   emoji: '🏠', bg: '#FFF3E0' },
-] as const;
-
-export type ServiceEntry = typeof SERVICES[number];
+const SERVICES = getDisplayableCategories();
+export type ServiceEntry = ServiceCategory;
 export { SERVICES };
 
 export default function AllServicesDirectoryScreen() {
@@ -60,7 +48,7 @@ export default function AllServicesDirectoryScreen() {
     router.push({
       pathname: '/service-subcategory',
       params: {
-        serviceKey:   service.key,
+        serviceKey:   service.serviceKey,
         serviceLabel: service.label,
         providerId:   providerId   || '',
         providerName: providerName || '',
@@ -113,7 +101,7 @@ export default function AllServicesDirectoryScreen() {
           <View key={rowIdx} style={styles.row}>
             {pair.map((service) => (
               <TouchableOpacity
-                key={service.key}
+                key={service.serviceKey}
                 style={[styles.serviceCard, { backgroundColor: service.bg }]}
                 onPress={() => handleServicePress(service)}
                 activeOpacity={0.82}
