@@ -4397,12 +4397,6 @@ async def create_service_request(
     try:
         logger.info(f"Creating service request: {request_data.model_dump()}")
         logger.info(f"Provider ID: {provider_id}")
-        # Validation guard: reject requests without a valid provider
-        if not provider_id or provider_id in (None, "", "general", "null", "undefined"):
-           raise HTTPException(
-        status_code=400,
-        detail="A valid provider must be selected before creating a request."
-    )
         # Check if this is a general request (Other Services Beta)
         is_general_request = provider_id is None or provider_id == "general"
         
