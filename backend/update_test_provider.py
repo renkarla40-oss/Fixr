@@ -14,7 +14,8 @@ WHAT IT UPDATES:
 WHAT IT DOES NOT TOUCH:
   - No frontend / UI code changes
   - No provider directory layout changes
-  - Existing userId, services, availabilityStatus, password, tokens preserved
+  - Existing userId, availabilityStatus, password, tokens preserved
+  - services updated to: plumbing, electrical, cleaning, handyman (for realistic matching tests)
   - All other provider records untouched
 
 HOW TO RUN:
@@ -95,8 +96,10 @@ async def update():
 
     # ── 3. Build the provider update payload ───────────────────────────
     # Only sets fields that need changing — preserves everything else
-    # (userId, services, availabilityStatus, isAcceptingJobs, password, etc.)
+    # (userId, availabilityStatus, isAcceptingJobs, password, etc.)
     provider_update = {
+        # Services: Test Provider covers all 4 major categories for realistic matching tests
+        "services": ["plumbing", "electrical", "cleaning", "handyman"],
         # Photo — required for the listing filter AND card display
         "profilePhotoUrl":      PROFILE_PHOTO_URL,
         "governmentIdFrontUrl": GOVT_ID_URL,
@@ -190,7 +193,7 @@ async def update():
     print(f"    completedJobsCount:  {refreshed.get('completedJobsCount')}")
     print(f"    baseTown:            {refreshed.get('baseTown')}")
     print(f"    availabilityStatus:  {refreshed.get('availabilityStatus')}")
-    print(f"    services:            {refreshed.get('services')}")
+    print(f"    services:            {refreshed.get('services')}")  # Should show all 4 for matching tests
     print(f"    bio:                 {refreshed.get('bio')[:60]}...")
 
     client.close()
