@@ -1,7 +1,7 @@
 """
 seed_demo_providers.py
 ======================
-Inserts 3 demo provider accounts into the Fixr MongoDB database.
+Inserts 4 demo provider accounts into the Fixr MongoDB database.
 
 HOW TO RUN:
     From your project root (where backend/ lives):
@@ -48,6 +48,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 PLACEHOLDER_MALE_1   = "https://randomuser.me/api/portraits/men/32.jpg"
 PLACEHOLDER_FEMALE_1 = "https://randomuser.me/api/portraits/women/44.jpg"
 PLACEHOLDER_MALE_2   = "https://randomuser.me/api/portraits/men/67.jpg"
+PLACEHOLDER_FEMALE_2 = "https://randomuser.me/api/portraits/women/58.jpg"
 # Government ID placeholder — private, never shown to customers
 PLACEHOLDER_GOVT_ID  = "https://randomuser.me/api/portraits/lego/1.jpg"
 
@@ -72,8 +73,8 @@ DEMO_PROVIDERS = [
             # userId injected below
             "name":                  "Colin Baptiste",
             "phone":                 "1-868-621-0001",
-            "services":              ["plumbing"],
-            "bio":                   "Reliable plumbing professional for home repairs, installations, and emergency leak issues.",
+            "services":              ["electrical"],
+            "bio":                   "Skilled electrician handling residential wiring, lighting, and breaker repairs.",
             "verificationStatus":    "verified",
             "setupComplete":         True,
             "baseTown":              "San Fernando",
@@ -110,8 +111,8 @@ DEMO_PROVIDERS = [
         "provider": {
             "name":                  "Brianna Ali",
             "phone":                 "1-868-622-0002",
-            "services":              ["electrical"],
-            "bio":                   "Skilled electrician handling residential electrical repairs and installations.",
+            "services":              ["cleaning"],
+            "bio":                   "Professional cleaner offering home, deep-clean, and office cleaning services.",
             "verificationStatus":    "verified",
             "setupComplete":         True,
             "baseTown":              "Chaguanas",
@@ -167,6 +168,45 @@ DEMO_PROVIDERS = [
             "completedJobsCount":    64,
             "averageRating":         4.9,
             "totalReviews":          51,
+            "riskFlags":             [],
+            "createdAt":             datetime.utcnow(),
+        },
+    },
+    {
+        "user": {
+            "email":            "provider.test@fixr-demo.tt",
+            "name":             "Provider Test",
+            "phone":            "1-868-624-0004",
+            "currentRole":      "provider",
+            "isProviderEnabled": True,
+            "isBetaUser":       True,
+            "password":         pwd_context.hash("Fixr2024!"),
+            "createdAt":        datetime.utcnow(),
+            "updatedAt":        datetime.utcnow(),
+        },
+        "provider": {
+            # userId injected below
+            "name":                  "Provider Test",
+            "phone":                 "1-868-624-0004",
+            "services":              ["plumbing"],
+            "bio":                   "Experienced plumber for leak detection, pipe repairs, and bathroom installations.",
+            "verificationStatus":    "verified",
+            "setupComplete":         True,
+            "baseTown":              "Arima",
+            "travelDistanceKm":      35,
+            "travelAnywhere":        False,
+            "availabilityStatus":    "available",
+            "isAcceptingJobs":       True,
+            "availabilityNote":      None,
+            "profilePhotoUrl":       PLACEHOLDER_FEMALE_2,
+            "governmentIdFrontUrl":  PLACEHOLDER_GOVT_ID,
+            "governmentIdBackUrl":   PLACEHOLDER_GOVT_ID,
+            "uploadsComplete":       True,
+            "phoneVerified":         True,
+            "phoneVerifiedAt":       datetime.utcnow(),
+            "completedJobsCount":    43,
+            "averageRating":         4.5,
+            "totalReviews":          34,
             "riskFlags":             [],
             "createdAt":             datetime.utcnow(),
         },
