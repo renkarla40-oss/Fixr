@@ -18,6 +18,22 @@ const CARD_GAP = 12;
 const H_PAD = 16;
 const CARD_WIDTH = (SCREEN_WIDTH - H_PAD * 2 - CARD_GAP) / 2;
 
+// Emoji + pastel bg per service — matches Home featured card style exactly
+const SERVICE_META: Record<string, { emoji: string; bg: string }> = {
+  plumbing:    { emoji: '🔧', bg: '#E3F2FD' },
+  electrical:  { emoji: '⚡', bg: '#FFF8E1' },
+  ac:          { emoji: '❄️', bg: '#E3F2FD' },
+  appliance:   { emoji: '🧹', bg: '#F3E5F5' },
+  carpentry:   { emoji: '🪚', bg: '#F3E5F5' },
+  welding:     { emoji: '🔥', bg: '#FBE9E7' },
+  handyman:    { emoji: '🛠️', bg: '#E8F5E9' },
+  cleaning:    { emoji: '✨', bg: '#F3E5F5' },
+  landscaping: { emoji: '🌿', bg: '#E0F2F1' },
+  painting:    { emoji: '🎨', bg: '#FFF3E0' },
+  flooring:    { emoji: '🏗️', bg: '#F3E5F5' },
+  roofing:     { emoji: '🏠', bg: '#FFF3E0' },
+};
+
 const SERVICES = getDisplayableCategories();
 export type ServiceEntry = ServiceCategory;
 export { SERVICES };
@@ -26,32 +42,29 @@ export default function AllServicesDirectoryScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams();
-
-  const providerId   = params.providerId   as string | undefined;
+  const providerId = params.providerId as string | undefined;
   const providerName = params.providerName as string | undefined;
 
   const handleDescribeJob = () => {
     router.push({
       pathname: '/request-service',
       params: {
-        providerId:   providerId   || '',
+        providerId: providerId || '',
         providerName: providerName || '',
-        category:     'other',
+        category: 'other',
         categoryName: 'Other',
-        subCategory:  '',
-        location:     '',
+        subCategory: '',
+        location: '',
       },
     });
   };
 
+  // Navigate using the same subcategory-screen as the main Home cards
   const handleServicePress = (service: ServiceEntry) => {
     router.push({
-      pathname: '/service-subcategory',
+      pathname: '/subcategory-screen',
       params: {
-        serviceKey:   service.serviceKey,
-        serviceLabel: service.label,
-        providerId:   providerId   || '',
-        providerName: providerName || '',
+        serviceKey: service.serviceKey,
       },
     });
   };
@@ -64,7 +77,6 @@ export default function AllServicesDirectoryScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-
       {/* Header — padded below notch/camera */}
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 12) + 8 }]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
@@ -85,7 +97,7 @@ export default function AllServicesDirectoryScreen() {
         {/* Describe Your Job — top quick-action */}
         <TouchableOpacity style={styles.describeCard} onPress={handleDescribeJob} activeOpacity={0.85}>
           <View style={styles.describeIconWrap}>
-            <Text style={styles.describeEmoji}>{'\uD83D\uDCAC'}</Text>
+            <Text style={styles.describeEmoji}>{'💬'}</Text>
           </View>
           <View style={styles.describeTextWrap}>
             <Text style={styles.describeTitle}>Describe Your Job</Text>
@@ -99,18 +111,21 @@ export default function AllServicesDirectoryScreen() {
         {/* 2-column grid — each card matches Home featured card style */}
         {rows.map((pair, rowIdx) => (
           <View key={rowIdx} style={styles.row}>
-            {pair.map((service) => (
-              <TouchableOpacity
-                key={service.serviceKey}
-                style={[styles.serviceCard, { backgroundColor: service.bg }]}
-                onPress={() => handleServicePress(service)}
-                activeOpacity={0.82}
-              >
-                <Text style={styles.serviceEmoji}>{service.emoji}</Text>
-                <Text style={styles.serviceLabel} numberOfLines={1}>{service.label}</Text>
-                <Text style={styles.serviceSubtitle} numberOfLines={2}>{service.subtitle}</Text>
-              </TouchableOpacity>
-            ))}
+            {pair.map((service) => {
+              const meta = SERVICE_META[service.serviceKey] || { emoji: '🔧', bg: '#F5F5F5' };
+              return (
+                <TouchableOpacity
+                  key={service.serviceKey}
+                  style={[styles.serviceCard, { backgroundColor: meta.bg }]}
+                  onPress={() => handleServicePress(service)}
+                  activeOpacity={0.82}
+                >
+                  <Text style={styles.serviceEmoji}>{meta.emoji}</Text>
+                  <Text style={styles.serviceLabel} numberOfLines={1}>{service.label}</Text>
+                  <Text style={styles.serviceSubtitle} numberOfLines={2}>{service.description}</Text>
+                </TouchableOpacity>
+              );
+            })}
             {pair.length === 1 && <View style={[styles.serviceCard, styles.ghostCard]} />}
           </View>
         ))}
@@ -154,20 +169,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E5E5E7',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
-    marginBottom: 4,
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 2,
     marginBottom: 4,
   },
   describeIconWrap: {
-    width: 44, height: 44, borderRadius: 22,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: '#EFEFEF',
-    alignItems: 'center', justifyContent: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 14,
   },
   describeEmoji: { fontSize: 22 },
@@ -175,8 +189,11 @@ const styles = StyleSheet.create({
   describeTitle: { fontSize: 15, fontWeight: '700', color: '#1A1A1A', marginBottom: 2 },
   describeSub: { fontSize: 12, color: '#666' },
   sectionLabel: {
-    fontSize: 12, fontWeight: '600', color: '#999',
-    textTransform: 'uppercase', letterSpacing: 0.8,
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#999',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
     marginBottom: 2,
   },
   // Grid
