@@ -1329,13 +1329,22 @@ async def get_provider(provider_id: str, current_user: User = Depends(get_curren
     if ObjectId.is_valid(provider_id):
         provider = await db.providers.find_one({"_id": ObjectId(provider_id)})
         if provider:
-            provider_user = await db.users.find_one({"_id": ObjectId(provider.get("userId"))})
-    
+            try:
+                uid = provider.get("userId", "")
+                if uid and ObjectId.is_valid(uid):
+                    provider_user = await db.users.find_one({"_id": ObjectId(uid)})
+            except Exception:
+                pass  # userId missing or malformed — provider_user stays None
+
     # 2) Try by userId
     if not provider:
         provider = await db.providers.find_one({"userId": provider_id})
         if provider:
-            provider_user = await db.users.find_one({"_id": ObjectId(provider_id)})
+            try:
+                if ObjectId.is_valid(provider_id):
+                    provider_user = await db.users.find_one({"_id": ObjectId(provider_id)})
+            except Exception:
+                pass  # provider_id not a valid ObjectId for user lookup
     
     if not provider:
         raise HTTPException(status_code=404, detail="Provider not found")
@@ -5555,10 +5564,26 @@ async def seed_canonical_accounts():
         logger.info(f"⚠️  Missing: customer003@test.com - create manually if needed")
     
     if provider003:
-        logger.info(f"✅ MVP Provider: provider003@test.com")
+        logger.info(f"\u2705 MVP Provider: provider003@test.com")
+        # Upsert Test Provider's services so they always match the required seed setup
+        # (services: plumbing, electrical, cleaning, handyman for full matching test coverage)
+        try:
+            prov003_doc = await db.providers.find_one({"userId": str(provider003["_id"])})
+            if prov003_doc:
+                required_services = ["plumbing", "electrical", "cleaning", "handyman"]
+                if prov003_doc.get("services") != required_services:
+                    await db.providers.update_one(
+                        {"userId": str(provider003["_id"])},
+                        {"$set": {"services": required_services}}
+                    )
+                    logger.info(f"\u2705 Test Provider services updated to {required_services}")
+                else:
+                    logger.info(f"\u23ed Test Provider services already correct")
+        except Exception as e:
+            logger.warning(f"Could not upsert Test Provider services: {e}")
     else:
-        logger.info(f"⚠️  Missing: provider003@test.com - create manually if needed")
-    
+        logger.info(f"\u26a0\ufe0f  Missing: provider003@test.com - create manually if needed")
+
     # Log total counts
     total_users = await db.users.count_documents({})
     total_providers = await db.providers.count_documents({})
