@@ -1383,6 +1383,9 @@ async def get_provider(provider_id: str, current_user: User = Depends(get_curren
     provider.setdefault("riskFlags", [])
     provider.setdefault("distanceFromJob", None)
     provider.setdefault("isOutsideSelectedArea", False)
+    # Ensure userId is always a plain string — Provider model requires str, not None
+    if not isinstance(provider.get("userId"), str):
+        provider["userId"] = ""
     
     return Provider(**provider)
 
@@ -5583,6 +5586,33 @@ async def seed_canonical_accounts():
             logger.warning(f"Could not upsert Test Provider services: {e}")
     else:
         logger.info(f"\u26a0\ufe0f  Missing: provider003@test.com - create manually if needed")
+
+    # Upsert Provider Test services: ensure the legacy "Provider Test" document
+    # (which may pre-date the seed script) always has the correct service = cleaning
+    try:
+        prov_test_doc = await db.providers.find_one({"name": "Provider Test"})
+        if prov_test_doc:
+            required_pt_services = ["cleaning"]
+            current_pt_services = prov_test_doc.get("services", [])
+            needs_update = current_pt_services != required_pt_services
+            # Also ensure userId is a non-null string (prevents ValidationError in get_provider)
+            uid_val = prov_test_doc.get("userId")
+            uid_is_bad = not uid_val or not isinstance(uid_val, str)
+            if needs_update or uid_is_bad:
+                patch = {"services": required_pt_services}
+                if uid_is_bad:
+                    patch["userId"] = ""
+                await db.providers.update_one(
+                    {"name": "Provider Test"},
+                    {"$set": patch}
+                )
+                logger.info(f"\u2705 Provider Test patched: services={required_pt_services}, userId_fixed={uid_is_bad}")
+            else:
+                logger.info(f"\u23ed Provider Test already correct: {current_pt_services}")
+        else:
+            logger.info(f"\u26a0\ufe0f  Provider Test document not found in providers collection")
+    except Exception as e:
+        logger.warning(f"Could not patch Provider Test: {e}")
 
     # Log total counts
     total_users = await db.users.count_documents({})
