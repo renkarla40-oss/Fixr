@@ -85,7 +85,7 @@ const popularProjects = [
     image:
       
 'https://customer-assets.emergentagent.com/job_02b87b3e-0772-4b24-8d3f-89ddeca1c0b1/artifacts/qi80xi8p_pexels-jose-andres-pacheco-cortes-3641213-5463576.jpg',
-    category: 'ac_hvac',
+    category: 'ac',
   },
 ];
 
