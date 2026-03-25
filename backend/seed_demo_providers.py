@@ -1,7 +1,7 @@
 """
 seed_demo_providers.py
 ======================
-Inserts 4 demo provider accounts into the Fixr MongoDB database.
+Inserts 3 demo provider accounts into the Fixr MongoDB database.
 
 HOW TO RUN:
     From your project root (where backend/ lives):
@@ -64,7 +64,6 @@ PLACEHOLDER_GOVT_ID = "https://randomuser.me/api/portraits/lego/1.jpg"
 #   Colin Baptiste  → Electrical
 #   Brianna Ali     → Cleaning
 #   Devon Thomas    → Handyman
-#   Provider Test   → Cleaning   (overlaps Brianna; Plumbing covered by Test Provider)
 DEMO_PROVIDERS = [
     {
         "user": {
@@ -177,45 +176,6 @@ DEMO_PROVIDERS = [
             "completedJobsCount": 64,
             "averageRating": 4.9,
             "totalReviews": 51,
-            "riskFlags": [],
-            "createdAt": datetime.utcnow(),
-        },
-    },
-    {
-        "user": {
-            "email": "provider.test@fixr-demo.tt",
-            "name": "Provider Test",
-            "phone": "1-868-624-0004",
-            "currentRole": "provider",
-            "isProviderEnabled": True,
-            "isBetaUser": True,
-            "password": pwd_context.hash("Fixr2024!"),
-            "createdAt": datetime.utcnow(),
-            "updatedAt": datetime.utcnow(),
-        },
-        "provider": {
-            # userId injected below
-            "name": "Provider Test",
-            "phone": "1-868-624-0004",
-            "services": ["cleaning"],
-            "bio": "Reliable cleaning professional offering home, deep-clean, and office cleaning services.",
-            "verificationStatus": "verified",
-            "setupComplete": True,
-            "baseTown": "Arima",
-            "travelDistanceKm": 35,
-            "travelAnywhere": False,
-            "availabilityStatus": "available",
-            "isAcceptingJobs": True,
-            "availabilityNote": None,
-            "profilePhotoUrl": PLACEHOLDER_FEMALE_2,
-            "governmentIdFrontUrl": PLACEHOLDER_GOVT_ID,
-            "governmentIdBackUrl": PLACEHOLDER_GOVT_ID,
-            "uploadsComplete": True,
-            "phoneVerified": True,
-            "phoneVerifiedAt": datetime.utcnow(),
-            "completedJobsCount": 43,
-            "averageRating": 4.5,
-            "totalReviews": 34,
             "riskFlags": [],
             "createdAt": datetime.utcnow(),
         },
