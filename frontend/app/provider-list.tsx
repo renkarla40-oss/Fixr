@@ -109,6 +109,11 @@ export default function ProviderListScreen() {
       result = result.filter(p => p.availabilityStatus !== 'away');
     }
     
+    // Apply service filter — client-side guard matching provider.services (same field as chips)
+    if (categoryId && categoryId !== 'other') {
+      result = result.filter(p => p.services && p.services.includes(categoryId));
+    }
+
     // Apply verified filter
     if (verifiedOnly) {
       result = result.filter(p => p.verificationStatus === 'verified');
