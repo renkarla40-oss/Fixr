@@ -73,7 +73,7 @@ export default function ProviderListScreen() {
   const requestId = params.requestId as string | undefined;
   
   // Extract params with clear variable names
-  const categoryId = params.category as string;
+  const categoryId = params.categoryId as string;
   const categoryName = params.categoryName as string;
   const subCategory = params.subCategory as string | undefined;
   const subcategoryKey = params.subcategoryKey as string | undefined;
