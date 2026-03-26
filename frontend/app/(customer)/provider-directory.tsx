@@ -453,6 +453,27 @@ export default function ProviderDirectoryScreen() {
                     </Text>
                   )}
 
+
+                  {/* Service chips preview */}
+                  {provider.services && provider.services.length > 0 && (
+                    <View style={styles.serviceChipsRow}>
+                      {provider.services.slice(0, 3).map((svc) => (
+                        <View key={svc} style={styles.serviceChipPreview}>
+                          <Text style={styles.serviceChipPreviewText}>
+                            {svc.charAt(0).toUpperCase() + svc.slice(1)}
+                          </Text>
+                        </View>
+                      ))}
+                      {provider.services.length > 3 && (
+                        <View style={styles.serviceChipPreview}>
+                          <Text style={styles.serviceChipPreviewText}>
+                            +{provider.services.length - 3} more
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  )}
+
                   {/* View Details - same as provider-list */}
                   <View style={styles.cardFooter}>
                     <Text style={styles.viewDetailsText}>View Details</Text>
@@ -889,5 +910,22 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: '#FFFFFF',
+  },
+  serviceChipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginBottom: 10,
+  },
+  serviceChipPreview: {
+    backgroundColor: '#E53935',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  serviceChipPreviewText: {
+    fontSize: 12,
+    color: '#FFFFFF',
+    fontWeight: '500',
   },
 });
