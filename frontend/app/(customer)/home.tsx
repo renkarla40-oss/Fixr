@@ -40,7 +40,7 @@ const FEATURED_SERVICES = [
   { serviceKey: 'plumbing',         label: 'Plumbing',          emoji: '🔧', bg: '#E3F2FD' },
   { serviceKey: 'electrical',       label: 'Electrical',         emoji: '⚡',       bg: '#FFF8E1' },
   { serviceKey: 'ac',               label: 'Air Conditioning',   emoji: '❄️', bg: '#E3F2FD' },
-  { serviceKey: 'appliance',        label: 'Appliance Repair',   emoji: '🧹', bg: '#F3E5F5' },
+  { serviceKey: 'appliance',        label: 'Appliance Repair',   emoji: '⚙️', bg: '#F3E5F5' },
   { serviceKey: 'carpentry',        label: 'Carpentry',          emoji: '🪚', bg: '#F3E5F5' },
   { serviceKey: 'welding',          label: 'Welding',            emoji: '🔥', bg: '#FBE9E7' },
   { serviceKey: 'handyman',         label: 'Handyman',           emoji: '🛠️', bg: '#E8F5E9' },
@@ -358,29 +358,39 @@ item.bg }]}
                         .filter((cat) =>
                           SUGGESTED_CATEGORIES.includes(cat.serviceKey)
                         )
-                        .map((category) => (
-                          <TouchableOpacity
-                            key={category.serviceKey}
-                            style={styles.serviceCard}
-                            onPress={() => handleCategoryPress(category)}
-                            activeOpacity={0.7}
-                          >
-                            <View style={styles.serviceIconContainer}>
-                              <Ionicons
-                                name={category.icon as any}
-                                size={26}
-                                color="#E53935"
-                              />
-                            </View>
-                            <Text
-                              style={styles.serviceName}
-                              numberOfLines={1}
-                              ellipsizeMode="tail"
+                        .map((category) => {
+                          const feat = FEATURED_SERVICES.find((f) => f.serviceKey === category.serviceKey);
+                          return (
+                            <TouchableOpacity
+                              key={category.serviceKey}
+                              style={[
+                                styles.serviceCard,
+                                feat ? { backgroundColor: feat.bg } : undefined,
+                              ]}
+                              onPress={() => handleCategoryPress(category)}
+                              activeOpacity={0.7}
                             >
-                              {category.label}
-                            </Text>
-                          </TouchableOpacity>
-                        ))}
+                              {feat ? (
+                                <Text style={styles.featuredEmoji}>{feat.emoji}</Text>
+                              ) : (
+                                <View style={styles.serviceIconContainer}>
+                                  <Ionicons
+                                    name={category.icon as any}
+                                    size={26}
+                                    color="#E53935"
+                                  />
+                                </View>
+                              )}
+                              <Text
+                                style={styles.serviceName}
+                                numberOfLines={1}
+                                ellipsizeMode="tail"
+                              >
+                                {category.label}
+                              </Text>
+                            </TouchableOpacity>
+                          );
+                        })}
                     </View>
                   </View>
                 )}
@@ -390,38 +400,45 @@ item.bg }]}
                 <Text style={styles.sectionTitleOnGradient}>All 
 Services</Text>
                 <View style={styles.servicesGrid}>
-                  {categories.map((category) => (
-                    <TouchableOpacity
-                      key={category.serviceKey}
-                      style={[
-                        styles.serviceCard,
-                        category.status === 'beta' && 
-styles.serviceCardBeta,
-                      ]}
-                      onPress={() => handleCategoryPress(category)}
-                      activeOpacity={0.7}
-                    >
-                      <View style={styles.serviceIconContainer}>
-                        <Ionicons
-                          name={category.icon as any}
-                          size={26}
-                          color="#E53935"
-                        />
-                      </View>
-                      <Text
-                        style={styles.serviceName}
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
+                  {categories.map((category) => {
+                    const feat = FEATURED_SERVICES.find((f) => f.serviceKey === category.serviceKey);
+                    return (
+                      <TouchableOpacity
+                        key={category.serviceKey}
+                        style={[
+                          styles.serviceCard,
+                          feat ? { backgroundColor: feat.bg } : undefined,
+                          category.status === 'beta' && styles.serviceCardBeta,
+                        ]}
+                        onPress={() => handleCategoryPress(category)}
+                        activeOpacity={0.7}
                       >
-                        {category.label}
-                      </Text>
-                      {category.status === 'beta' && (
-                        <View style={styles.betaBadge}>
-                          <Text style={styles.betaBadgeText}>BETA</Text>
-                        </View>
-                      )}
-                    </TouchableOpacity>
-                  ))}
+                        {feat ? (
+                          <Text style={styles.featuredEmoji}>{feat.emoji}</Text>
+                        ) : (
+                          <View style={styles.serviceIconContainer}>
+                            <Ionicons
+                              name={category.icon as any}
+                              size={26}
+                              color="#E53935"
+                            />
+                          </View>
+                        )}
+                        <Text
+                          style={styles.serviceName}
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                        >
+                          {category.label}
+                        </Text>
+                        {category.status === 'beta' && (
+                          <View style={styles.betaBadge}>
+                            <Text style={styles.betaBadgeText}>BETA</Text>
+                          </View>
+                        )}
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
               </>
             )}
