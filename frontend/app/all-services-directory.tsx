@@ -23,7 +23,7 @@ const SERVICE_META: Record<string, { emoji: string; bg: string }> = {
   plumbing:    { emoji: '🔧', bg: '#E3F2FD' },
   electrical:  { emoji: '⚡', bg: '#FFF8E1' },
   ac:          { emoji: '❄️', bg: '#E3F2FD' },
-  appliance:   { emoji: '🧹', bg: '#F3E5F5' },
+  appliance:   { emoji: '⚙️', bg: '#F3E5F5' },
   carpentry:   { emoji: '🪚', bg: '#F3E5F5' },
   welding:     { emoji: '🔥', bg: '#FBE9E7' },
   handyman:    { emoji: '🛠️', bg: '#E8F5E9' },
@@ -103,7 +103,7 @@ export default function AllServicesDirectoryScreen() {
             <Text style={styles.describeTitle}>Describe Your Job</Text>
             <Text style={styles.describeSub}>Tell us what needs fixing</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color="#E53935" />
+          <Ionicons name="chevron-forward" size={20} color="#666" />
         </TouchableOpacity>
 
         <Text style={styles.sectionLabel}>Browse by Service</Text>
