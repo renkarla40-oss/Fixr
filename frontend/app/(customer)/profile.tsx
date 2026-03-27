@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
   Alert,
   ActivityIndicator,
   ScrollView,
@@ -14,11 +13,13 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const BETA_EMAIL = 'fixr.beta@gmail.com';
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 export default function ProfileScreen() {
+  const insets = useSafeAreaInsets();
   const { user, logout, switchRole } = useAuth();
   const router = useRouter();
   const [switching, setSwitching] = useState(false);
@@ -78,7 +79,7 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={[styles.safeArea, { paddingTop: insets.top, paddingBottom: insets.bottom + 50 }]}>
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>Profile</Text>
@@ -228,7 +229,7 @@ export default function ProfileScreen() {
           </View>
         </ScrollView>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -257,7 +258,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    paddingBottom: 90,
+    paddingBottom: 20,
   },
   profileSection: {
     alignItems: 'center',
