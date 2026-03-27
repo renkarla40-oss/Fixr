@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
   Alert,
   ActivityIndicator,
   ScrollView,
@@ -19,6 +18,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from 'expo-router';
 import axios from 'axios';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const BETA_EMAIL = 'fixr.beta@gmail.com';
@@ -38,6 +38,7 @@ interface ProviderProfile {
 }
 
 export default function ProviderProfileScreen() {
+  const insets = useSafeAreaInsets();
   const { user, token, logout, switchRole } = useAuth();
   const router = useRouter();
   const [switching, setSwitching] = useState(false);
@@ -155,7 +156,7 @@ export default function ProviderProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={[styles.safeArea, { paddingTop: insets.top, paddingBottom: insets.bottom + 50 }]}>
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>Profile</Text>
@@ -431,7 +432,7 @@ export default function ProviderProfileScreen() {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -460,7 +461,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    paddingBottom: 90,
+    paddingBottom: 20,
   },
   profileSection: {
     alignItems: 'center',
