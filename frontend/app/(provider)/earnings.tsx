@@ -162,7 +162,7 @@ export default function EarningsScreen() {
 
   if (loading && !earnings) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + 50 }]}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Earnings</Text>
         </View>
@@ -176,7 +176,7 @@ export default function EarningsScreen() {
 
   if (error && !earnings) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + 50 }]}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Earnings</Text>
         </View>
@@ -192,7 +192,7 @@ export default function EarningsScreen() {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + 50 }]}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Earnings</Text>
       </View>
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
-    paddingBottom: 90,
+    paddingBottom: 32,
   },
   sectionTitle: {
     fontSize: 12,
