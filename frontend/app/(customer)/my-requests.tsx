@@ -471,6 +471,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 16,
     gap: 16,
+    paddingBottom: 90,
   },
   requestCard: {
     backgroundColor: '#FFFFFF',
