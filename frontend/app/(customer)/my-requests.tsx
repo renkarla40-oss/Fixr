@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
@@ -14,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, formatApiError } from '../../utils/apiClient';
 import { getStatusColor, STATUS_LABELS, getEffectiveStatus } from '../../constants/statusStyles';
 import {
@@ -59,6 +59,7 @@ interface ServiceRequest {
 }
 
 export default function MyRequestsScreen() {
+  const insets = useSafeAreaInsets();
   const { token } = useAuth();
   const router = useRouter();
   
@@ -249,7 +250,7 @@ export default function MyRequestsScreen() {
   // This prevents "empty flash" during rapid tab switching
   if (loading && !initialLoadComplete && requests.length === 0) {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <View style={[styles.safeArea, { paddingTop: insets.top, paddingBottom: insets.bottom + 50 }]}>
         <View style={styles.container}>
           <View style={styles.header}>
             <Text style={styles.title}>My Requests</Text>
@@ -259,14 +260,14 @@ export default function MyRequestsScreen() {
             <Text style={styles.loadingText}>{COPY.LOADING}</Text>
           </View>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   // Error state with retry button (only if no data)
   if (error && requests.length === 0) {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <View style={[styles.safeArea, { paddingTop: insets.top, paddingBottom: insets.bottom + 50 }]}>
         <View style={styles.container}>
           <View style={styles.header}>
             <Text style={styles.title}>My Requests</Text>
@@ -280,14 +281,14 @@ export default function MyRequestsScreen() {
             </TouchableOpacity>
           </View>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   // Empty state - ONLY show when initial load is complete AND truly empty
   if (initialLoadComplete && requests.length === 0) {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <View style={[styles.safeArea, { paddingTop: insets.top, paddingBottom: insets.bottom + 50 }]}>
         <View style={styles.container}>
           <View style={styles.header}>
             <Text style={styles.title}>My Requests</Text>
@@ -303,12 +304,12 @@ export default function MyRequestsScreen() {
             <Text style={styles.emptySubtitle}>{COPY.EMPTY_MESSAGE}</Text>
           </ScrollView>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={[styles.safeArea, { paddingTop: insets.top, paddingBottom: insets.bottom + 50 }]}>
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>My Requests</Text>
@@ -389,7 +390,7 @@ export default function MyRequestsScreen() {
           })}
         </ScrollView>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -471,7 +472,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 16,
     gap: 16,
-    paddingBottom: 90,
   },
   requestCard: {
     backgroundColor: '#FFFFFF',
