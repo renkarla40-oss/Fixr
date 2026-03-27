@@ -460,7 +460,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    paddingBottom: 20,
+    paddingBottom: 90,
   },
   profileSection: {
     alignItems: 'center',
