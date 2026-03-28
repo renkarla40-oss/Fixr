@@ -161,7 +161,7 @@ export default function LeaveReviewScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + 50 }]}>
+      <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + 80 }]}>
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color="#E53935" />
           <Text style={styles.loadingText}>Loading...</Text>
@@ -173,7 +173,7 @@ export default function LeaveReviewScreen() {
   // If review already exists, show confirmation and redirect
   if (existingReview) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + 50 }]}>
+      <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + 80 }]}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.closeButton} onPress={handleGoBack}>
             <Ionicons name="close" size={28} color="#1A1A1A" />
@@ -214,7 +214,7 @@ export default function LeaveReviewScreen() {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + 50 }]}>
+    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + 80 }]}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.closeButton} onPress={handleGoBack}>
