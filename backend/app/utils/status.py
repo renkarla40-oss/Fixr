@@ -3,8 +3,12 @@
 # Phase 2: Shared foundations. Exact copy of status logic from server.py.
 # server.py retains its own copy until the switch-over is approved in a future phase.
 # Status logic must exist in ONE place only — this file is that canonical location.
+# Phase 4 update: normalize_legacy_job() corrected to exactly match server.py (line 141).
 
 from typing import Optional
+import logging
+
+logger = logging.getLogger(__name__)
 
 # =============================================================================
 # VALID STATUS TRANSITIONS
@@ -15,9 +19,11 @@ VALID_STATUS_TRANSITIONS: dict = {
     "pending": ["accepted"],
     "accepted": ["awaiting_payment"],        # quote sent
     "awaiting_payment": ["in_progress"],     # provider starts job (payment must be confirmed first)
-    "in_progress": ["completed_pending_review"],  # provider completes with OTP
-    "completed_pending_review": ["completed_reviewed"],  # customer submits or skips review
-    "completed_reviewed": [],                # Terminal state — no further transitions
+    "in_progress": ["completed_pending_review"],  # provider completes work
+    "completed_pending_review": ["completed_reviewed"],  # customer leaves review
+    "completed_reviewed": [],  # terminal state
+    "declined": [],            # terminal state
+    "cancelled": [],           # terminal state
     # Legacy support — allow old "completed" status to be terminal
     "completed": ["completed_pending_review", "completed_reviewed"],
 }
@@ -62,12 +68,22 @@ def get_status_display_name(status: str) -> str:
 def normalize_legacy_job(job: dict) -> dict:
     """
     Normalize legacy job data to current state machine.
-    Exact copy of normalize_legacy_job() from server.py.
-    Ensures all job documents have the required fields for current logic.
+    Handles migration from old 'paid' status to new paymentStatus field.
+    Exact copy of normalize_legacy_job() from server.py (line 141).
+    Corrected in Phase 4 to match server.py exactly (prior version was incomplete).
     """
-    if "status" not in job:
-        job["status"] = "pending"
+    if not job:
+        return job
 
+    status = job.get("status")
+
+    # Handle legacy 'paid' status - convert to awaiting_payment + paymentStatus=held
+    if status == "paid":
+        job["status"] = "awaiting_payment"
+        job["paymentStatus"] = "held"
+        logger.debug(f"Normalized legacy 'paid' status for job {job.get('_id')}")
+
+    # Ensure paymentStatus exists
     if "paymentStatus" not in job:
         job["paymentStatus"] = "unpaid"
 
