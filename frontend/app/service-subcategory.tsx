@@ -110,7 +110,7 @@ const SERVICE_EMOJI: Record<string, {emoji: string; bg: string}> = {
   plumbing:         {emoji: '🔧', bg: '#E3F2FD'},
   electrical:       {emoji: '⚡', bg: '#FFF8E1'},
   ac:          {emoji: '❄️', bg: '#E3F2FD'},
-  appliance:   {emoji: '🧹', bg: '#F3E5F5'},
+  appliance:   {emoji: '⚙️', bg: '#F3E5F5'},
   carpentry:        {emoji: '🪚', bg: '#F3E5F5'},
   welding:          {emoji: '🔥', bg: '#FBE9E7'},
   handyman:         {emoji: '🛠️', bg: '#E8F5E9'},
@@ -178,7 +178,7 @@ export default function ServiceSubcategoryScreen() {
             <Text style={styles.describeTitle}>Describe Your Job</Text>
             <Text style={styles.describeSub}>Not sure which option fits? Tell us what you need.</Text>
           </View>
-          <Ionicons name="chevron-forward" size={18} color="#E53935" />
+          <Ionicons name="chevron-forward" size={18} color="#666" />
         </TouchableOpacity>
 
         <Text style={styles.listLabel}>Or choose a specific service</Text>
