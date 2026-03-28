@@ -250,7 +250,7 @@ export default function MyRequestsScreen() {
   // This prevents "empty flash" during rapid tab switching
   if (loading && !initialLoadComplete && requests.length === 0) {
     return (
-      <View style={[styles.safeArea, { paddingTop: insets.top, paddingBottom: insets.bottom + 50 }]}>
+      <View style={[styles.safeArea, { paddingTop: insets.top }]}>
         <View style={styles.container}>
           <View style={styles.header}>
             <Text style={styles.title}>My Requests</Text>
@@ -267,7 +267,7 @@ export default function MyRequestsScreen() {
   // Error state with retry button (only if no data)
   if (error && requests.length === 0) {
     return (
-      <View style={[styles.safeArea, { paddingTop: insets.top, paddingBottom: insets.bottom + 50 }]}>
+      <View style={[styles.safeArea, { paddingTop: insets.top }]}>
         <View style={styles.container}>
           <View style={styles.header}>
             <Text style={styles.title}>My Requests</Text>
@@ -288,7 +288,7 @@ export default function MyRequestsScreen() {
   // Empty state - ONLY show when initial load is complete AND truly empty
   if (initialLoadComplete && requests.length === 0) {
     return (
-      <View style={[styles.safeArea, { paddingTop: insets.top, paddingBottom: insets.bottom + 50 }]}>
+      <View style={[styles.safeArea, { paddingTop: insets.top }]}>
         <View style={styles.container}>
           <View style={styles.header}>
             <Text style={styles.title}>My Requests</Text>
@@ -309,7 +309,7 @@ export default function MyRequestsScreen() {
   }
 
   return (
-    <View style={[styles.safeArea, { paddingTop: insets.top, paddingBottom: insets.bottom + 50 }]}>
+    <View style={[styles.safeArea, { paddingTop: insets.top }]}>
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>My Requests</Text>
