@@ -79,7 +79,7 @@ export default function ProfileScreen() {
   };
 
   return (
-    <View style={[styles.safeArea, { paddingTop: insets.top, paddingBottom: insets.bottom + 50 }]}>
+    <View style={[styles.safeArea, { paddingTop: insets.top }]}>
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>Profile</Text>
