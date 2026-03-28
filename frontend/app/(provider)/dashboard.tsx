@@ -383,7 +383,7 @@ export default function ProviderMyJobsScreen() {
   // This prevents "empty flash" during rapid tab switching
   if (loading && !initialLoadComplete && jobs.length === 0) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + 50 }]}>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <Text style={styles.title}>My Jobs</Text>
           <NotificationBell color="#1A1A1A" size={24} />
@@ -431,7 +431,7 @@ export default function ProviderMyJobsScreen() {
   // Error state with retry button (only if no data)
   if (error && jobs.length === 0) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + 50 }]}>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <Text style={styles.title}>My Jobs</Text>
           <NotificationBell color="#1A1A1A" size={24} />
@@ -451,7 +451,7 @@ export default function ProviderMyJobsScreen() {
   // Empty state - ONLY show when initial load is complete AND truly empty
   if (initialLoadComplete && jobs.length === 0) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + 50 }]}>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
         <BetaNoticeModal 
           visible={shouldShowBetaNotice} 
           onClose={handleBetaNoticeContinue}
@@ -507,7 +507,7 @@ export default function ProviderMyJobsScreen() {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + 50 }]}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <BetaNoticeModal 
         visible={shouldShowBetaNotice} 
         onClose={handleBetaNoticeContinue}
