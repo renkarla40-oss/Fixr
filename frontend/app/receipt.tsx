@@ -223,7 +223,7 @@ export default function ReceiptScreen() {
       </ScrollView>
 
       {/* Done Button */}
-      <View style={[styles.bottomContainer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
+      <View style={[styles.bottomContainer, { paddingBottom: Math.max(insets.bottom + 50, 16) }]}>
         <TouchableOpacity style={styles.doneButton} onPress={() => router.back()}>
           <Text style={styles.doneButtonText}>Done</Text>
         </TouchableOpacity>
