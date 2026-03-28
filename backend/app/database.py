@@ -1,25 +1,50 @@
 # backend/app/database.py
-# Responsibility: Database connection setup and session management.
-# Phase 1: Structural shell only. No logic migrated yet.
-# In future phases, this will initialize the MongoDB connection
-# and expose a get_db dependency for use in routes via dependencies.py.
-# server.py remains the active backend — this file is not yet in use.
+# Responsibility: Database connection setup using lazy initialization.
+# Phase 2: Shared foundations. server.py remains the active backend.
+# This module is importable but does NOT open a connection at import time.
+# A connection is only created when connect_db() is explicitly called.
 
-# Example structure for Phase 2+:
-# from motor.motor_asyncio import AsyncIOMotorClient
-# from app.config import settings
-#
-# client: AsyncIOMotorClient = None
-# db = None
-#
-# async def connect_db():
-#     global client, db
-#     client = AsyncIOMotorClient(settings.database_url)
-#     db = client.get_default_database()
-#
-# async def close_db():
-#     if client:
-#         client.close()
-#
-# def get_db():
-#     return db
+import os
+from motor.motor_asyncio import AsyncIOMotorClient
+
+# =============================================================================
+# LAZY-INITIALIZED GLOBALS
+# Both start as None. No connection is made at import time.
+# connect_db() must be called before get_db() can return a usable db object.
+# =============================================================================
+client: AsyncIOMotorClient = None
+db = None
+
+
+async def connect_db() -> None:
+    """
+    Initialize the MongoDB client and database reference.
+    Must be called explicitly (e.g., from main.py lifespan startup).
+    Does NOT run at import time.
+    """
+    global client, db
+    client = AsyncIOMotorClient(os.environ["MONGO_URL"])
+    db = client[os.environ["DB_NAME"]]
+
+
+async def close_db() -> None:
+    """
+    Close the MongoDB client if it was initialized.
+    Should be called on application shutdown.
+    """
+    global client
+    if client is not None:
+        client.close()
+        client = None
+
+
+def get_db():
+    """
+    Return the initialized database reference.
+    Raises RuntimeError if called before connect_db().
+    """
+    if db is None:
+        raise RuntimeError(
+            "Database not initialized. Call connect_db() first."
+        )
+    return db
