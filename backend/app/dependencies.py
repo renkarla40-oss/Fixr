@@ -1,20 +1,45 @@
 # backend/app/dependencies.py
 # Responsibility: Shared FastAPI dependency injection functions.
-# Phase 1: Structural shell only. No logic migrated yet.
-# In future phases, this will expose reusable dependencies such as:
-#   - get_current_user (JWT auth)
-#   - get_current_provider
-#   - get_current_customer
-#   - require_admin
-# server.py remains the active backend — this file is not yet in use.
+# Phase 2: Shared foundations. server.py remains the active backend.
+# This module is importable but not yet wired to any active route.
+# get_current_user here is an exact copy of the one in server.py.
+# server.py continues using its own copy until Phase 3+ switches over.
 
-# Example structure for Phase 2+:
-# from fastapi import Depends, HTTPException, status
-# from fastapi.security import OAuth2PasswordBearer
-# from app.database import get_db
-#
-# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-#
-# async def get_current_user(token: str = Depends(oauth2_scheme), db=Depends(get_db)):
-#     # Auth logic will be migrated here from server.py in a future phase
-#     pass
+import jwt
+from bson import ObjectId
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+from app.config import SECRET_KEY, ALGORITHM
+from app.database import get_db
+
+# Security scheme — matches server.py: security = HTTPBearer()
+security = HTTPBearer()
+
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Validate JWT bearer token and return the current user document.
+    Exact copy of get_current_user() from server.py.
+    Not yet wired to any active route — dormant until Phase 3+.
+    """
+    try:
+        token = credentials.credentials
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid authentication credentials")
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except Exception:
+        raise HTTPException(status_code=401, detail="Could not validate credentials")
+
+    db = get_db()
+    user = await db.users.find_one({"_id": ObjectId(user_id)})
+    if user is None:
+        raise HTTPException(status_code=401, detail="User not found")
+
+    user["_id"] = str(user["_id"])
+    return user
