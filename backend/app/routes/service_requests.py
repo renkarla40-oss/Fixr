@@ -1,6 +1,7 @@
 # backend/app/routes/service_requests.py
 # Responsibility: API endpoints for the service request lifecycle.
 # Phase 4: Route handlers wired to request_service business logic.
+# Phase 8: OTP job execution handlers added (confirm-arrival, complete).
 # Route prefix corrected to /service-requests to match server.py exactly.
 # send_push_notification imported here (route layer only) and injected into service calls.
 # No business logic lives in this file — handlers are thin wrappers only.
@@ -8,9 +9,7 @@
 
 from fastapi import APIRouter, Depends, Query
 from typing import List, Optional
-
 from server import send_push_notification
-
 from app.dependencies import get_current_user
 from app.database import get_db
 from app.services import request_service
@@ -22,7 +21,6 @@ router = APIRouter(
     prefix="/service-requests",
     tags=["service_requests"],
 )
-
 
 @router.post("", response_model=ServiceRequestResponse)
 async def create_service_request(
@@ -39,7 +37,6 @@ async def create_service_request(
         notify_fn=send_push_notification,
     )
 
-
 @router.get("", response_model=List[ServiceRequestResponse])
 async def get_service_requests(
     current_user=Depends(get_current_user),
@@ -49,7 +46,6 @@ async def get_service_requests(
         current_user=current_user,
         db=db,
     )
-
 
 @router.get("/{request_id}")
 async def get_service_request_detail(
@@ -62,7 +58,6 @@ async def get_service_request_detail(
         current_user=current_user,
         db=db,
     )
-
 
 @router.patch("/{request_id}/accept")
 async def accept_service_request(
@@ -77,7 +72,6 @@ async def accept_service_request(
         notify_fn=send_push_notification,
     )
 
-
 @router.patch("/{request_id}/decline", response_model=ServiceRequestResponse)
 async def decline_service_request(
     request_id: str,
@@ -91,7 +85,6 @@ async def decline_service_request(
         notify_fn=send_push_notification,
     )
 
-
 @router.patch("/{request_id}/cancel")
 async def cancel_service_request(
     request_id: str,
@@ -104,7 +97,6 @@ async def cancel_service_request(
         db=db,
         notify_fn=send_push_notification,
     )
-
 
 @router.patch("/{request_id}/assign-provider")
 async def assign_provider_to_request(
@@ -120,7 +112,6 @@ async def assign_provider_to_request(
         db=db,
         notify_fn=send_push_notification,
     )
-
 
 @router.patch("/{request_id}/release-provider")
 async def release_provider_from_request(
