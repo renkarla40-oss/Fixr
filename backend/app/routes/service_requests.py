@@ -2,6 +2,7 @@
 # Responsibility: API endpoints for the service request lifecycle.
 # Phase 4: Route handlers wired to request_service business logic.
 # Phase 8: OTP job execution handlers added (confirm-arrival, complete).
+# Phase 9: Review and skip-review handlers added.
 # Route prefix corrected to /service-requests to match server.py exactly.
 # send_push_notification imported here (route layer only) and injected into service calls.
 # No business logic lives in this file — handlers are thin wrappers only.
@@ -14,14 +15,15 @@ from app.dependencies import get_current_user
 from app.database import get_db
 from app.services import request_service
 from app.services import otp_service
+from app.services import review_service
 from app.schemas.service_request import ServiceRequest, ServiceRequestResponse, AssignProviderRequest
 from app.schemas.otp import ConfirmJobStartRequest
+from app.schemas.review import SubmitReviewRequest
 
 router = APIRouter(
     prefix="/service-requests",
     tags=["service_requests"],
 )
-
 @router.post("", response_model=ServiceRequestResponse)
 async def create_service_request(
     request_data: ServiceRequest,
@@ -72,7 +74,7 @@ async def accept_service_request(
         notify_fn=send_push_notification,
     )
 
-@router.patch("/{request_id}/decline", response_model=ServiceRequestResponse)
+@router.patch("/{request_id}/decline")
 async def decline_service_request(
     request_id: str,
     current_user=Depends(get_current_user),
@@ -97,7 +99,6 @@ async def cancel_service_request(
         db=db,
         notify_fn=send_push_notification,
     )
-
 @router.patch("/{request_id}/assign-provider")
 async def assign_provider_to_request(
     request_id: str,
@@ -133,7 +134,7 @@ async def confirm_job_arrival(
     current_user=Depends(get_current_user),
     db=Depends(get_db),
 ):
-    return await otp_service.confirm_job_arrival(
+    return await otp_service.confirm_job_start(
         request_id=request_id,
         confirm_data=confirm_data,
         current_user=current_user,
@@ -155,4 +156,32 @@ async def complete_service_request(
         current_user=current_user,
         db=db,
         notify_fn=send_push_notification,
+    )
+
+@router.post("/{request_id}/review")
+async def submit_job_review(
+    request_id: str,
+    review_data: SubmitReviewRequest,
+    current_user=Depends(get_current_user),
+    db=Depends(get_db),
+):
+    return await review_service.submit_job_review(
+        review_data=review_data,
+        request_id=request_id,
+        current_user=current_user,
+        db=db,
+        notify_fn=send_push_notification,
+    )
+
+
+@router.post("/{request_id}/skip-review")
+async def skip_review(
+    request_id: str,
+    current_user=Depends(get_current_user),
+    db=Depends(get_db),
+):
+    return await review_service.skip_review(
+        request_id=request_id,
+        current_user=current_user,
+        db=db,
     )
