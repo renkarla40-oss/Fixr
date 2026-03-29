@@ -14,7 +14,9 @@ from server import send_push_notification
 from app.dependencies import get_current_user
 from app.database import get_db
 from app.services import request_service
+from app.services import otp_service
 from app.schemas.service_request import ServiceRequest, ServiceRequestResponse, AssignProviderRequest
+from app.schemas.otp import ConfirmJobStartRequest
 
 router = APIRouter(
     prefix="/service-requests",
@@ -130,4 +132,36 @@ async def release_provider_from_request(
         request_id=request_id,
         current_user=current_user,
         db=db,
+    )
+
+
+@router.post("/{request_id}/confirm-arrival")
+async def confirm_job_arrival(
+    request_id: str,
+    confirm_data: ConfirmJobStartRequest,
+    current_user=Depends(get_current_user),
+    db=Depends(get_db),
+):
+    return await otp_service.confirm_job_arrival(
+        request_id=request_id,
+        confirm_data=confirm_data,
+        current_user=current_user,
+        db=db,
+        notify_fn=send_push_notification,
+    )
+
+
+@router.patch("/{request_id}/complete")
+async def complete_service_request(
+    request_id: str,
+    completion_data: dict,
+    current_user=Depends(get_current_user),
+    db=Depends(get_db),
+):
+    return await otp_service.complete_service_request(
+        request_id=request_id,
+        completion_data=completion_data,
+        current_user=current_user,
+        db=db,
+        notify_fn=send_push_notification,
     )
