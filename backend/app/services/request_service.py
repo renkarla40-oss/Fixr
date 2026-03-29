@@ -1,6 +1,7 @@
 # backend/app/services/request_service.py
 # Responsibility: All service request lifecycle business logic.
 # Phase 4: Business logic migrated from server.py. server.py remains the active backend.
+# Phase 4.5: Logic parity fixes applied — all functions now match server.py exactly.
 # notify_fn is injected by the route layer — service layer has no import from server.py.
 
 from bson import ObjectId
@@ -9,6 +10,7 @@ from datetime import datetime
 from typing import Optional, Callable
 import logging
 
+from app.config import FLAGS
 from app.services.auth_service import generate_job_code
 from app.utils.status import normalize_legacy_job
 from app.schemas.service_request import ServiceRequest, ServiceRequestResponse, AssignProviderRequest
@@ -19,6 +21,8 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 # CREATE REQUEST
 # Extracted from create_service_request() in server.py (~line 4402)
+# Phase 4.5: FLAGS.TEST_MATCHING block restored, full message text restored,
+#            completionOtp and reviewedAt defaults added.
 # =============================================================================
 async def create_request(request_data: ServiceRequest, provider_id: Optional[str], current_user, db, notify_fn: Optional[Callable] = None) -> ServiceRequestResponse:
     try:
@@ -26,7 +30,27 @@ async def create_request(request_data: ServiceRequest, provider_id: Optional[str
         logger.info(f"Provider ID: {provider_id}")
         is_general_request = provider_id is None or provider_id == "general"
 
-        # General request - no specific provider
+        # TEST MODE: Force provider match for any service
+        test_match_used = False
+        fallback_provider = None
+
+        if FLAGS.TEST_MATCHING and is_general_request:
+            # In test mode, prefer Provider 003 or any provider with setupComplete
+            # First try to find Provider 003 (our test provider with valid login)
+            provider003_user = await db.users.find_one({"email": "provider003@test.com"})
+            if provider003_user:
+                fallback_provider_doc = await db.providers.find_one({"userId": str(provider003_user["_id"])})
+            else:
+                # Fallback to first available provider
+                fallback_provider_doc = await db.providers.find_one({"setupComplete": True})
+
+            if fallback_provider_doc:
+                fallback_provider = fallback_provider_doc
+                provider_id = str(fallback_provider_doc["_id"])
+                is_general_request = False
+                test_match_used = True
+                logger.info(f"[TEST MATCH OVERRIDE] No provider selected, using fallback provider: {provider_id}")
+
         if is_general_request:
             request_dict = {
                 "customerId": current_user.id,
@@ -45,16 +69,29 @@ async def create_request(request_data: ServiceRequest, provider_id: Optional[str
             }
         else:
             # Specific provider request
-            provider = await db.providers.find_one({"_id": ObjectId(provider_id)})
+            if fallback_provider:
+                provider = fallback_provider
+            else:
+                provider = await db.providers.find_one({"_id": ObjectId(provider_id)})
+
             if not provider:
                 raise HTTPException(status_code=404, detail="Provider not found")
+
+            # Phase 3A: Check if provider is accepting jobs (BYPASS in test mode)
             if not provider.get("isAcceptingJobs", True):
-                raise HTTPException(
-                    status_code=400,
-                    detail="Provider unavailable. This Fixr isn't accepting new jobs right now. Please choose another provider."
-                )
+                if FLAGS.TEST_MATCHING:
+                    logger.info(f"[TEST MATCH OVERRIDE] Bypassing isAcceptingJobs check for provider {provider_id}, service={request_data.service}")
+                    test_match_used = True
+                else:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Provider unavailable. This Fixr isn't accepting new jobs right now. Please choose another provider."
+                    )
+
+            # Get provider's user info for name
             provider_user = await db.users.find_one({"_id": ObjectId(provider["userId"])})
             provider_name = provider_user["name"] if provider_user else provider.get("name", "Provider")
+
             request_dict = {
                 "customerId": current_user.id,
                 "providerId": provider_id,
@@ -72,12 +109,16 @@ async def create_request(request_data: ServiceRequest, provider_id: Optional[str
                 "createdAt": datetime.utcnow(),
             }
 
+            # Log test match override details
+            if test_match_used:
+                logger.info(f"[TEST MATCH OVERRIDE] Request created: service={request_data.service}, provider={provider_name} ({provider_id})")
+
         result = await db.service_requests.insert_one(request_dict)
         request_dict["_id"] = str(result.inserted_id)
         request_id_str = str(result.inserted_id)
 
         # Customer system message (idempotent)
-        customer_message_text = "Fixr: Your request was sent. Providers have up to 24 hours to respond."
+        customer_message_text = "Fixr: Your request was sent. Providers have up to 24 hours to respond. If this is urgent, you can cancel this request anytime and choose another provider."
         existing_customer_msg = await db.job_messages.find_one({
             "requestId": request_id_str,
             "senderId": "system",
@@ -162,8 +203,10 @@ async def create_request(request_data: ServiceRequest, provider_id: Optional[str
         request_dict["jobCode"] = request_dict.get("jobCode")
         request_dict["jobStartedAt"] = request_dict.get("jobStartedAt")
         request_dict["jobCompletedAt"] = request_dict.get("jobCompletedAt")
+        request_dict["completionOtp"] = request_dict.get("completionOtp")
         request_dict["customerReview"] = request_dict.get("customerReview")
         request_dict["customerRating"] = request_dict.get("customerRating")
+        request_dict["reviewedAt"] = request_dict.get("reviewedAt")
         request_dict["last_message_at"] = request_dict.get("last_message_at")
         return ServiceRequestResponse(**request_dict)
     except HTTPException:
@@ -175,6 +218,7 @@ async def create_request(request_data: ServiceRequest, provider_id: Optional[str
 # =============================================================================
 # LIST REQUESTS
 # Extracted from get_service_requests() in server.py (~line 4683)
+# No changes in Phase 4.5 — passed parity check.
 # =============================================================================
 async def list_requests(current_user, db) -> list:
     if current_user.currentRole == "customer":
@@ -219,6 +263,7 @@ async def list_requests(current_user, db) -> list:
 # =============================================================================
 # GET REQUEST DETAIL
 # Extracted from get_service_request_detail() in server.py (~line 1692)
+# No changes in Phase 4.5 — passed parity check.
 # =============================================================================
 async def get_request_detail(request_id: str, current_user, db):
     try:
@@ -260,9 +305,11 @@ async def get_request_detail(request_id: str, current_user, db):
 
     return request
 
+
 # =============================================================================
 # ACCEPT REQUEST
 # Extracted from accept_service_request() in server.py (~line 1748)
+# Phase 4.5: status_code changed from 403 to 400 on both excluded/wrong-provider errors.
 # =============================================================================
 async def accept_request(request_id: str, current_user, db, notify_fn: Optional[Callable] = None):
     """
@@ -280,17 +327,22 @@ async def accept_request(request_id: str, current_user, db, notify_fn: Optional[
 
     provider_id_str = str(provider["_id"])
 
+    # Check if provider is in excludedProviderIds (timed out or customer switched)
     excluded_providers = request.get("excludedProviderIds", [])
     if provider_id_str in excluded_providers:
         raise HTTPException(
-            status_code=403,
+            status_code=400,
             detail={"message": "This request is no longer available.", "errorCode": "REQUEST_EXPIRED"}
         )
 
+    # Authorization check:
+    # - If request has a specific providerId, only that provider can accept
+    # - If providerId is None (general request), any provider can accept
     request_provider_id = request.get("providerId")
-    if request_provider_id and request_provider_id != provider_id_str:
+    if request_provider_id is not None and provider_id_str != request_provider_id:
+        # Provider was released (customer switched or timeout) - request no longer available to them
         raise HTTPException(
-            status_code=403,
+            status_code=400,
             detail={"message": "This request is no longer available.", "errorCode": "REQUEST_EXPIRED"}
         )
 
@@ -385,6 +437,7 @@ async def accept_request(request_id: str, current_user, db, notify_fn: Optional[
 # =============================================================================
 # DECLINE REQUEST
 # Extracted from decline_request() in server.py (~line 4733)
+# Phase 4.5: Added missing pending status guard exactly as in server.py.
 # =============================================================================
 async def decline_request(request_id: str, current_user, db, notify_fn: Optional[Callable] = None):
     """
@@ -399,9 +452,16 @@ async def decline_request(request_id: str, current_user, db, notify_fn: Optional
     if not provider:
         raise HTTPException(status_code=403, detail="Not authorized - provider profile not found")
 
+    # Authorization check:
+    # - If request has a specific providerId, only that provider can decline
+    # - If providerId is None (general request), any provider can decline
     request_provider_id = request.get("providerId")
     if request_provider_id is not None and str(provider["_id"]) != request_provider_id:
         raise HTTPException(status_code=403, detail="Not authorized to decline this request")
+
+    # Enforce valid status transition: can only decline pending requests
+    if request.get("status") != "pending":
+        raise HTTPException(status_code=400, detail="This request can no longer be declined")
 
     await db.service_requests.update_one(
         {"_id": ObjectId(request_id)},
@@ -463,6 +523,7 @@ async def decline_request(request_id: str, current_user, db, notify_fn: Optional
 # =============================================================================
 # CANCEL REQUEST
 # Extracted from cancel_request() in server.py (~line 4817)
+# Phase 4.5: All three status guards restored exactly as in server.py.
 # =============================================================================
 async def cancel_request(request_id: str, current_user, db, notify_fn: Optional[Callable] = None):
     """
@@ -482,9 +543,18 @@ async def cancel_request(request_id: str, current_user, db, notify_fn: Optional[
     if not is_customer and not is_provider:
         raise HTTPException(status_code=403, detail="Not authorized to cancel this request")
 
+    # Enforce valid status transition: cannot cancel after in_progress or completed
     current_status = request.get("status")
-    if current_status in ["in_progress", "completed_pending_review", "completed_reviewed", "completed"]:
-        raise HTTPException(status_code=400, detail=f"Cannot cancel request in status: {current_status}")
+
+    if current_status in ["in_progress", "started", "completed"]:
+        raise HTTPException(status_code=400, detail="This job cannot be cancelled as it has already started or completed")
+
+    if current_status in ["cancelled", "declined"]:
+        raise HTTPException(status_code=400, detail="This request has already been cancelled or declined")
+
+    # Block customer cancellation once quote is sent (awaiting_payment)
+    if is_customer and current_status == "awaiting_payment":
+        raise HTTPException(status_code=400, detail="This request can't be cancelled after the quote stage. Please cancel before payment or contact support.")
 
     cancelled_by = "customer" if is_customer else "provider"
     await db.service_requests.update_one(
@@ -553,6 +623,8 @@ async def cancel_request(request_id: str, current_user, db, notify_fn: Optional[
 # =============================================================================
 # ASSIGN PROVIDER
 # Extracted from assign_provider_to_request() in server.py (~line 1899)
+# Phase 4.5: availabilityStatus check added, db.users name lookup restored,
+#            exact error messages from server.py restored.
 # =============================================================================
 async def assign_provider(request_id: str, assign_data: AssignProviderRequest, current_user, db, notify_fn: Optional[Callable] = None):
     """
@@ -566,25 +638,41 @@ async def assign_provider(request_id: str, assign_data: AssignProviderRequest, c
     if request.get("customerId") != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to modify this request")
 
-    current_status = request.get("status")
+    current_status = request.get("status", "pending")
     if current_status != "pending":
-        raise HTTPException(status_code=400, detail=f"Can only assign provider to pending requests. Current status: {current_status}")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Provider can only be assigned to pending requests. Current status: {current_status}"
+        )
 
+    # Verify the provider exists
     provider = await db.providers.find_one({"_id": ObjectId(assign_data.providerId)})
     if not provider:
         raise HTTPException(status_code=404, detail="Provider not found")
 
+    # Check if provider is in excludedProviderIds (previously released or timed out)
     excluded_providers = request.get("excludedProviderIds", [])
     if assign_data.providerId in excluded_providers:
-        raise HTTPException(status_code=400, detail="This provider is not available for this request")
+        raise HTTPException(
+            status_code=400,
+            detail="This provider previously didn't respond to this request and cannot be selected again."
+        )
+
+    # Check if provider is available (not Away)
+    if provider.get("availabilityStatus") == "away":
+        raise HTTPException(status_code=400, detail="This provider is currently away and not accepting jobs.")
+
+    # Get provider's name from their user record
+    provider_user = await db.users.find_one({"_id": ObjectId(provider["userId"])})
+    provider_name = provider_user["name"] if provider_user else provider.get("name", "Provider")
 
     await db.service_requests.update_one(
         {"_id": ObjectId(request_id)},
         {"$set": {
             "providerId": assign_data.providerId,
-            "providerName": provider.get("name", "Provider"),
-            "providerAssignedAt": datetime.utcnow(),
+            "providerName": provider_name,
             "isGeneralRequest": False,
+            "providerAssignedAt": datetime.utcnow(),
         }}
     )
 
@@ -640,6 +728,7 @@ async def assign_provider(request_id: str, assign_data: AssignProviderRequest, c
 # =============================================================================
 # RELEASE PROVIDER
 # Extracted from release_provider_from_request() in server.py (~line 2015)
+# No changes in Phase 4.5 — passed parity check.
 # =============================================================================
 async def release_provider(request_id: str, current_user, db):
     """
