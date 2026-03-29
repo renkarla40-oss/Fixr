@@ -4,7 +4,8 @@
 # All 8 functions are exact copies from server.py.
 # No push notifications in any quote handler — notify_fn not used.
 # QuoteStatus and PaymentStatus values used as inline strings (no new class).
-# _sync_paid_state() is a private helper — exact extraction from server.py L3613.
+# Phase 7 update: sync_paid_state re-homed to payment_service.py (was _sync_paid_state here).
+# sandbox_pay_quote now imports sync_paid_state from payment_service.
 
 from bson import ObjectId
 from fastapi import HTTPException
@@ -13,52 +14,10 @@ from typing import Optional
 import logging
 
 from app.utils.status import get_status_display_name
+from app.services.payment_service import sync_paid_state
 
 logger = logging.getLogger(__name__)
 
-
-# =============================================================================
-# _SYNC_PAID_STATE (private)
-# Exact extraction from sync_paid_state() in server.py (~line 3613).
-# Called only by sandbox_pay_quote().
-# =============================================================================
-async def _sync_paid_state(job_id: str, payment_status: str, quote_id: str = None, db=None):
-    """
-    Sync legacy paid fields when payments.status changes.
-    IDEMPOTENT - safe to call multiple times.
-    """
-    if payment_status != "paid":
-        logger.debug(f"[sync_paid_state] Skipping sync for job {job_id}")
-        return
-
-    now = datetime.utcnow()
-    job = await db.service_requests.find_one({"_id": ObjectId(job_id)})
-    if not job:
-        logger.warning(f"[sync_paid_state] Job {job_id} not found")
-        return
-
-    job_update = {"updatedAt": now}
-    if job.get("paymentStatus") != "held":
-        job_update["paymentStatus"] = "held"
-    if not job.get("paidAt"):
-        job_update["paidAt"] = now
-    if len(job_update) > 1:
-        await db.service_requests.update_one(
-            {"_id": ObjectId(job_id)},
-            {"$set": job_update}
-        )
-        logger.info(f"[sync_paid_state] Synced job {job_id}: {list(job_update.keys())}")
-
-    quote_query = {"requestId": job_id, "status": "ACCEPTED"}
-    if quote_id:
-        quote_query["_id"] = ObjectId(quote_id)
-    q = await db.quotes.find_one(quote_query)
-    if q and not q.get("paidAt"):
-        await db.quotes.update_one(
-            {"_id": q["_id"]},
-            {"$set": {"paidAt": now}}
-        )
-        logger.info(f"[sync_paid_state] Synced quote paidAt")
 
 # =============================================================================
 # CREATE QUOTE
@@ -666,8 +625,8 @@ async def sandbox_pay_quote(quote_id: str, current_user, db):
     else:
         logger.info(f"Payment transaction already exists for txnId={payment_provider_txn_id}, skipping (idempotent)")
 
-    # Sync legacy fields via _sync_paid_state (job.paymentStatus, job.paidAt, quote.paidAt)
-    await _sync_paid_state(quote["requestId"], "paid", quote_id, db)
+    # Sync legacy fields via sync_paid_state (job.paymentStatus, job.paidAt, quote.paidAt)
+    await sync_paid_state(quote["requestId"], "paid", quote_id, db)
 
     # Send a system message in chat about payment
     customer = await db.users.find_one({"_id": ObjectId(current_user.id)})
