@@ -4,6 +4,7 @@
 # This module is importable but not yet wired to any active route.
 # get_current_user here is an exact copy of the one in server.py.
 # server.py continues using its own copy until Phase 3+ switches over.
+# Phase 4 update: get_current_user now returns User(**user) to match server.py exactly.
 
 import jwt
 from bson import ObjectId
@@ -12,6 +13,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from app.config import SECRET_KEY, ALGORITHM
 from app.database import get_db
+from app.schemas.user import User
 
 # Security scheme — matches server.py: security = HTTPBearer()
 security = HTTPBearer()
@@ -21,9 +23,9 @@ async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """
-    Validate JWT bearer token and return the current user document.
-    Exact copy of get_current_user() from server.py.
-    Not yet wired to any active route — dormant until Phase 3+.
+    Validate JWT bearer token and return the current user as a User model.
+    Exact copy of get_current_user() from server.py, returns User(**user).
+    Not yet wired to any active route — dormant until main.py becomes the entrypoint.
     """
     try:
         token = credentials.credentials
@@ -42,4 +44,4 @@ async def get_current_user(
         raise HTTPException(status_code=401, detail="User not found")
 
     user["_id"] = str(user["_id"])
-    return user
+    return User(**user)
