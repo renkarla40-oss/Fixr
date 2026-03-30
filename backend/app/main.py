@@ -1,7 +1,7 @@
 # backend/app/main.py
-# STARTUP ISOLATION STEP 2: connect_db() + close_db() only.
-# All other startup logic still commented out.
-# Goal: confirm DB connection does not crash startup.
+# STARTUP ISOLATION STEP 3: connect_db() + notification indexes.
+# Seed logic and background task still commented out.
+# Goal: confirm index creation does not crash startup.
 
 import logging
 from fastapi import FastAPI
@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 
-from app.database import connect_db, close_db
+from app.database import connect_db, close_db, db
 
 # --- Router imports ---
 from app.routes import service_requests
@@ -78,17 +78,23 @@ app.include_router(request_events.router, prefix="/api")
 # --- Health check ---
 @app.get("/health")
 def health_check():
-    return {"status": "ok", "entrypoint": "app.main", "startup": "isolated-step-2-connect-db"}
+    return {"status": "ok", "entrypoint": "app.main", "startup": "isolated-step-3-indexes"}
 
 # --- BLOCK A: DB connect/disconnect (ACTIVE) ---
+# --- BLOCK B: Notification indexes (ACTIVE) ---
 @app.on_event("startup")
 async def startup():
     await connect_db()
+    try:
+        await db.notifications.create_index("userId")
+        await db.notifications.create_index([("userId", 1), ("createdAt", -1)])
+        await db.notifications.create_index([("userId", 1), ("isRead", 1)])
+    except Exception as e:
+        logger.warning(f"Could not create notification indexes: {e}")
 
 @app.on_event("shutdown")
 async def shutdown():
     await close_db()
 
-# BLOCK B: Notification indexes — still commented out
 # BLOCK C: Seed logic — still commented out
 # BLOCK D: Background task — still commented out
