@@ -120,6 +120,14 @@ interface Quote {
   providerReviewCount?: number;
 }
 
+interface ActivityItem {
+  _id: string;
+  type: string;
+  description: string;
+  createdAt: string;
+  actor?: string;
+}
+
 type TabType = 'details' | 'chat';
 
 export default function RequestDetailScreen() {
@@ -172,6 +180,8 @@ export default function RequestDetailScreen() {
     currency: string | null;
     gateway: string | null;
   } | null>(null);
+  const [activity, setActivity] = useState<ActivityItem[]>([]);
+  const [loadingActivity, setLoadingActivity] = useState(false);
   
   const scrollViewRef = useRef<ScrollView>(null);
   const inputRef = useRef<TextInput>(null);
@@ -194,6 +204,7 @@ export default function RequestDetailScreen() {
       lastRequestIdRef.current = requestId;
       setRequest(null);
       setMessages([]);
+      setActivity([]);
       setLoading(true);
       setLoadingMessages(false);
       setError(null);
@@ -306,6 +317,7 @@ export default function RequestDetailScreen() {
       // Mark messages as read when opening chat tab
       setHasUnreadMessages(false);
       fetchMessages();
+      fetchActivity();
       fetchQuote(); // Fetch latest quote for customer
       // Mark messages as read on server, then refresh once
       markMessagesAsRead().then(() => {
@@ -540,6 +552,23 @@ export default function RequestDetailScreen() {
       console.log('Messages fetch error');
     } finally {
       setLoadingMessages(false);
+    }
+  };
+
+  const fetchActivity = async () => {
+    if (!request?._id) return;
+    setLoadingActivity(true);
+    try {
+      const response = await axios.get(
+        `${BACKEND_URL}/api/service-requests/${request._id}/activity`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setActivity(response.data || []);
+    } catch (err) {
+      // Silent fail - activity is supplemental info
+      setActivity([]);
+    } finally {
+      setLoadingActivity(false);
     }
   };
 
@@ -1300,7 +1329,7 @@ export default function RequestDetailScreen() {
                 {request.jobCode.slice(0, 3)}{' '}{request.jobCode.slice(3)}
               </Text>
               <Text style={styles.jobCodeHint}>
-                ✓ Payment confirmed! Share this code when provider arrives to start the job.
+                â Payment confirmed! Share this code when provider arrives to start the job.
               </Text>
             </View>
           )}
@@ -1618,6 +1647,32 @@ export default function RequestDetailScreen() {
             </ScrollView>
           )}
 
+          {/* Activity Section */}
+          <View style={styles.activitySection}>
+            <Text style={styles.activityTitle}>Activity</Text>
+            {loadingActivity ? (
+              <ActivityIndicator size="small" color="#E53935" style={{ marginVertical: 8 }} />
+            ) : activity.length === 0 ? (
+              <Text style={styles.activityEmpty}>No activity yet</Text>
+            ) : (
+              <ScrollView
+                style={styles.activityList}
+                nestedScrollEnabled={true}
+                showsVerticalScrollIndicator={false}
+              >
+                {activity.map((item) => (
+                  <View key={item._id} style={styles.activityItem}>
+                    <View style={styles.activityDot} />
+                    <View style={styles.activityContent}>
+                      <Text style={styles.activityDescription}>{item.description}</Text>
+                      <Text style={styles.activityTime}>{formatDate(item.createdAt)}</Text>
+                    </View>
+                  </View>
+                ))}
+              </ScrollView>
+            )}
+          </View>
+
           {/* Message Input or Read-Only Banner */}
           {/* CRITICAL FIX: Chat CLOSED for ALL completed states */}
           {(() => {
@@ -1625,7 +1680,7 @@ export default function RequestDetailScreen() {
             return isChatClosed ? (
               <View style={[styles.chatClosedBanner, { paddingBottom: insets.bottom + 12 }]}>
                 <Ionicons name="lock-closed" size={16} color="#666" />
-                <Text style={styles.chatClosedText}>Chat closed — job completed.</Text>
+                <Text style={styles.chatClosedText}>Chat closed â job completed.</Text>
               </View>
             ) : (
             <View style={{ paddingBottom: insets.bottom + 12 }}>
@@ -3004,5 +3059,56 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     textAlign: 'center',
     marginTop: 8,
+  },
+  activitySection: {
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 8,
+    maxHeight: 200,
+  },
+  activityTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#666',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 8,
+  },
+  activityEmpty: {
+    fontSize: 13,
+    color: '#999',
+    fontStyle: 'italic',
+    marginBottom: 8,
+  },
+  activityList: {
+    maxHeight: 140,
+  },
+  activityItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+    gap: 8,
+  },
+  activityDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#E53935',
+    marginTop: 5,
+  },
+  activityContent: {
+    flex: 1,
+  },
+  activityDescription: {
+    fontSize: 13,
+    color: '#333',
+    lineHeight: 18,
+  },
+  activityTime: {
+    fontSize: 11,
+    color: '#999',
+    marginTop: 2,
   },
 });
