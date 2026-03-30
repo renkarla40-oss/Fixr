@@ -1,6 +1,8 @@
 # backend/app/routes/messages.py
 # Responsibility: API endpoints for human chat messages.
 # Phase 6: Route handlers wired to message_service business logic.
+# Phase 10 fix: send_push_notification imported from app.services.push_service
+#              instead of server to avoid importing server.py at module level.
 # No business logic lives in this file — handlers are thin wrappers only.
 # NO prefix on this router — all paths are declared explicitly in full.
 # Paths match server.py exactly:
@@ -14,7 +16,7 @@
 from fastapi import APIRouter, Depends
 from typing import Optional
 
-from server import send_push_notification
+from app.services.push_service import send_push_notification
 from app.dependencies import get_current_user
 from app.database import get_db
 from app.services import message_service
@@ -55,12 +57,12 @@ async def send_job_message(
 
 
 @router.patch("/service-requests/{request_id}/messages/seen")
-async def mark_messages_as_seen(
+async def mark_messages_seen(
     request_id: str,
     current_user=Depends(get_current_user),
     db=Depends(get_db),
 ):
-    return await message_service.mark_messages_as_seen(
+    return await message_service.mark_messages_seen(
         request_id=request_id,
         current_user=current_user,
         db=db,
@@ -69,12 +71,10 @@ async def mark_messages_as_seen(
 
 @router.post("/messages/mark-read")
 async def mark_messages_read(
-    body: dict,
     current_user=Depends(get_current_user),
     db=Depends(get_db),
 ):
     return await message_service.mark_messages_read(
-        body=body,
         current_user=current_user,
         db=db,
     )
