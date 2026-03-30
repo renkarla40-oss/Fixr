@@ -14,6 +14,7 @@ from app.config import FLAGS
 from app.services.auth_service import generate_job_code
 from app.utils.status import normalize_legacy_job
 from app.schemas.service_request import ServiceRequest, ServiceRequestResponse, AssignProviderRequest
+from app.services import request_event_service
 
 logger = logging.getLogger(__name__)
 
@@ -140,7 +141,7 @@ async def create_request(request_data: ServiceRequest, provider_id: Optional[str
                 "deliveredAt": msg_time,
                 "readAt": None,
             }
-            await db.job_messages.insert_one(customer_system_message)
+            await request_event_service.log_event(db, request_id_str, "request_created_customer", "system", customer_system_message)
             await db.service_requests.update_one(
                 {"_id": result.inserted_id},
                 {"$set": {"last_message_at": msg_time}}
@@ -175,7 +176,7 @@ async def create_request(request_data: ServiceRequest, provider_id: Optional[str
                     "deliveredAt": provider_msg_time,
                     "readAt": None,
                 }
-                await db.job_messages.insert_one(provider_system_message)
+                await request_event_service.log_event(db, request_id_str, "request_created_provider", "system", provider_system_message)
                 await db.service_requests.update_one(
                     {"_id": result.inserted_id},
                     {"$set": {"last_message_at": provider_msg_time}}
@@ -387,7 +388,7 @@ async def accept_request(request_id: str, current_user, db, notify_fn: Optional[
             "deliveredAt": msg_time,
             "readAt": None,
         }
-        await db.job_messages.insert_one(accept_message)
+        await request_event_service.log_event(db, request_id, "request_accepted_customer", "system", accept_message)
         await db.service_requests.update_one(
             {"_id": ObjectId(request_id)},
             {"$set": {"last_message_at": msg_time}}
@@ -414,7 +415,7 @@ async def accept_request(request_id: str, current_user, db, notify_fn: Optional[
             "deliveredAt": prov_accept_time,
             "readAt": None,
         }
-        await db.job_messages.insert_one(provider_accept_message)
+        await request_event_service.log_event(db, request_id, "request_accepted_provider", "system", provider_accept_message)
         await db.service_requests.update_one(
             {"_id": ObjectId(request_id)},
             {"$set": {"last_message_at": prov_accept_time}}
@@ -491,7 +492,7 @@ async def decline_request(request_id: str, current_user, db, notify_fn: Optional
             "deliveredAt": decline_msg_time,
             "readAt": None,
         }
-        await db.job_messages.insert_one(decline_message)
+        await request_event_service.log_event(db, request_id, "request_declined", "system", decline_message)
         await db.service_requests.update_one(
             {"_id": ObjectId(request_id)},
             {"$set": {"last_message_at": decline_msg_time}}
@@ -611,7 +612,7 @@ async def cancel_request(request_id: str, current_user, db, notify_fn: Optional[
                     "deliveredAt": provider_cancel_msg_time,
                     "readAt": None,
                 }
-                await db.job_messages.insert_one(cancel_message)
+                await request_event_service.log_event(db, request_id, "request_cancelled", "system", cancel_message)
                 await db.service_requests.update_one(
                     {"_id": ObjectId(request_id)},
                     {"$set": {"last_message_at": provider_cancel_msg_time}}
@@ -700,7 +701,7 @@ async def assign_provider(request_id: str, assign_data: AssignProviderRequest, c
             "deliveredAt": datetime.utcnow(),
             "readAt": None,
         }
-        await db.job_messages.insert_one(provider_system_message)
+        await request_event_service.log_event(db, request_id, "provider_assigned", "system", provider_system_message)
         await db.service_requests.update_one(
             {"_id": ObjectId(request_id)},
             {"$set": {"last_message_at": datetime.utcnow()}}
@@ -783,7 +784,7 @@ async def release_provider(request_id: str, current_user, db):
         "deliveredAt": now,
         "readAt": None,
     }
-    await db.job_messages.insert_one(provider_msg)
+    await request_event_service.log_event(db, request_id, "provider_released_notify_provider", "system", provider_msg)
 
     # System message to customer
     customer_msg = {
@@ -798,7 +799,7 @@ async def release_provider(request_id: str, current_user, db):
         "deliveredAt": now,
         "readAt": None,
     }
-    await db.job_messages.insert_one(customer_msg)
+    await request_event_service.log_event(db, request_id, "provider_released_notify_customer", "system", customer_msg)
 
     await db.service_requests.update_one(
         {"_id": ObjectId(request_id)},
