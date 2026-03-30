@@ -7,6 +7,7 @@
 from bson import ObjectId
 from datetime import datetime
 from fastapi import HTTPException
+from app.services import request_event_service
 
 
 async def create_review(review_data, current_user, db, notify_fn=None):
@@ -257,7 +258,7 @@ async def submit_job_review(review_data, request_id: str, current_user, db, noti
         "deliveredAt": datetime.utcnow(),
         "readAt": None,
     }
-    await db.job_messages.insert_one(customer_chat_closed_msg)
+    await request_event_service.log_event(db, request_id, "review_submitted_chat_closed_customer", "system", customer_chat_closed_msg)
 
     # Add system message for PROVIDER about the review
     provider_review_msg = {
@@ -272,7 +273,7 @@ async def submit_job_review(review_data, request_id: str, current_user, db, noti
         "deliveredAt": datetime.utcnow(),
         "readAt": None,
     }
-    await db.job_messages.insert_one(provider_review_msg)
+    await request_event_service.log_event(db, request_id, "review_submitted_notify_provider", "system", provider_review_msg)
 
     # Update last_message_at for unread tracking
     await db.service_requests.update_one(
@@ -361,7 +362,7 @@ async def skip_review(request_id: str, current_user, db):
         "deliveredAt": datetime.utcnow(),
         "readAt": None,
     }
-    await db.job_messages.insert_one(chat_closed_msg)
+    await request_event_service.log_event(db, request_id, "review_skipped_chat_closed", "system", chat_closed_msg)
     # Update last_message_at for unread tracking
     await db.service_requests.update_one(
         {"_id": ObjectId(request_id)},
