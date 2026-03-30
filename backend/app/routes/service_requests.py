@@ -3,6 +3,8 @@
 # Phase 4: Route handlers wired to request_service business logic.
 # Phase 8: OTP job execution handlers added (confirm-arrival, complete).
 # Phase 9: Review and skip-review handlers added.
+# Phase 10 fix: send_push_notification imported from app.services.push_service
+#              instead of server to avoid importing server.py at module level.
 # Route prefix corrected to /service-requests to match server.py exactly.
 # send_push_notification imported here (route layer only) and injected into service calls.
 # No business logic lives in this file — handlers are thin wrappers only.
@@ -10,7 +12,7 @@
 
 from fastapi import APIRouter, Depends, Query
 from typing import List, Optional
-from server import send_push_notification
+from app.services.push_service import send_push_notification
 from app.dependencies import get_current_user
 from app.database import get_db
 from app.services import request_service
@@ -99,6 +101,7 @@ async def cancel_service_request(
         db=db,
         notify_fn=send_push_notification,
     )
+
 @router.patch("/{request_id}/assign-provider")
 async def assign_provider_to_request(
     request_id: str,
@@ -125,7 +128,6 @@ async def release_provider_from_request(
         current_user=current_user,
         db=db,
     )
-
 
 @router.post("/{request_id}/confirm-arrival")
 async def confirm_job_arrival(
@@ -157,6 +159,7 @@ async def complete_service_request(
         db=db,
         notify_fn=send_push_notification,
     )
+
 
 @router.post("/{request_id}/review")
 async def submit_job_review(
