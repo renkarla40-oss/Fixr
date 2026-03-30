@@ -1,7 +1,7 @@
 # backend/app/main.py
-# STARTUP ISOLATION STEP 1: All startup logic commented out.
-# Only app creation + router mounting active.
-# Goal: confirm bare boot succeeds before re-enabling startup blocks.
+# STARTUP ISOLATION STEP 2: connect_db() + close_db() only.
+# All other startup logic still commented out.
+# Goal: confirm DB connection does not crash startup.
 
 import logging
 from fastapi import FastAPI
@@ -9,6 +9,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
+
+from app.database import connect_db, close_db
 
 # --- Router imports ---
 from app.routes import service_requests
@@ -76,33 +78,17 @@ app.include_router(request_events.router, prefix="/api")
 # --- Health check ---
 @app.get("/health")
 def health_check():
-    return {"status": "ok", "entrypoint": "app.main", "startup": "isolated-step-1"}
+    return {"status": "ok", "entrypoint": "app.main", "startup": "isolated-step-2-connect-db"}
 
-# ALL STARTUP LOGIC COMMENTED OUT FOR ISOLATION
-# Uncomment one block at a time to find crash source.
+# --- BLOCK A: DB connect/disconnect (ACTIVE) ---
+@app.on_event("startup")
+async def startup():
+    await connect_db()
 
-# BLOCK A: DB connect
-# from app.database import connect_db, close_db
-# @app.on_event("startup")
-# async def startup(): await connect_db()
-# @app.on_event("shutdown")
-# async def shutdown(): await close_db()
+@app.on_event("shutdown")
+async def shutdown():
+    await close_db()
 
-# BLOCK B: Notification indexes (requires BLOCK A)
-# try:
-#     await db.notifications.create_index("userId")
-#     await db.notifications.create_index([("userId", 1), ("createdAt", -1)])
-#     await db.notifications.create_index([("userId", 1), ("isRead", 1)])
-# except Exception as e:
-#     logger.warning(f"Could not create notification indexes: {e}")
-
-# BLOCK C: Seed logic (requires BLOCK A)
-# from app.config import FLAGS
-# customer003 = await db.users.find_one({"email": "customer003@test.com"})
-# ... (full seed logic)
-
-# BLOCK D: Background task (requires BLOCK A)
-# import asyncio
-# from datetime import datetime, timedelta
-# async def provider_timeout_checker(): ...
-# asyncio.create_task(provider_timeout_checker())
+# BLOCK B: Notification indexes — still commented out
+# BLOCK C: Seed logic — still commented out
+# BLOCK D: Background task — still commented out
