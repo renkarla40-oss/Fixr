@@ -15,6 +15,7 @@ import logging
 
 from app.utils.status import get_status_display_name
 from app.services.payment_service import sync_paid_state
+from app.services import request_event_service
 
 logger = logging.getLogger(__name__)
 
@@ -173,7 +174,7 @@ async def send_quote(quote_id: str, current_user, db):
         "deliveredAt": now,
         "readAt": None,
     }
-    await db.job_messages.insert_one(quote_message)
+    await request_event_service.log_event(db, quote["requestId"], "quote_sent", "provider", quote_message)
 
     # CRITICAL: Update last_message_at for unread tracking (customer should see red dot)
     await db.service_requests.update_one(
@@ -310,7 +311,7 @@ async def reject_quote(quote_id: str, current_user, db):
         "deliveredAt": now,
         "readAt": None,
     }
-    await db.job_messages.insert_one(reject_message)
+    await request_event_service.log_event(db, quote["requestId"], "quote_rejected", "customer", reject_message)
     # Update last_message_at for unread tracking
     await db.service_requests.update_one(
         {"_id": ObjectId(quote["requestId"])},
@@ -406,7 +407,7 @@ async def counter_quote(quote_id: str, counter_data: dict, current_user, db):
         "deliveredAt": now,
         "readAt": None,
     }
-    await db.job_messages.insert_one(counter_message)
+    await request_event_service.log_event(db, quote["requestId"], "quote_countered", "customer", counter_message)
     # Update last_message_at for unread tracking
     await db.service_requests.update_one(
         {"_id": ObjectId(quote["requestId"])},
@@ -644,7 +645,7 @@ async def sandbox_pay_quote(quote_id: str, current_user, db):
         "deliveredAt": now,
         "readAt": None,
     }
-    await db.job_messages.insert_one(payment_message)
+    await request_event_service.log_event(db, quote["requestId"], "payment_confirmed", "customer", payment_message)
     # Update last_message_at for unread tracking
     await db.service_requests.update_one(
         {"_id": ObjectId(quote["requestId"])},
@@ -673,7 +674,7 @@ async def sandbox_pay_quote(quote_id: str, current_user, db):
             "deliveredAt": msg_time,
             "readAt": None,
         }
-        await db.job_messages.insert_one(start_code_message)
+        await request_event_service.log_event(db, quote["requestId"], "start_code_ready_customer", "system", start_code_message)
         # Update last_message_at for unread tracking
         await db.service_requests.update_one(
             {"_id": ObjectId(quote["requestId"])},
@@ -702,7 +703,7 @@ async def sandbox_pay_quote(quote_id: str, current_user, db):
             "deliveredAt": provider_msg_time,
             "readAt": None,
         }
-        await db.job_messages.insert_one(provider_start_message)
+        await request_event_service.log_event(db, quote["requestId"], "start_code_ready_provider", "system", provider_start_message)
         # Update last_message_at for unread tracking
         await db.service_requests.update_one(
             {"_id": ObjectId(quote["requestId"])},
