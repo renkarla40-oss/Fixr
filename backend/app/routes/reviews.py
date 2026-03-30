@@ -1,12 +1,14 @@
 # backend/app/routes/reviews.py
 # Responsibility: API endpoints for customer reviews after job completion.
 # Phase 9: create_review, get_review_by_job, get_reviews_by_provider migrated from server.py.
+# Phase 10 fix: send_push_notification imported from app.services.push_service
+#              instead of server to avoid importing server.py at module level.
 # Routes: POST /reviews, GET /reviews/by-job/{job_id}, GET /reviews/by-provider/{provider_id}
 # send_push_notification injected at route layer for create_review.
 # No business logic in this file — thin wrappers only.
 
 from fastapi import APIRouter, Depends, Query
-from server import send_push_notification
+from app.services.push_service import send_push_notification
 from app.dependencies import get_current_user
 from app.database import get_db
 from app.services import review_service
