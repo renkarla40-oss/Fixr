@@ -151,9 +151,8 @@ async def mark_messages_as_seen(request_id: str, current_user, db):
     """
     Mark all messages from the other user as seen/read for the current user.
     Called when user opens the Messages tab.
-    Sets readAt timestamp for messages where senderRole is the other party or "system"
-    and readAt is null.
-    Also marks system messages (Fixr) as read.
+    Sets readAt timestamp for messages where senderRole is the other party
+    and readAt is null. System messages are no longer written to job_messages (Phase 11).
     """
     request = await db.service_requests.find_one({"_id": ObjectId(request_id)})
     if not request:
@@ -176,7 +175,7 @@ async def mark_messages_as_seen(request_id: str, current_user, db):
     result = await db.job_messages.update_many(
         {
             "requestId": request_id,
-            "senderRole": {"$in": [other_role, "system"]},  # Include system messages
+            "senderRole": other_role,
             "readAt": None  # Only update messages not yet read
         },
         {"$set": {"readAt": now}}
