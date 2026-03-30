@@ -1,10 +1,11 @@
 # backend/app/main.py
-# STARTUP ISOLATION STEP 4 (fixed): connect_db() + indexes + seed logic (safe).
-# Root cause fix: use get_db() after connect_db() — imported db is None at module load.
-# Entire seed block wrapped in try/except so a seed failure never crashes startup.
-# Background task still commented out.
+# STARTUP ISOLATION STEP 5: All blocks active.
+# connect_db() + notification indexes + seed logic (safe) + background task.
+# Full parity with server.py startup sequence.
 
+import asyncio
 import logging
+from datetime import datetime, timedelta
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -80,17 +81,102 @@ app.include_router(request_events.router, prefix="/api")
 # --- Health check ---
 @app.get("/health")
 def health_check():
-    return {"status": "ok", "entrypoint": "app.main", "startup": "isolated-step-4-fixed"}
+    return {"status": "ok", "entrypoint": "app.main", "startup": "step-5-full"}
 
-# --- Startup / Shutdown ---
+
+# =============================================================================
+# BLOCK D: PROVIDER TIMEOUT BACKGROUND TASK (24 hour timeout)
+# Exact extraction from server.py. Uses get_db() instead of module-level db.
+# =============================================================================
+async def provider_timeout_checker():
+    """
+    Background task that periodically checks for providers who haven't responded
+    within 24 hours of being assigned to a request.
+
+    Runs every 5 minutes to check for timed-out assignments.
+    """
+    while True:
+        try:
+            await asyncio.sleep(300)  # Check every 5 minutes
+
+            _db = get_db()
+
+            # Find pending requests where providerAssignedAt is more than 24 hours ago
+            timeout_threshold = datetime.utcnow() - timedelta(hours=24)
+
+            timed_out_requests = await _db.service_requests.find({
+                "status": "pending",
+                "providerId": {"\$ne": None},
+                "providerAssignedAt": {"\$lt": timeout_threshold}
+            }).to_list(100)
+
+            for request in timed_out_requests:
+                request_id = str(request["_id"])
+                provider_id = request.get("providerId")
+
+                if not provider_id:
+                    continue
+
+                logger.info(f"[Timeout] Provider {provider_id} timed out on request {request_id}")
+
+                # Release the provider and add to exclusion list
+                await _db.service_requests.update_one(
+                    {"_id": request["_id"]},
+                    {
+                        "\$set": {
+                            "providerId": None,
+                            "providerName": None,
+                            "providerAssignedAt": None,
+                            "isGeneralRequest": True,
+                        },
+                        "\$addToSet": {
+                            "excludedProviderIds": provider_id
+                        }
+                    }
+                )
+
+                now = datetime.utcnow()
+
+                # System message to customer about timeout
+                customer_msg = {
+                    "requestId": request_id,
+                    "senderId": "system",
+                    "senderName": "Fixr",
+                    "senderRole": "system",
+                    "type": "system",
+                    "text": "The provider didn't respond in time. You can choose another provider now.",
+                    "targetRole": "customer",
+                    "createdAt": now,
+                    "deliveredAt": now,
+                    "readAt": None,
+                }
+                await _db.job_messages.insert_one(customer_msg)
+
+                # Update last_message_at for unread tracking
+                await _db.service_requests.update_one(
+                    {"_id": request["_id"]},
+                    {"\$set": {"last_message_at": now}}
+                )
+
+                logger.info(f"[Timeout] Released provider {provider_id} from request {request_id}")
+
+        except asyncio.CancelledError:
+            logger.info("[Timeout] Provider timeout checker stopped")
+            break
+        except Exception as e:
+            logger.error(f"[Timeout] Error in provider timeout checker: {e}")
+            await asyncio.sleep(60)  # Wait a minute before retrying on error
+
+
+# =============================================================================
+# STARTUP / SHUTDOWN
+# =============================================================================
 @app.on_event("startup")
 async def startup():
     # BLOCK A: DB connection
     await connect_db()
 
     # Obtain live db reference via get_db() — NOT the module-level import
-    # (module-level `db` is None at import time; get_db() returns the
-    # object assigned by connect_db())
     _db = get_db()
 
     # BLOCK B: Notification indexes
@@ -178,12 +264,11 @@ async def startup():
     except Exception:
         logger.exception("Seed logic failed — startup continues regardless")
 
-    # BLOCK D: Background task — still commented out
-    # asyncio.create_task(provider_timeout_checker())
+    # BLOCK D: Background task
+    asyncio.create_task(provider_timeout_checker())
+    logger.info("\u2705 Provider timeout checker started (24h timeout)")
 
 
 @app.on_event("shutdown")
 async def shutdown():
     await close_db()
-
-# BLOCK D: Background task — still commented out
