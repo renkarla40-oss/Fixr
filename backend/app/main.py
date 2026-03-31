@@ -16,6 +16,7 @@ from .routers import (
     config,
     quotes,
     payments,
+    receipts,
 )
 
 # ---------------------------------------------------------------------------
@@ -76,6 +77,7 @@ app.include_router(config.router,           prefix="/api")
 
 app.include_router(quotes.router,           prefix="/api")
 app.include_router(payments.router,         prefix="/api")
+app.include_router(receipts.router,         prefix="/api")
  ---------------------------------------------------------------------------
 # Startup — log DB connectivity; database.py already created client/db
 # ---------------------------------------------------------------------------
