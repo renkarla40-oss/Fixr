@@ -73,7 +73,7 @@ app.include_router(messages.router,         prefix="/api")
 app.include_router(activity.router,         prefix="/api")
 app.include_router(config.router,           prefix="/api")
 
-#app.include_router(quotes.router,           prefix="/api")
+app.include_router(quotes.router,           prefix="/api")
  ---------------------------------------------------------------------------
 # Startup — log DB connectivity; database.py already created client/db
 # ---------------------------------------------------------------------------
