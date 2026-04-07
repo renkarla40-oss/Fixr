@@ -36,5 +36,5 @@ async def get_events(db, request_id: str) -> list:
           {"requestId": request_id}
       ).sort("createdAt", 1).to_list(500)
       for e in events:
-                e["_id"] = str(e["_id"])
-            return events
+          e["_id"] = str(e["_id"])
+      return events
