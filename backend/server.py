@@ -2,18 +2,18 @@ from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, Query, R
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
 import os
 import logging
 import uuid
-import base6
+import base64
 import asyncio
 from pathlib import Path
 from pydantic import BaseModel, Field, EmailStr, field_serializer
-from typing import List, Optional
+from typing import List, Optional, Annotated
 from datetime import datetime, timedelta, timezone
 import jwt
 from passlib.context import CryptContext
@@ -167,16 +167,16 @@ api_router = APIRouter(prefix="/api")
 # Add validation error handler
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-        logger.error("=== VALIDATION ERROR ===")
-        logger.error(f"Errors: {exc.errors()}")
-        logger.error(f"Request URL: {request.url}")
-        logger.error(f"Request method: {request.method}")
+    print("=== VALIDATION ERROR ===")
+    print(f"Errors: {exc.errors()}")
+    print(f"Request URL: {request.url}")
+    print(f"Request method: {request.method}")
     try:
         body = await request.body()
-                logger.error(f"Request body: {body.decode()}")
+        print(f"Request body: {body.decode()}")
     except Exception:
-                    logger.error("Could not read request body")
-        logger.error("======================")
+        print("Could not read request body")
+    print("======================")
     return JSONResponse(
         status_code=422,
         content={"detail": exc.errors()},
@@ -1639,10 +1639,10 @@ async def send_phone_otp(
     # For now, log the OTP (in beta, display in response for testing)
     logger.info(f"OTP for {phone}: {otp}")
     
-    
+    # For beta testing, include OTP in response (remove in production)
     return OTPResponse(
         success=True,
-                message=f"Verification code sent to {phone[-4:].rjust(len(phone), '*')}"
+        message=f"Verification code sent to {phone[-4:].rjust(len(phone), '*')}. Code: {otp} (beta only)"
     )
 
 @api_router.post("/providers/me/phone/verify", response_model=OTPResponse)
