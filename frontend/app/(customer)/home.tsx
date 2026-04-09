@@ -47,6 +47,8 @@ const FEATURED_SERVICES = [
   { serviceKey: 'landscaping',      label: 'Landscaping',        emoji: '🌿', bg: '#E0F2F1' },
   { serviceKey: 'cleaning',         label: 'Cleaning',           emoji: '✨',       bg: '#F3E5F5' },
   { serviceKey: 'roofing',          label: 'Roofing',            emoji: '🏠', bg: '#FFF3E0' },
+  { serviceKey: 'painting',         label: 'Painting',           emoji: '🎨', bg: '#FFF3E0' },
+  { serviceKey: 'flooring',         label: 'Flooring',           emoji: '🏗️', bg: '#F3E5F5' },
 ];
 
 // Popular Projects Data - each links to a specific category

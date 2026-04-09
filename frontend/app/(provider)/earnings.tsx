@@ -414,6 +414,8 @@ const styles = StyleSheet.create({
   },
   balanceInfo: {
     marginLeft: 10,
+    flex: 1,
+    flexShrink: 1,
   },
   balanceLabel: {
     fontSize: 14,
@@ -434,16 +436,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: '#2E7D32',
+    flexShrink: 0,
+    marginLeft: 8,
+    textAlign: 'right',
   },
   balanceAmountSecondary: {
     fontSize: 16,
     fontWeight: '700',
     color: '#E65100',
+    flexShrink: 0,
+    marginLeft: 8,
+    textAlign: 'right',
   },
   balanceAmountTertiary: {
     fontSize: 15,
     fontWeight: '600',
     color: '#666',
+    flexShrink: 0,
+    marginLeft: 8,
+    textAlign: 'right',
   },
   withdrawContainer: {
     alignItems: 'center',
