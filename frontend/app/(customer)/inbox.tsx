@@ -78,7 +78,7 @@ export default function CustomerInboxScreen() {
     
     isNavigatingRef.current = true;
     
-    router.push({ pathname: '/(customer)/request-detail', params: { requestId } });
+    router.push({ pathname: '/customer-chat', params: { requestId } });
     
     // Reset after 1000ms to allow future taps
     setTimeout(() => {
@@ -311,6 +311,11 @@ export default function CustomerInboxScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <Text style={styles.title}>Inbox</Text>
+        {conversations.length > 0 && (
+          <View style={styles.countBadge}>
+            <Text style={styles.countText}>{conversations.length}</Text>
+          </View>
+        )}
       </View>
       
       {/* Empty state - ONLY show when initial load is complete AND truly empty */}
@@ -342,6 +347,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8F9FA',
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
     backgroundColor: '#F8F9FA',
@@ -350,6 +357,25 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#1A1A1A',
+    flex: 1,
+  },
+  countBadge: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    minWidth: 32,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  countText: {
+    color: '#666',
+    fontSize: 14,
+    fontWeight: '600',
   },
   centerContent: {
     flex: 1,

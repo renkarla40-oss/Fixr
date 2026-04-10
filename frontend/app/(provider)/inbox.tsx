@@ -227,10 +227,7 @@ export default function ProviderInboxScreen() {
     
     isNavigatingRef.current = true;
     
-    router.push({ 
-      pathname: '/(provider)/request-detail', 
-      params: { requestId, openChat: 'true' } 
-    });
+    router.push({ pathname: '/provider-chat', params: { requestId } });
     
     // Reset after 800ms to allow future taps
     setTimeout(() => {
