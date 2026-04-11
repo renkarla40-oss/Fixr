@@ -1637,6 +1637,28 @@ export default function ProviderRequestDetailScreen() {
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
             >
+              <View
+                style={{
+                  backgroundColor: '#FFF3E0',
+                  borderWidth: 1,
+                  borderColor: '#FFE0B2',
+                  borderRadius: 12,
+                  paddingHorizontal: 14,
+                  paddingVertical: 10,
+                  marginBottom: 12,
+                }}
+              >
+                <Text
+                  style={{
+                    color: '#C62828',
+                    fontSize: 14,
+                    fontWeight: '600',
+                    textAlign: 'center',
+                  }}
+                >
+                  Message the customer via Inbox.
+                </Text>
+              </View>
               {messages.length === 0 ? (
                 <View style={styles.emptyChatInner}>
                   <Ionicons name="chatbubbles-outline" size={48} color="#CCC" />
@@ -1808,42 +1830,7 @@ export default function ProviderRequestDetailScreen() {
                   </View>
                 </View>
               )}
-              <View style={styles.messageInputContainer}>
-                {/* Image upload button */}
-                <TouchableOpacity
-                  style={styles.imagePickerButton}
-                  onPress={showImageOptions}
-                  disabled={uploadingImage}
-                >
-                  {uploadingImage ? (
-                    <ActivityIndicator size="small" color="#E53935" />
-                  ) : (
-                    <Ionicons name="camera" size={24} color="#E53935" />
-                  )}
-                </TouchableOpacity>
-                <TextInput
-                  ref={inputRef}
-                  style={styles.messageInput}
-                  placeholder="Type a message..."
-                  placeholderTextColor="#999"
-                  value={newMessage}
-                  onChangeText={setNewMessage}
-                  multiline
-                  maxLength={1000}
-                  returnKeyType="default"
-                />
-                <TouchableOpacity
-                  style={[styles.sendButton, (!newMessage.trim() || sendingMessage) && styles.sendButtonDisabled]}
-                  onPress={handleSendMessage}
-                  disabled={!newMessage.trim() || sendingMessage}
-                >
-                  {sendingMessage ? (
-                    <ActivityIndicator size="small" color="#FFFFFF" />
-                  ) : (
-                    <Ionicons name="send" size={20} color="#FFFFFF" />
-                  )}
-                </TouchableOpacity>
-              </View>
+
             </View>
           )}
         </KeyboardAvoidingView>
