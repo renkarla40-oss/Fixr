@@ -337,6 +337,8 @@ export default function CustomerHomeScreen() {
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.carouselRow}
+            decelerationRate="fast"
+            snapToInterval={260 + 12}
           >
             {FEATURED_CAROUSEL_ITEMS.map((item) => (
               <TouchableOpacity
@@ -622,6 +624,8 @@ Inspiration</Text>
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.carouselContent}
+            decelerationRate="fast"
+            snapToInterval={260 + 16}
           >
             {inspirationContent.map((item) => (
               <TouchableOpacity
