@@ -54,24 +54,34 @@ const FEATURED_SERVICES = [
 
 const FEATURED_CAROUSEL_ITEMS = [
   {
-    serviceKey: 'plumbing',
-    label: 'Plumbing',
-    image: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=1200&q=80',
-  },
-  {
     serviceKey: 'electrical',
     label: 'Electrical',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80',
+    image: require('../../assets/images/featured/electrical.jpg'),
   },
   {
-    serviceKey: 'ac',
-    label: 'Air Conditioning',
-    image: 'https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=1200&q=80',
+    serviceKey: 'plumbing',
+    label: 'Plumbing',
+    image: require('../../assets/images/featured/plumbing.jpg'),
+  },
+  {
+    serviceKey: 'handyman',
+    label: 'Handyman',
+    image: require('../../assets/images/featured/handyman.jpg'),
   },
   {
     serviceKey: 'cleaning',
     label: 'Cleaning',
-    image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1200&q=80',
+    image: require('../../assets/images/featured/cleaning.jpg'),
+  },
+  {
+    serviceKey: 'ac',
+    label: 'AC Repair & Maintenance',
+    image: require('../../assets/images/featured/ac.jpg'),
+  },
+  {
+    serviceKey: 'painting',
+    label: 'Painting',
+    image: require('../../assets/images/featured/painting.jpg'),
   },
 ];
 
@@ -328,8 +338,25 @@ export default function CustomerHomeScreen() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.carouselRow}
           >
-            {[1,2,3,4].map((item) => (
-              <View key={item} style={styles.carouselCard} />
+            {FEATURED_CAROUSEL_ITEMS.map((item) => (
+              <TouchableOpacity
+                key={item.serviceKey}
+                style={styles.carouselCard}
+                onPress={() => navigateToCategory(item.serviceKey)}
+                activeOpacity={0.85}
+              >
+                <Image
+                  source={item.image}
+                  style={styles.carouselImage}
+                  resizeMode="cover"
+                  fadeDuration={0}
+                />
+                <View style={styles.carouselOverlay}>
+                  <Text style={styles.carouselLabel} numberOfLines={1}>
+                    {item.label}
+                  </Text>
+                </View>
+              </TouchableOpacity>
             ))}
           </ScrollView>
         </View>
@@ -604,7 +631,7 @@ Inspiration</Text>
                 activeOpacity={0.9}
               >
                 <Image
-                  source={{ uri: item.image }}
+                  source={item.image}
                   style={styles.inspirationImage}
                   resizeMode="cover"
                 />
@@ -721,11 +748,33 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     gap: 12,
   },
+  carouselImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 16,
+  },
+  carouselOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+  },
+  carouselLabel: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
+    textShadowColor: 'rgba(0,0,0,0.25)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
   carouselCard: {
     width: 260,
     height: 150,
     borderRadius: 16,
-    backgroundColor: '#DDD',
+    overflow: 'hidden',
   },
   featuredSection: {
     marginTop: 16,
