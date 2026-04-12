@@ -553,13 +553,7 @@ Projects</Text>
                   <Text style={styles.projectTitle}>{project.title}</Text>
                   <Text style={styles.projectPrice}>{project.price}</Text>
                 </LinearGradient>
-                <View style={styles.projectTapHint}>
-                  <Ionicons
-                    name="arrow-forward-circle"
-                    size={24}
-                    color="rgba(255,255,255,0.9)"
-                  />
-                </View>
+                
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -643,13 +637,7 @@ Inspiration</Text>
                   <Text 
 style={styles.inspirationTitle}>{item.title}</Text>
                 </View>
-                <View style={styles.inspirationTapHint}>
-                  <Ionicons
-                    name="book-outline"
-                    size={18}
-                    color="rgba(255,255,255,0.9)"
-                  />
-                </View>
+                
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -779,6 +767,12 @@ const styles = StyleSheet.create({
     height: 150,
     borderRadius: 16,
     overflow: 'hidden',
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 4,
   },
   featuredSection: {
     marginTop: 16,
