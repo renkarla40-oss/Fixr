@@ -244,7 +244,7 @@ export default function CustomerHomeScreen() {
       >
         <View style={styles.gradientHeaderZone}>
           <LinearGradient
-            colors={['#C62828', '#D32F2F', '#E53935', '#FFFFFF']}
+            colors={['transparent', 'transparent']}
             locations={[0, 0.3, 0.6, 1]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -254,7 +254,7 @@ export default function CustomerHomeScreen() {
           <View
             style={[
               styles.heroSection,
-              { paddingTop: Math.max(insets.top, 10) + 6 },
+              { paddingTop: Math.max(insets.top, 10) + 20 },
             ]}
           >
             <View style={styles.heroHeader}>
@@ -628,20 +628,16 @@ const styles = StyleSheet.create({
   },
 
   gradientHeaderZone: {
-    position: 'relative',
+    backgroundColor: '#FFFFFF',
   },
   premiumGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    display: 'none',
   },
 
   heroSection: {
     paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 20,
+    paddingTop: 20,
+    paddingBottom: 16,
   },
   heroHeader: {
     flexDirection: 'row',
@@ -655,12 +651,9 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#1A1A1A',
     lineHeight: 36,
     marginBottom: 20,
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
   },
   searchBar: {
     flexDirection: 'row',
@@ -685,7 +678,7 @@ const styles = StyleSheet.create({
   },
 
   featuredSection: {
-    marginTop: 20,
+    marginTop: 16,
     marginBottom: 4,
   },
   featuredRow: {
@@ -743,17 +736,14 @@ const styles = StyleSheet.create({
   sectionTitleLight: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#1A1A1A',
     paddingHorizontal: 20,
     marginBottom: 14,
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
   },
   sectionTitleOnGradient: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#1A1A1A',
     paddingHorizontal: 20,
     marginBottom: 16,
   },
