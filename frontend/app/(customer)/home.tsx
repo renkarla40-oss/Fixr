@@ -631,7 +631,7 @@ Inspiration</Text>
                 activeOpacity={0.9}
               >
                 <Image
-                  source={item.image}
+                  source={{ uri: item.image }}
                   style={styles.inspirationImage}
                   resizeMode="cover"
                 />
