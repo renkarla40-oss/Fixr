@@ -1,6 +1,7 @@
 import React, { useState, useRef, useMemo } from 'react';
 import {
   View,
+  ImageBackground,
   Text,
   StyleSheet,
   TouchableOpacity,
@@ -49,6 +50,29 @@ const FEATURED_SERVICES = [
   { serviceKey: 'roofing',          label: 'Roofing',            emoji: '🏠', bg: '#FFF3E0' },
   { serviceKey: 'painting',         label: 'Painting',           emoji: '🎨', bg: '#FFF3E0' },
   { serviceKey: 'flooring',         label: 'Flooring',           emoji: '🏗️', bg: '#F3E5F5' },
+];
+
+const FEATURED_CAROUSEL_ITEMS = [
+  {
+    serviceKey: 'plumbing',
+    label: 'Plumbing',
+    image: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=1200&q=80',
+  },
+  {
+    serviceKey: 'electrical',
+    label: 'Electrical',
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80',
+  },
+  {
+    serviceKey: 'ac',
+    label: 'Air Conditioning',
+    image: 'https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=1200&q=80',
+  },
+  {
+    serviceKey: 'cleaning',
+    label: 'Cleaning',
+    image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1200&q=80',
+  },
 ];
 
 // Popular Projects Data - each links to a specific category
@@ -251,6 +275,7 @@ export default function CustomerHomeScreen() {
             style={styles.premiumGradient}
           />
 
+          
           <View
             style={[
               styles.heroSection,
@@ -267,7 +292,6 @@ export default function CustomerHomeScreen() {
             </Text>
 
             <View style={styles.searchBar}>
-              <Ionicons name="search-outline" size={20} color="#999" />
               <TextInput
                 ref={searchInputRef}
                 style={styles.searchInput}
@@ -281,43 +305,34 @@ export default function CustomerHomeScreen() {
                 autoCorrect={false}
                 autoCapitalize="none"
               />
-              {searchQuery.length > 0 && (
+              {searchQuery.length > 0 ? (
                 <TouchableOpacity
+                  style={styles.searchAction}
                   onPress={handleClearSearch}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  activeOpacity={0.8}
                 >
-                  <Ionicons name="close-circle" size={18} color="#999" />
+                  <Ionicons name="close" size={16} color="#FFFFFF" />
                 </TouchableOpacity>
+              ) : (
+                <View style={styles.searchAction}>
+                  <Ionicons name="search-outline" size={16} color="#FFFFFF" />
+                </View>
               )}
             </View>
           </View>
 
-          {!hasSearchQuery && (
-            <View style={styles.featuredSection}>
-              <Text style={styles.sectionTitleLight}>Featured 
-Services</Text>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.featuredRow}
-              >
-                {FEATURED_SERVICES.map((item) => (
-                  <TouchableOpacity
-                    key={item.serviceKey}
-                    style={[styles.featuredCard, { backgroundColor: 
-item.bg }]}
-                    onPress={() => navigateToCategory(item.serviceKey)}
-                    activeOpacity={0.75}
-                  >
-                    <Text style={styles.featuredEmoji}>{item.emoji}</Text>
-                    <Text style={styles.featuredLabel} numberOfLines={1}>
-                      {item.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
-          )}
+        <View style={styles.carouselSection}>
+          <Text style={styles.carouselTitle}>Featured Services</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.carouselRow}
+          >
+            {[1,2,3,4].map((item) => (
+              <View key={item} style={styles.carouselCard} />
+            ))}
+          </ScrollView>
+        </View>
 
           <View style={styles.sectionOnGradient}>
             {hasSearchQuery ? (
@@ -635,6 +650,7 @@ const styles = StyleSheet.create({
   },
 
   heroSection: {
+    backgroundColor: '#005A92',
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 16,
@@ -651,7 +667,7 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
     lineHeight: 36,
     marginBottom: 20,
   },
@@ -659,17 +675,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
-    gap: 12,
-    minHeight: 48,
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+    gap: 8,
+    minHeight: 36,
   },
+  searchAction: {
+    width: 36,
+    height: 28,
+    borderRadius: 8,
+    backgroundColor: '#FB4F14',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
+    flexShrink: 0,
+  },
+
   searchInput: {
     flex: 1,
     fontSize: 16,
@@ -677,6 +704,29 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
 
+
+  carouselTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    paddingHorizontal: 20,
+    marginBottom: 10,
+  },
+
+  carouselSection: {
+    marginTop: 28,
+    marginBottom: 12,
+  },
+  carouselRow: {
+    paddingHorizontal: 20,
+    gap: 12,
+  },
+  carouselCard: {
+    width: 260,
+    height: 150,
+    borderRadius: 16,
+    backgroundColor: '#DDD',
+  },
   featuredSection: {
     marginTop: 16,
     marginBottom: 4,
