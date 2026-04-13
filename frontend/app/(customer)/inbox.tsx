@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotifications } from '../../contexts/NotificationContext';
 import { getServiceLabel } from '../../constants/serviceCategories';
+import { COLORS } from '../../constants/colors';
 import { api } from '../../utils/apiClient';
 import {
   getCachedData,
@@ -281,7 +282,7 @@ export default function CustomerInboxScreen() {
           <Text style={styles.title}>Inbox</Text>
         </View>
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#E53935" />
+          <ActivityIndicator size="large" color="#1E4DB7" />
           <Text style={styles.loadingText}>{COPY.LOADING}</Text>
         </View>
       </View>
@@ -311,11 +312,6 @@ export default function CustomerInboxScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <Text style={styles.title}>Inbox</Text>
-        {conversations.length > 0 && (
-          <View style={styles.countBadge}>
-            <Text style={styles.countText}>{conversations.length}</Text>
-          </View>
-        )}
       </View>
       
       {/* Empty state - ONLY show when initial load is complete AND truly empty */}
@@ -344,38 +340,17 @@ export default function CustomerInboxScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: COLORS.background,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: COLORS.background,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1A1A1A',
-    flex: 1,
-  },
-  countBadge: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    minWidth: 32,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  countText: {
-    color: '#666',
-    fontSize: 14,
-    fontWeight: '600',
+    color: '#1D4F91',
   },
   centerContent: {
     flex: 1,
@@ -385,11 +360,13 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 14,
+    fontWeight: '700',
     color: '#666',
   },
   errorText: {
     marginTop: 16,
     fontSize: 14,
+    fontWeight: '700',
     color: '#666',
     textAlign: 'center',
   },
@@ -397,16 +374,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 16,
-    backgroundColor: '#E53935',
+    backgroundColor: '#1E4DB7',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 24,
     gap: 8,
   },
   retryButtonText: {
-    color: '#FFFFFF',
+    color: '#1D4F91',
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
+    fontWeight: '700',
   },
   emptyContainer: {
     flex: 1,
@@ -416,12 +394,13 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#1A1A1A',
     marginTop: 16,
   },
   emptyText: {
     fontSize: 14,
+    fontWeight: '700',
     color: '#666',
     marginTop: 8,
     textAlign: 'center',
@@ -464,7 +443,7 @@ const styles = StyleSheet.create({
   },
   providerName: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#1A1A1A',
     flex: 1,
   },
@@ -475,15 +454,17 @@ const styles = StyleSheet.create({
   },
   serviceName: {
     fontSize: 13,
-    color: '#E53935',
+    color: '#1E4DB7',
     marginBottom: 4,
   },
   lastMessage: {
     fontSize: 14,
+    fontWeight: '700',
     color: '#666',
   },
   noMessages: {
     fontSize: 14,
+    fontWeight: '700',
     color: '#999',
     fontStyle: 'italic',
   },

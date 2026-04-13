@@ -1082,7 +1082,7 @@ export default function RequestDetailScreen() {
       case 'completed':
         return { bg: '#F3E5F5', text: '#7B1FA2', icon: 'checkmark-done-circle', label: 'Completed' };
       case 'declined':
-        return { bg: '#FFEBEE', text: '#C62828', icon: 'close-circle', label: 'Declined' };
+        return { bg: '#FFEBEE', text: '#D74826', icon: 'close-circle', label: 'Declined' };
       case 'cancelled':
         return { bg: '#FFF3E0', text: '#E65100', icon: 'close-circle-outline', label: 'Cancelled' };
       default:
@@ -1183,7 +1183,7 @@ export default function RequestDetailScreen() {
           <View style={styles.backButton} />
         </View>
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#E53935" />
+          <ActivityIndicator size="large" color="#D74826" />
           <Text style={styles.loadingText}>Loading request...</Text>
         </View>
       </View>
@@ -1238,7 +1238,7 @@ export default function RequestDetailScreen() {
           style={[styles.tab, activeTab === 'details' && styles.tabActive]}
           onPress={() => setActiveTab('details')}
         >
-          <Ionicons name="document-text-outline" size={18} color={activeTab === 'details' ? '#E53935' : '#666'} />
+          <Ionicons name="document-text-outline" size={18} color={activeTab === 'details' ? '#D74826' : '#666'} />
           <Text style={[styles.tabText, activeTab === 'details' && styles.tabTextActive]}>Details</Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -1246,9 +1246,9 @@ export default function RequestDetailScreen() {
           onPress={() => setActiveTab('chat')}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Ionicons name="chatbubbles-outline" size={18} color={activeTab === 'chat' ? '#E53935' : '#666'} />
+            <Ionicons name="chatbubbles-outline" size={18} color={activeTab === 'chat' ? '#D74826' : '#666'} />
             {hasUnreadMessages && activeTab !== 'chat' && (
-              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#E53935', marginLeft: 2 }} />
+              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#D74826', marginLeft: 2 }} />
             )}
           </View>
           <Text style={[styles.tabText, activeTab === 'chat' && styles.tabTextActive]}>Messages</Text>
@@ -1384,7 +1384,7 @@ export default function RequestDetailScreen() {
           {/* Provider & Service Summary Card */}
           <View style={styles.summaryCard}>
             <View style={styles.summaryRow}>
-              <Ionicons name="person" size={20} color="#E53935" />
+              <Ionicons name="person" size={20} color="#D74826" />
               <View style={styles.summaryContent}>
                 <Text style={styles.summaryLabel}>Provider</Text>
                 <Text style={styles.summaryValue}>{request.providerName || 'Open Request'}</Text>
@@ -1392,7 +1392,7 @@ export default function RequestDetailScreen() {
             </View>
             <View style={styles.summaryDivider} />
             <View style={styles.summaryRow}>
-              <Ionicons name="construct" size={20} color="#E53935" />
+              <Ionicons name="construct" size={20} color="#D74826" />
               <View style={styles.summaryContent}>
                 <Text style={styles.summaryLabel}>Service</Text>
                 <Text style={styles.summaryValue}>{getServiceLabel(request.service)}</Text>
@@ -1403,7 +1403,7 @@ export default function RequestDetailScreen() {
               <>
                 <View style={styles.summaryDivider} />
                 <View style={styles.summaryRow}>
-                  <Ionicons name="location" size={20} color="#E53935" />
+                  <Ionicons name="location" size={20} color="#D74826" />
                   <View style={styles.summaryContent}>
                     <Text style={styles.summaryLabel}>Location</Text>
                     <Text style={styles.summaryValue}>{request.jobTown || request.location}</Text>
@@ -1444,7 +1444,7 @@ export default function RequestDetailScreen() {
           {/* Cancel Button - Only shown for pending or accepted requests */}
           {canCancel && (
             <TouchableOpacity style={styles.cancelButton} onPress={handleCancelRequest}>
-              <Ionicons name="close-circle-outline" size={20} color="#E53935" />
+              <Ionicons name="close-circle-outline" size={20} color="#D74826" />
               <Text style={styles.cancelButtonText}>Cancel Request</Text>
             </TouchableOpacity>
           )}
@@ -1495,7 +1495,7 @@ export default function RequestDetailScreen() {
         >
           {loadingMessages ? (
             <View style={styles.centerContent}>
-              <ActivityIndicator size="large" color="#E53935" />
+              <ActivityIndicator size="large" color="#D74826" />
             </View>
           ) : (
             <ScrollView
@@ -1521,7 +1521,7 @@ export default function RequestDetailScreen() {
               >
                 <Text
                   style={{
-                    color: '#C62828',
+                    color: '#D74826',
                     fontSize: 14,
                     fontWeight: '600',
                     textAlign: 'center',
@@ -1708,7 +1708,7 @@ export default function RequestDetailScreen() {
                           onPress={handleRejectQuote}
                           disabled={processingQuoteAction}
                         >
-                          <Ionicons name="close-circle-outline" size={18} color="#E53935" />
+                          <Ionicons name="close-circle-outline" size={18} color="#D74826" />
                           <Text style={styles.rejectQuoteButtonText}>Reject</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -1729,7 +1729,7 @@ export default function RequestDetailScreen() {
               {currentQuote && currentQuote.status === 'REJECTED' && (
                 <View style={[styles.quoteCard, styles.quoteCardRejected]}>
                   <View style={styles.quoteCardHeader}>
-                    <Ionicons name="close-circle" size={20} color="#E53935" />
+                    <Ionicons name="close-circle" size={20} color="#D74826" />
                     <Text style={styles.quoteCardTitle}>Quote Rejected</Text>
                   </View>
                   <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
@@ -1891,7 +1891,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   retryButton: {
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
@@ -1916,7 +1916,7 @@ const styles = StyleSheet.create({
   },
   tabActive: {
     borderBottomWidth: 2,
-    borderBottomColor: '#E53935',
+    borderBottomColor: '#D74826',
   },
   tabText: {
     fontSize: 14,
@@ -1924,7 +1924,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   tabTextActive: {
-    color: '#E53935',
+    color: '#D74826',
     fontWeight: '600',
   },
   tabIconContainer: {
@@ -1937,7 +1937,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     borderWidth: 2,
     borderColor: '#FFFFFF',
   },
@@ -2205,7 +2205,7 @@ const styles = StyleSheet.create({
   },
   subCategoryText: {
     fontSize: 13,
-    color: '#E53935',
+    color: '#D74826',
     marginTop: 2,
   },
   // Description Card
@@ -2296,7 +2296,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   messageBubbleMine: {
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     alignSelf: 'flex-end',
     borderBottomRightRadius: 4,
   },
@@ -2407,7 +2407,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -2448,7 +2448,7 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#E53935',
+    color: '#D74826',
   },
   // Image message styles
   imagePickerButton: {
@@ -2627,11 +2627,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#E53935',
+    borderColor: '#D74826',
     gap: 4,
   },
   rejectQuoteButtonText: {
-    color: '#E53935',
+    color: '#D74826',
     fontSize: 13,
     fontWeight: '600',
   },

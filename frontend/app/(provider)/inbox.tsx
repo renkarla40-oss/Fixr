@@ -294,7 +294,7 @@ export default function ProviderInboxScreen() {
           <Text style={styles.title}>Inbox</Text>
         </View>
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#E53935" />
+          <ActivityIndicator size="large" color="#D74826" />
           <Text style={styles.loadingText}>{COPY.LOADING}</Text>
         </View>
       </View>
@@ -348,7 +348,7 @@ export default function ProviderInboxScreen() {
           keyExtractor={(item) => item.requestId}
           contentContainerStyle={styles.listContent}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#E53935" />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#D74826" />
           }
           ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
@@ -413,7 +413,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 16,
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 24,
@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
   },
   serviceName: {
     fontSize: 13,
-    color: '#E53935',
+    color: '#D74826',
     marginBottom: 4,
   },
   lastMessage: {
@@ -513,7 +513,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
   },
   separator: {
     height: 1,

@@ -318,7 +318,7 @@ export default function ProviderChatScreen() {
       >
         {loadingMessages ? (
           <View style={styles.centerContent}>
-            <ActivityIndicator size="large" color="#E53935" />
+            <ActivityIndicator size="large" color="#D74826" />
           </View>
         ) : (
           <ScrollView
@@ -444,9 +444,9 @@ export default function ProviderChatScreen() {
               disabled={uploadingImage}
             >
               {uploadingImage ? (
-                <ActivityIndicator size="small" color="#E53935" />
+                <ActivityIndicator size="small" color="#D74826" />
               ) : (
-                <Ionicons name="camera" size={24} color="#E53935" />
+                <Ionicons name="camera" size={24} color="#D74826" />
               )}
             </TouchableOpacity>
             <TextInput
@@ -579,7 +579,7 @@ const styles = StyleSheet.create({
   },
   messageBubbleMine: {
     alignSelf: 'flex-end',
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     borderBottomRightRadius: 4,
   },
   messageBubbleTheirs: {
@@ -667,7 +667,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 0,

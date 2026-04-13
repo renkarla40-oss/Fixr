@@ -94,7 +94,7 @@ export default function BetaGateScreen() {
       >
         <View style={styles.content}>
           <View style={styles.iconContainer}>
-            <Ionicons name="time" size={48} color="#E53935" />
+            <Ionicons name="time" size={48} color="#D74826" />
           </View>
           
           <Text style={styles.title}>Beta Access Coming Soon</Text>
@@ -181,7 +181,7 @@ export default function BetaGateScreen() {
                 onPress={() => router.push('/login')}
                 activeOpacity={0.7}
               >
-                <Ionicons name="log-in-outline" size={20} color="#E53935" />
+                <Ionicons name="log-in-outline" size={20} color="#D74826" />
                 <Text style={styles.devSignInText}>Sign In (Test Account)</Text>
               </TouchableOpacity>
             </View>
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
   },
   joinButton: {
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     paddingVertical: 16,
     borderRadius: 12,
     flexDirection: 'row',
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   backButton: {
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -357,12 +357,12 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#E53935',
+    borderColor: '#D74826',
     gap: 8,
   },
   devSignInText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#E53935',
+    color: '#D74826',
   },
 });

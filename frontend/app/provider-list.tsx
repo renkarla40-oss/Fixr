@@ -276,7 +276,7 @@ export default function ProviderListScreen() {
         {location && (
           <View style={styles.filterBar}>
             <View style={styles.locationInfo}>
-              <Ionicons name="location" size={16} color="#E53935" />
+              <Ionicons name="location" size={16} color="#D74826" />
               <Text style={styles.locationText}>{location}</Text>
               <Text style={styles.radiusText}>({searchDistanceKm} km)</Text>
             </View>
@@ -287,7 +287,7 @@ export default function ProviderListScreen() {
                 value={includeTravelAnywhere}
                 onValueChange={setIncludeTravelAnywhere}
                 trackColor={{ false: '#E0E0E0', true: '#FFCDD2' }}
-                thumbColor={includeTravelAnywhere ? '#E53935' : '#f4f3f4'}
+                thumbColor={includeTravelAnywhere ? '#D74826' : '#f4f3f4'}
               />
             </View>
           </View>
@@ -295,13 +295,13 @@ export default function ProviderListScreen() {
 
         {loading ? (
           <View style={styles.centerContent}>
-            <ActivityIndicator size="large" color="#E53935" />
+            <ActivityIndicator size="large" color="#D74826" />
           </View>
         ) : fetchError ? (
           // Show error state for actual API failures
           <View style={styles.centerContent}>
             <View style={styles.emptyIconContainer}>
-              <Ionicons name="cloud-offline-outline" size={48} color="#E53935" />
+              <Ionicons name="cloud-offline-outline" size={48} color="#D74826" />
             </View>
             <Text style={styles.emptyTitle}>Something Went Wrong</Text>
             <Text style={styles.emptySubtitle}>{fetchError}</Text>
@@ -317,7 +317,7 @@ export default function ProviderListScreen() {
           // Show empty state for valid results with no providers (NOT an error)
           <View style={styles.centerContent}>
             <View style={styles.emptyIconContainer}>
-              <Ionicons name="people-outline" size={48} color="#E53935" />
+              <Ionicons name="people-outline" size={48} color="#D74826" />
             </View>
             <Text style={styles.emptyTitle}>
               No Providers Available
@@ -341,7 +341,7 @@ export default function ProviderListScreen() {
                     style={styles.expandSearchButton}
                     onPress={() => setIncludeTravelAnywhere(true)}
                   >
-                    <Ionicons name="globe-outline" size={20} color="#E53935" />
+                    <Ionicons name="globe-outline" size={20} color="#D74826" />
                     <Text style={styles.expandSearchText}>Include providers willing to travel</Text>
                   </TouchableOpacity>
                 )}
@@ -390,7 +390,7 @@ export default function ProviderListScreen() {
                 <Ionicons 
                   name="swap-vertical" 
                   size={14} 
-                  color={sortBy !== 'default' ? '#FFFFFF' : '#E53935'} 
+                  color={sortBy !== 'default' ? '#FFFFFF' : '#D74826'} 
                 />
                 <Text 
                   style={[
@@ -452,7 +452,7 @@ export default function ProviderListScreen() {
                 <Ionicons 
                   name="checkmark-circle" 
                   size={14} 
-                  color={verifiedOnly ? '#FFFFFF' : '#E53935'} 
+                  color={verifiedOnly ? '#FFFFFF' : '#D74826'} 
                 />
                 <Text 
                   style={[
@@ -544,7 +544,7 @@ export default function ProviderListScreen() {
                     <Ionicons 
                       name={favorited ? "heart" : "heart-outline"} 
                       size={22} 
-                      color={favorited ? "#E53935" : "#999"} 
+                      color={favorited ? "#D74826" : "#999"} 
                     />
                   </TouchableOpacity>
                 </View>
@@ -672,7 +672,7 @@ export default function ProviderListScreen() {
                 {/* View Details - always enabled */}
                 <View style={styles.cardFooter}>
                   <Text style={styles.viewDetailsText}>View Details</Text>
-                  <Ionicons name="chevron-forward" size={20} color="#E53935" />
+                  <Ionicons name="chevron-forward" size={20} color="#D74826" />
                 </View>
               </TouchableOpacity>
               );
@@ -691,7 +691,7 @@ export default function ProviderListScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalIconContainer}>
-              <Ionicons name="search-outline" size={48} color="#E53935" />
+              <Ionicons name="search-outline" size={48} color="#D74826" />
             </View>
             
             <Text style={styles.modalTitle}>No Local Providers Found</Text>
@@ -762,7 +762,7 @@ export default function ProviderListScreen() {
                   {option.label}
                 </Text>
                 {sortBy === option.value && (
-                  <Ionicons name="checkmark" size={20} color="#E53935" />
+                  <Ionicons name="checkmark" size={20} color="#D74826" />
                 )}
               </TouchableOpacity>
             ))}
@@ -872,7 +872,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     paddingHorizontal: 24,
     paddingVertical: 14,
     borderRadius: 12,
@@ -893,17 +893,17 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E53935',
+    borderColor: '#D74826',
     marginBottom: 16,
     gap: 8,
   },
   expandSearchText: {
-    color: '#E53935',
+    color: '#D74826',
     fontSize: 14,
     fontWeight: '600',
   },
   backToServicesButton: {
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
@@ -914,7 +914,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   submitRequestButton: {
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     paddingHorizontal: 32,
     paddingVertical: 16,
     borderRadius: 12,
@@ -1246,7 +1246,7 @@ const styles = StyleSheet.create({
   },
   viewDetailsText: {
     fontSize: 14,
-    color: '#E53935',
+    color: '#D74826',
     fontWeight: '600',
   },
   // Modal styles
@@ -1295,7 +1295,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     paddingVertical: 14,
     borderRadius: 12,
     gap: 8,
@@ -1345,17 +1345,17 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 20,
     borderWidth: 1.5,
-    borderColor: '#E53935',
+    borderColor: '#D74826',
     gap: 4,
     minHeight: 40,
   },
   filterPillActive: {
-    backgroundColor: '#E53935',
-    borderColor: '#E53935',
+    backgroundColor: '#D74826',
+    borderColor: '#D74826',
   },
   filterPillText: {
     fontSize: 12,
-    color: '#E53935',
+    color: '#D74826',
     fontWeight: '600',
     textAlign: 'center',
   },
@@ -1371,13 +1371,13 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#E53935',
+    borderColor: '#D74826',
     gap: 3,
     flexShrink: 1,
   },
   sortButtonText: {
     fontSize: 11,
-    color: '#E53935',
+    color: '#D74826',
     fontWeight: '500',
   },
   filterPills: {
@@ -1393,7 +1393,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#E53935',
+    borderColor: '#D74826',
     gap: 3,
     flexShrink: 1,
   },
@@ -1410,7 +1410,7 @@ const styles = StyleSheet.create({
   },
   clearFiltersText: {
     fontSize: 12,
-    color: '#E53935',
+    color: '#D74826',
     fontWeight: '600',
   },
   // Sort Modal Styles
@@ -1451,7 +1451,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   sortOptionTextActive: {
-    color: '#E53935',
+    color: '#D74826',
     fontWeight: '600',
   },
   serviceChipsRow: {
@@ -1461,7 +1461,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   serviceChipPreview: {
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,

@@ -140,7 +140,7 @@ export default function PhoneVerificationScreen() {
 
         <View style={styles.content}>
           <View style={styles.iconContainer}>
-            <Ionicons name="call" size={48} color="#E53935" />
+            <Ionicons name="call" size={48} color="#D74826" />
           </View>
           
           <Text style={styles.heading}>
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
   },
   otpInputFilled: {
-    borderColor: '#E53935',
+    borderColor: '#D74826',
     backgroundColor: '#FFF5F5',
   },
   resendButton: {
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
   },
   resendText: {
     fontSize: 14,
-    color: '#E53935',
+    color: '#D74826',
     fontWeight: '500',
   },
   resendTextDisabled: {
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   primaryButton: {
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',

@@ -72,7 +72,7 @@ export default function SubcategorySelectionScreen() {
             <Ionicons 
               name={(category?.icon || 'build') as any} 
               size={40} 
-              color="#E53935" 
+              color="#D74826" 
             />
           </View>
 
@@ -102,10 +102,10 @@ export default function SubcategorySelectionScreen() {
             activeOpacity={0.7}
           >
             <View style={styles.skipContent}>
-              <Ionicons name="create-outline" size={20} color="#E53935" />
+              <Ionicons name="create-outline" size={20} color="#D74826" />
               <Text style={styles.skipText}>Not listed? Describe it yourself</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#E53935" />
+            <Ionicons name="chevron-forward" size={20} color="#D74826" />
           </TouchableOpacity>
         </ScrollView>
       </View>
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
   },
   skipText: {
     fontSize: 16,
-    color: '#E53935',
+    color: '#D74826',
     fontWeight: '600',
   },
 });

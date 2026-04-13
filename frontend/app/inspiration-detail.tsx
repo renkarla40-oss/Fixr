@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
   },
   backLink: {
     fontSize: 16,
-    color: '#E53935',
+    color: '#D74826',
     fontWeight: '600',
   },
 });

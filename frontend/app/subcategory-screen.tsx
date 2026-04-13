@@ -71,7 +71,7 @@ export default function SubcategoryScreen() {
           <View style={styles.backButton} />
         </View>
         <View style={styles.errorContainer}>
-          <Ionicons name="alert-circle-outline" size={48} color="#E53935" />
+          <Ionicons name="alert-circle-outline" size={48} color="#D74826" />
           <Text style={styles.errorText}>Service not found</Text>
           <TouchableOpacity style={styles.backToServicesButton} onPress={() => router.back()}>
             <Text style={styles.backToServicesText}>Go Back</Text>
@@ -138,7 +138,7 @@ export default function SubcategoryScreen() {
                 {subcategory.label}
               </Text>
               {selectedSubcategory === subcategory.subcategoryKey && (
-                <Ionicons name="checkmark-circle" size={24} color="#E53935" />
+                <Ionicons name="checkmark-circle" size={24} color="#D74826" />
               )}
             </TouchableOpacity>
           ))}
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     minHeight: 56,
   },
   optionCardSelected: {
-    borderColor: '#E53935',
+    borderColor: '#D74826',
     backgroundColor: '#FFF5F5',
   },
   optionText: {
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   optionTextSelected: {
-    color: '#E53935',
+    color: '#D74826',
     fontWeight: '600',
   },
   noResultsContainer: {
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
   },
   clearSearchText: {
     fontSize: 16,
-    color: '#E53935',
+    color: '#D74826',
     fontWeight: '600',
   },
   footer: {
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     paddingVertical: 16,
     borderRadius: 12,
     gap: 8,
@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   backToServicesButton: {
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,

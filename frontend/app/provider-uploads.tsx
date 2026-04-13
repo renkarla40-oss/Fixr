@@ -252,7 +252,7 @@ export default function ProviderUploadsScreen() {
         >
           {isUploading ? (
             <View style={styles.uploadingContainer}>
-              <ActivityIndicator size="large" color="#E53935" />
+              <ActivityIndicator size="large" color="#D74826" />
               <Text style={styles.uploadingText}>Uploading...</Text>
             </View>
           ) : hasImage ? (
@@ -273,7 +273,7 @@ export default function ProviderUploadsScreen() {
           ) : (
             <View style={styles.placeholderContainer}>
               <View style={styles.iconCircle}>
-                <Ionicons name={iconName as any} size={32} color="#E53935" />
+                <Ionicons name={iconName as any} size={32} color="#D74826" />
               </View>
               <Text style={styles.placeholderText}>Tap to upload</Text>
               <Text style={styles.placeholderHint}>Camera or gallery</Text>
@@ -288,7 +288,7 @@ export default function ProviderUploadsScreen() {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#E53935" />
+          <ActivityIndicator size="large" color="#D74826" />
           <Text style={styles.loadingText}>Loading...</Text>
         </View>
       </SafeAreaView>
@@ -304,7 +304,7 @@ export default function ProviderUploadsScreen() {
       >
         <View style={styles.header}>
           <View style={styles.iconContainer}>
-            <Ionicons name="shield-checkmark" size={48} color="#E53935" />
+            <Ionicons name="shield-checkmark" size={48} color="#D74826" />
           </View>
           <Text style={styles.title}>Verify Your Identity</Text>
           <Text style={styles.subtitle}>
@@ -479,7 +479,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   required: {
-    color: '#E53935',
+    color: '#D74826',
   },
   uploadDescription: {
     fontSize: 13,
@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
   uploadingText: {
     marginTop: 12,
     fontSize: 14,
-    color: '#E53935',
+    color: '#D74826',
   },
   imageContainer: {
     width: '100%',
@@ -612,7 +612,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     paddingVertical: 16,
     borderRadius: 12,
     gap: 8,

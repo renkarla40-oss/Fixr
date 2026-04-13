@@ -167,7 +167,7 @@ export default function EarningsScreen() {
           <Text style={styles.headerTitle}>Earnings</Text>
         </View>
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#E53935" />
+          <ActivityIndicator size="large" color="#D74826" />
           <Text style={styles.loadingText}>Loading earnings...</Text>
         </View>
       </View>
@@ -181,7 +181,7 @@ export default function EarningsScreen() {
           <Text style={styles.headerTitle}>Earnings</Text>
         </View>
         <View style={styles.centerContent}>
-          <Ionicons name="alert-circle-outline" size={48} color="#E53935" />
+          <Ionicons name="alert-circle-outline" size={48} color="#D74826" />
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={fetchEarnings}>
             <Text style={styles.retryText}>Try Again</Text>
@@ -201,7 +201,7 @@ export default function EarningsScreen() {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#E53935']} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#D74826']} />
         }
       >
         {/* Balance Summary Section */}
@@ -366,14 +366,14 @@ const styles = StyleSheet.create({
   errorText: {
     marginTop: 12,
     fontSize: 14,
-    color: '#E53935',
+    color: '#D74826',
     textAlign: 'center',
   },
   retryButton: {
     marginTop: 16,
     paddingHorizontal: 24,
     paddingVertical: 10,
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     borderRadius: 8,
   },
   retryText: {
@@ -585,11 +585,11 @@ const styles = StyleSheet.create({
   },
   breakdownLabelDeduct: {
     fontSize: 13,
-    color: '#E53935',
+    color: '#D74826',
   },
   breakdownValueDeduct: {
     fontSize: 13,
-    color: '#E53935',
+    color: '#D74826',
     fontWeight: '500',
   },
   breakdownDivider: {

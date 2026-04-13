@@ -256,7 +256,7 @@ export default function MyRequestsScreen() {
             <Text style={styles.title}>My Requests</Text>
           </View>
           <View style={styles.centerContent}>
-            <ActivityIndicator size="large" color="#E53935" />
+            <ActivityIndicator size="large" color="#D74826" />
             <Text style={styles.loadingText}>{COPY.LOADING}</Text>
           </View>
         </View>
@@ -322,7 +322,7 @@ export default function MyRequestsScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor="#E53935"
+              tintColor="#D74826"
             />
           }
         >
@@ -371,7 +371,7 @@ export default function MyRequestsScreen() {
                 {/* Show location if present */}
                 {request.location && (
                   <View style={styles.locationRow}>
-                    <Ionicons name="location-outline" size={14} color="#E53935" />
+                    <Ionicons name="location-outline" size={14} color="#D74826" />
                     <Text style={styles.locationText}>{request.location}</Text>
                   </View>
                 )}
@@ -434,7 +434,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 16,
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 24,
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
   },
   subCategoryText: {
     fontSize: 13,
-    color: '#E53935',
+    color: '#D74826',
     fontWeight: '500',
     marginBottom: 8,
   },
@@ -534,7 +534,7 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 13,
-    color: '#E53935',
+    color: '#D74826',
     fontWeight: '500',
   },
   requestFooter: {

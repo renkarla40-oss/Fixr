@@ -203,7 +203,7 @@ export default function ProviderSetupScreen() {
           activeOpacity={0.7}
         >
           {loggingOut ? (
-            <ActivityIndicator size="small" color="#E53935" />
+            <ActivityIndicator size="small" color="#D74826" />
           ) : (
             <Text style={styles.logoutButtonText}>Log out</Text>
           )}
@@ -220,7 +220,7 @@ export default function ProviderSetupScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.header}>
-            <Ionicons name="construct" size={48} color="#E53935" />
+            <Ionicons name="construct" size={48} color="#D74826" />
             <Text style={styles.title}>Provider Setup</Text>
             <Text style={styles.subtitle}>
               Complete your profile to start receiving service requests
@@ -250,7 +250,7 @@ export default function ProviderSetupScreen() {
                       <Ionicons
                         name={category.icon as any}
                         size={24}
-                        color={isSelected ? '#FFFFFF' : '#E53935'}
+                        color={isSelected ? '#FFFFFF' : '#D74826'}
                       />
                     </View>
                     <Text
@@ -334,7 +334,7 @@ export default function ProviderSetupScreen() {
           <View style={styles.section}>
             <View style={styles.toggleRow}>
               <View style={styles.toggleInfo}>
-                <Ionicons name="globe-outline" size={24} color="#E53935" />
+                <Ionicons name="globe-outline" size={24} color="#D74826" />
                 <View style={styles.toggleTextContainer}>
                   <Text style={styles.toggleLabel}>Willing to travel anywhere</Text>
                   <Text style={styles.toggleHint}>
@@ -346,7 +346,7 @@ export default function ProviderSetupScreen() {
                 value={travelAnywhere}
                 onValueChange={setTravelAnywhere}
                 trackColor={{ false: '#E0E0E0', true: '#FFCDD2' }}
-                thumbColor={travelAnywhere ? '#E53935' : '#f4f3f4'}
+                thumbColor={travelAnywhere ? '#D74826' : '#f4f3f4'}
               />
             </View>
           </View>
@@ -410,7 +410,7 @@ export default function ProviderSetupScreen() {
             </View>
 
             {loadingTowns ? (
-              <ActivityIndicator size="large" color="#E53935" style={styles.loadingIndicator} />
+              <ActivityIndicator size="large" color="#D74826" style={styles.loadingIndicator} />
             ) : (
               <FlatList
                 data={filteredTowns}
@@ -434,7 +434,7 @@ export default function ProviderSetupScreen() {
                       {item.label}
                     </Text>
                     {baseTown === item.label && (
-                      <Ionicons name="checkmark" size={20} color="#E53935" />
+                      <Ionicons name="checkmark" size={20} color="#D74826" />
                     )}
                   </TouchableOpacity>
                 )}
@@ -480,7 +480,7 @@ export default function ProviderSetupScreen() {
                   {distanceUnit === 'mi' ? option.labelMi : option.labelKm}
                 </Text>
                 {travelDistanceKm === option.valueKm && (
-                  <Ionicons name="checkmark" size={20} color="#E53935" />
+                  <Ionicons name="checkmark" size={20} color="#D74826" />
                 )}
               </TouchableOpacity>
             ))}
@@ -517,7 +517,7 @@ const styles = StyleSheet.create({
   logoutButtonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#E53935',
+    color: '#D74826',
   },
   container: {
     flex: 1,
@@ -556,7 +556,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   required: {
-    color: '#E53935',
+    color: '#D74826',
   },
   hint: {
     fontSize: 14,
@@ -582,7 +582,7 @@ const styles = StyleSheet.create({
   },
   serviceCardSelected: {
     backgroundColor: '#FFF5F5',
-    borderColor: '#E53935',
+    borderColor: '#D74826',
   },
   serviceCardBeta: {
     opacity: 0.9,
@@ -597,7 +597,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   serviceIconContainerSelected: {
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
   },
   serviceIcon: {
     marginBottom: 8,
@@ -609,7 +609,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   serviceNameSelected: {
-    color: '#E53935',
+    color: '#D74826',
     fontWeight: '700',
   },
   checkmark: {
@@ -651,7 +651,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   unitButtonActive: {
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
   },
   unitButtonText: {
     fontSize: 13,
@@ -720,7 +720,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   submitButton: {
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -804,7 +804,7 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
   },
   townItemTextSelected: {
-    color: '#E53935',
+    color: '#D74826',
     fontWeight: '600',
   },
   radiusItem: {
@@ -824,7 +824,7 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
   },
   radiusItemTextSelected: {
-    color: '#E53935',
+    color: '#D74826',
     fontWeight: '600',
   },
 });

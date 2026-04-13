@@ -86,7 +86,7 @@ export default function HandymanSubcategoryScreen() {
                 <Ionicons
                   name={subcategory.icon as any}
                   size={24}
-                  color={selectedSubcategory === subcategory.id ? '#FFFFFF' : '#E53935'}
+                  color={selectedSubcategory === subcategory.id ? '#FFFFFF' : '#D74826'}
                 />
               </View>
               <Text style={[
@@ -97,7 +97,7 @@ export default function HandymanSubcategoryScreen() {
               </Text>
               {selectedSubcategory === subcategory.id && (
                 <View style={styles.checkmark}>
-                  <Ionicons name="checkmark-circle" size={24} color="#E53935" />
+                  <Ionicons name="checkmark-circle" size={24} color="#D74826" />
                 </View>
               )}
             </TouchableOpacity>
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
   },
   optionCardSelected: {
-    borderColor: '#E53935',
+    borderColor: '#D74826',
     backgroundColor: '#FFF5F5',
   },
   optionIconContainer: {
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   optionIconContainerSelected: {
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
   },
   optionText: {
     flex: 1,
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   optionTextSelected: {
-    color: '#E53935',
+    color: '#D74826',
     fontWeight: '600',
   },
   checkmark: {
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     paddingVertical: 18,
     borderRadius: 12,
     gap: 8,

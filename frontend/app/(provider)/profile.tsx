@@ -233,13 +233,13 @@ export default function ProviderProfileScreen() {
                   </View>
                 </View>
                 {loadingProfile || savingAvailability ? (
-                  <ActivityIndicator size="small" color="#E53935" />
+                  <ActivityIndicator size="small" color="#D74826" />
                 ) : (
                   <Switch
                     value={isAcceptingJobs}
                     onValueChange={handleToggleAcceptingJobs}
                     trackColor={{ false: '#E0E0E0', true: '#FFCDD2' }}
-                    thumbColor={isAcceptingJobs ? '#E53935' : '#f4f3f4'}
+                    thumbColor={isAcceptingJobs ? '#D74826' : '#f4f3f4'}
                   />
                 )}
               </View>
@@ -285,13 +285,13 @@ export default function ProviderProfileScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuItemLeft}>
-                <Ionicons name="swap-horizontal-outline" size={24} color="#E53935" />
+                <Ionicons name="swap-horizontal-outline" size={24} color="#D74826" />
                 <Text style={[styles.menuItemText, styles.switchText]}>
                   Switch to Customer
                 </Text>
               </View>
               {switching ? (
-                <ActivityIndicator size="small" color="#E53935" />
+                <ActivityIndicator size="small" color="#D74826" />
               ) : (
                 <Ionicons name="chevron-forward" size={24} color="#999" />
               )}
@@ -307,10 +307,10 @@ export default function ProviderProfileScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuItemLeft}>
-                <Ionicons name="mail-outline" size={24} color="#E53935" />
+                <Ionicons name="mail-outline" size={24} color="#D74826" />
                 <Text style={[styles.menuItemText, styles.betaText]}>Contact Fixr (Beta)</Text>
               </View>
-              <Ionicons name="open-outline" size={20} color="#E53935" />
+              <Ionicons name="open-outline" size={20} color="#D74826" />
             </TouchableOpacity>
             
             <TouchableOpacity 
@@ -372,7 +372,7 @@ export default function ProviderProfileScreen() {
               onPress={handleLogout}
               activeOpacity={0.7}
             >
-              <Ionicons name="log-out-outline" size={24} color="#E53935" />
+              <Ionicons name="log-out-outline" size={24} color="#D74826" />
               <Text style={styles.logoutText}>Logout</Text>
             </TouchableOpacity>
           </View>
@@ -624,11 +624,11 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
   },
   switchText: {
-    color: '#E53935',
+    color: '#D74826',
     fontWeight: '600',
   },
   betaText: {
-    color: '#E53935',
+    color: '#D74826',
     fontWeight: '600',
   },
   logoutButton: {
@@ -646,7 +646,7 @@ const styles = StyleSheet.create({
   logoutText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#E53935',
+    color: '#D74826',
   },
   versionSection: {
     alignItems: 'center',
@@ -723,7 +723,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 14,
     borderRadius: 12,
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     alignItems: 'center',
   },
   modalSaveText: {

@@ -141,7 +141,7 @@ export default function WelcomeScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#E53935" />
+        <ActivityIndicator size="large" color="#D74826" />
       </View>
     );
   }
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   primaryButton: {
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',

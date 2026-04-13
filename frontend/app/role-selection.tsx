@@ -42,7 +42,7 @@ export default function RoleSelectionScreen() {
               <Ionicons
                 name="person"
                 size={48}
-                color={selectedRole === 'customer' ? '#E53935' : '#666'}
+                color={selectedRole === 'customer' ? '#D74826' : '#666'}
               />
             </View>
             <Text style={styles.roleTitle}>Customer</Text>
@@ -51,7 +51,7 @@ export default function RoleSelectionScreen() {
             </Text>
             {selectedRole === 'customer' && (
               <View style={styles.checkmark}>
-                <Ionicons name="checkmark-circle" size={28} color="#E53935" />
+                <Ionicons name="checkmark-circle" size={28} color="#D74826" />
               </View>
             )}
           </TouchableOpacity>
@@ -68,7 +68,7 @@ export default function RoleSelectionScreen() {
               <Ionicons
                 name="construct"
                 size={48}
-                color={selectedRole === 'provider' ? '#E53935' : '#666'}
+                color={selectedRole === 'provider' ? '#D74826' : '#666'}
               />
             </View>
             <Text style={styles.roleTitle}>Provider</Text>
@@ -77,7 +77,7 @@ export default function RoleSelectionScreen() {
             </Text>
             {selectedRole === 'provider' && (
               <View style={styles.checkmark}>
-                <Ionicons name="checkmark-circle" size={28} color="#E53935" />
+                <Ionicons name="checkmark-circle" size={28} color="#D74826" />
               </View>
             )}
           </TouchableOpacity>
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
   },
   roleCardSelected: {
     backgroundColor: '#FFF5F5',
-    borderColor: '#E53935',
+    borderColor: '#D74826',
   },
   cardIcon: {
     marginBottom: 16,
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   continueButton: {
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',

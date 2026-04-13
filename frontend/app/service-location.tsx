@@ -156,7 +156,7 @@ export default function ServiceLocationScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.iconContainer}>
-            <Ionicons name="location" size={48} color="#E53935" />
+            <Ionicons name="location" size={48} color="#D74826" />
           </View>
 
           <Text style={styles.subtitle}>
@@ -277,7 +277,7 @@ export default function ServiceLocationScreen() {
             </View>
 
             {loadingTowns ? (
-              <ActivityIndicator size="large" color="#E53935" style={styles.loadingIndicator} />
+              <ActivityIndicator size="large" color="#D74826" style={styles.loadingIndicator} />
             ) : (
               <FlatList
                 data={filteredTowns}
@@ -301,7 +301,7 @@ export default function ServiceLocationScreen() {
                       {item.label}
                     </Text>
                     {location === item.label && (
-                      <Ionicons name="checkmark" size={20} color="#E53935" />
+                      <Ionicons name="checkmark" size={20} color="#D74826" />
                     )}
                   </TouchableOpacity>
                 )}
@@ -347,7 +347,7 @@ export default function ServiceLocationScreen() {
                   {distanceUnit === 'mi' ? option.labelMi : option.labelKm}
                 </Text>
                 {searchDistanceKm === option.valueKm && (
-                  <Ionicons name="checkmark" size={20} color="#E53935" />
+                  <Ionicons name="checkmark" size={20} color="#D74826" />
                 )}
               </TouchableOpacity>
             ))}
@@ -381,7 +381,7 @@ export default function ServiceLocationScreen() {
               <Text style={[styles.listItemText, !jobDuration && styles.listItemTextSelected]}>
                 Skip (I'm not sure)
               </Text>
-              {!jobDuration && <Ionicons name="checkmark" size={20} color="#E53935" />}
+              {!jobDuration && <Ionicons name="checkmark" size={20} color="#D74826" />}
             </TouchableOpacity>
             
             {JOB_DURATION_OPTIONS.filter(opt => opt.value !== 'not_sure').map((option) => (
@@ -403,7 +403,7 @@ export default function ServiceLocationScreen() {
                   {option.label}
                 </Text>
                 {jobDuration === option.value && (
-                  <Ionicons name="checkmark" size={20} color="#E53935" />
+                  <Ionicons name="checkmark" size={20} color="#D74826" />
                 )}
               </TouchableOpacity>
             ))}
@@ -502,7 +502,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   unitButtonActive: {
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
   },
   unitButtonText: {
     fontSize: 13,
@@ -513,7 +513,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   required: {
-    color: '#E53935',
+    color: '#D74826',
   },
   hint: {
     fontSize: 13,
@@ -548,7 +548,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     paddingVertical: 16,
     borderRadius: 12,
     gap: 8,
@@ -628,7 +628,7 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
   },
   listItemTextSelected: {
-    color: '#E53935',
+    color: '#D74826',
     fontWeight: '600',
   },
 });

@@ -8,11 +8,11 @@ import { StyleSheet } from 'react-native';
 
 // Tab bar colors - shared across all roles
 export const TAB_COLORS = {
-  active: '#E53935',
-  inactive: '#999',
-  background: '#FFFFFF',
-  border: '#E0E0E0',
-  badge: '#E53935',
+  active: '#D74826',
+  inactive: 'rgba(26,26,26,0.5)',
+  background: '#F5F7FA',
+  border: '#F5F7FA',
+  badge: '#D74826',
 };
 
 // Calculate tab bar height based on safe area inset
@@ -24,16 +24,16 @@ export const getTabBarScreenOptions = (bottomInset: number) => ({
   tabBarInactiveTintColor: TAB_COLORS.inactive,
   tabBarStyle: {
     backgroundColor: TAB_COLORS.background,
-    borderTopWidth: 1,
+    borderTopWidth: 0,
     borderTopColor: TAB_COLORS.border,
     height: getTabBarHeight(bottomInset),
     paddingBottom: bottomInset,
     paddingTop: 4,
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 3,
+    elevation: 0,
+    shadowColor: 'transparent',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
     // Ensure flat edge-to-edge appearance
     borderRadius: 0,
     borderTopLeftRadius: 0,
@@ -61,6 +61,7 @@ export const getTabBarScreenOptions = (bottomInset: number) => ({
 // Shared badge style for unread counts
 export const TAB_BADGE_STYLE = {
   backgroundColor: TAB_COLORS.badge,
+  color: '#FFFFFF',
   fontSize: 10,
   minWidth: 18,
   height: 18,

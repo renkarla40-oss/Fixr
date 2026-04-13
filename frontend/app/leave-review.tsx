@@ -163,7 +163,7 @@ export default function LeaveReviewScreen() {
     return (
       <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + 120 }]}>
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#E53935" />
+          <ActivityIndicator size="large" color="#D74826" />
           <Text style={styles.loadingText}>Loading...</Text>
         </View>
       </View>
@@ -237,7 +237,7 @@ export default function LeaveReviewScreen() {
           {/* Provider Info Card */}
           <View style={styles.providerCard}>
             <View style={styles.providerIconContainer}>
-              <Ionicons name="person-circle" size={64} color="#E53935" />
+              <Ionicons name="person-circle" size={64} color="#D74826" />
             </View>
             <Text style={styles.providerName}>{request?.providerName || 'Service Provider'}</Text>
             <Text style={styles.serviceType}>{getServiceLabel(request?.service || '')}</Text>
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
   ratingLabel: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#E53935',
+    color: '#D74826',
     marginTop: 8,
   },
   commentSection: {
@@ -451,7 +451,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     paddingVertical: 16,
     borderRadius: 12,
     gap: 8,
@@ -517,7 +517,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   backToJobButton: {
-    backgroundColor: '#E53935',
+    backgroundColor: '#D74826',
     paddingHorizontal: 32,
     paddingVertical: 14,
     borderRadius: 12,
