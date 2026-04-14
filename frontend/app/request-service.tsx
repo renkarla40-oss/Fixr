@@ -210,7 +210,7 @@ export default function RequestServiceScreen() {
             onPress={() => router.back()}
             style={styles.backButton}
           >
-            <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
           <Text style={styles.title}>Request Service</Text>
           <View style={styles.backButton} />
@@ -219,7 +219,7 @@ export default function RequestServiceScreen() {
         <ScrollView
           ref={scrollViewRef}
           style={styles.content}
-          contentContainerStyle={[styles.contentContainer, { paddingBottom: Math.max(insets.bottom + 32, 48) }]}
+          contentContainerStyle={[styles.contentContainer, { paddingBottom: Math.max(insets.bottom + 16, 24) }]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="interactive"
@@ -257,7 +257,7 @@ export default function RequestServiceScreen() {
 
             {isGeneralRequest && (
               <View style={styles.betaNotice}>
-                <Ionicons name="information-circle" size={20} color="#4A7DC4" />
+                <Ionicons name="information-circle" size={20} color="#FFFFFF" />
                 <Text style={styles.betaNoticeText}>
                   Use this option if your service doesn't fit the listed categories. Availability may be limited during beta.
                 </Text>
@@ -349,14 +349,14 @@ export default function RequestServiceScreen() {
                 onChange={onTimeChange}
               />
             )}
-
-            <Text style={styles.note}>
-              Note: The provider will review your request and respond accordingly.
-            </Text>
           </View>
+        </ScrollView>
 
-          {/* Submit button inside ScrollView for proper keyboard avoidance */}
-          <View style={[styles.submitButtonContainer, { marginBottom: Math.max(insets.bottom + 16, 24) }]}>
+        <View style={[styles.submitFooter, { paddingBottom: Math.max(insets.bottom + 12, 16) }]}>
+          <Text style={styles.submitNote}>
+            Note: The provider will review your request and respond accordingly.
+          </Text>
+          <View style={styles.submitButtonContainer}>
             <TouchableOpacity
               style={[styles.submitButton, loading && styles.submitButtonDisabled]}
               onPress={handleSubmit}
@@ -370,7 +370,7 @@ export default function RequestServiceScreen() {
               )}
             </TouchableOpacity>
           </View>
-        </ScrollView>
+        </View>
       </KeyboardAvoidingView>
 
       {/* Provider Unavailable Modal - Phase 3A */}
@@ -422,8 +422,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    backgroundColor: '#005A92',
   },
   backButton: {
     width: 44,
@@ -434,7 +433,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
   },
   content: {
     flex: 1,
@@ -533,23 +532,37 @@ const styles = StyleSheet.create({
   betaNotice: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: '#EAF3FF',
+    backgroundColor: '#005A92',
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#BBD7FF',
+    borderColor: '#005A92',
     gap: 12,
   },
   betaNoticeText: {
     flex: 1,
     fontSize: 14,
-    color: '#4A7DC4',
+    color: '#FFFFFF',
     lineHeight: 20,
+  },
+  submitFooter: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+  },
+  submitNote: {
+    fontSize: 13,
+    color: '#666',
+    fontStyle: 'italic',
+    marginBottom: 10,
+    lineHeight: 18,
   },
   submitButtonContainer: {
     paddingHorizontal: 0,
-    paddingTop: 16,
-    marginTop: 8,
+    paddingTop: 0,
+    marginTop: 0,
   },
   submitButton: {
     backgroundColor: '#D74826',

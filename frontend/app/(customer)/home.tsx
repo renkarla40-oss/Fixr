@@ -289,7 +289,7 @@ export default function CustomerHomeScreen() {
           <View
             style={[
               styles.heroSection,
-              { paddingTop: Math.max(insets.top, 10) + 20 },
+              { paddingTop: Math.max(insets.top, 10) + 2 },
             ]}
           >
             <View style={styles.heroHeader}>
@@ -672,14 +672,14 @@ const styles = StyleSheet.create({
   heroSection: {
     backgroundColor: '#005A92',
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 10,
     paddingBottom: 16,
   },
   heroHeader: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 2,
   },
   heroHeaderSpacer: {
     flex: 1,
@@ -948,7 +948,7 @@ const styles = StyleSheet.create({
   browseProvidersCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F2F2F2',
     marginHorizontal: 20,
     marginTop: 8,
     marginBottom: 16,
@@ -957,7 +957,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
-    shadowRadius: 8,
+    shadowRadius: 12,
     elevation: 3,
   },
   browseProvidersIcon: {
@@ -1086,14 +1086,14 @@ const styles = StyleSheet.create({
   },
   pricingCard: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F2F2F2',
     borderRadius: 16,
     padding: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
   },
   pricingIconContainer: {
     width: 40,

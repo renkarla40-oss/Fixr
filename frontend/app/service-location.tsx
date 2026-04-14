@@ -143,7 +143,7 @@ export default function ServiceLocationScreen() {
             onPress={() => router.back()}
             style={styles.backButton}
           >
-            <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
           <Text style={styles.title}>Service Location</Text>
           <View style={styles.backButton} />
@@ -176,11 +176,11 @@ export default function ServiceLocationScreen() {
               style={styles.pickerButton}
               onPress={() => setShowTownPicker(true)}
             >
-              <Ionicons name="location-outline" size={20} color="#666" />
+              <Ionicons name="location-outline" size={20} color="#D74826" />
               <Text style={[styles.pickerButtonText, !location && styles.pickerPlaceholder]}>
                 {location || 'Select town/area'}
               </Text>
-              <Ionicons name="chevron-down" size={20} color="#666" />
+              <Ionicons name="chevron-down" size={20} color="#D74826" />
             </TouchableOpacity>
           </View>
 
@@ -208,11 +208,11 @@ export default function ServiceLocationScreen() {
               style={styles.pickerButton}
               onPress={() => setShowDistancePicker(true)}
             >
-              <Ionicons name="navigate-outline" size={20} color="#666" />
+              <Ionicons name="navigate-outline" size={20} color="#D74826" />
               <Text style={styles.pickerButtonText}>
                 {getCurrentDistanceLabel()}
               </Text>
-              <Ionicons name="chevron-down" size={20} color="#666" />
+              <Ionicons name="chevron-down" size={20} color="#D74826" />
             </TouchableOpacity>
           </View>
 
@@ -224,16 +224,16 @@ export default function ServiceLocationScreen() {
               style={styles.pickerButton}
               onPress={() => setShowDurationPicker(true)}
             >
-              <Ionicons name="time-outline" size={20} color="#666" />
+              <Ionicons name="time-outline" size={20} color="#D74826" />
               <Text style={[styles.pickerButtonText, !jobDuration && styles.pickerPlaceholder]}>
                 {getSelectedDurationLabel() || 'Select duration (optional)'}
               </Text>
-              <Ionicons name="chevron-down" size={20} color="#666" />
+              <Ionicons name="chevron-down" size={20} color="#D74826" />
             </TouchableOpacity>
           </View>
         </ScrollView>
 
-        <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom + 80, 24) }]}>
+        <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom + 12, 12) }]}>
           <TouchableOpacity
             style={[
               styles.continueButton,
@@ -261,12 +261,12 @@ export default function ServiceLocationScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Select Town</Text>
               <TouchableOpacity onPress={() => setShowTownPicker(false)}>
-                <Ionicons name="close" size={24} color="#666" />
+                <Ionicons name="close" size={24} color="#D74826" />
               </TouchableOpacity>
             </View>
             
             <View style={styles.searchContainer}>
-              <Ionicons name="search" size={20} color="#999" />
+              <Ionicons name="search" size={20} color="#D74826" />
               <TextInput
                 style={styles.searchInput}
                 placeholder="Search towns..."
@@ -324,7 +324,7 @@ export default function ServiceLocationScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Search Distance</Text>
               <TouchableOpacity onPress={() => setShowDistancePicker(false)}>
-                <Ionicons name="close" size={24} color="#666" />
+                <Ionicons name="close" size={24} color="#D74826" />
               </TouchableOpacity>
             </View>
             
@@ -367,7 +367,7 @@ export default function ServiceLocationScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Job Duration</Text>
               <TouchableOpacity onPress={() => setShowDurationPicker(false)}>
-                <Ionicons name="close" size={24} color="#666" />
+                <Ionicons name="close" size={24} color="#D74826" />
               </TouchableOpacity>
             </View>
             
@@ -417,7 +417,7 @@ export default function ServiceLocationScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#005A92',
   },
   container: {
     flex: 1,
@@ -429,8 +429,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    backgroundColor: '#005A92',
   },
   backButton: {
     width: 44,
@@ -441,7 +440,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
   },
   content: {
     flex: 1,

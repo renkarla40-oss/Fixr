@@ -69,18 +69,13 @@ export default function AllServicesDirectoryScreen() {
     });
   };
 
-  // Pair services into rows of 2
-  const rows: ServiceEntry[][] = [];
-  for (let i = 0; i < SERVICES.length; i += 2) {
-    rows.push([SERVICES[i], SERVICES[i + 1]] as ServiceEntry[]);
-  }
-
+ 
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* Header — padded below notch/camera */}
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 12) + 8 }]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>All Services</Text>
@@ -108,27 +103,32 @@ export default function AllServicesDirectoryScreen() {
 
         <Text style={styles.sectionLabel}>Browse by Service</Text>
 
-        {/* 2-column grid — each card matches Home featured card style */}
-        {rows.map((pair, rowIdx) => (
-          <View key={rowIdx} style={styles.row}>
-            {pair.map((service) => {
-              const meta = SERVICE_META[service.serviceKey] || { emoji: '🔧', bg: '#F5F5F5' };
-              return (
-                <TouchableOpacity
-                  key={service.serviceKey}
-                  style={[styles.serviceCard, { backgroundColor: meta.bg }]}
-                  onPress={() => handleServicePress(service)}
-                  activeOpacity={0.82}
-                >
-                  <Text style={styles.serviceEmoji}>{meta.emoji}</Text>
-                  <Text style={styles.serviceLabel} numberOfLines={1}>{service.label}</Text>
-                  <Text style={styles.serviceSubtitle} numberOfLines={2}>{service.description}</Text>
-                </TouchableOpacity>
-              );
-            })}
-            {pair.length === 1 && <View style={[styles.serviceCard, styles.ghostCard]} />}
-          </View>
-        ))}
+        {SERVICES.map((service) => {
+          const meta = SERVICE_META[service.serviceKey] || { emoji: '🔧', bg: '#F5F5F5' };
+          return (
+            <TouchableOpacity
+              key={service.serviceKey}
+              style={styles.serviceListCard}
+              onPress={() => handleServicePress(service)}
+              activeOpacity={0.82}
+            >
+              <View style={styles.serviceListIconWrap}>
+                <Text style={styles.serviceListEmoji}>{meta.emoji}</Text>
+              </View>
+
+              <View style={styles.serviceListTextWrap}>
+                <Text style={styles.serviceListTitle} numberOfLines={1}>
+                  {service.label}
+                </Text>
+                <Text style={styles.serviceListSubtitle} numberOfLines={2}>
+                  {service.description}
+                </Text>
+              </View>
+
+              <Ionicons name="chevron-forward" size={20} color="#666" />
+            </TouchableOpacity>
+          );
+        })}
       </ScrollView>
     </SafeAreaView>
   );
@@ -144,14 +144,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: H_PAD,
     paddingBottom: 14,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    backgroundColor: '#005A92',
   },
   backBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   headerCenter: { flex: 1, alignItems: 'center' },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#1A1A1A' },
-  headerSub: { fontSize: 12, color: '#888', marginTop: 2 },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: '#FFFFFF' },
+  headerSub: { fontSize: 12, color: 'rgba(255,255,255,0.75)', marginTop: 2 },
   scroll: { flex: 1 },
   scrollContent: {
     paddingHorizontal: H_PAD,
@@ -162,7 +160,7 @@ const styles = StyleSheet.create({
   describeCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8F8F9',
+    backgroundColor: '#F2F2F2',
     borderRadius: 16,
     paddingVertical: 16,
     paddingHorizontal: 16,
@@ -196,44 +194,45 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
     marginBottom: 2,
   },
-  // Grid
-  row: { flexDirection: 'row', gap: CARD_GAP },
-  // Service card — square, emoji centered on top, label + subtitle below
-  // Matches Home featuredCard: same border radius, shadow, emoji-first layout
-  serviceCard: {
-    width: CARD_WIDTH,
-    borderRadius: 18,
-    paddingVertical: 18,
-    paddingHorizontal: 12,
+  serviceListCard: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.07,
+    shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 2,
-    minHeight: 130,
+    marginBottom: 12,
   },
-  ghostCard: {
-    backgroundColor: 'transparent',
-    shadowOpacity: 0,
-    elevation: 0,
+  serviceListIconWrap: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: '#D74826',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 14,
   },
-  serviceEmoji: {
-    fontSize: 32,
-    marginBottom: 8,
+  serviceListEmoji: {
+    fontSize: 22,
   },
-  serviceLabel: {
-    fontSize: 13,
+  serviceListTextWrap: {
+    flex: 1,
+    marginRight: 10,
+  },
+  serviceListTitle: {
+    fontSize: 15,
     fontWeight: '700',
     color: '#1A1A1A',
-    textAlign: 'center',
-    marginBottom: 4,
+    marginBottom: 3,
   },
-  serviceSubtitle: {
-    fontSize: 10,
-    color: '#555',
-    textAlign: 'center',
-    lineHeight: 14,
+  serviceListSubtitle: {
+    fontSize: 12,
+    color: '#666',
+    lineHeight: 17,
   },
 });
