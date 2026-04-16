@@ -85,6 +85,14 @@ const STATUS_PRIORITY: { [key: string]: number } = {
   'declined': 5,
 };
 
+const isExpiredPendingJob = (job: ServiceRequest) => {
+  const status = String(job.status || '').toLowerCase();
+  if (status !== 'pending') return false;
+  const createdMs = new Date(job.createdAt).getTime();
+  if (!Number.isFinite(createdMs)) return false;
+  return Date.now() - createdMs > 24 * 60 * 60 * 1000;
+};
+
 export default function ProviderMyJobsScreen() {
   const { token, user, shouldShowBetaNotice, markBetaNoticeSeen } = useAuth();
   const router = useRouter();
@@ -233,10 +241,15 @@ export default function ProviderMyJobsScreen() {
       }
       
       const allJobs = response.data || [];
+
+      // FILTER: only hide expired pending jobs
+      const filteredJobs = allJobs.filter((job: ServiceRequest) => {
+        return !isExpiredPendingJob(job);
+      });
       
       // SIMPLIFIED: Use last_message_at and provider_last_read_at from job data
       // NO MORE N+1 message fetches - just use the timestamps already in the data
-      const jobsWithUnread = allJobs.map((job: ServiceRequest) => {
+      const jobsWithUnread = filteredJobs.map((job: ServiceRequest) => {
         let hasUnread = false;
         if (job.last_message_at) {
           const lastMsgTime = new Date(job.last_message_at).getTime();
@@ -299,9 +312,14 @@ export default function ProviderMyJobsScreen() {
       }
       
       const allJobs = response.data || [];
+
+      // FILTER: only hide expired pending jobs
+      const filteredJobs = allJobs.filter((job: ServiceRequest) => {
+        return !isExpiredPendingJob(job);
+      });
       
       // Use timestamps from data - no extra fetches
-      const jobsWithUnread = allJobs.map((job: ServiceRequest) => {
+      const jobsWithUnread = filteredJobs.map((job: ServiceRequest) => {
         let hasUnread = false;
         if (job.last_message_at) {
           const lastMsgTime = new Date(job.last_message_at).getTime();

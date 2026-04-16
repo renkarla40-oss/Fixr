@@ -128,6 +128,10 @@ export default function RequestDetailScreen() {
   const { token, user } = useAuth();
   const insets = useSafeAreaInsets();
   const requestId = params.requestId as string;
+
+  const handleSafeBack = () => {
+    router.replace('/(customer)/my-requests');
+  };
   
   // INSTANT NAVIGATION: Get cached data for this specific request
   const cacheKey = CACHE_KEYS.CUSTOMER_REQUEST_DETAIL(requestId || '');
@@ -1176,7 +1180,7 @@ export default function RequestDetailScreen() {
     return (
       <View style={[styles.safeArea, { paddingTop: insets.top }]}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <TouchableOpacity onPress={handleSafeBack} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
           </TouchableOpacity>
           <Text style={styles.title}>Request Details</Text>
@@ -1195,7 +1199,7 @@ export default function RequestDetailScreen() {
     return (
       <View style={[styles.safeArea, { paddingTop: insets.top }]}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <TouchableOpacity onPress={handleSafeBack} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
           </TouchableOpacity>
           <Text style={styles.title}>Request Details</Text>
@@ -1218,7 +1222,7 @@ export default function RequestDetailScreen() {
     <View style={[styles.safeArea, { paddingTop: insets.top }]}>
       {/* Header with compact status badge */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity onPress={handleSafeBack} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
@@ -1396,7 +1400,6 @@ export default function RequestDetailScreen() {
               <View style={styles.summaryContent}>
                 <Text style={styles.summaryLabel}>Service</Text>
                 <Text style={styles.summaryValue}>{getServiceLabel(request.service)}</Text>
-                {request.subCategory && <Text style={styles.subCategoryText}>{request.subCategory}</Text>}
               </View>
             </View>
             {(request.jobTown || request.location) && (

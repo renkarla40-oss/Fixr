@@ -969,7 +969,7 @@ export default function ProviderRequestDetailScreen() {
           `Request ${action === 'accept' ? 'accepted' : 'declined'} successfully!`
         );
       } else if (response.error) {
-        Alert.alert('Error', formatApiError(response.error));
+        Alert.alert('Error', JSON.stringify(response.error, null, 2));
       }
     } catch (err: any) {
       // Fallback for unexpected errors

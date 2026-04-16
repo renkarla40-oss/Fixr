@@ -97,7 +97,7 @@ export default function SplashScreen() {
         ]}
       >
         <Image
-          source={require('../assets/images/fixr-logo.png')}
+          source={require('../assets/images/fixr-color-logo.png')}
           style={styles.logo}
           resizeMode="contain"
         />
@@ -109,7 +109,7 @@ export default function SplashScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#005A92',
     alignItems: 'center',
     justifyContent: 'center',
   },

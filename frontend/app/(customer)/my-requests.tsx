@@ -8,6 +8,8 @@ import {
   ActivityIndicator,
   RefreshControl,
   Alert,
+  BackHandler,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
@@ -104,6 +106,19 @@ export default function MyRequestsScreen() {
         cancelRequest(CACHE_KEYS.CUSTOMER_REQUESTS);
       };
     }, [token])
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        router.replace('/(customer)/home');
+        return true;
+      };
+
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => subscription.remove();
+    }, [router])
   );
 
   // Main fetch with loading state using universal apiClient
@@ -221,6 +236,52 @@ export default function MyRequestsScreen() {
     }, 1000);
   };
 
+
+  // ---------- NEW: Tab + Filters ----------
+  const [activeTab, setActiveTab] = useState<'active' | 'pending' | 'completed' | 'cancelled'>('active');
+
+  const isExpiredPending = (r: ServiceRequest) => {
+    const status = String(getEffectiveStatus(r)).toLowerCase();
+    if (!(status.includes('pending') || status.includes('awaiting'))) return false;
+    const createdMs = new Date(r.createdAt).getTime();
+    if (!Number.isFinite(createdMs)) return false;
+    return Date.now() - createdMs > 24 * 60 * 60 * 1000;
+  };
+
+  const pendingRequests = requests.filter(r => {
+    const status = String(getEffectiveStatus(r)).toLowerCase();
+    return (status.includes('pending') || status.includes('awaiting')) && !isExpiredPending(r);
+  });
+
+  const activeRequests = requests.filter(r => {
+    const status = String(getEffectiveStatus(r)).toLowerCase();
+    return (
+      status.includes('accepted') ||
+      status.includes('progress') ||
+      status.includes('ready') ||
+      status.includes('payment')
+    );
+  });
+
+  const completedRequests = requests.filter(r => {
+    const status = String(getEffectiveStatus(r)).toLowerCase();
+    return status.includes('complete');
+  });
+
+  const cancelledRequests = requests.filter(r => {
+    const status = String(getEffectiveStatus(r)).toLowerCase();
+    return status.includes('cancel') || isExpiredPending(r);
+  });
+
+  const displayedRequests =
+    activeTab === 'active'
+      ? activeRequests
+      : activeTab === 'pending'
+      ? pendingRequests
+      : activeTab === 'completed'
+      ? completedRequests
+      : cancelledRequests;
+
   const categoryNames: { [key: string]: string } = {
     electrical: 'Electrical',
     plumbing: 'Plumbing',
@@ -256,7 +317,7 @@ export default function MyRequestsScreen() {
             <Text style={styles.title}>My Requests</Text>
           </View>
           <View style={styles.centerContent}>
-            <ActivityIndicator size="large" color="#D74826" />
+            <ActivityIndicator size="large" color="#FFFFFF" />
             <Text style={styles.loadingText}>{COPY.LOADING}</Text>
           </View>
         </View>
@@ -273,7 +334,7 @@ export default function MyRequestsScreen() {
             <Text style={styles.title}>My Requests</Text>
           </View>
           <View style={styles.centerContent}>
-            <Ionicons name="cloud-offline-outline" size={48} color="#999" />
+            <Ionicons name="cloud-offline-outline" size={48} color="#E6EEF7" />
             <Text style={styles.errorText}>{error}</Text>
             <TouchableOpacity style={styles.retryButton} onPress={fetchRequests}>
               <Ionicons name="refresh" size={18} color="#FFFFFF" />
@@ -314,6 +375,52 @@ export default function MyRequestsScreen() {
         <View style={styles.header}>
           <Text style={styles.title}>My Requests</Text>
         </View>
+        <View style={styles.tabsGrid}>
+          <View style={styles.tabsRow}>
+            <TouchableOpacity
+              style={[styles.tabButton, activeTab === 'active' && styles.tabButtonActive]}
+              onPress={() => setActiveTab('active')}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.tabText, activeTab === 'active' && styles.tabTextActive]}>
+                Active {activeRequests.length}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.tabButton, activeTab === 'pending' && styles.tabButtonActive]}
+              onPress={() => setActiveTab('pending')}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.tabText, activeTab === 'pending' && styles.tabTextActive]}>
+                Pending {pendingRequests.length}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.tabsRow}>
+            <TouchableOpacity
+              style={[styles.tabButton, activeTab === 'completed' && styles.tabButtonActive]}
+              onPress={() => setActiveTab('completed')}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.tabText, activeTab === 'completed' && styles.tabTextActive]}>
+                Completed {completedRequests.length}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.tabButton, activeTab === 'cancelled' && styles.tabButtonActive]}
+              onPress={() => setActiveTab('cancelled')}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.tabText, activeTab === 'cancelled' && styles.tabTextActive]}>
+                Cancelled {cancelledRequests.length}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         <ScrollView
           style={styles.content}
           contentContainerStyle={styles.contentContainer}
@@ -326,7 +433,7 @@ export default function MyRequestsScreen() {
             />
           }
         >
-          {requests.map((request) => {
+          {displayedRequests.map((request) => {
             const effectiveStatus = getEffectiveStatus(request);
             const statusColors = getStatusColor(effectiveStatus);
             return (
@@ -338,54 +445,94 @@ export default function MyRequestsScreen() {
               >
                 <View style={styles.requestHeader}>
                   <View style={styles.categoryContainer}>
-                    <Ionicons name="construct" size={16} color="#666" />
-                    <Text style={styles.categoryText}>
-                      {categoryNames[request.service] || request.service}
+                                        <Text style={styles.categoryText}>
+                      {(categoryNames[request.service] || request.service || "").toUpperCase()}
                     </Text>
                   </View>
                   <View
                     style={[
                       styles.statusBadge,
-                      { backgroundColor: statusColors.bg },
+                      { backgroundColor: '#FFFFFF' },
                     ]}
                   >
                     <Text
-                      style={[styles.statusText, { color: statusColors.text }]}
+                      style={[styles.statusText, { color: '#1A1A1A' }]}
                     >
                       {getStatusLabel(effectiveStatus)}
                     </Text>
                   </View>
                 </View>
-
-                {/* Show sub-category if present */}
-                {request.subCategory && (
-                  <Text style={styles.subCategoryText}>{request.subCategory}</Text>
-                )}
-
-                <Text style={styles.providerName}>{request.providerName || 'Open Request'}</Text>
-
-                <Text style={styles.description} numberOfLines={2}>
-                  {request.description}
-                </Text>
-
-                {/* Show location if present */}
-                {request.location && (
-                  <View style={styles.locationRow}>
-                    <Ionicons name="location-outline" size={14} color="#D74826" />
-                    <Text style={styles.locationText}>{request.location}</Text>
-                  </View>
-                )}
-
-                <View style={styles.requestFooter}>
-                  <View style={styles.dateContainer}>
-                    <Ionicons name="calendar-outline" size={14} color="#999" />
-                    <Text style={styles.dateText}>
-                      {formatDate(request.createdAt)}
-                    </Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={20} color="#999" />
+                <View style={styles.providerRow}>
+                  {request.providerPhoto ? (
+                    <Image
+                      source={{
+                        uri: request.providerPhoto.startsWith('/')
+                          ? `${BACKEND_URL}${request.providerPhoto}`
+                          : request.providerPhoto,
+                      }}
+                      style={styles.providerAvatar}
+                    />
+                  ) : (
+                    <View style={styles.providerAvatarFallback}>
+                      <Text style={styles.providerAvatarInitials}>
+                        {String(request.providerName || 'Provider')
+                          .trim()
+                          .split(/\s+/)
+                          .slice(0, 2)
+                          .map(part => part.charAt(0).toUpperCase())
+                          .join('')}
+                      </Text>
+                    </View>
+                  )}
+                  <Text style={styles.providerName}>{request.providerName || 'Open Request'}</Text>
                 </View>
-              </TouchableOpacity>
+
+                {(() => {
+                  const serviceLabel = String(categoryNames[request.service] || request.service || '').trim();
+                  const subCategoryValue = String(request.subCategory || '').trim();
+                  const descriptionValue = String(request.description || '').trim();
+
+                  const serviceNormalized = serviceLabel.toLowerCase();
+                  const subCategoryNormalized = subCategoryValue.toLowerCase();
+                  const descriptionNormalized = descriptionValue.toLowerCase();
+
+                  const primaryText =
+                    subCategoryValue && subCategoryNormalized !== serviceNormalized
+                      ? subCategoryValue
+                      : descriptionValue && descriptionNormalized !== serviceNormalized
+                      ? descriptionValue
+                      : '';
+
+                  return (
+                    <>
+                      {primaryText ? (
+                        <Text style={styles.jobTitle}>{primaryText}</Text>
+                      ) : null}
+                    </>
+                  );
+                })()}
+
+                <View style={styles.metaRow}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={styles.metaItem}>
+                      <Ionicons name="calendar" size={16} color="#D74826" />
+                      <Text style={styles.metaText}>{formatDate(request.createdAt)}</Text>
+                    </View>
+
+                    {request.location ? <Text style={styles.metaDivider}>•</Text> : null}
+
+                    {request.location ? (
+                      <View style={styles.metaItem}>
+                        <Ionicons name="location" size={16} color="#D74826" />
+                        <Text style={styles.metaText}>{request.location}</Text>
+                      </View>
+                    ) : null}
+                  </View>
+
+                  <Ionicons name="arrow-forward" size={20} color="#E6EEF7" />
+                </View>
+
+                               </TouchableOpacity>
             );
           })}
         </ScrollView>
@@ -395,6 +542,59 @@ export default function MyRequestsScreen() {
 }
 
 const styles = StyleSheet.create({
+  tabsGrid: {
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    gap: 8,
+  },
+  tabsRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  tabButton: {
+    flex: 1,
+    margin: 6,
+    flex: 1,
+    backgroundColor: '#0B1F33',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 52,
+  },
+  tabButtonActive: {
+    backgroundColor: '#0B1F33',
+  },
+  tabText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    textAlign: 'center',
+  },
+  tabTextActive: {
+    color: '#FFFFFF',
+  },
+  tabButton: {
+    flex: 1,
+    margin: 6,
+    flex: 1,
+    backgroundColor: '#0B1F33',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  tabButtonActive: {
+    backgroundColor: '#0B1F33',
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  tabTextActive: {
+    color: '#FFFFFF',
+  },
+
   safeArea: {
     flex: 1,
     backgroundColor: '#F8F9FA',
@@ -474,7 +674,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   requestCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#5A82AD',
     borderRadius: 16,
     padding: 16,
     shadowColor: '#000',
@@ -493,13 +693,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    marginBottom: 10,
   },
   categoryText: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
   },
   statusBadge: {
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.08)',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
@@ -510,19 +714,78 @@ const styles = StyleSheet.create({
   },
   subCategoryText: {
     fontSize: 13,
-    color: '#D74826',
+    color: '#E6EEF7',
     fontWeight: '500',
     marginBottom: 8,
   },
+  providerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  providerAvatar: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    marginRight: 12,
+    backgroundColor: '#D9E5F1',
+  },
+  providerAvatarFallback: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    marginRight: 12,
+    backgroundColor: '#0B1F33',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  providerAvatarInitials: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
+  },
   providerName: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
+    fontWeight: '500',
+    color: '#FFFFFF',
     marginBottom: 8,
+  },
+  jobTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#0B1F33',
+    marginTop: 6,
+    marginBottom: 10,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  metaLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  metaSpacer: {
+    flex: 1,
+  },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 6,
+  },
+  metaText: {
+    fontSize: 14,
+    color: '#E6EEF7',
+    marginLeft: 4,
+  },
+  metaDivider: {
+    fontSize: 12,
+    color: '#E6EEF7',
+    marginHorizontal: 6,
   },
   description: {
     fontSize: 14,
-    color: '#666',
+    color: '#E6EEF7',
     lineHeight: 20,
     marginBottom: 16,
   },
@@ -534,7 +797,7 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 13,
-    color: '#D74826',
+    color: '#E6EEF7',
     fontWeight: '500',
   },
   requestFooter: {
@@ -549,6 +812,6 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 12,
-    color: '#999',
+    color: '#E6EEF7',
   },
 });

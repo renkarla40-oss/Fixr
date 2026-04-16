@@ -17,6 +17,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function LoginScreen() {
+  const handleSafeBack = () => {
+    try {
+      if (router.canGoBack && router.canGoBack()) {
+        router.back();
+      } else {
+        router.replace('/');
+      }
+    } catch {
+      router.replace('/');
+    }
+  };
   const router = useRouter();
   const { login, user, loading: authLoading, token } = useAuth();
   const [email, setEmail] = useState('');
@@ -132,7 +143,7 @@ export default function LoginScreen() {
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <TouchableOpacity onPress={handleSafeBack} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
           </TouchableOpacity>
           <Text style={styles.title}>Welcome Back</Text>

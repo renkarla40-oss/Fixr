@@ -300,6 +300,7 @@ class ServiceRequestResponse(BaseModel):
     customerName: str
     customerPhone: Optional[str] = None  # Made optional for legacy records
     providerName: Optional[str] = None  # Can be None for general requests
+    providerPhoto: Optional[str] = None  # Provider profile photo for list cards
     isGeneralRequest: bool = False  # Flag for "Other Services" requests
     subCategory: Optional[str] = None  # For handyman sub-categories
     location: Optional[str] = None  # Customer's service location (legacy)
@@ -1744,6 +1745,8 @@ async def get_service_request_detail(
     request["paymentStatus"] = request.get("paymentStatus", "unpaid")
     request["paidAt"] = request.get("paidAt")
     
+    request["providerPhoto"] = request.get("providerPhoto")
+
     return request
 
 @api_router.patch("/service-requests/{request_id}/accept")
@@ -1813,6 +1816,15 @@ async def accept_service_request(
         "acceptedAt": datetime.utcnow(),
         "providerId": str(provider["_id"]),  # Assign provider (important for general requests)
         "providerName": provider.get("name", "Provider"),
+        "providerPhoto": (
+            provider.get("photoUrl")
+            or provider.get("profilePhoto")
+            or provider.get("profilePhotoUrl")
+            or provider.get("imageUrl")
+            or provider.get("avatar")
+            or provider.get("profileImage")
+            or provider.get("photo")
+        ),
     }
     
     await db.service_requests.update_one(
@@ -4707,6 +4719,12 @@ async def get_service_requests(current_user: User = Depends(get_current_user)):
         }
     
     requests = await db.service_requests.find(query).sort("createdAt", -1).to_list(100)
+
+    # Ensure providerPhoto is always included in list response
+    for request in requests:
+        request["_id"] = str(request["_id"])
+        request["providerPhoto"] = request.get("providerPhoto")
+
     result = []
     for req in requests:
         req["_id"] = str(req["_id"])
