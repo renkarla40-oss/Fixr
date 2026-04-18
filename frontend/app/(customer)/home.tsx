@@ -411,7 +411,7 @@ export default function CustomerHomeScreen() {
                               key={category.serviceKey}
                               style={[
                                 styles.serviceCard,
-                                feat ? { backgroundColor: feat.bg } : undefined,
+                                undefined,
                               ]}
                               onPress={() => handleCategoryPress(category)}
                               activeOpacity={0.7}
@@ -422,7 +422,7 @@ export default function CustomerHomeScreen() {
                                 <View style={styles.serviceIconContainer}>
                                   <Ionicons
                                     name={category.icon as any}
-                                    size={26}
+                                    size={28}
                                     color="#D74826"
                                   />
                                 </View>
@@ -466,7 +466,7 @@ Services</Text>
                           <View style={styles.serviceIconContainer}>
                             <Ionicons
                               name={category.icon as any}
-                              size={26}
+                              size={28}
                               color="#FFFFFF"
                             />
                           </View>
@@ -886,13 +886,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFBF5',
   },
   serviceIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#D74826',
+    width: 32,
+    height: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 6,
+    backgroundColor: 'transparent',
+    borderRadius: 0,
   },
   serviceEmoji: {
     fontSize: 24,

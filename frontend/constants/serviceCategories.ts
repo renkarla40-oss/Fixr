@@ -3,22 +3,20 @@ export const SERVICE_CATEGORIES = [
   key: "plumbing",
   label: "Plumbing",
   subcategories: [
+    { key: "emergency_plumbing", label: "Emergency plumbing" },
     { key: "fix_leak", label: "Fix leaking pipe" },
-    { key: "unclog_drain", label: "Unclog drain" },
-    { key: "install_sink", label: "Install sink" },
-    { key: "install_toilet", label: "Install toilet" },
-    { key: "fix_toilet", label: "Fix running toilet" },
-    { key: "install_shower", label: "Install shower / bathtub" },
-    { key: "low_pressure", label: "Fix low water pressure" },
-    { key: "install_heater", label: "Install water heater" },
-    { key: "fix_heater", label: "Fix water heater" },
-    { key: "install_tank", label: "Install water tank" },
     { key: "burst_pipe", label: "Fix burst pipe" },
-    { key: "replace_faucet", label: "Replace faucet" },
-    { key: "outdoor_pipe", label: "Install outdoor pipe / hose connection" },
+    { key: "unclog_drain", label: "Unclog drain" },
+    { key: "install_toilet", label: "Install toilet" },
+    { key: "repair_toilet", label: "Repair or replace toilet" },
+    { key: "install_sink", label: "Install sink or wash basin" },
+    { key: "repair_sink", label: "Repair sink or taps" },
+    { key: "install_tank", label: "Install water tank" },
+    { key: "tank_repair", label: "Water tank repair / connection" },
     { key: "install_pump", label: "Install water pump" },
     { key: "repair_pump", label: "Repair water pump" },
-    { key: "general_plumbing", label: "General plumbing repair" }
+    { key: "low_pressure", label: "Fix low water pressure" },
+    { key: "general_plumbing", label: "General plumbing repairs" }
   ]
 },
 {
@@ -81,7 +79,6 @@ export const SERVICE_CATEGORIES = [
     { key: "install_cabinets", label: "Install cabinets" },
     { key: "repair_cabinets", label: "Repair cabinets" },
     { key: "install_doors", label: "Install doors" },
-    { key: "fix_doors", label: "Fix door not closing properly" },
     { key: "build_shelves", label: "Build shelves" },
     { key: "install_shelves", label: "Install shelves" },
     { key: "build_closet", label: "Build closet" },
@@ -109,15 +106,16 @@ export const SERVICE_CATEGORIES = [
   key: "handyman",
   label: "Handyman",
   subcategories: [
-    { key: "mount_tv", label: "Mount TV" },
-    { key: "install_blinds", label: "Install curtain rods / blinds" },
-    { key: "assemble_furniture", label: "Assemble furniture" },
-    { key: "patch_wall", label: "Patch holes in wall" },
-    { key: "install_fixtures", label: "Install fixtures" },
-    { key: "hang_items", label: "Hang pictures / mirrors" },
-    { key: "fix_loose", label: "Fix loose items" },
-    { key: "minor_repairs", label: "Minor home repairs" },
-    { key: "general_handyman", label: "General handyman service" }
+    { key: "small_paint", label: "Small painting jobs" },
+    { key: "small_tiling", label: "Small tiling jobs" },
+    { key: "drain_work", label: "Build or repair drains" },
+    { key: "yard_cleanup", label: "Yard cleanup & clearing" },
+    { key: "tree_cutting", label: "Tree cutting / trimming" },
+    { key: "power_washing", label: "Power washing" },
+    { key: "cabinet_repair", label: "Repair cabinets or cupboards" },
+    { key: "concrete_base", label: "Build concrete base (water tank stand, etc.)" },
+    { key: "minor_concrete", label: "Minor concrete work" },
+    { key: "general_handyman", label: "General home repairs" }
   ]
 },
 {

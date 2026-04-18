@@ -91,24 +91,6 @@ export default function SubcategoryScreen() {
         <View style={styles.backButton} />
       </View>
 
-      {/* Search bar - only show if more than 10 subcategories */}
-      {subcategories.length > 10 && (
-        <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color="#999" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search services..."
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholderTextColor="#999"
-          />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={20} color="#999" />
-            </TouchableOpacity>
-          )}
-        </View>
-      )}
 
       <ScrollView
         style={styles.content}
@@ -137,9 +119,17 @@ export default function SubcategoryScreen() {
               ]}>
                 {subcategory.label}
               </Text>
-              {selectedSubcategory === subcategory.subcategoryKey && (
-                <Ionicons name="checkmark-circle" size={24} color="#D74826" />
-              )}
+
+              <View
+                style={[
+                  styles.optionIndicator,
+                  selectedSubcategory === subcategory.subcategoryKey && styles.optionIndicatorSelected,
+                ]}
+              >
+                {selectedSubcategory === subcategory.subcategoryKey ? (
+                  <Ionicons name="checkmark" size={14} color="#FFFFFF" />
+                ) : null}
+              </View>
             </TouchableOpacity>
           ))}
 
@@ -164,8 +154,15 @@ export default function SubcategoryScreen() {
           disabled={!selectedSubcategory}
           activeOpacity={0.7}
         >
-          <Text style={styles.continueButtonText}>Continue</Text>
-          <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
+          <Text
+            style={[
+              styles.continueButtonText,
+              !selectedSubcategory && styles.continueButtonTextDisabled,
+            ]}
+          >
+            Continue
+          </Text>
+          <Ionicons name="arrow-forward" size={20} color={selectedSubcategory ? "#FFFFFF" : "#0B1F33"} />
         </TouchableOpacity>
       </View>
     </View>
@@ -193,26 +190,41 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '800',
     color: '#FFFFFF',
     flex: 1,
     textAlign: 'center',
   },
-  searchContainer: {
+  searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     marginHorizontal: 16,
     marginVertical: 12,
-    paddingHorizontal: 12,
-    gap: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  searchAction: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    backgroundColor: '#FB4F14',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
+    flexShrink: 0,
   },
   searchInput: {
     flex: 1,
-    paddingVertical: 12,
     fontSize: 16,
     color: '#1A1A1A',
+    paddingVertical: 4,
   },
   content: {
     flex: 1,
@@ -222,13 +234,15 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   subtitle: {
+    fontWeight: '700',
     fontSize: 16,
-    color: '#666',
+    color: '#3F3F3F',
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: 'left',
+    paddingHorizontal: 4,
   },
   optionsContainer: {
-    gap: 10,
+    gap: 12,
   },
   optionCard: {
     flexDirection: 'row',
@@ -238,12 +252,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1.5,
-    borderColor: '#E0E0E0',
+    borderColor: '#B8B8B8',
     minHeight: 56,
   },
   optionCardSelected: {
-    borderColor: '#D74826',
-    backgroundColor: '#FFF5F5',
+    borderColor: '#005A92',
+    backgroundColor: '#EAF3FF',
   },
   optionText: {
     flex: 1,
@@ -252,8 +266,23 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   optionTextSelected: {
-    color: '#D74826',
-    fontWeight: '600',
+    color: '#0B1F33',
+    fontWeight: '700',
+  },
+  optionIndicator: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#AFAFAF',
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 12,
+  },
+  optionIndicatorSelected: {
+    borderColor: '#005A92',
+    backgroundColor: '#005A92',
   },
   noResultsContainer: {
     alignItems: 'center',
@@ -261,7 +290,7 @@ const styles = StyleSheet.create({
   },
   noResultsText: {
     fontSize: 16,
-    color: '#666',
+    color: '#4F4F4F',
     marginBottom: 12,
   },
   clearSearchText: {
@@ -287,12 +316,16 @@ const styles = StyleSheet.create({
     minHeight: 56,
   },
   continueButtonDisabled: {
-    backgroundColor: '#CCCCCC',
+    backgroundColor: '#EAF3FF',
+    opacity: 1,
   },
   continueButtonText: {
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: '600',
+  },
+  continueButtonTextDisabled: {
+    color: '#0B1F33',
   },
   errorContainer: {
     flex: 1,
@@ -302,7 +335,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 18,
-    color: '#666',
+    color: '#4F4F4F',
     marginTop: 16,
     marginBottom: 24,
   },
