@@ -496,8 +496,6 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   unitToggle: {
-    borderWidth: 2,
-    borderColor: '#005A92',
     flexDirection: 'row',
     backgroundColor: '#F3F3F3',
     borderRadius: 10,
