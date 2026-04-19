@@ -243,8 +243,15 @@ export default function ServiceLocationScreen() {
             disabled={!location.trim()}
             activeOpacity={0.8}
           >
-            <Text style={styles.continueButtonText}>Find Providers</Text>
-            <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
+            <Text
+              style={[
+                styles.continueButtonText,
+                !location.trim() && styles.continueButtonTextDisabled,
+              ]}
+            >
+              Find Providers
+            </Text>
+            <Ionicons name="arrow-forward" size={20} color={location.trim() ? "#FFFFFF" : "#0B1F33"} />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -447,29 +454,30 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 24,
+    paddingTop: 20,
   },
   iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     backgroundColor: '#FFF5F5',
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
-    marginBottom: 24,
+    marginBottom: 20,
   },
   subtitle: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '700',
     color: '#1A1A1A',
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   description: {
     fontSize: 15,
-    color: '#666',
+    color: '#4F4F4F',
     textAlign: 'center',
-    marginBottom: 32,
+    marginBottom: 28,
     lineHeight: 22,
   },
   section: {
@@ -488,16 +496,20 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   unitToggle: {
+    borderWidth: 2,
+    borderColor: '#005A92',
     flexDirection: 'row',
-    backgroundColor: '#F0F0F0',
-    borderRadius: 8,
-    padding: 2,
+    backgroundColor: '#F3F3F3',
+    borderRadius: 10,
+    padding: 3,
+    borderWidth: 2,
+    borderColor: '#005A92',
   },
   unitButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-    minWidth: 40,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 8,
+    minWidth: 44,
     alignItems: 'center',
   },
   unitButtonActive: {
@@ -516,7 +528,7 @@ const styles = StyleSheet.create({
   },
   hint: {
     fontSize: 13,
-    color: '#666',
+    color: '#4F4F4F',
     marginBottom: 12,
   },
   pickerButton: {
@@ -524,7 +536,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#F8F9FA',
     borderRadius: 12,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#E0E0E0',
     padding: 16,
     gap: 12,
@@ -542,6 +554,7 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
+    backgroundColor: '#FFFFFF',
   },
   continueButton: {
     flexDirection: 'row',
@@ -553,12 +566,15 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   continueButtonDisabled: {
-    backgroundColor: '#CCCCCC',
+    backgroundColor: '#EAF3FF',
   },
   continueButtonText: {
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: '600',
+  },
+  continueButtonTextDisabled: {
+    color: '#0B1F33',
   },
   // Modal styles
   modalOverlay: {
