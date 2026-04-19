@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#1A1A1A',
+    color: '#005A92',
     paddingVertical: 4,
   },
   content: {
@@ -262,11 +262,11 @@ const styles = StyleSheet.create({
   optionText: {
     flex: 1,
     fontSize: 16,
-    color: '#1A1A1A',
+    color: '#005A92',
     fontWeight: '500',
   },
   optionTextSelected: {
-    color: '#0B1F33',
+    color: '#005A92',
     fontWeight: '700',
   },
   optionIndicator: {
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#AFAFAF',
+    borderColor: '#005A92',
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
