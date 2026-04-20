@@ -565,7 +565,6 @@ const styles = StyleSheet.create({
   tabButton: {
     flex: 1,
     margin: 6,
-    flex: 1,
     backgroundColor: '#0B1F33',
     borderRadius: 12,
     paddingVertical: 12,
@@ -574,33 +573,13 @@ const styles = StyleSheet.create({
     minHeight: 52,
   },
   tabButtonActive: {
-    backgroundColor: '#0B1F33',
-  },
-  tabText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#FFFFFF',
-    textAlign: 'center',
-  },
-  tabTextActive: {
-    color: '#FFFFFF',
-  },
-  tabButton: {
-    flex: 1,
-    margin: 6,
-    flex: 1,
-    backgroundColor: '#0B1F33',
-    borderRadius: 12,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  tabButtonActive: {
-    backgroundColor: '#0B1F33',
+    backgroundColor: '#D74826',
   },
   tabText: {
     fontSize: 14,
     fontWeight: '600',
     color: '#FFFFFF',
+    textAlign: 'center',
   },
   tabTextActive: {
     color: '#FFFFFF',

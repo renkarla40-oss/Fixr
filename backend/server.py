@@ -4723,6 +4723,20 @@ async def get_service_requests(current_user: User = Depends(get_current_user)):
     # Ensure providerPhoto is always included in list response
     for request in requests:
         request["_id"] = str(request["_id"])
+
+        if not request.get("providerPhoto") and request.get("providerId"):
+            provider = await db.providers.find_one({"_id": ObjectId(request["providerId"])})
+            if provider:
+                request["providerPhoto"] = (
+                    provider.get("photoUrl")
+                    or provider.get("profilePhoto")
+                    or provider.get("profilePhotoUrl")
+                    or provider.get("imageUrl")
+                    or provider.get("avatar")
+                    or provider.get("profileImage")
+                    or provider.get("photo")
+                )
+
         request["providerPhoto"] = request.get("providerPhoto")
 
     result = []
