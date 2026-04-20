@@ -249,29 +249,39 @@ export default function MyRequestsScreen() {
     return Date.now() - createdMs > 24 * 60 * 60 * 1000;
   };
 
+  const hasAssignedProvider = (r: ServiceRequest) =>
+    !!String(r.providerName || '').trim();
+
+  const normalizedStatus = (r: ServiceRequest) =>
+    String(getEffectiveStatus(r)).toLowerCase();
+
   const pendingRequests = requests.filter(r => {
-    const status = String(getEffectiveStatus(r)).toLowerCase();
-    return (status.includes('pending') || status.includes('awaiting')) && !isExpiredPending(r);
+    if (!hasAssignedProvider(r)) return false;
+    const status = normalizedStatus(r);
+    return status === 'pending';
   });
 
   const activeRequests = requests.filter(r => {
-    const status = String(getEffectiveStatus(r)).toLowerCase();
+    if (!hasAssignedProvider(r)) return false;
+    const status = normalizedStatus(r);
     return (
-      status.includes('accepted') ||
-      status.includes('progress') ||
-      status.includes('ready') ||
-      status.includes('payment')
+      status === 'accepted' ||
+      status === 'awaiting_payment' ||
+      status === 'ready_to_start' ||
+      status === 'in_progress'
     );
   });
 
   const completedRequests = requests.filter(r => {
-    const status = String(getEffectiveStatus(r)).toLowerCase();
-    return status.includes('complete');
+    if (!hasAssignedProvider(r)) return false;
+    const status = normalizedStatus(r);
+    return status === 'completed' || status.startsWith('completed_');
   });
 
   const cancelledRequests = requests.filter(r => {
-    const status = String(getEffectiveStatus(r)).toLowerCase();
-    return status.includes('cancel') || isExpiredPending(r);
+    if (!hasAssignedProvider(r)) return false;
+    const status = normalizedStatus(r);
+    return status === 'cancelled' || status === 'declined';
   });
 
   const displayedRequests =
@@ -437,6 +447,13 @@ export default function MyRequestsScreen() {
           {displayedRequests.map((request) => {
             const effectiveStatus = getEffectiveStatus(request);
             const statusColors = getStatusColor(effectiveStatus);
+            const providerPhotoUri = String(
+              (request as any).providerPhoto ||
+              (request as any).providerProfilePhoto ||
+              (request as any).profilePhotoUrl ||
+              (request as any).provider?.profilePhotoUrl ||
+              ''
+            ).trim();
             return (
               <TouchableOpacity
                 key={request._id}
@@ -464,25 +481,18 @@ export default function MyRequestsScreen() {
                   </View>
                 </View>
                 <View style={styles.providerRow}>
-                  {request.providerPhoto ? (
+                  {providerPhotoUri ? (
                     <Image
                       source={{
-                        uri: request.providerPhoto.startsWith('/')
-                          ? `${BACKEND_URL}${request.providerPhoto}`
-                          : request.providerPhoto,
+                        uri: providerPhotoUri.startsWith('/')
+                          ? `${BACKEND_URL}${providerPhotoUri}`
+                          : providerPhotoUri,
                       }}
                       style={styles.providerAvatar}
                     />
                   ) : (
                     <View style={styles.providerAvatarFallback}>
-                      <Text style={styles.providerAvatarInitials}>
-                        {String(request.providerName || 'Provider')
-                          .trim()
-                          .split(/\s+/)
-                          .slice(0, 2)
-                          .map(part => part.charAt(0).toUpperCase())
-                          .join('')}
-                      </Text>
+                      <Ionicons name="person" size={20} color="#FFFFFF" />
                     </View>
                   )}
                   <Text style={styles.providerName}>{request.providerName || 'Open Request'}</Text>
