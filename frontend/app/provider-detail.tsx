@@ -47,7 +47,9 @@ export default function ProviderDetailScreen() {
   const insets = useSafeAreaInsets();
   const providerId = params.providerId as string;
   const category = params.category as string;
+  const categoryName = params.categoryName as string | undefined;
   const subCategory = params.subCategory as string | undefined;
+  const subcategoryKey = params.subcategoryKey as string | undefined;
   const location = params.location as string | undefined;
   // Phase 1B: Receive requestId from provider list
   const requestId = params.requestId as string | undefined;
@@ -464,10 +466,15 @@ export default function ProviderDetailScreen() {
               <TouchableOpacity
                 style={styles.createRequestButton}
                 onPress={() => router.push({
-              pathname: '/all-services-directory',
+              pathname: '/request-service',
               params: {
                 providerId: providerId,
                 providerName: provider?.name || '',
+                category: category || '',
+                categoryName: categoryName || '',
+                subCategory: subCategory || '',
+                subcategoryKey: subcategoryKey || '',
+                location: location || '',
               },
             })}
                 activeOpacity={0.8}

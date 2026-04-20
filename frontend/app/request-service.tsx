@@ -183,7 +183,7 @@ export default function RequestServiceScreen() {
       }
       
       // Phase 3A: Check if provider is unavailable
-      const errorMessage = error.response?.data?.detail || '';
+      const errorMessage = String(error?.response?.data?.detail || error?.message || '');
       if (errorMessage.toLowerCase().includes('unavailable') || 
           errorMessage.toLowerCase().includes('not accepting')) {
         setShowUnavailableModal(true);

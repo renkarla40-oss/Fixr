@@ -73,7 +73,7 @@ export default function ProviderListScreen() {
   const requestId = params.requestId as string | undefined;
   
   // Extract params with clear variable names
-  const categoryId = params.categoryId as string;
+  const categoryId = (params.categoryId as string) || (params.category as string);
   const categoryName = params.categoryName as string;
   const subCategory = params.subCategory as string | undefined;
   const subcategoryKey = params.subcategoryKey as string | undefined;
@@ -223,7 +223,9 @@ export default function ProviderListScreen() {
       params: { 
         providerId, 
         category: categoryId,
+        categoryName: categoryName || '',
         subCategory: subCategory || '',
+        subcategoryKey: subcategoryKey || '',
         location: location || '',
         searchDistanceKm: searchDistanceKm.toString(),
         jobDuration: jobDuration || '',
