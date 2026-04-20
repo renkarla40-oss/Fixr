@@ -107,13 +107,11 @@ export default function ServiceLocationScreen() {
   const handleContinue = () => {
     if (!location.trim()) return;
 
-    // Route directly to request-service. Customer creates the request first,
-    // then continues into provider selection/matching after successful submission.
     router.push({
-      pathname: '/request-service',
+      pathname: '/provider-list',
       params: {
-        category,
-        categoryName,
+        category: category || '',
+        categoryName: categoryName || '',
         subCategory: subCategory || '',
         subcategoryKey: subcategoryKey || '',
         location: location.trim(),

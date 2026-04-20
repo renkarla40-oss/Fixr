@@ -52,6 +52,7 @@ interface ServiceRequest {
   service: string;
   description: string;
   providerName: string;
+  providerPhoto?: string;
   status: string;
   paymentStatus?: string;  // 'pending' | 'held' | 'released' | 'captured'
   createdAt: string;
