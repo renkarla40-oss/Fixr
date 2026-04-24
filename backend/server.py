@@ -4720,11 +4720,11 @@ async def get_service_requests(current_user: User = Depends(get_current_user)):
     
     requests = await db.service_requests.find(query).sort("createdAt", -1).to_list(100)
 
-    # Ensure providerPhoto is always included in list response
+    # Ensure providerPhoto always reflects the provider's latest profile photo
     for request in requests:
         request["_id"] = str(request["_id"])
 
-        if not request.get("providerPhoto") and request.get("providerId"):
+        if request.get("providerId"):
             provider = await db.providers.find_one({"_id": ObjectId(request["providerId"])})
             if provider:
                 request["providerPhoto"] = (

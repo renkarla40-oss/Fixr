@@ -347,17 +347,18 @@ export default function CustomerHomeScreen() {
                 onPress={() => navigateToCategory(item.serviceKey)}
                 activeOpacity={0.85}
               >
-                <Image
+                <ImageBackground
                   source={item.image}
                   style={styles.carouselImage}
+                  imageStyle={styles.carouselImage}
                   resizeMode="cover"
-                  fadeDuration={0}
-                />
-                <View style={styles.carouselOverlay}>
-                  <Text style={styles.carouselLabel} numberOfLines={1}>
-                    {item.label}
-                  </Text>
-                </View>
+                >
+                  <View style={styles.carouselOverlay}>
+                    <Text style={styles.carouselLabel} numberOfLines={1}>
+                      {item.label}
+                    </Text>
+                  </View>
+                </ImageBackground>
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -768,7 +769,7 @@ const styles = StyleSheet.create({
     height: 150,
     borderRadius: 16,
     overflow: 'hidden',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#E0E0E0',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,

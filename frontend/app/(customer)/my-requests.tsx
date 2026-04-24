@@ -11,7 +11,7 @@ import {
   BackHandler,
   Image,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from 'expo-router';
@@ -394,7 +394,7 @@ export default function MyRequestsScreen() {
               activeOpacity={0.8}
             >
               <Text style={[styles.tabText, activeTab === 'active' && styles.tabTextActive]}>
-                Active {activeRequests.length}
+                Active Jobs {activeRequests.length}
               </Text>
             </TouchableOpacity>
 
@@ -404,7 +404,7 @@ export default function MyRequestsScreen() {
               activeOpacity={0.8}
             >
               <Text style={[styles.tabText, activeTab === 'pending' && styles.tabTextActive]}>
-                Pending {pendingRequests.length}
+                Pending Jobs {pendingRequests.length}
               </Text>
             </TouchableOpacity>
           </View>
@@ -416,7 +416,7 @@ export default function MyRequestsScreen() {
               activeOpacity={0.8}
             >
               <Text style={[styles.tabText, activeTab === 'completed' && styles.tabTextActive]}>
-                Completed {completedRequests.length}
+                Completed Jobs {completedRequests.length}
               </Text>
             </TouchableOpacity>
 
@@ -426,7 +426,7 @@ export default function MyRequestsScreen() {
               activeOpacity={0.8}
             >
               <Text style={[styles.tabText, activeTab === 'cancelled' && styles.tabTextActive]}>
-                Cancelled {cancelledRequests.length}
+                Cancelled Jobs {cancelledRequests.length}
               </Text>
             </TouchableOpacity>
           </View>
@@ -526,15 +526,13 @@ export default function MyRequestsScreen() {
                 <View style={styles.metaRow}>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <View style={styles.metaItem}>
-                      <Ionicons name="calendar" size={16} color="#D74826" />
+                      <Image source={require("../../assets/icons/calendar.png")} style={styles.metaIconImage} />
                       <Text style={styles.metaText}>{formatDate(request.createdAt)}</Text>
                     </View>
 
-                    {request.location ? <Text style={styles.metaDivider}>•</Text> : null}
-
-                    {request.location ? (
+                                        {request.location ? (
                       <View style={styles.metaItem}>
-                        <Ionicons name="location" size={16} color="#D74826" />
+                        <Image source={require("../../assets/icons/location.png")} style={styles.metaIconImage} />
                         <Text style={styles.metaText}>{request.location}</Text>
                       </View>
                     ) : null}
@@ -553,6 +551,25 @@ export default function MyRequestsScreen() {
 }
 
 const styles = StyleSheet.create({
+  headerContainer: {
+    backgroundColor: '#1B365D',  // Imperial Blue
+    paddingTop: 16,
+    paddingBottom: 20,
+    paddingHorizontal: 16,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+  },
+  headerTitle: {
+    fontSize: 26,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 12,
+  },
+  pillsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+
   tabsGrid: {
     paddingHorizontal: 16,
     paddingBottom: 12,
@@ -803,5 +820,104 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: 12,
     color: '#E6EEF7',
+  },
+
+ providerRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 6,
+  },
+ providerAvatar: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    marginRight: 14,
+    backgroundColor: '#D9E5F1',
+  },
+ providerAvatarFallback: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    marginRight: 14,
+    backgroundColor: '#0B1F33',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+ providerName: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    letterSpacing: 1,
+    marginBottom: 10,
+  },
+ descriptionText: {
+    fontSize: 15,
+    color: '#EAF2FA',
+    lineHeight: 22,
+    marginBottom: 18,
+    maxWidth: '92%',
+  },
+ descriptionLabel: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+ metaRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 42,
+    marginTop: 8,
+    marginBottom: 18,
+  },
+ metaGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+ metaText: {
+    fontSize: 15,
+    color: '#EAF2FA',
+    fontWeight: '600',
+  },
+ arrowRow: {
+    alignItems: 'flex-end',
+    marginTop: 2,
+  },
+ requestCard: {
+    backgroundColor: '#6F8FB3',
+    borderRadius: 22,
+    padding: 22,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.10,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+ categoryText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#F4F8FC',
+    letterSpacing: 1.1,
+  },
+ statusBadge: {
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.06)',
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 999,
+    backgroundColor: '#FFFFFF',
+  },
+ statusText: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.4,
+    color: '#1A1A1A',
+  },
+  metaIconImage: {
+    width: 18,
+    height: 18,
+    marginRight: 6,
+    resizeMode: 'contain',
   },
 });

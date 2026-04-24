@@ -166,8 +166,8 @@ export default function CustomerInboxScreen() {
             service: req.service,
             providerName: req.providerName || 'Open Request',
             status: req.status,
-            lastMessage: req.lastMessagePreview ? {
-              text: req.lastMessagePreview,
+            lastMessage: req.last_message_at ? {
+              text: req.lastMessage || 'Tap to view messages',
               senderRole: 'system',
               createdAt: req.last_message_at,
             } : undefined,
