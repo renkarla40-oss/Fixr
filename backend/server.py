@@ -325,6 +325,7 @@ class ServiceRequestResponse(BaseModel):
     customer_last_read_at: Optional[datetime] = None
     provider_last_read_at: Optional[datetime] = None
     last_message_at: Optional[datetime] = None  # Timestamp of most recent message
+    paymentStatus: Optional[str] = "unpaid"  # CRITICAL: needed for frontend status sync
     
     class Config:
         populate_by_name = True
