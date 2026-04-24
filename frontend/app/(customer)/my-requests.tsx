@@ -850,8 +850,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
  providerName: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: '700',
     color: '#EAF2FA',
     letterSpacing: 0.3,
     marginBottom: 6,
