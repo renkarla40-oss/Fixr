@@ -474,7 +474,7 @@ export default function MyRequestsScreen() {
                     ]}
                   >
                     <Text
-                      style={[styles.statusText, { color: '#1A1A1A' }]}
+                      style={[styles.statusText, { color: '#000000' }]}
                     >
                       {getStatusLabel(effectiveStatus)}
                     </Text>
@@ -552,7 +552,7 @@ export default function MyRequestsScreen() {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    backgroundColor: '#1B365D',  // Imperial Blue
+    backgroundColor: '#005A92',  // Imperial Blue
     paddingTop: 16,
     paddingBottom: 20,
     paddingHorizontal: 16,
@@ -571,8 +571,9 @@ const styles = StyleSheet.create({
   },
 
   tabsGrid: {
-    paddingHorizontal: 16,
-    paddingBottom: 12,
+    backgroundColor: '#005A92',
+    paddingHorizontal: 14,
+    paddingBottom: 16,
     gap: 8,
   },
   tabsRow: {
@@ -581,20 +582,19 @@ const styles = StyleSheet.create({
   },
   tabButton: {
     flex: 1,
-    margin: 6,
-    backgroundColor: '#0B1F33',
+    backgroundColor: 'rgba(255,255,255,0.14)',
     borderRadius: 12,
-    paddingVertical: 12,
+    paddingVertical: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 52,
+    minHeight: 48,
   },
   tabButtonActive: {
     backgroundColor: '#D74826',
   },
   tabText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '700',
     color: '#FFFFFF',
     textAlign: 'center',
   },
@@ -604,22 +604,23 @@ const styles = StyleSheet.create({
 
   safeArea: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#005A92',
   },
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#F7F8FA',
   },
   header: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 16,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#005A92',
+    paddingHorizontal: 20,
+    paddingTop: 18,
+    paddingBottom: 12,
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
+    fontWeight: '800',
+    color: '#FFFFFF',
+    marginBottom: 10,
   },
   centerContent: {
     flex: 1,
@@ -662,7 +663,7 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
     marginTop: 24,
     marginBottom: 8,
     textAlign: 'center',
@@ -703,21 +704,24 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   categoryText: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 18,
+    fontWeight: '800',
     color: '#FFFFFF',
-    letterSpacing: 0.5,
+    letterSpacing: 1,
   },
   statusBadge: {
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.08)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 999,
+    height: 22,
+    justifyContent: 'center',
+    alignSelf: 'flex-start',
   },
   statusText: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#000000',
   },
   subCategoryText: {
     fontSize: 13,
@@ -752,17 +756,19 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   providerName: {
-    fontSize: 18,
-    fontWeight: '500',
-    color: '#FFFFFF',
-    marginBottom: 8,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#EAF2FA',
+    letterSpacing: 0.3,
+    marginBottom: 6,
   },
   jobTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#0B1F33',
-    marginTop: 6,
-    marginBottom: 10,
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#DCE6F2',
+    marginLeft: 74,
+    marginTop: -22,
+    marginBottom: 16,
   },
   metaRow: {
     flexDirection: 'row',
@@ -782,8 +788,8 @@ const styles = StyleSheet.create({
   },
   metaText: {
     fontSize: 14,
-    color: '#E6EEF7',
-    marginLeft: 4,
+    color: '#EAF2FA',
+    fontWeight: '600',
   },
   metaDivider: {
     fontSize: 12,
@@ -844,11 +850,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
  providerName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
-    color: '#FFFFFF',
-    letterSpacing: 1,
-    marginBottom: 10,
+    color: '#EAF2FA',
+    letterSpacing: 0.3,
+    marginBottom: 6,
   },
  descriptionText: {
     fontSize: 15,
@@ -885,7 +891,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
  requestCard: {
-    backgroundColor: '#6F8FB3',
+    backgroundColor: '#0B1F33',
     borderRadius: 22,
     padding: 22,
     shadowColor: '#000',
@@ -895,24 +901,10 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
  categoryText: {
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: '800',
-    color: '#F4F8FC',
-    letterSpacing: 1.1,
-  },
- statusBadge: {
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.06)',
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 999,
-    backgroundColor: '#FFFFFF',
-  },
- statusText: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.4,
-    color: '#1A1A1A',
+    color: '#FFFFFF',
+    letterSpacing: 1,
   },
   metaIconImage: {
     width: 18,
@@ -920,4 +912,16 @@ const styles = StyleSheet.create({
     marginRight: 6,
     resizeMode: 'contain',
   },
-});
+
+  descriptionText: {
+    fontSize: 15,
+    color: '#FFFFFF',
+    lineHeight: 22,
+    marginBottom: 18,
+    maxWidth: '92%',
+  },
+  descriptionLabel: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },});
