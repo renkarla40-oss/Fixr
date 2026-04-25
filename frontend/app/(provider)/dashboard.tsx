@@ -434,12 +434,12 @@ export default function ProviderMyJobsScreen() {
         {/* Error toast for availability toggle */}
         {availabilityError && (
           <View style={styles.availabilityErrorContainer}>
-            <Ionicons name="warning-outline" size={14} color="#D74826" />
+            <Ionicons name="warning-outline" size={14} color="#C13E1F" />
             <Text style={styles.availabilityErrorText}>{availabilityError}</Text>
           </View>
         )}
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#D74826" />
+          <ActivityIndicator size="large" color="#C13E1F" />
           <Text style={styles.loadingText}>{COPY.LOADING}</Text>
         </View>
       </View>
@@ -506,7 +506,7 @@ export default function ProviderMyJobsScreen() {
         {/* Error toast for availability toggle */}
         {availabilityError && (
           <View style={styles.availabilityErrorContainer}>
-            <Ionicons name="warning-outline" size={14} color="#D74826" />
+            <Ionicons name="warning-outline" size={14} color="#C13E1F" />
             <Text style={styles.availabilityErrorText}>{availabilityError}</Text>
           </View>
         )}
@@ -564,7 +564,7 @@ export default function ProviderMyJobsScreen() {
       {/* Error toast for availability toggle */}
       {availabilityError && (
         <View style={styles.availabilityErrorContainer}>
-          <Ionicons name="warning-outline" size={14} color="#D74826" />
+          <Ionicons name="warning-outline" size={14} color="#C13E1F" />
           <Text style={styles.availabilityErrorText}>{availabilityError}</Text>
         </View>
       )}
@@ -576,7 +576,7 @@ export default function ProviderMyJobsScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#D74826"
+            tintColor="#C13E1F"
           />
         }
       >
@@ -632,7 +632,7 @@ export default function ProviderMyJobsScreen() {
                   <Text style={styles.actionText}>
                     {job.status === 'pending' ? 'Review' : 'View'}
                   </Text>
-                  <Ionicons name="chevron-forward" size={20} color="#D74826" />
+                  <Ionicons name="chevron-forward" size={20} color="#C13E1F" />
                 </View>
               </View>
             </TouchableOpacity>
@@ -735,7 +735,7 @@ const styles = StyleSheet.create({
   },
   availabilityErrorText: {
     fontSize: 13,
-    color: '#D74826',
+    color: '#C13E1F',
     flex: 1,
   },
   centerContent: {
@@ -758,7 +758,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 16,
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 24,
@@ -851,7 +851,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     marginLeft: 8,
   },
   locationRow: {
@@ -888,7 +888,7 @@ const styles = StyleSheet.create({
   },
   actionText: {
     fontSize: 14,
-    color: '#D74826',
+    color: '#C13E1F',
     fontWeight: '600',
   },
 });

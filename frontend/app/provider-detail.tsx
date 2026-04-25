@@ -231,7 +231,7 @@ export default function ProviderDetailScreen() {
             <View style={styles.backButton} />
           </View>
           <View style={styles.centerContent}>
-            <ActivityIndicator size="large" color="#D74826" />
+            <ActivityIndicator size="large" color="#C13E1F" />
           </View>
         </View>
       </SafeAreaView>
@@ -278,7 +278,7 @@ export default function ProviderDetailScreen() {
             <Ionicons 
               name={favorited ? "heart" : "heart-outline"} 
               size={24} 
-              color={favorited ? "#D74826" : "#666"} 
+              color={favorited ? "#C13E1F" : "#666"} 
             />
           </TouchableOpacity>
         </View>
@@ -692,7 +692,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   serviceChip: {
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
@@ -715,7 +715,7 @@ const styles = StyleSheet.create({
     borderTopColor: '#E0E0E0',
   },
   requestButton: {
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -823,7 +823,7 @@ const styles = StyleSheet.create({
   },
   createRequestButton: {
     flexDirection: 'row',
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',

@@ -249,7 +249,7 @@ export default function RequestServiceScreen() {
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Service Location</Text>
                 <View style={styles.readOnlyInputWithIcon}>
-                  <Ionicons name="location-outline" size={18} color="#D74826" />
+                  <Ionicons name="location-outline" size={18} color="#C13E1F" />
                   <Text style={styles.readOnlyText}>{location}</Text>
                 </View>
               </View>
@@ -383,7 +383,7 @@ export default function RequestServiceScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalIconContainer}>
-              <Ionicons name="person-remove-outline" size={48} color="#D74826" />
+              <Ionicons name="person-remove-outline" size={48} color="#C13E1F" />
             </View>
             
             <Text style={styles.modalTitle}>Provider Unavailable</Text>
@@ -454,7 +454,7 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
   },
   required: {
-    color: '#D74826',
+    color: '#C13E1F',
   },
   readOnlyInput: {
     backgroundColor: '#F5F5F5',
@@ -505,7 +505,7 @@ const styles = StyleSheet.create({
     minHeight: 56,
   },
   timePickerError: {
-    borderColor: '#D74826',
+    borderColor: '#C13E1F',
   },
   timePickerText: {
     flex: 1,
@@ -520,7 +520,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 14,
-    color: '#D74826',
+    color: '#C13E1F',
     marginTop: 4,
   },
   note: {
@@ -565,7 +565,7 @@ const styles = StyleSheet.create({
     marginTop: 0,
   },
   submitButton: {
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -620,7 +620,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   modalButton: {
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingHorizontal: 32,
     paddingVertical: 14,
     borderRadius: 12,

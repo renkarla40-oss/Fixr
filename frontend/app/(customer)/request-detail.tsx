@@ -1109,7 +1109,7 @@ const isPaid = (): boolean => {
       case 'completed':
         return { bg: '#F3E5F5', text: '#7B1FA2', icon: 'checkmark-done-circle', label: 'Completed' };
       case 'declined':
-        return { bg: '#FFEBEE', text: '#D74826', icon: 'close-circle', label: 'Declined' };
+        return { bg: '#FFEBEE', text: '#C13E1F', icon: 'close-circle', label: 'Declined' };
       case 'cancelled':
         return { bg: '#FFF3E0', text: '#E65100', icon: 'close-circle-outline', label: 'Cancelled' };
       default:
@@ -1210,7 +1210,7 @@ const isPaid = (): boolean => {
           <View style={styles.backButton} />
         </View>
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#D74826" />
+          <ActivityIndicator size="large" color="#C13E1F" />
           <Text style={styles.loadingText}>Loading request...</Text>
         </View>
       </View>
@@ -1265,7 +1265,7 @@ const isPaid = (): boolean => {
           style={[styles.tab, activeTab === 'details' && styles.tabActive]}
           onPress={() => setActiveTab('details')}
         >
-          <Ionicons name="document-text-outline" size={18} color={activeTab === 'details' ? '#D74826' : '#666'} />
+          <Ionicons name="document-text-outline" size={18} color={activeTab === 'details' ? '#C13E1F' : '#666'} />
           <Text style={[styles.tabText, activeTab === 'details' && styles.tabTextActive]}>Details</Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -1273,9 +1273,9 @@ const isPaid = (): boolean => {
           onPress={() => setActiveTab('chat')}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Ionicons name="chatbubbles-outline" size={18} color={activeTab === 'chat' ? '#D74826' : '#666'} />
+            <Ionicons name="chatbubbles-outline" size={18} color={activeTab === 'chat' ? '#C13E1F' : '#666'} />
             {hasUnreadMessages && activeTab !== 'chat' && (
-              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#D74826', marginLeft: 2 }} />
+              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#C13E1F', marginLeft: 2 }} />
             )}
           </View>
           <Text style={[styles.tabText, activeTab === 'chat' && styles.tabTextActive]}>Messages</Text>
@@ -1498,7 +1498,7 @@ const isPaid = (): boolean => {
           {/* Cancel Button - Only shown for pending or accepted requests */}
           {canCancel && (
             <TouchableOpacity style={styles.cancelButton} onPress={handleCancelRequest}>
-              <Ionicons name="close-circle-outline" size={22} color="#D74826" />
+              <Ionicons name="close-circle-outline" size={22} color="#C13E1F" />
               <Text style={styles.cancelButtonText}>Cancel Request</Text>
             </TouchableOpacity>
           )}
@@ -1549,7 +1549,7 @@ const isPaid = (): boolean => {
         >
           {loadingMessages ? (
             <View style={styles.centerContent}>
-              <ActivityIndicator size="large" color="#D74826" />
+              <ActivityIndicator size="large" color="#C13E1F" />
             </View>
           ) : (
             <ScrollView
@@ -1575,7 +1575,7 @@ const isPaid = (): boolean => {
               >
                 <Text
                   style={{
-                    color: '#D74826',
+                    color: '#C13E1F',
                     fontSize: 14,
                     fontWeight: '600',
                     textAlign: 'center',
@@ -1762,7 +1762,7 @@ const isPaid = (): boolean => {
                           onPress={handleRejectQuote}
                           disabled={processingQuoteAction}
                         >
-                          <Ionicons name="close-circle-outline" size={18} color="#D74826" />
+                          <Ionicons name="close-circle-outline" size={18} color="#C13E1F" />
                           <Text style={styles.rejectQuoteButtonText}>Reject</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -1783,7 +1783,7 @@ const isPaid = (): boolean => {
               {currentQuote && currentQuote.status === 'REJECTED' && (
                 <View style={[styles.quoteCard, styles.quoteCardRejected]}>
                   <View style={styles.quoteCardHeader}>
-                    <Ionicons name="close-circle" size={22} color="#D74826" />
+                    <Ionicons name="close-circle" size={22} color="#C13E1F" />
                     <Text style={styles.quoteCardTitle}>Quote Rejected</Text>
                   </View>
                   <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
@@ -1945,7 +1945,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   retryButton: {
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
@@ -1970,7 +1970,7 @@ const styles = StyleSheet.create({
   },
   tabActive: {
     borderBottomWidth: 2,
-    borderBottomColor: '#D74826',
+    borderBottomColor: '#C13E1F',
   },
   tabText: {
     fontSize: 14,
@@ -1978,7 +1978,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   tabTextActive: {
-    color: '#D74826',
+    color: '#C13E1F',
     fontWeight: '600',
   },
   tabIconContainer: {
@@ -1991,7 +1991,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     borderWidth: 2,
     borderColor: '#FFFFFF',
   },
@@ -2315,7 +2315,7 @@ summaryValue: {
   },
   subCategoryText: {
     fontSize: 13,
-    color: '#D74826',
+    color: '#C13E1F',
     marginTop: 2,
   },
   // Description Card
@@ -2406,7 +2406,7 @@ summaryValue: {
     marginBottom: 8,
   },
   messageBubbleMine: {
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     alignSelf: 'flex-end',
     borderBottomRightRadius: 4,
   },
@@ -2517,7 +2517,7 @@ summaryValue: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -2558,7 +2558,7 @@ summaryValue: {
   cancelButtonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#D74826',
+    color: '#C13E1F',
   },
   // Image message styles
   imagePickerButton: {
@@ -2737,11 +2737,11 @@ summaryValue: {
     paddingVertical: 8,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#D74826',
+    borderColor: '#C13E1F',
     gap: 4,
   },
   rejectQuoteButtonText: {
-    color: '#D74826',
+    color: '#C13E1F',
     fontSize: 13,
     fontWeight: '600',
   },

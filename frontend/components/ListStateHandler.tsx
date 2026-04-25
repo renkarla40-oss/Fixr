@@ -62,7 +62,7 @@ export default function ListStateHandler({
   if (loading && !hasData) {
     return (
       <View style={styles.centerContent}>
-        <ActivityIndicator size="large" color="#D74826" />
+        <ActivityIndicator size="large" color="#C13E1F" />
         <Text style={styles.loadingText}>{loadingText}</Text>
       </View>
     );
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 16,
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 24,

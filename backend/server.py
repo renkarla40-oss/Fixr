@@ -1746,7 +1746,27 @@ async def get_service_request_detail(
     request["paymentStatus"] = request.get("paymentStatus", "unpaid")
     request["paidAt"] = request.get("paidAt")
     
-    request["providerPhoto"] = request.get("providerPhoto")
+    # Always return the provider's current profile photo, not stale request snapshot
+    if request.get("providerId"):
+        try:
+            provider_doc = await db.providers.find_one({"_id": ObjectId(request["providerId"])})
+        except Exception:
+            provider_doc = None
+
+        current_provider_photo = (
+            provider_doc.get("profilePhotoUrl")
+            if provider_doc
+            else None
+        )
+
+        if current_provider_photo:
+            request["providerPhoto"] = current_provider_photo
+            request["profilePhotoUrl"] = current_provider_photo
+            request["providerProfilePhoto"] = current_provider_photo
+        else:
+            request["providerPhoto"] = request.get("providerPhoto")
+    else:
+        request["providerPhoto"] = request.get("providerPhoto")
 
     return request
 

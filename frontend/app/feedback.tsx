@@ -97,7 +97,7 @@ export default function FeedbackScreen() {
         >
           <View style={styles.infoSection}>
             <View style={styles.iconContainer}>
-              <Ionicons name="chatbubbles" size={32} color="#D74826" />
+              <Ionicons name="chatbubbles" size={32} color="#C13E1F" />
             </View>
             <Text style={styles.infoTitle}>We'd love to hear from you!</Text>
             <Text style={styles.infoText}>
@@ -120,7 +120,7 @@ export default function FeedbackScreen() {
                 <Ionicons
                   name={type.icon as any}
                   size={24}
-                  color={selectedType === type.id ? '#D74826' : '#666'}
+                  color={selectedType === type.id ? '#C13E1F' : '#666'}
                 />
                 <Text
                   style={[
@@ -132,7 +132,7 @@ export default function FeedbackScreen() {
                 </Text>
                 {selectedType === type.id && (
                   <View style={styles.checkIcon}>
-                    <Ionicons name="checkmark-circle" size={20} color="#D74826" />
+                    <Ionicons name="checkmark-circle" size={20} color="#C13E1F" />
                   </View>
                 )}
               </TouchableOpacity>
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
   },
   typeCardSelected: {
     backgroundColor: '#FFF5F5',
-    borderColor: '#D74826',
+    borderColor: '#C13E1F',
   },
   typeLabel: {
     fontSize: 14,
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   typeLabelSelected: {
-    color: '#D74826',
+    color: '#C13E1F',
     fontWeight: '600',
   },
   checkIcon: {
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   submitButton: {
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',

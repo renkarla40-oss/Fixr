@@ -95,7 +95,7 @@ export default function FavoritesScreen() {
             <Ionicons 
               name={favorited ? "heart" : "heart-outline"} 
               size={22} 
-              color={favorited ? "#D74826" : "#999"} 
+              color={favorited ? "#C13E1F" : "#999"} 
             />
           </TouchableOpacity>
         </View>
@@ -124,12 +124,12 @@ export default function FavoritesScreen() {
 
       {loading && favoriteProviders.length === 0 ? (
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#D74826" />
+          <ActivityIndicator size="large" color="#C13E1F" />
         </View>
       ) : favoriteProviders.length === 0 ? (
         <View style={styles.centerContent}>
           <View style={styles.emptyIconContainer}>
-            <Ionicons name="heart-outline" size={48} color="#D74826" />
+            <Ionicons name="heart-outline" size={48} color="#C13E1F" />
           </View>
           <Text style={styles.emptyTitle}>No Favourites Yet</Text>
           <Text style={styles.emptyText}>
@@ -147,7 +147,7 @@ export default function FavoritesScreen() {
             <RefreshControl
               refreshing={loading}
               onRefresh={refreshFavorites}
-              tintColor="#D74826"
+              tintColor="#C13E1F"
             />
           }
         />

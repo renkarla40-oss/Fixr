@@ -440,7 +440,7 @@ export default function MyRequestsScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor="#D74826"
+              tintColor="#C13E1F"
             />
           }
         >
@@ -590,7 +590,7 @@ const styles = StyleSheet.create({
     minHeight: 48,
   },
   tabButtonActive: {
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
   },
   tabText: {
     fontSize: 12,
@@ -642,7 +642,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 16,
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 24,

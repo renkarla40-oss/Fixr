@@ -8,11 +8,11 @@ import { StyleSheet } from 'react-native';
 
 // Tab bar colors - shared across all roles
 export const TAB_COLORS = {
-  active: '#D74826',
-  inactive: 'rgba(26,26,26,0.5)',
+  active: '#C13E1F',
+  inactive: 'rgba(13,13,13,0.65)',
   background: '#D0D0D0',
   border: '#F5F7FA',
-  badge: '#D74826',
+  badge: '#C13E1F',
 };
 
 // Calculate tab bar height based on safe area inset

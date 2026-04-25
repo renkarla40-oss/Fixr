@@ -294,7 +294,7 @@ export default function CustomerHomeScreen() {
           >
             <View style={styles.heroHeader}>
               <View style={styles.heroHeaderSpacer} />
-              <NotificationBell color="#E6E6E6" size={24} />
+              <NotificationBell color="#D8D8D8" size={24} />
             </View>
 
             <Text style={styles.heroTitle}>
@@ -321,11 +321,11 @@ export default function CustomerHomeScreen() {
                   onPress={handleClearSearch}
                   activeOpacity={0.8}
                 >
-                  <Ionicons name="close" size={16} color="#E6E6E6" />
+                  <Ionicons name="close" size={16} color="#D8D8D8" />
                 </TouchableOpacity>
               ) : (
                 <View style={styles.searchAction}>
-                  <Ionicons name="search-outline" size={16} color="#E6E6E6" />
+                  <Ionicons name="search-outline" size={16} color="#D8D8D8" />
                 </View>
               )}
             </View>
@@ -379,7 +379,7 @@ export default function CustomerHomeScreen() {
                         activeOpacity={0.7}
                       >
                         <View style={styles.serviceStackedIconContainer}>
-                          <Ionicons name={subCat.icon as any} size={22} color="#D74826" />
+                          <Ionicons name={subCat.icon as any} size={22} color="#C13E1F" />
                         </View>
                         <Text style={styles.serviceStackedName} numberOfLines={1}>{subCat.label}</Text>
                         <Ionicons name="chevron-forward" size={16} color="#CCC" />
@@ -425,7 +425,7 @@ export default function CustomerHomeScreen() {
                                   <Ionicons
                                     name={category.icon as any}
                                     size={28}
-                                    color="#D74826"
+                                    color="#C13E1F"
                                   />
                                 </View>
                               )}
@@ -469,7 +469,7 @@ Services</Text>
                             <Ionicons
                               name={category.icon as any}
                               size={28}
-                              color="#E6E6E6"
+                              color="#D8D8D8"
                             />
                           </View>
                         )}
@@ -497,7 +497,7 @@ Services</Text>
             <View style={styles.ctaCard}>
               <View style={styles.ctaContent}>
                 <View style={styles.ctaIconContainer}>
-                  <Ionicons name="location" size={28} color="#D74826" />
+                  <Ionicons name="location" size={28} color="#C13E1F" />
                 </View>
                 <View style={styles.ctaTextContainer}>
                   <Text style={styles.ctaTitle}>Get prices in your 
@@ -513,7 +513,7 @@ area</Text>
                 activeOpacity={0.8}
               >
                 <LinearGradient
-                  colors={['#D74826', '#D74826']}
+                  colors={['#C13E1F', '#C13E1F']}
                   style={styles.ctaButtonGradient}
                 >
                   <Text style={styles.ctaButtonText}>Browse 
@@ -569,7 +569,7 @@ Projects</Text>
             activeOpacity={0.9}
           >
             <View style={styles.browseProvidersIcon}>
-              <Ionicons name="people" size={28} color="#D74826" />
+              <Ionicons name="people" size={28} color="#C13E1F" />
             </View>
             <View style={styles.browseProvidersContent}>
               <Text style={styles.browseProvidersTitle}>Browse 
@@ -578,7 +578,7 @@ Providers</Text>
                 View all available service providers
               </Text>
             </View>
-            <Ionicons name="chevron-forward" size={24} color="#D74826" />
+            <Ionicons name="chevron-forward" size={24} color="#C13E1F" />
           </TouchableOpacity>
         </View>
 
@@ -596,7 +596,7 @@ Providers</Text>
                   <Ionicons
                     name={insight.icon as any}
                     size={24}
-                    color="#D74826"
+                    color="#C13E1F"
                   />
                 </View>
                 <Text style={styles.pricingTitle}>{insight.title}</Text>
@@ -695,14 +695,14 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#E6E6E6',
+    color: '#D8D8D8',
     lineHeight: 36,
     marginBottom: 20,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E6E6E6',
+    backgroundColor: '#D8D8D8',
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 4,
@@ -764,7 +764,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.45)',
   },
   carouselLabel: {
-    color: '#E6E6E6',
+    color: '#D8D8D8',
     fontSize: 14,
     fontWeight: '700',
     textShadowColor: 'rgba(0,0,0,0.25)',
@@ -887,7 +887,7 @@ const styles = StyleSheet.create({
   servicesStackedList: { gap: 10, paddingHorizontal: 20 },
   serviceStackedCard: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#E6E6E6', borderRadius: 14,
+    backgroundColor: '#D8D8D8', borderRadius: 14,
     paddingVertical: 14, paddingHorizontal: 16,
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06, shadowRadius: 6, elevation: 2,
@@ -917,7 +917,7 @@ const styles = StyleSheet.create({
   serviceName: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#E6E6E6',
+    color: '#D8D8D8',
     textAlign: 'center',
     lineHeight: 17,
   },
@@ -963,7 +963,7 @@ const styles = StyleSheet.create({
   browseProvidersCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E6E6E6',
+    backgroundColor: '#D8D8D8',
     marginHorizontal: 20,
     marginTop: 8,
     marginBottom: 16,
@@ -1024,7 +1024,7 @@ const styles = StyleSheet.create({
   projectTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#E6E6E6',
+    color: '#D8D8D8',
     marginBottom: 4,
   },
   projectPrice: {
@@ -1040,7 +1040,7 @@ const styles = StyleSheet.create({
 
   ctaCard: {
     marginHorizontal: 20,
-    backgroundColor: '#E6E6E6',
+    backgroundColor: '#D8D8D8',
     borderRadius: 16,
     padding: 20,
     shadowColor: '#000',
@@ -1091,7 +1091,7 @@ const styles = StyleSheet.create({
   ctaButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#E6E6E6',
+    color: '#D8D8D8',
   },
 
   pricingGrid: {
@@ -1101,7 +1101,7 @@ const styles = StyleSheet.create({
   },
   pricingCard: {
     flex: 1,
-    backgroundColor: '#E6E6E6',
+    backgroundColor: '#D8D8D8',
     borderRadius: 16,
     padding: 16,
     shadowColor: '#000',
@@ -1143,7 +1143,7 @@ const styles = StyleSheet.create({
   },
   pricingTapText: {
     fontSize: 12,
-    color: '#D74826',
+    color: '#C13E1F',
     fontWeight: '600',
   },
 
@@ -1174,7 +1174,7 @@ const styles = StyleSheet.create({
   inspirationTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#E6E6E6',
+    color: '#D8D8D8',
   },
   inspirationTapHint: {
     position: 'absolute',
