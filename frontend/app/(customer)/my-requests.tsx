@@ -318,6 +318,8 @@ export default function MyRequestsScreen() {
     });
   };
 
+  
+
   // CRITICAL: Only show loading spinner on initial load (no data yet)
   // This prevents "empty flash" during rapid tab switching
   if (loading && !initialLoadComplete && requests.length === 0) {
@@ -328,7 +330,7 @@ export default function MyRequestsScreen() {
             <Text style={styles.title}>My Requests</Text>
           </View>
           <View style={styles.centerContent}>
-            <ActivityIndicator size="large" color="#FFFFFF" />
+            <ActivityIndicator size="large" color="#D8D8D8" />
             <Text style={styles.loadingText}>{COPY.LOADING}</Text>
           </View>
         </View>
@@ -470,11 +472,11 @@ export default function MyRequestsScreen() {
                   <View
                     style={[
                       styles.statusBadge,
-                      { backgroundColor: '#FFFFFF' },
+                      { backgroundColor: statusColors.bg },
                     ]}
                   >
                     <Text
-                      style={[styles.statusText, { color: '#000000' }]}
+                      style={[styles.statusText, { color: statusColors.text }]}
                     >
                       {getStatusLabel(effectiveStatus)}
                     </Text>
@@ -489,6 +491,7 @@ export default function MyRequestsScreen() {
                           : providerPhotoUri,
                       }}
                       style={styles.providerAvatar}
+                      fadeDuration={0}
                     />
                   ) : (
                     <View style={styles.providerAvatarFallback}>
@@ -552,7 +555,7 @@ export default function MyRequestsScreen() {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    backgroundColor: '#005A92',  // Imperial Blue
+    backgroundColor: '#555555',  // Imperial Blue
     paddingTop: 16,
     paddingBottom: 20,
     paddingHorizontal: 16,
@@ -571,7 +574,7 @@ const styles = StyleSheet.create({
   },
 
   tabsGrid: {
-    backgroundColor: '#005A92',
+    backgroundColor: '#555555',
     paddingHorizontal: 14,
     paddingBottom: 16,
     gap: 8,
@@ -582,7 +585,7 @@ const styles = StyleSheet.create({
   },
   tabButton: {
     flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.14)',
+    backgroundColor: 'rgba(255,255,255,0.08)',
     borderRadius: 12,
     paddingVertical: 10,
     alignItems: 'center',
@@ -604,14 +607,14 @@ const styles = StyleSheet.create({
 
   safeArea: {
     flex: 1,
-    backgroundColor: '#005A92',
+    backgroundColor: '#555555',
   },
   container: {
     flex: 1,
-    backgroundColor: '#F7F8FA',
+    backgroundColor: '#777777',
   },
   header: {
-    backgroundColor: '#005A92',
+    backgroundColor: '#555555',
     paddingHorizontal: 20,
     paddingTop: 18,
     paddingBottom: 12,
@@ -739,14 +742,14 @@ const styles = StyleSheet.create({
     height: 46,
     borderRadius: 23,
     marginRight: 12,
-    backgroundColor: '#D9E5F1',
+    backgroundColor: '#3A4651',
   },
   providerAvatarFallback: {
     width: 46,
     height: 46,
     borderRadius: 23,
     marginRight: 12,
-    backgroundColor: '#0B1F33',
+    backgroundColor: '#3A4651',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -845,7 +848,7 @@ const styles = StyleSheet.create({
     height: 58,
     borderRadius: 29,
     marginRight: 14,
-    backgroundColor: '#0B1F33',
+    backgroundColor: '#3A4651',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -891,7 +894,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
  requestCard: {
-    backgroundColor: '#0B1F33',
+    backgroundColor: '#3A4651',
     borderRadius: 22,
     padding: 22,
     shadowColor: '#000',
