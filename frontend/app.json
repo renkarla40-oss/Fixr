@@ -15,7 +15,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/fixr-adaptive-icon.png",
-        "backgroundColor": "#000000"
+        "backgroundColor": "#3A4651"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.fixr.app"
@@ -33,7 +33,7 @@
           "image": "./assets/images/fixr_logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#0B1F33"
+          "backgroundColor": "#3A4651"
         }
       ]
     ],

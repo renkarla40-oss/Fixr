@@ -49,6 +49,21 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 // Tab bar height constant - must match the customer _layout.tsx
 const TAB_BAR_BASE_HEIGHT = 60;
 
+const SERVICE_EMOJIS: Record<string, string> = {
+  plumbing: '🔧',
+  electrical: '⚡',
+  ac: '❄️',
+  appliance: '⚙️',
+  carpentry: '🪚',
+  welding: '🔥',
+  handyman: '🛠️',
+  landscaping: '🌿',
+  cleaning: '✨',
+  roofing: '🏠',
+  painting: '🎨',
+  flooring: '🏗️',
+};
+
 interface ServiceRequest {
   _id: string;
   service: string;
@@ -460,7 +475,15 @@ export default function RequestDetailScreen() {
 
   // Helper: Determine if job is PAID using payments.status as PRIMARY authority
   // Falls back to legacy fields (request.paymentStatus, currentQuote.paidAt) for backward compatibility
-  const isPaid = (): boolean => {
+  const providerPhotoUri = request ? String(
+  (request as any).provider?.profilePhotoUrl ||
+  (request as any).profilePhotoUrl ||
+  (request as any).providerProfilePhoto ||
+  (request as any).providerPhoto ||
+  ''
+).trim() : '';
+
+const isPaid = (): boolean => {
     // PRIMARY: Check payments.status from Payments table
     if (paymentRecord?.status === 'paid') {
       return true;
@@ -1297,7 +1320,7 @@ export default function RequestDetailScreen() {
           {isPaid() && request.jobCode && !request.jobStartedAt && !request.startedAt && (
             <View style={styles.jobCodeCard}>
               <View style={styles.jobCodeHeader}>
-                <Ionicons name="key-outline" size={20} color="#1976D2" />
+                <Ionicons name="key-outline" size={22} color="#1976D2" />
                 <Text style={styles.jobCodeLabel}>START JOB CODE</Text>
               </View>
               <Text style={styles.jobCodeValue}>
@@ -1388,7 +1411,22 @@ export default function RequestDetailScreen() {
           {/* Provider & Service Summary Card */}
           <View style={styles.summaryCard}>
             <View style={styles.summaryRow}>
-              <Ionicons name="person" size={20} color="#D74826" />
+              <View style={styles.summaryIconContainer}>
+              {providerPhotoUri ? (
+                <Image
+                  source={{
+                    uri: providerPhotoUri.startsWith('/')
+                      ? `${BACKEND_URL}${providerPhotoUri}`
+                      : providerPhotoUri,
+                  }}
+                  style={styles.providerAvatar}
+                />
+              ) : (
+                <View style={styles.providerAvatarFallback}>
+                  <Ionicons name="person" size={20} color="#FFFFFF" />
+                </View>
+              )}
+            </View>
               <View style={styles.summaryContent}>
                 <Text style={styles.summaryLabel}>Provider</Text>
                 <Text style={styles.summaryValue}>{request.providerName || 'Open Request'}</Text>
@@ -1396,17 +1434,30 @@ export default function RequestDetailScreen() {
             </View>
             <View style={styles.summaryDivider} />
             <View style={styles.summaryRow}>
-              <Ionicons name="construct" size={20} color="#D74826" />
+              <View style={styles.summaryIconContainer}>
+                <View style={styles.summaryIconBubbleStrong}>
+                  <Text style={styles.summaryIconTextStrong}>
+                    {SERVICE_EMOJIS[request.service] || '🛠️'}
+                  </Text>
+                </View>
+              </View>
               <View style={styles.summaryContent}>
                 <Text style={styles.summaryLabel}>Service</Text>
-                <Text style={styles.summaryValue}>{getServiceLabel(request.service)}</Text>
+                <Text style={styles.summaryValue}>
+  {getServiceLabel(request.service)}
+</Text>
               </View>
             </View>
             {(request.jobTown || request.location) && (
               <>
                 <View style={styles.summaryDivider} />
                 <View style={styles.summaryRow}>
-                  <Ionicons name="location" size={20} color="#D74826" />
+                  <View style={styles.summaryIconContainer}>
+  <Image
+    source={require("../../assets/icons/location.png")}
+    style={styles.summaryLocationIcon}
+  />
+</View>
                   <View style={styles.summaryContent}>
                     <Text style={styles.summaryLabel}>Location</Text>
                     <Text style={styles.summaryValue}>{request.jobTown || request.location}</Text>
@@ -1439,7 +1490,7 @@ export default function RequestDetailScreen() {
           {/* Change Provider Button - Only shown for pending requests with assigned provider */}
           {canChangeProvider && (
             <TouchableOpacity style={styles.changeProviderButton} onPress={handleChangeProvider}>
-              <Ionicons name="swap-horizontal-outline" size={20} color="#1976D2" />
+              <Ionicons name="swap-horizontal-outline" size={22} color="#1976D2" />
               <Text style={styles.changeProviderButtonText}>Change Provider</Text>
             </TouchableOpacity>
           )}
@@ -1447,7 +1498,7 @@ export default function RequestDetailScreen() {
           {/* Cancel Button - Only shown for pending or accepted requests */}
           {canCancel && (
             <TouchableOpacity style={styles.cancelButton} onPress={handleCancelRequest}>
-              <Ionicons name="close-circle-outline" size={20} color="#D74826" />
+              <Ionicons name="close-circle-outline" size={22} color="#D74826" />
               <Text style={styles.cancelButtonText}>Cancel Request</Text>
             </TouchableOpacity>
           )}
@@ -1459,7 +1510,7 @@ export default function RequestDetailScreen() {
                 // Show submitted review
                 <View style={styles.reviewSubmittedCard}>
                   <View style={styles.reviewSubmittedHeader}>
-                    <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                    <Ionicons name="checkmark-circle" size={22} color="#4CAF50" />
                     <Text style={styles.reviewSubmittedTitle}>Review Submitted</Text>
                   </View>
                   <View style={styles.reviewStarsDisplay}>
@@ -1482,7 +1533,7 @@ export default function RequestDetailScreen() {
                   style={styles.leaveReviewButton}
                   onPress={() => router.push({ pathname: '/leave-review', params: { requestId: request._id } })}
                 >
-                  <Ionicons name="star-outline" size={20} color="#FFFFFF" />
+                  <Ionicons name="star-outline" size={22} color="#FFFFFF" />
                   <Text style={styles.leaveReviewButtonText}>Leave a Review</Text>
                 </TouchableOpacity>
               )}
@@ -1546,7 +1597,7 @@ export default function RequestDetailScreen() {
                   {currentQuote && currentQuote.status === 'ACCEPTED' && isPaid() && (
                     <View style={[styles.quoteCard, styles.quoteCardPaid, styles.scrollableQuoteCard]}>
                       <View style={styles.quoteCardHeader}>
-                        <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                        <Ionicons name="checkmark-circle" size={22} color="#4CAF50" />
                         <Text style={styles.quoteCardTitle}>Payment Confirmed</Text>
                       </View>
                       <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
@@ -1612,7 +1663,7 @@ export default function RequestDetailScreen() {
               {currentQuote && currentQuote.status === 'SENT' && (
                 <View style={styles.quoteCard}>
                   <View style={styles.quoteCardHeader}>
-                    <Ionicons name="document-text" size={20} color="#4CAF50" />
+                    <Ionicons name="document-text" size={22} color="#4CAF50" />
                     <Text style={styles.quoteCardTitle}>Quote from Provider</Text>
                     <View style={styles.quoteStatusBadge}>
                       <Text style={styles.quoteStatusText}>
@@ -1732,7 +1783,7 @@ export default function RequestDetailScreen() {
               {currentQuote && currentQuote.status === 'REJECTED' && (
                 <View style={[styles.quoteCard, styles.quoteCardRejected]}>
                   <View style={styles.quoteCardHeader}>
-                    <Ionicons name="close-circle" size={20} color="#D74826" />
+                    <Ionicons name="close-circle" size={22} color="#D74826" />
                     <Text style={styles.quoteCardTitle}>Quote Rejected</Text>
                   </View>
                   <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
@@ -1745,7 +1796,7 @@ export default function RequestDetailScreen() {
               {currentQuote && currentQuote.status === 'COUNTERED' && (
                 <View style={[styles.quoteCard, styles.quoteCardCountered]}>
                   <View style={styles.quoteCardHeader}>
-                    <Ionicons name="swap-horizontal" size={20} color="#FF9800" />
+                    <Ionicons name="swap-horizontal" size={22} color="#FF9800" />
                     <Text style={styles.quoteCardTitle}>Counter Offer Sent</Text>
                   </View>
                   <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
@@ -1771,7 +1822,7 @@ export default function RequestDetailScreen() {
               {currentQuote && currentQuote.status === 'ACCEPTED' && !isPaid() && (
                 <View style={[styles.quoteCard, styles.quoteCardAccepted]}>
                   <View style={styles.quoteCardHeader}>
-                    <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                    <Ionicons name="checkmark-circle" size={22} color="#4CAF50" />
                     <Text style={styles.quoteCardTitle}>Quote Accepted</Text>
                   </View>
                   <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
@@ -2185,21 +2236,77 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: 12,
   },
-  summaryContent: {
+  summaryIconContainer: {
+    width: 46,
+    minWidth: 46,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  summaryIconBubbleStrong: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#E6EDF3',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  summaryIconTextStrong: {
+    fontSize: 21,
+  },
+  summaryToolIconBubble: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#FFF3E0',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  summaryIconBubble: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#FFF3E0',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  summaryIconText: {
+    fontSize: 17,
+  },
+  summaryLocationIcon: {
+    width: 28,
+    height: 28,
+    resizeMode: 'contain',
+  },
+  providerAvatar: {
+  width: 38,
+  height: 38,
+  borderRadius: 19,
+},
+providerAvatarFallback: {
+  width: 38,
+  height: 38,
+  borderRadius: 19,
+  backgroundColor: '#0B1F33',
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+summaryContent: {
     flex: 1,
   },
   summaryLabel: {
-    fontSize: 11,
-    color: '#999',
-    fontWeight: '600',
+    fontSize: 12,
+    color: '#777',
+    fontWeight: '700',
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: 0.6,
   },
-  summaryValue: {
-    fontSize: 16,
-    color: '#1A1A1A',
-    fontWeight: '600',
-    marginTop: 2,
+  
+summaryValue: {
+    fontSize: 17,
+    color: '#0B1F33',
+    fontWeight: '700',
+    marginTop: 4,
   },
   summaryDivider: {
     height: 1,
