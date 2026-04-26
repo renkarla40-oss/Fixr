@@ -1204,10 +1204,10 @@ const isPaid = (): boolean => {
       <View style={[styles.safeArea, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <TouchableOpacity onPress={handleSafeBack} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
           <Text style={styles.title}>Request Details</Text>
-          <View style={styles.backButton} />
+<View style={styles.backButton} />
         </View>
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color="#C13E1F" />
@@ -1223,7 +1223,7 @@ const isPaid = (): boolean => {
       <View style={[styles.safeArea, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <TouchableOpacity onPress={handleSafeBack} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
           <Text style={styles.title}>Request Details</Text>
           <View style={styles.backButton} />
@@ -1242,15 +1242,15 @@ const isPaid = (): boolean => {
   const statusInfo = getStatusInfo(getEffectiveStatus());
 
   return (
-    <View style={[styles.safeArea, { paddingTop: insets.top }]}>
+    <View style={styles.safeArea}>
+      <View style={[styles.headerShell, { paddingTop: insets.top }]}>
       {/* Header with compact status badge */}
       <View style={styles.header}>
         <TouchableOpacity onPress={handleSafeBack} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.title}>Request Details</Text>
-          {/* Compact status badge in header */}
           <View style={[styles.statusBadge, { backgroundColor: statusInfo.bg }]}>
             <Ionicons name={statusInfo.icon as any} size={12} color={statusInfo.text} />
             <Text style={[styles.statusBadgeText, { color: statusInfo.text }]}>{statusInfo.label}</Text>
@@ -1265,7 +1265,7 @@ const isPaid = (): boolean => {
           style={[styles.tab, activeTab === 'details' && styles.tabActive]}
           onPress={() => setActiveTab('details')}
         >
-          <Ionicons name="document-text-outline" size={18} color={activeTab === 'details' ? '#C13E1F' : '#666'} />
+          <Ionicons name="document-text-outline" size={24} color={activeTab === 'details' ? '#F05A28' : '#D8D8D8'} />
           <Text style={[styles.tabText, activeTab === 'details' && styles.tabTextActive]}>Details</Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -1273,13 +1273,14 @@ const isPaid = (): boolean => {
           onPress={() => setActiveTab('chat')}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Ionicons name="chatbubbles-outline" size={18} color={activeTab === 'chat' ? '#C13E1F' : '#666'} />
+            <Ionicons name="chatbubbles-outline" size={24} color={activeTab === 'chat' ? '#F05A28' : '#D8D8D8'} />
             {hasUnreadMessages && activeTab !== 'chat' && (
               <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#C13E1F', marginLeft: 2 }} />
             )}
           </View>
           <Text style={[styles.tabText, activeTab === 'chat' && styles.tabTextActive]}>Messages</Text>
         </TouchableOpacity>
+      </View>
       </View>
 
       {activeTab === 'details' ? (
@@ -1320,7 +1321,7 @@ const isPaid = (): boolean => {
           {isPaid() && request.jobCode && !request.jobStartedAt && !request.startedAt && (
             <View style={styles.jobCodeCard}>
               <View style={styles.jobCodeHeader}>
-                <Ionicons name="key-outline" size={22} color="#1976D2" />
+                <Ionicons name="key-outline" size={24} color="#1976D2" />
                 <Text style={styles.jobCodeLabel}>START JOB CODE</Text>
               </View>
               <Text style={styles.jobCodeValue}>
@@ -1336,7 +1337,7 @@ const isPaid = (): boolean => {
           {request.status === 'in_progress' && request.completionOtp && (
             <View style={styles.completionOtpCard}>
               <View style={styles.completionOtpHeader}>
-                <Ionicons name="key" size={22} color="#4CAF50" />
+                <Ionicons name="key" size={24} color="#4CAF50" />
                 <Text style={styles.completionOtpTitle}>Completion OTP</Text>
               </View>
               <Text style={styles.completionOtpValue}>
@@ -1349,7 +1350,7 @@ const isPaid = (): boolean => {
           {/* In Progress Status - Light blue theme */}
           {request.status === 'in_progress' && (
             <View style={styles.inProgressCard}>
-              <Ionicons name="play-circle" size={22} color="#4A90D9" />
+              <Ionicons name="play-circle" size={24} color="#4A90D9" />
               <View style={styles.inProgressContent}>
                 <Text style={styles.inProgressTitle}>Job In Progress</Text>
                 <Text style={styles.inProgressText}>The provider is working on your request</Text>
@@ -1490,7 +1491,7 @@ const isPaid = (): boolean => {
           {/* Change Provider Button - Only shown for pending requests with assigned provider */}
           {canChangeProvider && (
             <TouchableOpacity style={styles.changeProviderButton} onPress={handleChangeProvider}>
-              <Ionicons name="swap-horizontal-outline" size={22} color="#1976D2" />
+              <Ionicons name="swap-horizontal-outline" size={24} color="#1976D2" />
               <Text style={styles.changeProviderButtonText}>Change Provider</Text>
             </TouchableOpacity>
           )}
@@ -1498,7 +1499,7 @@ const isPaid = (): boolean => {
           {/* Cancel Button - Only shown for pending or accepted requests */}
           {canCancel && (
             <TouchableOpacity style={styles.cancelButton} onPress={handleCancelRequest}>
-              <Ionicons name="close-circle-outline" size={22} color="#C13E1F" />
+              <Ionicons name="close-circle-outline" size={24} color="#C13E1F" />
               <Text style={styles.cancelButtonText}>Cancel Request</Text>
             </TouchableOpacity>
           )}
@@ -1510,7 +1511,7 @@ const isPaid = (): boolean => {
                 // Show submitted review
                 <View style={styles.reviewSubmittedCard}>
                   <View style={styles.reviewSubmittedHeader}>
-                    <Ionicons name="checkmark-circle" size={22} color="#4CAF50" />
+                    <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
                     <Text style={styles.reviewSubmittedTitle}>Review Submitted</Text>
                   </View>
                   <View style={styles.reviewStarsDisplay}>
@@ -1533,7 +1534,7 @@ const isPaid = (): boolean => {
                   style={styles.leaveReviewButton}
                   onPress={() => router.push({ pathname: '/leave-review', params: { requestId: request._id } })}
                 >
-                  <Ionicons name="star-outline" size={22} color="#FFFFFF" />
+                  <Ionicons name="star-outline" size={24} color="#FFFFFF" />
                   <Text style={styles.leaveReviewButtonText}>Leave a Review</Text>
                 </TouchableOpacity>
               )}
@@ -1597,7 +1598,7 @@ const isPaid = (): boolean => {
                   {currentQuote && currentQuote.status === 'ACCEPTED' && isPaid() && (
                     <View style={[styles.quoteCard, styles.quoteCardPaid, styles.scrollableQuoteCard]}>
                       <View style={styles.quoteCardHeader}>
-                        <Ionicons name="checkmark-circle" size={22} color="#4CAF50" />
+                        <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
                         <Text style={styles.quoteCardTitle}>Payment Confirmed</Text>
                       </View>
                       <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
@@ -1663,7 +1664,7 @@ const isPaid = (): boolean => {
               {currentQuote && currentQuote.status === 'SENT' && (
                 <View style={styles.quoteCard}>
                   <View style={styles.quoteCardHeader}>
-                    <Ionicons name="document-text" size={22} color="#4CAF50" />
+                    <Ionicons name="document-text" size={24} color="#4CAF50" />
                     <Text style={styles.quoteCardTitle}>Quote from Provider</Text>
                     <View style={styles.quoteStatusBadge}>
                       <Text style={styles.quoteStatusText}>
@@ -1783,7 +1784,7 @@ const isPaid = (): boolean => {
               {currentQuote && currentQuote.status === 'REJECTED' && (
                 <View style={[styles.quoteCard, styles.quoteCardRejected]}>
                   <View style={styles.quoteCardHeader}>
-                    <Ionicons name="close-circle" size={22} color="#C13E1F" />
+                    <Ionicons name="close-circle" size={24} color="#C13E1F" />
                     <Text style={styles.quoteCardTitle}>Quote Rejected</Text>
                   </View>
                   <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
@@ -1796,7 +1797,7 @@ const isPaid = (): boolean => {
               {currentQuote && currentQuote.status === 'COUNTERED' && (
                 <View style={[styles.quoteCard, styles.quoteCardCountered]}>
                   <View style={styles.quoteCardHeader}>
-                    <Ionicons name="swap-horizontal" size={22} color="#FF9800" />
+                    <Ionicons name="swap-horizontal" size={24} color="#FF9800" />
                     <Text style={styles.quoteCardTitle}>Counter Offer Sent</Text>
                   </View>
                   <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
@@ -1822,7 +1823,7 @@ const isPaid = (): boolean => {
               {currentQuote && currentQuote.status === 'ACCEPTED' && !isPaid() && (
                 <View style={[styles.quoteCard, styles.quoteCardAccepted]}>
                   <View style={styles.quoteCardHeader}>
-                    <Ionicons name="checkmark-circle" size={22} color="#4CAF50" />
+                    <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
                     <Text style={styles.quoteCardTitle}>Quote Accepted</Text>
                   </View>
                   <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
@@ -1881,16 +1882,19 @@ const isPaid = (): boolean => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F2F4F7',
+  },
+  headerShell: {
+    backgroundColor: '#3A4651',
   },
   header: {
     flexDirection: 'row',
+    backgroundColor: '#3A4651',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    paddingVertical: 20,
+    borderBottomWidth: 0,
   },
   headerCenter: {
     alignItems: 'center',
@@ -1902,22 +1906,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#FFFFFF',
   },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 10,
-    marginTop: 4,
+    paddingVertical: 2,
+    borderRadius: 999,
+    height: 22,
+    marginTop: 18,
     gap: 4,
   },
   statusBadgeText: {
-    fontSize: 11,
-    fontWeight: '600',
+    fontSize: 10,
+    fontWeight: '700',
   },
   centerContent: {
     flex: 1,
@@ -1933,7 +1938,7 @@ const styles = StyleSheet.create({
   errorTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
     marginTop: 16,
     marginBottom: 8,
   },
@@ -1957,8 +1962,9 @@ const styles = StyleSheet.create({
   },
   tabBar: {
     flexDirection: 'row',
+    backgroundColor: '#3A4651',
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: '#2C3640',
   },
   tab: {
     flex: 1,
@@ -1970,16 +1976,16 @@ const styles = StyleSheet.create({
   },
   tabActive: {
     borderBottomWidth: 2,
-    borderBottomColor: '#C13E1F',
+    borderBottomColor: '#F05A28',
   },
   tabText: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
+    fontSize: 18,
+    color: '#EDEDED',
+    fontWeight: '800',
   },
   tabTextActive: {
-    color: '#C13E1F',
-    fontWeight: '600',
+    color: '#FF6A3D',
+    fontWeight: '900',
   },
   tabIconContainer: {
     position: 'relative',
@@ -1997,9 +2003,11 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    backgroundColor: '#F2F4F7',
   },
   contentContainer: {
     padding: 16,
+    backgroundColor: '#F2F4F7',
   },
   // DECLINED BANNER - Red theme
   declinedBanner: {
@@ -2224,7 +2232,7 @@ const styles = StyleSheet.create({
   },
   // Summary Card
   summaryCard: {
-    backgroundColor: '#FAFAFA',
+    backgroundColor: '#D8D8D8',
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -2244,10 +2252,12 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   summaryIconBubbleStrong: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: '#E6EDF3',
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.08)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -2320,7 +2330,7 @@ summaryValue: {
   },
   // Description Card
   descriptionCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#D8D8D8',
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -2348,7 +2358,7 @@ summaryValue: {
   },
   infoItem: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#D8D8D8',
     borderRadius: 8,
     padding: 12,
     alignItems: 'center',
@@ -2488,7 +2498,7 @@ summaryValue: {
   },
   chatClosedText: {
     fontSize: 14,
-    color: '#666',
+    color: '#B0B8BF',
     fontWeight: '500',
   },
   messageInputContainer: {

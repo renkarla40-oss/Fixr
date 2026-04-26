@@ -117,12 +117,13 @@ export default function FavoritesScreen() {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Favourite Providers</Text>
+    <View style={styles.container}>
+      <View style={[styles.headerShell, { paddingTop: insets.top }]}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Favourite Providers</Text>
+        </View>
       </View>
-
-      {loading && favoriteProviders.length === 0 ? (
+           {loading && favoriteProviders.length === 0 ? (
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color="#C13E1F" />
         </View>
@@ -159,18 +160,24 @@ export default function FavoritesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F2F4F7',
+  },
+  headerShell: {
+    backgroundColor: '#3A4651',
   },
   header: {
     paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    paddingVertical: 18,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#1A1A1A',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#FFFFFF',
   },
   centerContent: {
     flex: 1,
@@ -205,7 +212,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   providerCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#D8D8D8',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
