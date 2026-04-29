@@ -14,46 +14,46 @@ export interface StatusStyle {
 export const STATUS_COLORS = {
   // Pending - Blue
   pending: {
-    bg: '#EAF3FF',
-    text: '#4A7DC4',
+    bg: '#DCEAFF',
+    text: '#245A9C',
   },
   // Accepted - Green
   accepted: {
-    bg: '#E8F5E9',
-    text: '#2E7D32',
+    bg: '#D7ECD9',
+    text: '#1F6B25',
   },
   // Awaiting Payment - Yellow/Amber
   awaiting_payment: {
-    bg: '#FFF3E0',
-    text: '#E65100',
+    bg: '#FFE4C7',
+    text: '#B84200',
   },
   // Ready to Start - Blue (same as In Progress - payment confirmed, waiting for job start)
   ready_to_start: {
-    bg: '#E3F2FD',
-    text: '#1565C0',
+    bg: '#D6E8F8',
+    text: '#0D4F96',
   },
   // In Progress - Blue (slightly different shade)
   in_progress: {
-    bg: '#EEF6FF',
-    text: '#2C5AA0',
+    bg: '#E0ECFA',
+    text: '#1E477F',
   },
   // Completed variants - Purple
   completed: {
-    bg: '#F3E5F5',
-    text: '#7B1FA2',
+    bg: '#EAD6EE',
+    text: '#64107F',
   },
   completed_pending_review: {
-    bg: '#F3E5F5',  // Same as completed
-    text: '#7B1FA2',
+    bg: '#EAD6EE',  // Same as completed
+    text: '#64107F',
   },
   completed_reviewed: {
-    bg: '#F3E5F5',  // Same as completed
-    text: '#7B1FA2',
+    bg: '#EAD6EE',  // Same as completed
+    text: '#64107F',
   },
-  // Cancelled - Yellow/Amber (same as awaiting payment)
+  // Cancelled - Muted red
   cancelled: {
-    bg: '#FFF3E0',
-    text: '#E65100',
+    bg: '#FDECEC',
+    text: '#8F241A',
   },
   // Declined - Red
   declined: {

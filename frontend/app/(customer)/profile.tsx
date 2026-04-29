@@ -10,6 +10,7 @@ import {
   Linking,
   Image,
 } from 'react-native';
+import SupportIcon from '../../assets/icons/support_icon.png';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
@@ -79,9 +80,9 @@ export default function ProfileScreen() {
   };
 
   return (
-    <View style={[styles.safeArea, { paddingTop: insets.top }]}>
+    <View style={styles.safeArea}>
       <View style={styles.container}>
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
           <Text style={styles.title}>Profile</Text>
         </View>
 
@@ -105,7 +106,7 @@ export default function ProfileScreen() {
             <Text style={styles.email}>{user?.email}</Text>
             <Text style={styles.phone}>{user?.phone}</Text>
             <View style={styles.roleBadge}>
-              <Ionicons name="person" size={14} color="#4CAF50" />
+              <Ionicons name="person" size={14} color="#3A4651" />
               <Text style={styles.roleText}>Customer</Text>
             </View>
           </View>
@@ -119,7 +120,7 @@ export default function ProfileScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuItemLeft}>
-                <Ionicons name="person-outline" size={24} color="#666" />
+                <Ionicons name="id-card-outline" size={24} color="#2C3640" />
                 <Text style={styles.menuItemText}>Edit Profile</Text>
               </View>
               <Ionicons name="chevron-forward" size={24} color="#999" />
@@ -132,13 +133,13 @@ export default function ProfileScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuItemLeft}>
-                <Ionicons name="swap-horizontal-outline" size={24} color="#D74826" />
+                <Ionicons name="repeat-outline" size={24} color="#2C3640" />
                 <Text style={[styles.menuItemText, styles.switchText]}>
                   Switch to Provider
                 </Text>
               </View>
               {switching ? (
-                <ActivityIndicator size="small" color="#D74826" />
+                <ActivityIndicator size="small" color="#2C3640" />
               ) : (
                 <Ionicons name="chevron-forward" size={24} color="#999" />
               )}
@@ -154,10 +155,10 @@ export default function ProfileScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuItemLeft}>
-                <Ionicons name="mail-outline" size={24} color="#D74826" />
+                <Ionicons name="mail-open-outline" size={24} color="#2C3640" />
                 <Text style={[styles.menuItemText, styles.betaText]}>Contact Fixr (Beta)</Text>
               </View>
-              <Ionicons name="open-outline" size={20} color="#D74826" />
+              <Ionicons name="open-outline" size={20} color="#2C3640" />
             </TouchableOpacity>
             
             <TouchableOpacity 
@@ -166,7 +167,7 @@ export default function ProfileScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuItemLeft}>
-                <Ionicons name="headset-outline" size={24} color="#666" />
+                <Image source={SupportIcon} style={styles.supportIcon} />
                 <Text style={styles.menuItemText}>Support</Text>
               </View>
               <Ionicons name="chevron-forward" size={24} color="#999" />
@@ -178,7 +179,7 @@ export default function ProfileScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuItemLeft}>
-                <Ionicons name="chatbubble-outline" size={24} color="#666" />
+                <Ionicons name="chatbubbles-outline" size={24} color="#2C3640" />
                 <Text style={styles.menuItemText}>Send Feedback</Text>
               </View>
               <Ionicons name="chevron-forward" size={24} color="#999" />
@@ -194,7 +195,7 @@ export default function ProfileScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuItemLeft}>
-                <Ionicons name="document-text-outline" size={24} color="#666" />
+                <Ionicons name="document-outline" size={24} color="#3A4651" />
                 <Text style={styles.menuItemText}>Terms of Service</Text>
               </View>
               <Ionicons name="chevron-forward" size={24} color="#999" />
@@ -206,7 +207,7 @@ export default function ProfileScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuItemLeft}>
-                <Ionicons name="shield-outline" size={24} color="#666" />
+                <Ionicons name="shield-checkmark-outline" size={24} color="#3A4651" />
                 <Text style={styles.menuItemText}>Privacy Policy</Text>
               </View>
               <Ionicons name="chevron-forward" size={24} color="#999" />
@@ -219,7 +220,7 @@ export default function ProfileScreen() {
               onPress={handleLogout}
               activeOpacity={0.7}
             >
-              <Ionicons name="log-out-outline" size={24} color="#D74826" />
+              <Ionicons name="exit-outline" size={24} color="#2C3640" />
               <Text style={styles.logoutText}>Logout</Text>
             </TouchableOpacity>
           </View>
@@ -236,35 +237,37 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F2F4F7',
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    
   },
   header: {
     paddingHorizontal: 24,
     paddingTop: 16,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    paddingBottom: 20,
+    backgroundColor: '#3A4651',
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
+    fontWeight: '800',
+    color: '#FFFFFF',
   },
   content: {
     flex: 1,
+    
   },
   contentContainer: {
     paddingBottom: 20,
+    
   },
   profileSection: {
     alignItems: 'center',
     paddingVertical: 32,
+    
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: '#D0D5DD',
   },
   avatarContainer: {
     width: 100,
@@ -300,7 +303,7 @@ const styles = StyleSheet.create({
   roleBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#D8D8D8',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
@@ -308,7 +311,7 @@ const styles = StyleSheet.create({
   },
   roleText: {
     fontSize: 13,
-    color: '#4CAF50',
+    color: '#3A4651',
     fontWeight: '600',
   },
   section: {
@@ -339,11 +342,11 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
   },
   switchText: {
-    color: '#D74826',
+    color: '#3A4651',
     fontWeight: '600',
   },
   betaText: {
-    color: '#D74826',
+    color: '#3A4651',
     fontWeight: '600',
   },
   logoutButton: {
@@ -352,16 +355,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 12,
     paddingVertical: 16,
-    backgroundColor: '#FFF5F5',
+    backgroundColor: '#D8D8D8',
     borderRadius: 12,
     marginTop: 8,
     borderWidth: 1,
-    borderColor: '#FFCDD2',
+    borderColor: '#D8D8D8',
   },
   logoutText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#D74826',
+    color: '#3A4651',
   },
   versionSection: {
     alignItems: 'center',
@@ -371,5 +374,11 @@ const styles = StyleSheet.create({
   versionText: {
     fontSize: 14,
     color: '#999',
+  },
+  supportIcon: {
+    width: 38,
+    height: 38,
+    resizeMode: 'contain',
+    transform: [{ translateX: -8 }],
   },
 });

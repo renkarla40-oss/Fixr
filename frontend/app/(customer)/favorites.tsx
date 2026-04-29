@@ -95,7 +95,7 @@ export default function FavoritesScreen() {
             <Ionicons 
               name={favorited ? "heart" : "heart-outline"} 
               size={22} 
-              color={favorited ? "#D74826" : "#999"} 
+              color={favorited ? "#C13E1F" : "#999"} 
             />
           </TouchableOpacity>
         </View>
@@ -117,19 +117,20 @@ export default function FavoritesScreen() {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Favourite Providers</Text>
+    <View style={styles.container}>
+      <View style={[styles.headerShell, { paddingTop: insets.top }]}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Favourite Providers</Text>
+        </View>
       </View>
-
-      {loading && favoriteProviders.length === 0 ? (
+           {loading && favoriteProviders.length === 0 ? (
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#D74826" />
+          <ActivityIndicator size="large" color="#C13E1F" />
         </View>
       ) : favoriteProviders.length === 0 ? (
         <View style={styles.centerContent}>
           <View style={styles.emptyIconContainer}>
-            <Ionicons name="heart-outline" size={48} color="#D74826" />
+            <Ionicons name="heart-outline" size={48} color="#C13E1F" />
           </View>
           <Text style={styles.emptyTitle}>No Favourites Yet</Text>
           <Text style={styles.emptyText}>
@@ -147,7 +148,7 @@ export default function FavoritesScreen() {
             <RefreshControl
               refreshing={loading}
               onRefresh={refreshFavorites}
-              tintColor="#D74826"
+              tintColor="#C13E1F"
             />
           }
         />
@@ -159,18 +160,24 @@ export default function FavoritesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F2F4F7',
+  },
+  headerShell: {
+    backgroundColor: '#3A4651',
   },
   header: {
     paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    paddingVertical: 18,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#1A1A1A',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#FFFFFF',
   },
   centerContent: {
     flex: 1,
@@ -205,7 +212,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   providerCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#D8D8D8',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,

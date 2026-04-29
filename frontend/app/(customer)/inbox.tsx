@@ -7,6 +7,7 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
+  Image,
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -142,11 +143,13 @@ export default function CustomerInboxScreen() {
       }
       
       const requests = response.data || [];
+
       
       // OPTIMIZED: Use timestamps from request data instead of N+1 message fetches
       const conversationsWithMessages: Conversation[] = requests
-        .filter((req: any) => 
-          req.last_message_at || ['pending', 'accepted', 'in_progress', 'completed'].includes(req.status)
+        .filter((req: any) =>
+          req.providerPhoto &&
+          (req.last_message_at || ['pending', 'accepted', 'in_progress', 'completed'].includes(req.status))
         )
         .map((req: any) => {
           // Per-user unread tracking using timestamps
@@ -166,6 +169,7 @@ export default function CustomerInboxScreen() {
             service: req.service,
             providerName: req.providerName || 'Open Request',
             status: req.status,
+            profilePhotoUrl: req.providerPhoto || req.providerPhotoUrl || req.profilePhotoUrl,
             lastMessage: req.last_message_at ? {
               text: req.lastMessage || 'Tap to view messages',
               senderRole: 'system',
@@ -226,10 +230,10 @@ export default function CustomerInboxScreen() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'accepted': return '#4CAF50';
-      case 'in_progress': return '#2196F3';
+      case 'in_progress': return '#F05A28';
       case 'completed': return '#9C27B0';
       case 'declined': return '#F44336';
-      default: return '#4A7DC4';
+      default: return '#F05A28';
     }
   };
 
@@ -239,9 +243,20 @@ export default function CustomerInboxScreen() {
       onPress={() => handleConversationPress(item.requestId)}
       activeOpacity={0.7}
     >
+      {item.profilePhotoUrl ? (
+      <Image
+        source={{
+          uri: item.profilePhotoUrl.startsWith('/')
+            ? `${BACKEND_URL}${item.profilePhotoUrl}`
+            : item.profilePhotoUrl,
+        }}
+        style={styles.avatar}
+      />
+    ) : (
       <View style={styles.avatar}>
         <Ionicons name="person" size={24} color="#666" />
       </View>
+    )}
       
       <View style={styles.conversationContent}>
         <View style={styles.conversationHeader}>
@@ -277,12 +292,14 @@ export default function CustomerInboxScreen() {
   // This prevents "empty flash" during rapid tab switching
   if (loading && !initialLoadComplete && conversations.length === 0) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Inbox</Text>
+      <View style={styles.container}>
+        <View style={[styles.headerShell, { paddingTop: insets.top }]}>
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Inbox</Text>
+          </View>
         </View>
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#1E4DB7" />
+          <ActivityIndicator size="large" color="#F05A28" />
           <Text style={styles.loadingText}>{COPY.LOADING}</Text>
         </View>
       </View>
@@ -292,9 +309,11 @@ export default function CustomerInboxScreen() {
   // Error state with retry button (only if no data)
   if (error && conversations.length === 0) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Inbox</Text>
+      <View style={styles.container}>
+        <View style={[styles.headerShell, { paddingTop: insets.top }]}>
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Inbox</Text>
+          </View>
         </View>
         <View style={styles.centerContent}>
           <Ionicons name="cloud-offline-outline" size={48} color="#999" />
@@ -309,9 +328,11 @@ export default function CustomerInboxScreen() {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Inbox</Text>
+    <View style={styles.container}>
+      <View style={[styles.headerShell, { paddingTop: insets.top }]}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Inbox</Text>
+        </View>
       </View>
       
       {/* Empty state - ONLY show when initial load is complete AND truly empty */}
@@ -338,19 +359,27 @@ export default function CustomerInboxScreen() {
 }
 
 const styles = StyleSheet.create({
+  headerShell: {
+    backgroundColor: '#3A4651',
+  },
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: '#F2F4F7',
   },
   header: {
     paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: COLORS.background,
+    paddingVertical: 20,
+    backgroundColor: '#3A4651',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1D4F91',
+    color: '#2C3640',
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#FFFFFF',
   },
   centerContent: {
     flex: 1,
@@ -374,14 +403,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 16,
-    backgroundColor: '#1E4DB7',
+    backgroundColor: '#F05A28',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 24,
     gap: 8,
   },
   retryButtonText: {
-    color: '#1D4F91',
+    color: '#2C3640',
     fontSize: 14,
     fontWeight: '700',
     fontWeight: '700',
@@ -415,7 +444,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#D8D8D8',
     borderRadius: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -427,10 +456,11 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#F0F0F0',
-    justifyContent: 'center',
+    overflow: 'hidden',
+    backgroundColor: '#E0E0E0',
     alignItems: 'center',
-    marginRight: 16,
+    justifyContent: 'center',
+    marginRight: 14,
   },
   conversationContent: {
     flex: 1,
@@ -454,7 +484,7 @@ const styles = StyleSheet.create({
   },
   serviceName: {
     fontSize: 13,
-    color: '#1E4DB7',
+    color: '#2C3640',
     marginBottom: 4,
   },
   lastMessage: {

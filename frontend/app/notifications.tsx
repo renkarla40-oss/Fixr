@@ -221,7 +221,7 @@ export default function NotificationsScreen() {
     // Status-based icons
     const title = activity.title.toLowerCase();
     if (title.includes('accepted')) return { name: 'checkmark-circle', color: '#4CAF50' };
-    if (title.includes('declined')) return { name: 'close-circle', color: '#D74826' };
+    if (title.includes('declined')) return { name: 'close-circle', color: '#C13E1F' };
     if (title.includes('started')) return { name: 'play-circle', color: '#1976D2' };
     if (title.includes('completed')) return { name: 'checkmark-done-circle', color: '#7B1FA2' };
     if (title.includes('cancelled')) return { name: 'close-circle', color: '#FF5722' };
@@ -290,7 +290,7 @@ export default function NotificationsScreen() {
           <View style={styles.headerRight} />
         </View>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#D74826" />
+          <ActivityIndicator size="large" color="#C13E1F" />
           <Text style={styles.loadingText}>{COPY.LOADING}</Text>
         </View>
       </View>
@@ -334,7 +334,7 @@ export default function NotificationsScreen() {
             disabled={markingAllRead}
           >
             {markingAllRead ? (
-              <ActivityIndicator size="small" color="#D74826" />
+              <ActivityIndicator size="small" color="#C13E1F" />
             ) : (
               <Text style={styles.markAllText}>Mark all read</Text>
             )}
@@ -366,7 +366,7 @@ export default function NotificationsScreen() {
           keyExtractor={(item) => item._id}
           contentContainerStyle={styles.listContent}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#D74826']} />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#C13E1F']} />
           }
         />
       )}
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
   },
   markAllText: {
     fontSize: 14,
-    color: '#D74826',
+    color: '#C13E1F',
     fontWeight: '500',
   },
   loadingContainer: {
@@ -437,7 +437,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 16,
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 24,
@@ -526,7 +526,7 @@ const styles = StyleSheet.create({
   },
   activityService: {
     fontSize: 12,
-    color: '#D74826',
+    color: '#C13E1F',
     fontWeight: '500',
   },
   activityTime: {
@@ -537,7 +537,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     marginRight: 8,
   },
 });

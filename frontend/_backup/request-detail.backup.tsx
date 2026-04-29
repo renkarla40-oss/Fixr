@@ -1106,7 +1106,7 @@ export default function ProviderRequestDetailScreen() {
       case 'completed':
         return { bg: '#F3E5F5', text: '#7B1FA2', icon: 'checkmark-done-circle', label: 'Completed' };
       case 'declined':
-        return { bg: '#FFEBEE', text: '#D74826', icon: 'close-circle', label: 'Declined' };
+        return { bg: '#FFEBEE', text: '#C13E1F', icon: 'close-circle', label: 'Declined' };
       case 'cancelled':
         return { bg: '#FFF3E0', text: '#E65100', icon: 'close-circle-outline', label: 'Cancelled' };
       default:
@@ -1126,7 +1126,7 @@ export default function ProviderRequestDetailScreen() {
           <View style={styles.backButton} />
         </View>
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#D74826" />
+          <ActivityIndicator size="large" color="#C13E1F" />
           <Text style={styles.loadingText}>{authLoading ? 'Authenticating...' : 'Loading request...'}</Text>
         </View>
       </View>
@@ -1183,7 +1183,7 @@ export default function ProviderRequestDetailScreen() {
           style={[styles.tab, activeTab === 'details' && styles.tabActive]}
           onPress={() => setActiveTab('details')}
         >
-          <Ionicons name="document-text-outline" size={18} color={activeTab === 'details' ? '#D74826' : '#666'} />
+          <Ionicons name="document-text-outline" size={18} color={activeTab === 'details' ? '#C13E1F' : '#666'} />
           <Text style={[styles.tabText, activeTab === 'details' && styles.tabTextActive]}>Details</Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -1191,9 +1191,9 @@ export default function ProviderRequestDetailScreen() {
           onPress={() => setActiveTab('chat')}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Ionicons name="chatbubbles-outline" size={18} color={activeTab === 'chat' ? '#D74826' : '#666'} />
+            <Ionicons name="chatbubbles-outline" size={18} color={activeTab === 'chat' ? '#C13E1F' : '#666'} />
             {hasUnreadMessages && activeTab !== 'chat' && (
-              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#D74826', marginLeft: 2 }} />
+              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#C13E1F', marginLeft: 2 }} />
             )}
           </View>
           <Text style={[styles.tabText, activeTab === 'chat' && styles.tabTextActive]}>Messages</Text>
@@ -1219,7 +1219,7 @@ export default function ProviderRequestDetailScreen() {
             {/* Customer & Service Summary Card - TOP PRIORITY INFO */}
             <View style={styles.summaryCard}>
               <View style={styles.summaryRow}>
-                <Ionicons name="person" size={20} color="#D74826" />
+                <Ionicons name="person" size={20} color="#C13E1F" />
                 <View style={styles.summaryContent}>
                   <Text style={styles.summaryLabel}>Customer</Text>
                   <Text style={styles.summaryValue}>{request.customerName}</Text>
@@ -1227,7 +1227,7 @@ export default function ProviderRequestDetailScreen() {
               </View>
               <View style={styles.summaryDivider} />
               <View style={styles.summaryRow}>
-                <Ionicons name="construct" size={20} color="#D74826" />
+                <Ionicons name="construct" size={20} color="#C13E1F" />
                 <View style={styles.summaryContent}>
                   <Text style={styles.summaryLabel}>Service</Text>
                   <Text style={styles.summaryValue}>{getServiceLabel(request.service)}</Text>
@@ -1238,7 +1238,7 @@ export default function ProviderRequestDetailScreen() {
                 <>
                   <View style={styles.summaryDivider} />
                   <View style={styles.summaryRow}>
-                    <Ionicons name="location" size={20} color="#D74826" />
+                    <Ionicons name="location" size={20} color="#C13E1F" />
                     <View style={styles.summaryContent}>
                       <Text style={styles.summaryLabel}>Location</Text>
                       <Text style={styles.summaryValue}>{request.jobTown || request.location}</Text>
@@ -1282,7 +1282,7 @@ export default function ProviderRequestDetailScreen() {
             {request.status === 'accepted' && (!currentQuote || currentQuote.status === 'VOID') && (
               <View style={styles.sendQuoteCTASection}>
                 <View style={styles.sendQuoteCTAHeader}>
-                  <Ionicons name="document-text-outline" size={24} color="#D74826" />
+                  <Ionicons name="document-text-outline" size={24} color="#C13E1F" />
                   <Text style={styles.sendQuoteCTATitle}>Send Quote to Customer</Text>
                 </View>
                 <Text style={styles.sendQuoteCTASubtext}>
@@ -1326,7 +1326,7 @@ export default function ProviderRequestDetailScreen() {
             {currentQuote && currentQuote.status === 'REJECTED' && (
               <View style={styles.quoteRejectedSection}>
                 <View style={styles.quoteRejectedSectionHeader}>
-                  <Ionicons name="close-circle" size={20} color="#D74826" />
+                  <Ionicons name="close-circle" size={20} color="#C13E1F" />
                   <Text style={styles.quoteRejectedSectionTitle}>Quote Rejected</Text>
                 </View>
                 <Text style={styles.quoteRejectedSectionAmount}>Your quote: ${currentQuote.amount.toFixed(2)}</Text>
@@ -1595,7 +1595,7 @@ export default function ProviderRequestDetailScreen() {
                 onPress={handleDecline}
                 disabled={actionLoading}
               >
-                <Ionicons name="close" size={22} color="#D74826" />
+                <Ionicons name="close" size={22} color="#C13E1F" />
                 <Text style={styles.declineButtonText}>Decline</Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -1624,7 +1624,7 @@ export default function ProviderRequestDetailScreen() {
         >
           {loadingMessages ? (
             <View style={styles.centerContent}>
-              <ActivityIndicator size="large" color="#D74826" />
+              <ActivityIndicator size="large" color="#C13E1F" />
             </View>
           ) : (
             <ScrollView
@@ -1748,7 +1748,7 @@ export default function ProviderRequestDetailScreen() {
               {currentQuote && currentQuote.status === 'REJECTED' && (
                 <View style={styles.quoteRejectedBanner}>
                   <View style={styles.quoteRejectedHeader}>
-                    <Ionicons name="close-circle" size={18} color="#D74826" />
+                    <Ionicons name="close-circle" size={18} color="#C13E1F" />
                     <Text style={styles.quoteRejectedTitle}>Quote Rejected</Text>
                   </View>
                   <Text style={styles.quoteRejectedSubtext}>
@@ -1862,9 +1862,9 @@ export default function ProviderRequestDetailScreen() {
                   disabled={uploadingImage}
                 >
                   {uploadingImage ? (
-                    <ActivityIndicator size="small" color="#D74826" />
+                    <ActivityIndicator size="small" color="#C13E1F" />
                   ) : (
-                    <Ionicons name="camera" size={24} color="#D74826" />
+                    <Ionicons name="camera" size={24} color="#C13E1F" />
                   )}
                 </TouchableOpacity>
                 <TextInput
@@ -2177,7 +2177,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   retryButton: {
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
@@ -2202,7 +2202,7 @@ const styles = StyleSheet.create({
   },
   tabActive: {
     borderBottomWidth: 2,
-    borderBottomColor: '#D74826',
+    borderBottomColor: '#C13E1F',
   },
   tabText: {
     fontSize: 14,
@@ -2210,7 +2210,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   tabTextActive: {
-    color: '#D74826',
+    color: '#C13E1F',
     fontWeight: '600',
   },
   tabIconContainer: {
@@ -2223,7 +2223,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     borderWidth: 2,
     borderColor: '#FFFFFF',
   },
@@ -2273,7 +2273,7 @@ const styles = StyleSheet.create({
   },
   subCategoryText: {
     fontSize: 13,
-    color: '#D74826',
+    color: '#C13E1F',
     marginTop: 2,
   },
   // Description Card
@@ -2396,7 +2396,7 @@ const styles = StyleSheet.create({
   sendQuoteCTATitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#D74826',
+    color: '#C13E1F',
   },
   sendQuoteCTASubtext: {
     fontSize: 13,
@@ -2408,7 +2408,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
@@ -2499,7 +2499,7 @@ const styles = StyleSheet.create({
   quoteRejectedSectionTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#D74826',
+    color: '#C13E1F',
   },
   quoteRejectedSectionAmount: {
     fontSize: 13,
@@ -2510,7 +2510,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
@@ -2605,13 +2605,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
-    borderColor: '#D74826',
+    borderColor: '#C13E1F',
     paddingVertical: 16,
     borderRadius: 12,
     gap: 8,
   },
   declineButtonText: {
-    color: '#D74826',
+    color: '#C13E1F',
     fontSize: 16,
     fontWeight: '700',
   },
@@ -2938,7 +2938,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   messageBubbleMine: {
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     alignSelf: 'flex-end',
     borderBottomRightRadius: 4,
   },
@@ -3049,7 +3049,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -3158,7 +3158,7 @@ const styles = StyleSheet.create({
   quoteRejectedTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#D74826',
+    color: '#C13E1F',
   },
   quoteRejectedSubtext: {
     fontSize: 13,
@@ -3169,7 +3169,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingVertical: 12,
     borderRadius: 8,
     gap: 8,

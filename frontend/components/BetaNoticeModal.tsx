@@ -32,7 +32,7 @@ export default function BetaNoticeModal({ visible, onClose }: BetaNoticeModalPro
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
           <View style={styles.iconContainer}>
-            <Ionicons name="flask" size={48} color="#D74826" />
+            <Ionicons name="flask" size={48} color="#C13E1F" />
           </View>
 
           <Text style={styles.title}>Fixr is in Beta</Text>
@@ -46,7 +46,7 @@ export default function BetaNoticeModal({ visible, onClose }: BetaNoticeModalPro
             onPress={handleContactPress}
             activeOpacity={0.7}
           >
-            <Ionicons name="mail-outline" size={18} color="#D74826" />
+            <Ionicons name="mail-outline" size={18} color="#C13E1F" />
             <Text style={styles.contactButtonText}>Contact Fixr (Beta)</Text>
           </TouchableOpacity>
 
@@ -113,11 +113,11 @@ const styles = StyleSheet.create({
   },
   contactButtonText: {
     fontSize: 14,
-    color: '#D74826',
+    color: '#C13E1F',
     fontWeight: '600',
   },
   button: {
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingVertical: 16,
     paddingHorizontal: 48,
     borderRadius: 12,

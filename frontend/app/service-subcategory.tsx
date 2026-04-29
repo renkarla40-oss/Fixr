@@ -172,7 +172,7 @@ export default function ServiceSubcategoryScreen() {
           activeOpacity={0.85}
         >
           <View style={styles.describeIconWrap}>
-            <Ionicons name="chatbubble-ellipses-outline" size={22} color="#D74826" />
+            <Ionicons name="chatbubble-ellipses-outline" size={22} color="#C13E1F" />
           </View>
           <View style={styles.describeTextWrap}>
             <Text style={styles.describeTitle}>Describe Your Job</Text>

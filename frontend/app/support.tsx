@@ -92,7 +92,7 @@ export default function SupportScreen() {
         >
           <View style={styles.infoSection}>
             <View style={styles.iconContainer}>
-              <Ionicons name="headset" size={32} color="#D74826" />
+              <Ionicons name="headset" size={32} color="#C13E1F" />
             </View>
             <Text style={styles.infoTitle}>How can we help?</Text>
             <Text style={styles.infoText}>
@@ -101,7 +101,7 @@ export default function SupportScreen() {
           </View>
 
           <TouchableOpacity style={styles.emailButton} onPress={handleEmailPress}>
-            <Ionicons name="mail-outline" size={20} color="#D74826" />
+            <Ionicons name="mail-outline" size={20} color="#C13E1F" />
             <Text style={styles.emailButtonText}>Contact Fixr (Beta)</Text>
           </TouchableOpacity>
 
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
   },
   emailButtonText: {
     fontSize: 16,
-    color: '#D74826',
+    color: '#C13E1F',
     fontWeight: '600',
   },
   divider: {
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
     paddingTop: 14,
   },
   submitButton: {
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',

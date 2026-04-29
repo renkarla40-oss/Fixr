@@ -278,8 +278,8 @@ export default function CustomerHomeScreen() {
       >
         <View style={styles.gradientHeaderZone}>
           <LinearGradient
-            colors={['transparent', 'transparent']}
-            locations={[0, 0.3, 0.6, 1]}
+            colors={['#555555', '#777777', '#999999', '#BBBBBB']}
+            locations={[0, 0.35, 0.7, 1]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.premiumGradient}
@@ -294,7 +294,7 @@ export default function CustomerHomeScreen() {
           >
             <View style={styles.heroHeader}>
               <View style={styles.heroHeaderSpacer} />
-              <NotificationBell color="#FFFFFF" size={24} />
+              <NotificationBell color="#D8D8D8" size={24} />
             </View>
 
             <Text style={styles.heroTitle}>
@@ -321,11 +321,11 @@ export default function CustomerHomeScreen() {
                   onPress={handleClearSearch}
                   activeOpacity={0.8}
                 >
-                  <Ionicons name="close" size={16} color="#FFFFFF" />
+                  <Ionicons name="close" size={16} color="#D8D8D8" />
                 </TouchableOpacity>
               ) : (
                 <View style={styles.searchAction}>
-                  <Ionicons name="search-outline" size={16} color="#FFFFFF" />
+                  <Ionicons name="search-outline" size={16} color="#D8D8D8" />
                 </View>
               )}
             </View>
@@ -353,6 +353,7 @@ export default function CustomerHomeScreen() {
                   imageStyle={styles.carouselImage}
                   resizeMode="cover"
                 >
+                  <View style={styles.carouselOverlayDark} />
                   <View style={styles.carouselOverlay}>
                     <Text style={styles.carouselLabel} numberOfLines={1}>
                       {item.label}
@@ -378,7 +379,7 @@ export default function CustomerHomeScreen() {
                         activeOpacity={0.7}
                       >
                         <View style={styles.serviceStackedIconContainer}>
-                          <Ionicons name={subCat.icon as any} size={22} color="#D74826" />
+                          <Ionicons name={subCat.icon as any} size={22} color="#C13E1F" />
                         </View>
                         <Text style={styles.serviceStackedName} numberOfLines={1}>{subCat.label}</Text>
                         <Ionicons name="chevron-forward" size={16} color="#CCC" />
@@ -424,7 +425,7 @@ export default function CustomerHomeScreen() {
                                   <Ionicons
                                     name={category.icon as any}
                                     size={28}
-                                    color="#D74826"
+                                    color="#C13E1F"
                                   />
                                 </View>
                               )}
@@ -468,7 +469,7 @@ Services</Text>
                             <Ionicons
                               name={category.icon as any}
                               size={28}
-                              color="#FFFFFF"
+                              color="#D8D8D8"
                             />
                           </View>
                         )}
@@ -496,7 +497,7 @@ Services</Text>
             <View style={styles.ctaCard}>
               <View style={styles.ctaContent}>
                 <View style={styles.ctaIconContainer}>
-                  <Ionicons name="location" size={28} color="#D74826" />
+                  <Ionicons name="location" size={28} color="#C13E1F" />
                 </View>
                 <View style={styles.ctaTextContainer}>
                   <Text style={styles.ctaTitle}>Get prices in your 
@@ -512,7 +513,7 @@ area</Text>
                 activeOpacity={0.8}
               >
                 <LinearGradient
-                  colors={['#D74826', '#D74826']}
+                  colors={['#C13E1F', '#C13E1F']}
                   style={styles.ctaButtonGradient}
                 >
                   <Text style={styles.ctaButtonText}>Browse 
@@ -568,7 +569,7 @@ Projects</Text>
             activeOpacity={0.9}
           >
             <View style={styles.browseProvidersIcon}>
-              <Ionicons name="people" size={28} color="#D74826" />
+              <Ionicons name="people" size={28} color="#C13E1F" />
             </View>
             <View style={styles.browseProvidersContent}>
               <Text style={styles.browseProvidersTitle}>Browse 
@@ -577,7 +578,7 @@ Providers</Text>
                 View all available service providers
               </Text>
             </View>
-            <Ionicons name="chevron-forward" size={24} color="#D74826" />
+            <Ionicons name="chevron-forward" size={24} color="#C13E1F" />
           </TouchableOpacity>
         </View>
 
@@ -595,7 +596,7 @@ Providers</Text>
                   <Ionicons
                     name={insight.icon as any}
                     size={24}
-                    color="#D74826"
+                    color="#C13E1F"
                   />
                 </View>
                 <Text style={styles.pricingTitle}>{insight.title}</Text>
@@ -654,7 +655,7 @@ style={styles.inspirationTitle}>{item.title}</Text>
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#D0D0D0',
   },
   scrollView: {
     flex: 1,
@@ -664,14 +665,20 @@ const styles = StyleSheet.create({
   },
 
   gradientHeaderZone: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F2F2FF',
+    position: 'relative',
+    overflow: 'hidden',
   },
   premiumGradient: {
-    display: 'none',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
 
   heroSection: {
-    backgroundColor: '#005A92',
+    backgroundColor: 'transparent',
     paddingHorizontal: 20,
     paddingTop: 10,
     paddingBottom: 16,
@@ -688,14 +695,14 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#D8D8D8',
     lineHeight: 36,
     marginBottom: 20,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#D8D8D8',
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 4,
@@ -721,7 +728,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#1A1A1A',
+    color: '#0D0D0D',
     paddingVertical: 4,
   },
 
@@ -729,13 +736,13 @@ const styles = StyleSheet.create({
   carouselTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: '#0D0D0D',
     paddingHorizontal: 20,
     marginBottom: 6,
   },
 
   carouselSection: {
-    marginTop: 18,
+    marginTop: 12,
     marginBottom: 8,
   },
   carouselRow: {
@@ -757,7 +764,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.45)',
   },
   carouselLabel: {
-    color: '#FFFFFF',
+    color: '#D8D8D8',
     fontSize: 14,
     fontWeight: '700',
     textShadowColor: 'rgba(0,0,0,0.25)',
@@ -775,6 +782,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 10,
     elevation: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.18)',
   },
   featuredSection: {
     marginTop: 16,
@@ -805,7 +814,7 @@ const styles = StyleSheet.create({
   featuredLabel: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: '#0D0D0D',
     textAlign: 'center',
   },
 
@@ -828,28 +837,28 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: '#0D0D0D',
     paddingHorizontal: 20,
     marginBottom: 16,
   },
   sectionTitleLight: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: '#0D0D0D',
     paddingHorizontal: 20,
     marginBottom: 14,
   },
   sectionTitleOnGradient: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: '#0D0D0D',
     paddingHorizontal: 20,
     marginBottom: 10,
   },
   sectionTitleInline: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: '#0D0D0D',
   },
 
   servicesGrid: {
@@ -862,17 +871,23 @@ const styles = StyleSheet.create({
   serviceCard: {
     width: (SCREEN_WIDTH - 52) / 2,
     height: 96,
-    backgroundColor: '#005A92',
+    backgroundColor: '#3A4651',
     borderRadius: 14,
     paddingVertical: 12,
     paddingHorizontal: 10,
     alignItems: 'center',
     justifyContent: 'center',
+
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 4,
   },
   servicesStackedList: { gap: 10, paddingHorizontal: 20 },
   serviceStackedCard: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#FFFFFF', borderRadius: 14,
+    backgroundColor: '#D8D8D8', borderRadius: 14,
     paddingVertical: 14, paddingHorizontal: 16,
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06, shadowRadius: 6, elevation: 2,
@@ -882,7 +897,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF5F5',
     alignItems: 'center', justifyContent: 'center', marginRight: 14,
   },
-  serviceStackedName: { flex: 1, fontSize: 15, fontWeight: '600', color: '#1A1A1A' },
+  serviceStackedName: { flex: 1, fontSize: 15, fontWeight: '600', color: '#0D0D0D' },
   serviceCardBeta: {
     backgroundColor: '#FFFBF5',
   },
@@ -902,7 +917,7 @@ const styles = StyleSheet.create({
   serviceName: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#D8D8D8',
     textAlign: 'center',
     lineHeight: 17,
   },
@@ -933,13 +948,13 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontSize: 18,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: '#0D0D0D',
     textAlign: 'center',
   },
   suggestedTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: '#0D0D0D',
     paddingHorizontal: 20,
     marginTop: 24,
     marginBottom: 16,
@@ -948,7 +963,7 @@ const styles = StyleSheet.create({
   browseProvidersCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F2F2F2',
+    backgroundColor: '#D8D8D8',
     marginHorizontal: 20,
     marginTop: 8,
     marginBottom: 16,
@@ -975,7 +990,7 @@ const styles = StyleSheet.create({
   browseProvidersTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: '#0D0D0D',
     marginBottom: 2,
   },
   browseProvidersSubtitle: {
@@ -1009,7 +1024,7 @@ const styles = StyleSheet.create({
   projectTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#D8D8D8',
     marginBottom: 4,
   },
   projectPrice: {
@@ -1025,7 +1040,7 @@ const styles = StyleSheet.create({
 
   ctaCard: {
     marginHorizontal: 20,
-    backgroundColor: '#F2F2F2',
+    backgroundColor: '#D8D8D8',
     borderRadius: 16,
     padding: 20,
     shadowColor: '#000',
@@ -1054,7 +1069,7 @@ const styles = StyleSheet.create({
   ctaTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: '#0D0D0D',
     marginBottom: 4,
   },
   ctaSubtitle: {
@@ -1076,7 +1091,7 @@ const styles = StyleSheet.create({
   ctaButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#D8D8D8',
   },
 
   pricingGrid: {
@@ -1086,7 +1101,7 @@ const styles = StyleSheet.create({
   },
   pricingCard: {
     flex: 1,
-    backgroundColor: '#F2F2F2',
+    backgroundColor: '#D8D8D8',
     borderRadius: 16,
     padding: 16,
     shadowColor: '#000',
@@ -1107,7 +1122,7 @@ const styles = StyleSheet.create({
   pricingTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: '#0D0D0D',
     marginBottom: 4,
   },
   pricingSubtitle: {
@@ -1128,7 +1143,7 @@ const styles = StyleSheet.create({
   },
   pricingTapText: {
     fontSize: 12,
-    color: '#D74826',
+    color: '#C13E1F',
     fontWeight: '600',
   },
 
@@ -1159,7 +1174,7 @@ const styles = StyleSheet.create({
   inspirationTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#D8D8D8',
   },
   inspirationTapHint: {
     position: 'absolute',

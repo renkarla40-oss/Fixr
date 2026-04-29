@@ -189,12 +189,12 @@ export default function ProviderDirectoryScreen() {
 
         {loading ? (
           <View style={styles.centerContent}>
-            <ActivityIndicator size="large" color="#D74826" />
+            <ActivityIndicator size="large" color="#C13E1F" />
           </View>
         ) : fetchError ? (
           <View style={styles.centerContent}>
             <View style={styles.emptyIconContainer}>
-              <Ionicons name="cloud-offline-outline" size={48} color="#D74826" />
+              <Ionicons name="cloud-offline-outline" size={48} color="#C13E1F" />
             </View>
             <Text style={styles.emptyTitle}>Something Went Wrong</Text>
             <Text style={styles.emptySubtitle}>{fetchError}</Text>
@@ -206,7 +206,7 @@ export default function ProviderDirectoryScreen() {
         ) : providers.length === 0 ? (
           <View style={styles.centerContent}>
             <View style={styles.emptyIconContainer}>
-              <Ionicons name="people-outline" size={48} color="#D74826" />
+              <Ionicons name="people-outline" size={48} color="#C13E1F" />
             </View>
             <Text style={styles.emptyTitle}>No Providers Available</Text>
             <Text style={styles.emptySubtitle}>
@@ -222,7 +222,7 @@ export default function ProviderDirectoryScreen() {
             contentContainerStyle={styles.contentContainer}
             showsVerticalScrollIndicator={false}
             refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#D74826" />
+              <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#C13E1F" />
             }
           >
             {/* Results summary */}
@@ -242,7 +242,7 @@ export default function ProviderDirectoryScreen() {
                   setSortBy(opts[(idx + 1) % opts.length]);
                 }}
               >
-                <Ionicons name="swap-vertical" size={14} color={sortBy !== 'default' ? '#FFFFFF' : '#D74826'} />
+                <Ionicons name="swap-vertical" size={14} color={sortBy !== 'default' ? '#FFFFFF' : '#C13E1F'} />
                 <Text
                   style={[styles.filterPillText, sortBy !== 'default' && styles.filterPillTextActive]}
                   numberOfLines={1}
@@ -279,7 +279,7 @@ export default function ProviderDirectoryScreen() {
                 style={[styles.filterPillBase, verifiedOnly && styles.filterPillActive]}
                 onPress={() => setVerifiedOnly(!verifiedOnly)}
               >
-                <Ionicons name="checkmark-circle" size={14} color={verifiedOnly ? '#FFFFFF' : '#D74826'} />
+                <Ionicons name="checkmark-circle" size={14} color={verifiedOnly ? '#FFFFFF' : '#C13E1F'} />
                 <Text
                   style={[styles.filterPillText, verifiedOnly && styles.filterPillTextActive]}
                   numberOfLines={1}
@@ -366,7 +366,7 @@ export default function ProviderDirectoryScreen() {
                       }}
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     >
-                      <Ionicons name={favorited ? 'heart' : 'heart-outline'} size={22} color={favorited ? '#D74826' : '#999'} />
+                      <Ionicons name={favorited ? 'heart' : 'heart-outline'} size={22} color={favorited ? '#C13E1F' : '#999'} />
                     </TouchableOpacity>
                   </View>
 
@@ -477,7 +477,7 @@ export default function ProviderDirectoryScreen() {
                   {/* View Details - same as provider-list */}
                   <View style={styles.cardFooter}>
                     <Text style={styles.viewDetailsText}>View Details</Text>
-                    <Ionicons name="chevron-forward" size={20} color="#D74826" />
+                    <Ionicons name="chevron-forward" size={20} color="#C13E1F" />
                   </View>
                 </TouchableOpacity>
               );
@@ -564,7 +564,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingHorizontal: 24,
     paddingVertical: 14,
     borderRadius: 12,
@@ -577,7 +577,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   backToServicesButton: {
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
@@ -622,17 +622,17 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 20,
     borderWidth: 1.5,
-    borderColor: '#D74826',
+    borderColor: '#C13E1F',
     gap: 4,
     minHeight: 40,
   },
   filterPillActive: {
-    backgroundColor: '#D74826',
-    borderColor: '#D74826',
+    backgroundColor: '#C13E1F',
+    borderColor: '#C13E1F',
   },
   filterPillText: {
     fontSize: 12,
-    color: '#D74826',
+    color: '#C13E1F',
     fontWeight: '600',
     textAlign: 'center',
   },
@@ -652,7 +652,7 @@ const styles = StyleSheet.create({
   },
   clearFiltersText: {
     fontSize: 12,
-    color: '#D74826',
+    color: '#C13E1F',
     fontWeight: '600',
   },
   // Provider Card - same as provider-list
@@ -874,7 +874,7 @@ const styles = StyleSheet.create({
   },
   viewDetailsText: {
     fontSize: 14,
-    color: '#D74826',
+    color: '#C13E1F',
     fontWeight: '600',
   },
   // Bottom CTA
@@ -900,7 +900,7 @@ const styles = StyleSheet.create({
   createRequestButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 24,
@@ -918,7 +918,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   serviceChipPreview: {
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,

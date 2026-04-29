@@ -71,7 +71,7 @@ export default function SubcategoryScreen() {
           <View style={styles.backButton} />
         </View>
         <View style={styles.errorContainer}>
-          <Ionicons name="alert-circle-outline" size={48} color="#D74826" />
+          <Ionicons name="alert-circle-outline" size={48} color="#C13E1F" />
           <Text style={styles.errorText}>Service not found</Text>
           <TouchableOpacity style={styles.backToServicesButton} onPress={() => router.back()}>
             <Text style={styles.backToServicesText}>Go Back</Text>
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
   },
   clearSearchText: {
     fontSize: 16,
-    color: '#D74826',
+    color: '#C13E1F',
     fontWeight: '600',
   },
   footer: {
@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingVertical: 16,
     borderRadius: 12,
     gap: 8,
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   backToServicesButton: {
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,

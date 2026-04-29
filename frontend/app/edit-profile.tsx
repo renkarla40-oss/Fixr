@@ -261,7 +261,7 @@ export default function EditProfileScreen() {
             >
               <View style={styles.avatarContainer}>
                 {photoLoading ? (
-                  <ActivityIndicator size="large" color="#D74826" />
+                  <ActivityIndicator size="large" color="#C13E1F" />
                 ) : photoUrl ? (
                   <Image 
                     source={{ uri: photoUrl }} 
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     fontSize: 16,
-    color: '#D74826',
+    color: '#C13E1F',
     fontWeight: '600',
   },
   title: {
@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
   },
   changePhotoText: {
     fontSize: 15,
-    color: '#D74826',
+    color: '#C13E1F',
     fontWeight: '600',
   },
   form: {
@@ -472,7 +472,7 @@ const styles = StyleSheet.create({
     borderTopColor: '#E0E0E0',
   },
   saveButton: {
-    backgroundColor: '#D74826',
+    backgroundColor: '#C13E1F',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
