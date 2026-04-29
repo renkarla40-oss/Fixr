@@ -328,7 +328,7 @@ export default function CustomerInboxScreen() {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={styles.container}>
       <View style={[styles.headerShell, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Inbox</Text>
@@ -359,15 +359,17 @@ export default function CustomerInboxScreen() {
 }
 
 const styles = StyleSheet.create({
+  headerShell: {
+    backgroundColor: '#3A4651',
+  },
   container: {
     flex: 1,
     backgroundColor: '#F2F4F7',
-    backgroundColor: COLORS.background,
   },
   header: {
     paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: COLORS.background,
+    paddingVertical: 20,
+    backgroundColor: '#3A4651',
   },
   title: {
     fontSize: 28,
@@ -377,7 +379,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
   },
   centerContent: {
     flex: 1,
