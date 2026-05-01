@@ -220,7 +220,6 @@ export default function ProfileScreen() {
               onPress={handleLogout}
               activeOpacity={0.7}
             >
-              <Ionicons name="exit-outline" size={24} color="#2C3640" />
               <Text style={styles.logoutText}>Logout</Text>
             </TouchableOpacity>
           </View>
@@ -350,21 +349,16 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   logoutButton: {
-    flexDirection: 'row',
+    backgroundColor: '#C13E1F',
+    paddingVertical: 10,
+    borderRadius: 8,
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    paddingVertical: 16,
-    backgroundColor: '#D8D8D8',
-    borderRadius: 12,
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: '#D8D8D8',
+    marginTop: 12,
   },
   logoutText: {
+    color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600',
-    color: '#3A4651',
+    fontWeight: '700',
   },
   versionSection: {
     alignItems: 'center',

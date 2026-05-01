@@ -181,7 +181,7 @@ export default function ProviderDirectoryScreen() {
         {/* Header - same as provider-list */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
           <Text style={styles.title}>Provider Directory</Text>
           <View style={styles.backButton} />
@@ -504,22 +504,21 @@ export default function ProviderDirectoryScreen() {
 // Styles copied from provider-list.tsx for consistency
 const styles = StyleSheet.create({
   safeArea: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
+  flex: 1,
+  backgroundColor: '#3A4651',
+},
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  paddingHorizontal: 16,
+  paddingVertical: 20,
+  backgroundColor: '#3A4651',
+},
   backButton: {
     width: 44,
     height: 44,
@@ -527,10 +526,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
-  },
+  fontSize: 24,
+  fontWeight: '800',
+  color: '#FFFFFF',
+},
   centerContent: {
     flex: 1,
     justifyContent: 'center',
@@ -554,12 +553,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   emptySubtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 8,
-  },
+  fontSize: 24,
+  fontWeight: '800',
+  color: '#FFFFFF',
+},
   retryButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -590,9 +587,11 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    backgroundColor: '#F2F4F7',
   },
   contentContainer: {
     padding: 16,
+    backgroundColor: '#F2F4F7',
     paddingBottom: 100,
     gap: 16,
   },

@@ -1491,7 +1491,6 @@ const isPaid = (): boolean => {
           {/* Change Provider Button - Only shown for pending requests with assigned provider */}
           {canChangeProvider && (
             <TouchableOpacity style={styles.changeProviderButton} onPress={handleChangeProvider}>
-              <Ionicons name="swap-horizontal-outline" size={24} color="#1976D2" />
               <Text style={styles.changeProviderButtonText}>Change Provider</Text>
             </TouchableOpacity>
           )}
@@ -1499,7 +1498,6 @@ const isPaid = (): boolean => {
           {/* Cancel Button - Only shown for pending or accepted requests */}
           {canCancel && (
             <TouchableOpacity style={styles.cancelButton} onPress={handleCancelRequest}>
-              <Ionicons name="close-circle-outline" size={24} color="#C13E1F" />
               <Text style={styles.cancelButtonText}>Cancel Request</Text>
             </TouchableOpacity>
           )}
@@ -1565,9 +1563,9 @@ const isPaid = (): boolean => {
             >
               <View
                 style={{
-                  backgroundColor: '#FFF3E0',
+                  backgroundColor: '#D8D8D8',
                   borderWidth: 1,
-                  borderColor: '#FFE0B2',
+                  borderColor: '#D8D8D8',
                   borderRadius: 12,
                   paddingHorizontal: 14,
                   paddingVertical: 10,
@@ -1763,7 +1761,6 @@ const isPaid = (): boolean => {
                           onPress={handleRejectQuote}
                           disabled={processingQuoteAction}
                         >
-                          <Ionicons name="close-circle-outline" size={18} color="#C13E1F" />
                           <Text style={styles.rejectQuoteButtonText}>Reject</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -1771,7 +1768,6 @@ const isPaid = (): boolean => {
                           onPress={() => setShowCounterForm(true)}
                           disabled={processingQuoteAction}
                         >
-                          <Ionicons name="swap-horizontal" size={18} color="#1976D2" />
                           <Text style={styles.counterQuoteButtonText}>Counter Offer</Text>
                         </TouchableOpacity>
                       </View>
@@ -1797,7 +1793,6 @@ const isPaid = (): boolean => {
               {currentQuote && currentQuote.status === 'COUNTERED' && (
                 <View style={[styles.quoteCard, styles.quoteCardCountered]}>
                   <View style={styles.quoteCardHeader}>
-                    <Ionicons name="swap-horizontal" size={24} color="#FF9800" />
                     <Text style={styles.quoteCardTitle}>Counter Offer Sent</Text>
                   </View>
                   <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
@@ -2268,7 +2263,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#FFF3E0',
+    backgroundColor: '#D8D8D8',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -2276,7 +2271,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#FFF3E0',
+    backgroundColor: '#D8D8D8',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -2472,18 +2467,17 @@ summaryValue: {
     paddingHorizontal: 24,
   },
   systemMessageBubble: {
-    backgroundColor: '#F0F4F8',
+    backgroundColor: '#D8D8D8',
     borderRadius: 12,
-    paddingVertical: 6,
+    paddingVertical: 8,
     paddingHorizontal: 14,
-    borderWidth: 1,
-    borderColor: '#E0E7EF',
+    borderWidth: 0,
   },
   systemMessageText: {
     fontSize: 12,
-    color: '#6B7A8D',
+    color: '#3A4651',
     textAlign: 'center',
-    fontWeight: '400',
+    fontWeight: '500',
   },
   chatClosedBanner: {
     flexDirection: 'row',
@@ -2744,32 +2738,30 @@ summaryValue: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 8,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#C13E1F',
-    gap: 4,
+    paddingVertical: 12,
+    borderRadius: 10,
+    backgroundColor: '#FDECEA',
+    gap: 6,
   },
   rejectQuoteButtonText: {
-    color: '#C13E1F',
-    fontSize: 13,
-    fontWeight: '600',
+    color: '#C62828',
+    fontSize: 14,
+    fontWeight: '700',
   },
   counterQuoteButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 8,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#1976D2',
-    gap: 4,
+    paddingVertical: 12,
+    borderRadius: 10,
+    backgroundColor: '#E3F2FD',
+    gap: 6,
   },
   counterQuoteButtonText: {
-    color: '#1976D2',
-    fontSize: 13,
-    fontWeight: '600',
+    color: '#1565C0',
+    fontSize: 14,
+    fontWeight: '700',
   },
   counterFormContainer: {
     marginTop: 8,
@@ -2857,7 +2849,7 @@ summaryValue: {
     backgroundColor: '#FFF5F5',
   },
   quoteCardCountered: {
-    borderColor: '#FFE0B2',
+    borderColor: '#D8D8D8',
     backgroundColor: '#FFF8E1',
   },
   quoteCardAccepted: {

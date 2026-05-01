@@ -456,6 +456,17 @@ export default function MyRequestsScreen() {
               (request as any).provider?.profilePhotoUrl ||
               ''
             ).trim();
+
+            const serviceLabel = String(categoryNames[request.service] || request.service || '').trim();
+            const subCategoryValue = String(request.subCategory || '').trim();
+            const descriptionValue = String(request.description || '').trim();
+            const primaryText =
+              subCategoryValue && subCategoryValue.toLowerCase() !== serviceLabel.toLowerCase()
+                ? subCategoryValue
+                : descriptionValue && descriptionValue.toLowerCase() !== serviceLabel.toLowerCase()
+                ? descriptionValue
+                : '';
+
             return (
               <TouchableOpacity
                 key={request._id}
@@ -465,23 +476,19 @@ export default function MyRequestsScreen() {
               >
                 <View style={styles.requestHeader}>
                   <View style={styles.categoryContainer}>
-                                        <Text style={styles.categoryText}>
-                      {(categoryNames[request.service] || request.service || "").toUpperCase()}
+                    <Ionicons name="construct" size={16} color="#666" />
+                    <Text style={styles.categoryText} numberOfLines={1}>
+                      {serviceLabel}{primaryText ? ` • ${primaryText}` : ''}
                     </Text>
                   </View>
-                  <View
-                    style={[
-                      styles.statusBadge,
-                      { backgroundColor: statusColors.bg },
-                    ]}
-                  >
-                    <Text
-                      style={[styles.statusText, { color: statusColors.text }]}
-                    >
+
+                  <View style={[styles.statusBadge, { backgroundColor: statusColors.bg }]}>
+                    <Text style={[styles.statusText, { color: statusColors.text }]}>
                       {getStatusLabel(effectiveStatus)}
                     </Text>
                   </View>
                 </View>
+
                 <View style={styles.providerRow}>
                   {providerPhotoUri ? (
                     <Image
@@ -495,56 +502,34 @@ export default function MyRequestsScreen() {
                     />
                   ) : (
                     <View style={styles.providerAvatarFallback}>
-                      <Ionicons name="person" size={20} color="#FFFFFF" />
+                      <Ionicons name="person" size={20} color="#666" />
                     </View>
                   )}
-                  <Text style={styles.providerName}>{request.providerName || 'Open Request'}</Text>
+
+                  <Text style={styles.providerName} numberOfLines={1}>
+                    {request.providerName || 'Open Request'}
+                  </Text>
                 </View>
 
-                {(() => {
-                  const serviceLabel = String(categoryNames[request.service] || request.service || '').trim();
-                  const subCategoryValue = String(request.subCategory || '').trim();
-                  const descriptionValue = String(request.description || '').trim();
+                <View style={styles.locationRow}>
+                  <Ionicons name="location-outline" size={14} color="#999" />
+                  <Text style={styles.locationText} numberOfLines={1}>
+                    {request.location || 'Location not set'}
+                  </Text>
+                </View>
 
-                  const serviceNormalized = serviceLabel.toLowerCase();
-                  const subCategoryNormalized = subCategoryValue.toLowerCase();
-                  const descriptionNormalized = descriptionValue.toLowerCase();
-
-                  const primaryText =
-                    subCategoryValue && subCategoryNormalized !== serviceNormalized
-                      ? subCategoryValue
-                      : descriptionValue && descriptionNormalized !== serviceNormalized
-                      ? descriptionValue
-                      : '';
-
-                  return (
-                    <>
-                      {primaryText ? (
-                        <Text style={styles.jobTitle}>{primaryText}</Text>
-                      ) : null}
-                    </>
-                  );
-                })()}
-
-                <View style={styles.metaRow}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <View style={styles.metaItem}>
-                      <Image source={require("../../assets/icons/calendar.png")} style={styles.metaIconImage} />
-                      <Text style={styles.metaText}>{formatDate(request.createdAt)}</Text>
-                    </View>
-
-                                        {request.location ? (
-                      <View style={styles.metaItem}>
-                        <Image source={require("../../assets/icons/location.png")} style={styles.metaIconImage} />
-                        <Text style={styles.metaText}>{request.location}</Text>
-                      </View>
-                    ) : null}
+                <View style={styles.requestFooter}>
+                  <View style={styles.dateContainer}>
+                    <Ionicons name="time-outline" size={14} color="#999" />
+                    <Text style={styles.dateText}>{formatDate(request.createdAt)}</Text>
                   </View>
 
-                  <Ionicons name="arrow-forward" size={20} color="#E6EEF7" />
+                  <View style={styles.detailAction}>
+                    <Text style={styles.detailActionText}>View</Text>
+                    <Ionicons name="chevron-forward" size={20} color="#1A1A1A" />
+                  </View>
                 </View>
-
-                               </TouchableOpacity>
+              </TouchableOpacity>
             );
           })}
         </ScrollView>
@@ -574,7 +559,7 @@ const styles = StyleSheet.create({
   },
 
   tabsGrid: {
-    backgroundColor: '#555555',
+    backgroundColor: '#3A4651',
     paddingHorizontal: 14,
     paddingBottom: 16,
     gap: 8,
@@ -607,14 +592,14 @@ const styles = StyleSheet.create({
 
   safeArea: {
     flex: 1,
-    backgroundColor: '#555555',
+    backgroundColor: '#3A4651',
   },
   container: {
     flex: 1,
-    backgroundColor: '#777777',
+    backgroundColor: '#FFFFFF',
   },
   header: {
-    backgroundColor: '#555555',
+    backgroundColor: '#3A4651',
     paddingHorizontal: 20,
     paddingTop: 18,
     paddingBottom: 12,
@@ -685,7 +670,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   requestCard: {
-    backgroundColor: '#5A82AD',
+    backgroundColor: '#D8D8D8',
     borderRadius: 16,
     padding: 16,
     shadowColor: '#000',
@@ -704,16 +689,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 10,
+    flex: 1,
+    marginRight: 16,
   },
   categoryText: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    letterSpacing: 1,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+    flex: 1,
   },
   statusBadge: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#EDEFF2',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 999,
@@ -735,21 +721,21 @@ const styles = StyleSheet.create({
   providerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   providerAvatar: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    marginRight: 12,
-    backgroundColor: '#3A4651',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
+    backgroundColor: '#E0E0E0',
   },
   providerAvatarFallback: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    marginRight: 12,
-    backgroundColor: '#3A4651',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
+    backgroundColor: '#F0F0F0',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -759,19 +745,18 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   providerName: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#EAF2FA',
-    letterSpacing: 0.3,
-    marginBottom: 6,
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+    flex: 1,
   },
   jobTitle: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '500',
-    color: '#DCE6F2',
-    marginLeft: 74,
-    marginTop: -22,
-    marginBottom: 16,
+    color: '#666',
+    marginLeft: 58,
+    marginTop: -8,
+    marginBottom: 12,
   },
   metaRow: {
     flexDirection: 'row',
@@ -790,9 +775,9 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   metaText: {
-    fontSize: 14,
-    color: '#EAF2FA',
-    fontWeight: '600',
+    fontSize: 13,
+    color: '#555',
+    fontWeight: '500',
   },
   metaDivider: {
     fontSize: 12,
@@ -808,18 +793,20 @@ const styles = StyleSheet.create({
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 16,
+    gap: 4,
+    marginBottom: 12,
   },
   locationText: {
     fontSize: 13,
-    color: '#E6EEF7',
-    fontWeight: '500',
+    color: '#555',
   },
   requestFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
   },
   dateContainer: {
     flexDirection: 'row',
@@ -827,88 +814,21 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   dateText: {
-    fontSize: 12,
-    color: '#E6EEF7',
+    fontSize: 13,
+    color: '#555',
   },
 
- providerRow: {
+  detailAction: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 6,
-  },
- providerAvatar: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    marginRight: 14,
-    backgroundColor: '#D9E5F1',
-  },
- providerAvatarFallback: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    marginRight: 14,
-    backgroundColor: '#3A4651',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 4,
   },
- providerName: {
+  detailActionText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#EAF2FA',
-    letterSpacing: 0.3,
-    marginBottom: 6,
+    color: '#1A1A1A',
   },
- descriptionText: {
-    fontSize: 15,
-    color: '#EAF2FA',
-    lineHeight: 22,
-    marginBottom: 18,
-    maxWidth: '92%',
-  },
- descriptionLabel: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#FFFFFF',
-  },
- metaRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 42,
-    marginTop: 8,
-    marginBottom: 18,
-  },
- metaGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
- metaText: {
-    fontSize: 15,
-    color: '#EAF2FA',
-    fontWeight: '600',
-  },
- arrowRow: {
-    alignItems: 'flex-end',
-    marginTop: 2,
-  },
- requestCard: {
-    backgroundColor: '#3A4651',
-    borderRadius: 22,
-    padding: 22,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.10,
-    shadowRadius: 10,
-    elevation: 4,
-  },
- categoryText: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    letterSpacing: 1,
-  },
+
   metaIconImage: {
     width: 18,
     height: 18,
