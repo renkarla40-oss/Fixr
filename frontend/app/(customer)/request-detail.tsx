@@ -1477,12 +1477,12 @@ const isPaid = (): boolean => {
           {/* Schedule Info */}
           <View style={styles.infoRow}>
             <View style={styles.infoItem}>
-              <Ionicons name="calendar-outline" size={16} color="#666" />
+              <Image source={require("../../assets/icons/calendar.png")} style={styles.infoIconImage} />
               <Text style={styles.infoLabel}>Preferred</Text>
               <Text style={styles.infoValue}>{formatDateTime(request.preferredDateTime)}</Text>
             </View>
             <View style={styles.infoItem}>
-              <Ionicons name="time-outline" size={16} color="#666" />
+              <Ionicons name="time-outline" size={18} color="#3A4651" />
               <Text style={styles.infoLabel}>Requested</Text>
               <Text style={styles.infoValue}>{formatDate(request.createdAt)}</Text>
             </View>
@@ -2357,6 +2357,12 @@ summaryValue: {
     borderRadius: 8,
     padding: 12,
     alignItems: 'center',
+  },
+  infoIconImage: {
+    width: 18,
+    height: 18,
+    resizeMode: 'contain',
+    marginBottom: 6,
   },
   infoLabel: {
     fontSize: 11,

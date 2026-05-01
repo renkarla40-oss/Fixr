@@ -350,10 +350,12 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     backgroundColor: '#C13E1F',
-    paddingVertical: 10,
-    borderRadius: 8,
+    paddingVertical: 12,
+    borderRadius: 10,
     alignItems: 'center',
     marginTop: 12,
+    width: '85%',
+    alignSelf: 'center',
   },
   logoutText: {
     color: '#FFFFFF',
