@@ -174,11 +174,11 @@ export default function ServiceLocationScreen() {
               style={styles.pickerButton}
               onPress={() => setShowTownPicker(true)}
             >
-              <Ionicons name="location-outline" size={20} color="#C13E1F" />
+              <Ionicons name="location-outline" size={20} color="#1A1A1A" />
               <Text style={[styles.pickerButtonText, !location && styles.pickerPlaceholder]}>
                 {location || 'Select town/area'}
               </Text>
-              <Ionicons name="chevron-down" size={20} color="#C13E1F" />
+              <Ionicons name="chevron-down" size={20} color="#1A1A1A" />
             </TouchableOpacity>
           </View>
 
@@ -206,11 +206,11 @@ export default function ServiceLocationScreen() {
               style={styles.pickerButton}
               onPress={() => setShowDistancePicker(true)}
             >
-              <Ionicons name="navigate-outline" size={20} color="#C13E1F" />
+              <Ionicons name="navigate-outline" size={20} color="#1A1A1A" />
               <Text style={styles.pickerButtonText}>
                 {getCurrentDistanceLabel()}
               </Text>
-              <Ionicons name="chevron-down" size={20} color="#C13E1F" />
+              <Ionicons name="chevron-down" size={20} color="#1A1A1A" />
             </TouchableOpacity>
           </View>
 
@@ -222,11 +222,11 @@ export default function ServiceLocationScreen() {
               style={styles.pickerButton}
               onPress={() => setShowDurationPicker(true)}
             >
-              <Ionicons name="time-outline" size={20} color="#C13E1F" />
+              <Ionicons name="time-outline" size={20} color="#1A1A1A" />
               <Text style={[styles.pickerButtonText, !jobDuration && styles.pickerPlaceholder]}>
                 {getSelectedDurationLabel() || 'Select duration (optional)'}
               </Text>
-              <Ionicons name="chevron-down" size={20} color="#C13E1F" />
+              <Ionicons name="chevron-down" size={20} color="#1A1A1A" />
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -249,7 +249,7 @@ export default function ServiceLocationScreen() {
             >
               Find Providers
             </Text>
-            <Ionicons name="arrow-forward" size={20} color={location.trim() ? "#FFFFFF" : "#0B1F33"} />
+            <Ionicons name="arrow-forward" size={20} color={location.trim() ? "#FFFFFF" : "#FFFFFF"} />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -266,12 +266,12 @@ export default function ServiceLocationScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Select Town</Text>
               <TouchableOpacity onPress={() => setShowTownPicker(false)}>
-                <Ionicons name="close" size={24} color="#C13E1F" />
+                <Ionicons name="close" size={24} color="#1A1A1A" />
               </TouchableOpacity>
             </View>
             
             <View style={styles.searchContainer}>
-              <Ionicons name="search" size={20} color="#C13E1F" />
+              <Ionicons name="search" size={20} color="#1A1A1A" />
               <TextInput
                 style={styles.searchInput}
                 placeholder="Search towns..."
@@ -282,7 +282,7 @@ export default function ServiceLocationScreen() {
             </View>
 
             {loadingTowns ? (
-              <ActivityIndicator size="large" color="#C13E1F" style={styles.loadingIndicator} />
+              <ActivityIndicator size="large" color="#1A1A1A" style={styles.loadingIndicator} />
             ) : (
               <FlatList
                 data={filteredTowns}
@@ -306,7 +306,7 @@ export default function ServiceLocationScreen() {
                       {item.label}
                     </Text>
                     {location === item.label && (
-                      <Ionicons name="checkmark" size={20} color="#C13E1F" />
+                      <Ionicons name="checkmark" size={20} color="#1A1A1A" />
                     )}
                   </TouchableOpacity>
                 )}
@@ -329,7 +329,7 @@ export default function ServiceLocationScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Search Distance</Text>
               <TouchableOpacity onPress={() => setShowDistancePicker(false)}>
-                <Ionicons name="close" size={24} color="#C13E1F" />
+                <Ionicons name="close" size={24} color="#1A1A1A" />
               </TouchableOpacity>
             </View>
             
@@ -352,7 +352,7 @@ export default function ServiceLocationScreen() {
                   {distanceUnit === 'mi' ? option.labelMi : option.labelKm}
                 </Text>
                 {searchDistanceKm === option.valueKm && (
-                  <Ionicons name="checkmark" size={20} color="#C13E1F" />
+                  <Ionicons name="checkmark" size={20} color="#1A1A1A" />
                 )}
               </TouchableOpacity>
             ))}
@@ -372,7 +372,7 @@ export default function ServiceLocationScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Job Duration</Text>
               <TouchableOpacity onPress={() => setShowDurationPicker(false)}>
-                <Ionicons name="close" size={24} color="#C13E1F" />
+                <Ionicons name="close" size={24} color="#1A1A1A" />
               </TouchableOpacity>
             </View>
             
@@ -386,7 +386,7 @@ export default function ServiceLocationScreen() {
               <Text style={[styles.listItemText, !jobDuration && styles.listItemTextSelected]}>
                 Skip (I'm not sure)
               </Text>
-              {!jobDuration && <Ionicons name="checkmark" size={20} color="#C13E1F" />}
+              {!jobDuration && <Ionicons name="checkmark" size={20} color="#1A1A1A" />}
             </TouchableOpacity>
             
             {JOB_DURATION_OPTIONS.filter(opt => opt.value !== 'not_sure').map((option) => (
@@ -408,7 +408,7 @@ export default function ServiceLocationScreen() {
                   {option.label}
                 </Text>
                 {jobDuration === option.value && (
-                  <Ionicons name="checkmark" size={20} color="#C13E1F" />
+                  <Ionicons name="checkmark" size={20} color="#1A1A1A" />
                 )}
               </TouchableOpacity>
             ))}
@@ -422,11 +422,11 @@ export default function ServiceLocationScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#005A92',
+    backgroundColor: '#3A4651',
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F2F2F2',
   },
   header: {
     flexDirection: 'row',
@@ -434,7 +434,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#005A92',
+    backgroundColor: '#3A4651',
   },
   backButton: {
     width: 44,
@@ -499,7 +499,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 3,
     borderWidth: 2,
-    borderColor: '#005A92',
+    borderColor: '#D0D0D0',
   },
   unitButton: {
     paddingHorizontal: 14,
@@ -510,6 +510,7 @@ const styles = StyleSheet.create({
   },
   unitButtonActive: {
     backgroundColor: '#C13E1F',
+    backgroundColor: '#C13E1F',
   },
   unitButtonText: {
     fontSize: 13,
@@ -517,6 +518,7 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   unitButtonTextActive: {
+    color: '#FFFFFF',
     color: '#FFFFFF',
   },
   required: {
@@ -550,7 +552,7 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F2F2F2',
   },
   continueButton: {
     flexDirection: 'row',
@@ -562,7 +564,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   continueButtonDisabled: {
-    backgroundColor: '#EAF3FF',
+    backgroundColor: '#F3B8A8',
+    opacity: 1,
   },
   continueButtonText: {
     color: '#FFFFFF',
@@ -570,7 +573,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   continueButtonTextDisabled: {
-    color: '#0B1F33',
+    color: '#FFFFFF',
   },
   // Modal styles
   modalOverlay: {
@@ -579,14 +582,14 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F2F2F2',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '80%',
     paddingBottom: 32,
   },
   modalContentSmall: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F2F2F2',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingBottom: 32,

@@ -156,6 +156,19 @@ export default function RequestServiceScreen() {
         return;
       }
 
+      // General "Describe Your Job" requests should NOT go to provider-list.
+      // They are already submitted, so send customer to confirmation.
+      if (isGeneralRequest) {
+        router.replace({
+          pathname: '/request-confirmation',
+          params: {
+            requestId,
+            category: categoryLabel,
+          },
+        });
+        return;
+      }
+
       // Route based on whether a provider was pre-selected:
       // - No provider: go to provider-list for matching/selection
       // - Provider pre-selected: go directly to request thread
@@ -410,11 +423,11 @@ export default function RequestServiceScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F2F4F7',
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F2F4F7',
   },
   header: {
     flexDirection: 'row',
@@ -422,7 +435,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 12,
-    backgroundColor: '#005A92',
+    backgroundColor: '#3A4651',
   },
   backButton: {
     width: 44,
@@ -532,7 +545,7 @@ const styles = StyleSheet.create({
   betaNotice: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: '#005A92',
+    backgroundColor: '#3A4651',
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,

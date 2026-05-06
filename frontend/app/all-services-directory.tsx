@@ -137,14 +137,14 @@ export default function AllServicesDirectoryScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F7F7F7',
+    backgroundColor: '#F2F4F7',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: H_PAD,
     paddingBottom: 14,
-    backgroundColor: '#005A92',
+    backgroundColor: '#3A4651',
   },
   backBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   headerCenter: { flex: 1, alignItems: 'center' },

@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 12,
-    backgroundColor: '#005A92',
+    backgroundColor: '#3A4651',
   },
   backButton: {
     width: 44,
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#005A92',
+    color: '#1A1A1A',
     paddingVertical: 4,
   },
   content: {
@@ -256,17 +256,17 @@ const styles = StyleSheet.create({
     minHeight: 56,
   },
   optionCardSelected: {
-    borderColor: '#005A92',
-    backgroundColor: '#EAF3FF',
+    borderColor: '#555555',
+    backgroundColor: '#F2F2F2',
   },
   optionText: {
     flex: 1,
     fontSize: 16,
-    color: '#005A92',
+    color: '#1A1A1A',
     fontWeight: '500',
   },
   optionTextSelected: {
-    color: '#005A92',
+    color: '#1A1A1A',
     fontWeight: '700',
   },
   optionIndicator: {
@@ -274,15 +274,15 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#005A92',
+    borderColor: '#B8B8B8',
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 12,
   },
   optionIndicatorSelected: {
-    borderColor: '#005A92',
-    backgroundColor: '#005A92',
+    borderColor: '#C13E1F',
+    backgroundColor: '#3A4651',
   },
   noResultsContainer: {
     alignItems: 'center',
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
     minHeight: 56,
   },
   continueButtonDisabled: {
-    backgroundColor: '#EAF3FF',
+    backgroundColor: '#F2F2F2',
     opacity: 1,
   },
   continueButtonText: {

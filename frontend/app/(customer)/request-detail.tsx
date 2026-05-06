@@ -1476,16 +1476,20 @@ const isPaid = (): boolean => {
 
           {/* Schedule Info */}
           <View style={styles.infoRow}>
-            <View style={styles.infoItem}>
-              <Image source={require("../../assets/icons/calendar.png")} style={styles.infoIconImage} />
-              <Text style={styles.infoLabel}>Preferred</Text>
-              <Text style={styles.infoValue}>{formatDateTime(request.preferredDateTime)}</Text>
-            </View>
-            <View style={styles.infoItem}>
-              <Ionicons name="time-outline" size={18} color="#3A4651" />
-              <Text style={styles.infoLabel}>Requested</Text>
-              <Text style={styles.infoValue}>{formatDate(request.createdAt)}</Text>
-            </View>
+            <View style={styles.infoItemRow}>
+  <Image source={require("../../assets/icons/calendar.png")} style={styles.inlineIcon} />
+  <View>
+    <Text style={styles.infoLabel}>Preferred</Text>
+    <Text style={styles.infoValue}>{formatDateTime(request.preferredDateTime)}</Text>
+  </View>
+</View>
+            <View style={styles.infoItemRow}>
+  <Ionicons name="time" size={18} color="#C13E1F" />
+  <View>
+    <Text style={styles.infoLabel}>Requested</Text>
+    <Text style={styles.infoValue}>{formatDate(request.createdAt)}</Text>
+  </View>
+</View>
           </View>
 
           {/* Change Provider Button - Only shown for pending requests with assigned provider */}
@@ -2351,6 +2355,22 @@ summaryValue: {
     gap: 12,
     marginBottom: 16,
   },
+  infoItemRow: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#3A4651',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    minHeight: 86,
+    gap: 10,
+  },
+  inlineIcon: {
+    width: 18,
+    height: 18,
+    resizeMode: 'contain',
+  },
   infoItem: {
     flex: 1,
     backgroundColor: '#D8D8D8',
@@ -2365,17 +2385,15 @@ summaryValue: {
     marginBottom: 6,
   },
   infoLabel: {
-    fontSize: 11,
-    color: '#999',
-    fontWeight: '500',
-    marginTop: 4,
+    fontSize: 13,
+    color: '#D8D8D8',
+    fontWeight: '600',
+    marginBottom: 4,
   },
   infoValue: {
-    fontSize: 13,
-    color: '#1A1A1A',
-    fontWeight: '600',
-    marginTop: 2,
-    textAlign: 'center',
+    fontSize: 15,
+    color: '#FFFFFF',
+    fontWeight: '700',
   },
   // Chat styles
   chatContainer: {
