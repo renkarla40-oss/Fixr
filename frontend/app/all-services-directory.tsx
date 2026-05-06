@@ -89,17 +89,6 @@ export default function AllServicesDirectoryScreen() {
         contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom + 24, 40) }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Describe Your Job — top quick-action */}
-        <TouchableOpacity style={styles.describeCard} onPress={handleDescribeJob} activeOpacity={0.85}>
-          <View style={styles.describeIconWrap}>
-            <Text style={styles.describeEmoji}>{'💬'}</Text>
-          </View>
-          <View style={styles.describeTextWrap}>
-            <Text style={styles.describeTitle}>Describe Your Job</Text>
-            <Text style={styles.describeSub}>Tell us what needs fixing</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#666" />
-        </TouchableOpacity>
 
         <Text style={styles.sectionLabel}>Browse by Service</Text>
 
