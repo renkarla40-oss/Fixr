@@ -338,19 +338,19 @@ export default function EarningsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#EAF4FF',
   },
   header: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: '#FFF',
+    paddingHorizontal: 20,
+    paddingVertical: 28,
+    backgroundColor: '#2B3642',
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
   },
   centerContent: {
     flex: 1,
@@ -462,17 +462,16 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   withdrawButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: '#DDD',
-    borderRadius: 6,
-    opacity: 0.5,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: '#F1F6FB',
+    opacity: 1,
   },
   withdrawButtonText: {
-    fontSize: 12,
-    color: '#999',
-    fontWeight: '500',
+    fontSize: 13,
+    color: '#6B7280',
+    fontWeight: '600',
   },
   section: {
     backgroundColor: '#FFF',
