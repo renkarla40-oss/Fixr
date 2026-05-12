@@ -1120,7 +1120,7 @@ export default function ProviderRequestDetailScreen() {
       <View style={[styles.safeArea, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
           <Text style={styles.title}>Job Details</Text>
           <View style={styles.backButton} />
@@ -1139,7 +1139,7 @@ export default function ProviderRequestDetailScreen() {
       <View style={[styles.safeArea, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
           <Text style={styles.title}>Job Details</Text>
           <View style={styles.backButton} />
@@ -1164,7 +1164,7 @@ export default function ProviderRequestDetailScreen() {
       {/* Header with compact status badge */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.title}>Job Details</Text>
@@ -1227,7 +1227,9 @@ export default function ProviderRequestDetailScreen() {
               </View>
               <View style={styles.summaryDivider} />
               <View style={styles.summaryRow}>
-                <Ionicons name="construct" size={20} color="#C13E1F" />
+                <View style={styles.serviceIconCircle}>
+                  <Text style={styles.serviceEmoji}>🛠️</Text>
+                </View>
                 <View style={styles.summaryContent}>
                   <Text style={styles.summaryLabel}>Service</Text>
                   <Text style={styles.summaryValue}>{getServiceLabel(request.service)}</Text>
@@ -1378,7 +1380,7 @@ export default function ProviderRequestDetailScreen() {
                   <ActivityIndicator size="small" color="#FFFFFF" />
                 ) : (
                   <>
-                    <Ionicons name="close-circle-outline" size={20} color="#FFFFFF" />
+                    <Ionicons name="close-circle-outline" size={20} color="#4B5563" />
                     <Text style={styles.cancelJobButtonText}>Cancel Job</Text>
                   </>
                 )}
@@ -1641,7 +1643,7 @@ export default function ProviderRequestDetailScreen() {
                 style={{
                   backgroundColor: '#FFF3E0',
                   borderWidth: 1,
-                  borderColor: '#FFE0B2',
+                  borderColor: '#DCE5EE',
                   borderRadius: 12,
                   paddingHorizontal: 14,
                   paddingVertical: 10,
@@ -2053,16 +2055,16 @@ export default function ProviderRequestDetailScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FCFDFE',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    paddingHorizontal: 20,
+    paddingTop: 18,
+    paddingBottom: 18,
+    backgroundColor: '#2B3642',
   },
   headerCenter: {
     alignItems: 'center',
@@ -2074,9 +2076,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
+    fontSize: 30,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: -0.8,
   },
   // Compact status badge in header
   statusBadge: {
@@ -2175,16 +2178,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    padding: 16,
+    padding: 18,
   },
   // Summary Card - Customer & Service info
   summaryCard: {
-    backgroundColor: '#FAFAFA',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#EEEEEE',
+    backgroundColor: '#FCFDFE',
+    borderRadius: 22,
+    padding: 18,
+    marginBottom: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 3,
   },
   summaryRow: {
     flexDirection: 'row',
@@ -2219,7 +2225,8 @@ const styles = StyleSheet.create({
   },
   // Description Card
   descriptionCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FCFDFE',
+    backgroundColor: '#FCFDFE',
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -2320,13 +2327,18 @@ const styles = StyleSheet.create({
   },
   // Send Quote CTA Section (on Details tab)
   sendQuoteCTASection: {
-    backgroundColor: '#FFF3E0',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
+    backgroundColor: '#EAF4FF',
+    padding: 18,
+    borderRadius: 22,
+    marginBottom: 18,
     borderWidth: 1,
-    borderColor: '#FFCC80',
+    borderColor: '#CFE2F7',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   sendQuoteCTAHeader: {
     flexDirection: 'row',
@@ -2349,10 +2361,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#C13E1F',
-    paddingHorizontal: 24,
+    backgroundColor: '#D74826',
+    paddingHorizontal: 28,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 12,
   },
   sendQuoteCTAButtonText: {
     color: '#FFFFFF',
@@ -2361,7 +2373,7 @@ const styles = StyleSheet.create({
   },
   // Quote Status Section (Sent/Pending)
   quoteStatusSection: {
-    backgroundColor: '#FFF8E1',
+    backgroundColor: '#F3F7FB',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -2573,18 +2585,20 @@ const styles = StyleSheet.create({
   },
   // Cancel Job Button
   cancelJobButton: {
+    backgroundColor: '#FCFDFE',
+    borderWidth: 1.5,
+    borderColor: '#D7DEE7',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#757575',
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: 14,
     gap: 8,
     marginTop: 16,
     marginBottom: 8,
   },
   cancelJobButtonText: {
-    color: '#FFFFFF',
+    color: '#4B5563',
     fontSize: 15,
     fontWeight: '600',
   },
@@ -3122,14 +3136,14 @@ const styles = StyleSheet.create({
   },
   // Quote Countered Banner
   quoteCounteredBanner: {
-    backgroundColor: '#FFF8E1',
+    backgroundColor: '#F3F7FB',
     marginHorizontal: 16,
     marginBottom: 12,
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#FFE0B2',
+    borderColor: '#DCE5EE',
   },
   quoteCounteredHeader: {
     flexDirection: 'row',
