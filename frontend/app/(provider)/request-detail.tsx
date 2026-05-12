@@ -1641,9 +1641,9 @@ export default function ProviderRequestDetailScreen() {
             >
               <View
                 style={{
-                  backgroundColor: '#FFF3E0',
+                  backgroundColor: '#EAF4FF',
                   borderWidth: 1,
-                  borderColor: '#DCE5EE',
+                  borderColor: '#CFE2F7',
                   borderRadius: 12,
                   paddingHorizontal: 14,
                   paddingVertical: 10,
