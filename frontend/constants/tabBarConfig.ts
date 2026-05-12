@@ -10,7 +10,7 @@ import { StyleSheet } from 'react-native';
 export const TAB_COLORS = {
   active: '#C13E1F',
   inactive: 'rgba(13,13,13,0.65)',
-  background: '#D0D0D0',
+  background: '#E4ECF4',
   border: '#F5F7FA',
   badge: '#C13E1F',
 };

@@ -45,6 +45,16 @@ const COPY = {
   ERROR: "Couldn't load. Tap to retry.",
 };
 
+
+
+const SERVICE_META: Record<string, { icon: string; bg: string }> = {
+  plumbing: { icon: '🔧', bg: '#E8F0FE' },
+  electrical: { icon: '⚡', bg: '#FFF1E7' },
+  handyman: { icon: '🛠️', bg: '#FBECDD' },
+  carpentry: { icon: '🪚', bg: '#F3E8FF' },
+  cleaning: { icon: '✨', bg: '#E8F7EE' },
+};
+
 interface Message {
   _id: string;
   senderId: string;
@@ -401,10 +411,10 @@ export default function ProviderMyJobsScreen() {
   // This prevents "empty flash" during rapid tab switching
   if (loading && !initialLoadComplete && jobs.length === 0) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>My Jobs</Text>
-          <NotificationBell color="#1A1A1A" size={24} />
+          <NotificationBell color="#FFFFFF" size={24} />
         </View>
         {/* Availability Toggle - Phase 3A */}
         <View style={styles.availabilityContainer}>
@@ -452,7 +462,7 @@ export default function ProviderMyJobsScreen() {
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <Text style={styles.title}>My Jobs</Text>
-          <NotificationBell color="#1A1A1A" size={24} />
+          <NotificationBell color="#FFFFFF" size={24} />
         </View>
         <View style={styles.centerContent}>
           <Ionicons name="cloud-offline-outline" size={48} color="#999" />
@@ -476,7 +486,7 @@ export default function ProviderMyJobsScreen() {
         />
         <View style={styles.header}>
           <Text style={styles.title}>My Jobs</Text>
-          <NotificationBell color="#1A1A1A" size={24} />
+          <NotificationBell color="#FFFFFF" size={24} />
         </View>
         {/* Availability Toggle - Phase 3A */}
         <View style={styles.availabilityContainer}>
@@ -530,12 +540,29 @@ export default function ProviderMyJobsScreen() {
         visible={shouldShowBetaNotice} 
         onClose={handleBetaNoticeContinue}
       />
-      <View style={styles.header}>
-        <Text style={styles.title}>My Jobs</Text>
-        <View style={styles.headerRight}>
-          <NotificationBell color="#1A1A1A" size={24} />
+      <View style={styles.heroSection}>
+        <View style={styles.heroTopRow}>
+          <View>
+            <Text style={styles.greetingText}>
+              {(() => {
+                const hour = new Date().getHours();
+                if (hour < 12) return 'Good Morning';
+                if (hour < 18) return 'Good Afternoon';
+                return 'Good Evening';
+              })()}
+            </Text>
+
+            <Text style={styles.heroTitle}>My Jobs</Text>
+
+            <Text style={styles.heroSubtitle}>
+              {jobs.filter(j => j.status === 'in_progress').length} Active Jobs • {jobs.filter(j => j.status === 'pending').length} Awaiting Response
+            </Text>
+          </View>
+
+          <NotificationBell color="#FFFFFF" size={24} />
         </View>
       </View>
+
       {/* Availability Toggle - Phase 3A */}
       <View style={styles.availabilityContainer}>
         <View style={styles.availabilityLeft}>
@@ -594,7 +621,20 @@ export default function ProviderMyJobsScreen() {
               {/* Header: Service + Status Badge */}
               <View style={styles.jobHeader}>
                 <View style={styles.serviceContainer}>
-                  <Ionicons name="construct" size={16} color="#666" />
+                  <View
+                    style={[
+                      styles.serviceIconWrap,
+                      {
+                        backgroundColor:
+                          SERVICE_META[(job.service || '').toLowerCase()]?.bg || '#EEF3F8',
+                      },
+                    ]}
+                  >
+                    <Text style={styles.serviceEmoji}>
+                      {SERVICE_META[(job.service || '').toLowerCase()]?.icon || '🧰'}
+                    </Text>
+                  </View>
+
                   <Text style={styles.serviceText} numberOfLines={1}>
                     {getServiceDisplay(job)}
                   </Text>
@@ -646,8 +686,42 @@ export default function ProviderMyJobsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#E4ECF4',
   },
+  heroSection: {
+    paddingHorizontal: 20,
+    paddingTop: 18,
+    paddingBottom: 24,
+    backgroundColor: '#2B3642',
+  },
+
+  heroTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+
+  greetingText: {
+    fontSize: 14,
+    color: '#C7D0D9',
+    marginBottom: 6,
+    fontWeight: '500',
+  },
+
+  heroTitle: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: -0.8,
+  },
+
+  heroSubtitle: {
+    marginTop: 6,
+    fontSize: 15,
+    color: '#D7DEE5',
+    fontWeight: '600',
+  },
+
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -668,7 +742,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   countBadge: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FCFDFE',
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 4,
@@ -690,9 +764,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FCFDFE',
     marginHorizontal: 16,
-    marginBottom: 8,
+    marginTop: -12,
+    marginBottom: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 12,
@@ -820,6 +895,27 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 16,
   },
+
+
+  serviceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    flex: 1,
+  },
+
+  serviceIconWrap: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  serviceEmoji: {
+    fontSize: 20,
+  },
+
   serviceText: {
     fontSize: 14,
     color: '#666',
