@@ -1745,6 +1745,29 @@ async def get_service_request_detail(
     request["jobDuration"] = request.get("jobDuration")
     request["paymentStatus"] = request.get("paymentStatus", "unpaid")
     request["paidAt"] = request.get("paidAt")
+
+
+    # Always return the customer's current profile photo for provider-side Job Details
+    try:
+        customer_doc = await db.users.find_one({"_id": ObjectId(request.get("customerId"))})
+    except Exception:
+        customer_doc = None
+
+    current_customer_photo = None
+    if customer_doc:
+        current_customer_photo = (
+            customer_doc.get("profilePhotoUrl")
+            or customer_doc.get("profilePhoto")
+            or customer_doc.get("photoUrl")
+            or customer_doc.get("imageUrl")
+            or customer_doc.get("avatar")
+            or customer_doc.get("photo")
+        )
+
+    if current_customer_photo:
+        request["customerProfilePhoto"] = current_customer_photo
+        request["customerPhoto"] = current_customer_photo
+        request["customerPhotoUrl"] = current_customer_photo
     
     # Always return the provider's current profile photo, not stale request snapshot
     if request.get("providerId"):
