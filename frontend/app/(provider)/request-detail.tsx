@@ -45,6 +45,25 @@ import { getEffectiveStatus as getEffectiveStatusShared } from '../../constants/
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
+const SERVICE_META: Record<string, { icon: string; bg: string }> = {
+  plumbing: { icon: '🔧', bg: '#E8F0FE' },
+  electrical: { icon: '⚡', bg: '#FFF1E7' },
+  handyman: { icon: '🛠️', bg: '#FBECDD' },
+  carpentry: { icon: '🪚', bg: '#F3E8FF' },
+  cleaning: { icon: '✨', bg: '#E8F7EE' },
+  landscaping: { icon: '🌿', bg: '#E8F7EE' },
+  renovation: { icon: '🏠', bg: '#E8F0FE' },
+  welding: { icon: '🔥', bg: '#FFF1E7' },
+  appliance: { icon: '⚙️', bg: '#E8F0FE' },
+  ac: { icon: '❄️', bg: '#E8F0FE' },
+};
+
+const getServiceMeta = (service?: string) => {
+  const key = (service || '').toLowerCase().trim();
+  return SERVICE_META[key] || { icon: '🛠️', bg: '#FBECDD' };
+};
+
+
 // Tab bar height constant - must match the provider _layout.tsx
 const TAB_BAR_BASE_HEIGHT = 60;
 
@@ -56,6 +75,8 @@ interface ServiceRequest {
   customerName: string;
   customerPhone: string;
   customerId: string;
+  customerProfilePhoto?: string | null;
+  profilePhotoUrl?: string | null;
   providerId?: string;
   status: string;
   paymentStatus?: 'unpaid' | 'held';
@@ -124,6 +145,7 @@ export default function ProviderRequestDetailScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { token, user, loading: authLoading } = useAuth();
+
   const insets = useSafeAreaInsets();
   const requestId = params.requestId as string;
   const openChat = params.openChat === 'true';
@@ -132,9 +154,9 @@ export default function ProviderRequestDetailScreen() {
   const cacheKey = CACHE_KEYS.PROVIDER_JOB_DETAIL(requestId || '');
   const cachedData = requestId ? getCachedData<ServiceRequest>(cacheKey) : null;
 
-  const [request, setRequest] = useState<ServiceRequest | null>(cachedData);
+  const [request, setRequest] = useState<ServiceRequest | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(!cachedData); // Only show loading if no cache
+  const [loading, setLoading] = useState(true); // Always fetch fresh detail so customer photo is current
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>(openChat ? 'chat' : 'details');
@@ -145,6 +167,7 @@ export default function ProviderRequestDetailScreen() {
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
+  const [customerPhotoFailed, setCustomerPhotoFailed] = useState(false);
   
   // Performance timing
   const timingRef = useRef(createTimingTracker('Provider Job Details'));
@@ -212,6 +235,7 @@ export default function ProviderRequestDetailScreen() {
       setPayoutInfo(null);
       setActiveTab(openChat ? 'chat' : 'details');
       setHasUnreadMessages(false);
+      setCustomerPhotoFailed(false);
       hasEverLoadedRef.current = false;
       fetchCounterRef.current = 0;
       prevMessageCountRef.current = 0;
@@ -1219,7 +1243,33 @@ export default function ProviderRequestDetailScreen() {
             {/* Customer & Service Summary Card - TOP PRIORITY INFO */}
             <View style={styles.summaryCard}>
               <View style={styles.summaryRow}>
-                <Ionicons name="person" size={20} color="#C13E1F" />
+                {(() => {
+                  const rawPhoto =
+                    request.customerProfilePhoto ||
+                    (request as any).customerPhoto ||
+                    (request as any).customerPhotoUrl ||
+                    null;
+
+                  const photoUri = rawPhoto
+                    ? rawPhoto.startsWith('/')
+                      ? `${BACKEND_URL}${rawPhoto}`
+                      : rawPhoto
+                    : null;
+
+                  return (
+                    <View style={styles.customerAvatarWrap}>
+                      <Ionicons name="person" size={20} color="#C13E1F" />
+                      {photoUri ? (
+                        <Image
+                          source={{ uri: photoUri }}
+                          style={styles.customerAvatarImage}
+                          resizeMode="cover"
+                          onError={() => console.log('Customer photo failed:', photoUri)}
+                        />
+                      ) : null}
+                    </View>
+                  );
+                })()}
                 <View style={styles.summaryContent}>
                   <Text style={styles.summaryLabel}>Customer</Text>
                   <Text style={styles.summaryValue}>{request.customerName}</Text>
@@ -1227,8 +1277,8 @@ export default function ProviderRequestDetailScreen() {
               </View>
               <View style={styles.summaryDivider} />
               <View style={styles.summaryRow}>
-                <View style={styles.serviceIconCircle}>
-                  <Text style={styles.serviceEmoji}>🛠️</Text>
+                <View style={[styles.serviceIconCircle, { backgroundColor: getServiceMeta(request.service).bg }]}>
+                  <Text style={styles.serviceEmoji}>{getServiceMeta(request.service).icon}</Text>
                 </View>
                 <View style={styles.summaryContent}>
                   <Text style={styles.summaryLabel}>Service</Text>
@@ -1380,7 +1430,7 @@ export default function ProviderRequestDetailScreen() {
                   <ActivityIndicator size="small" color="#FFFFFF" />
                 ) : (
                   <>
-                    <Ionicons name="close-circle-outline" size={20} color="#4B5563" />
+                    <Ionicons name="close-circle-outline" size={20} color="#FFFFFF" />
                     <Text style={styles.cancelJobButtonText}>Cancel Job</Text>
                   </>
                 )}
@@ -2063,8 +2113,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingTop: 18,
-    paddingBottom: 18,
-    backgroundColor: '#2B3642',
+    paddingBottom: 18,    backgroundColor: '#2B3642',
   },
   headerCenter: {
     alignItems: 'center',
@@ -2197,6 +2246,34 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: 12,
   },
+  customerAvatarWrap: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#FBECDD',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  customerAvatarImage: {
+    position: 'absolute',
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+  },
+
+  serviceIconCircle: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  serviceEmoji: {
+    fontSize: 20,
+  },
+
   summaryContent: {
     flex: 1,
   },
@@ -2361,7 +2438,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#D74826',
+    backgroundColor: '#C96A4A',
     paddingHorizontal: 28,
     paddingVertical: 12,
     borderRadius: 12,
@@ -2585,9 +2662,7 @@ const styles = StyleSheet.create({
   },
   // Cancel Job Button
   cancelJobButton: {
-    backgroundColor: '#FCFDFE',
-    borderWidth: 1.5,
-    borderColor: '#D7DEE7',
+    backgroundColor: '#C96A4A',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -2598,7 +2673,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   cancelJobButtonText: {
-    color: '#4B5563',
+    color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '600',
   },
