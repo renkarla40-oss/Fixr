@@ -923,14 +923,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
   },
   statusText: {
-    fontSize: 11,
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
+    fontSize: 10,
+    fontWeight: '600',
   },
   customerRow: {
     flexDirection: 'row',

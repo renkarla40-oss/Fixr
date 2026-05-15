@@ -7,6 +7,7 @@ import {
   RefreshControl,
   ActivityIndicator,
   TouchableOpacity,
+  StatusBar,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -192,7 +193,9 @@ export default function EarningsScreen() {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <>
+      <StatusBar barStyle="dark-content" backgroundColor="#E4ECF4" />
+      <View style={[styles.container, { paddingTop: insets.top }]}> 
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Earnings</Text>
       </View>
@@ -331,14 +334,15 @@ export default function EarningsScreen() {
           Earnings move from Pending to Available after job completion is confirmed.
         </Text>
       </ScrollView>
-    </View>
+      </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#EAF4FF',
+    backgroundColor: '#E4ECF4',
   },
   header: {
     paddingHorizontal: 20,

@@ -2105,7 +2105,7 @@ export default function ProviderRequestDetailScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FCFDFE',
+    backgroundColor: '#E4ECF4',
   },
   header: {
     flexDirection: 'row',
@@ -2375,7 +2375,7 @@ const styles = StyleSheet.create({
   },
   jobCodeInput: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#E4ECF4',
     borderWidth: 1,
     borderColor: '#C5DFFF',
     borderRadius: 8,
