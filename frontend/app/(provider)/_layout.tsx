@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Tabs } from 'expo-router';
+import { StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNotifications } from '../../contexts/NotificationContext';
@@ -9,6 +10,11 @@ export default function ProviderLayout() {
   const insets = useSafeAreaInsets();
   const { unreadCount } = useNotifications();
   const bottomInset = insets.bottom;
+
+  useEffect(() => {
+    StatusBar.setBarStyle('dark-content');
+    StatusBar.setBackgroundColor('#E4ECF4');
+  }, []);
 
   return (
     <Tabs screenOptions={getTabBarScreenOptions(bottomInset)}>

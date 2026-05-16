@@ -350,7 +350,6 @@ export default function ProviderInboxScreen() {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#C13E1F" />
           }
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
       )}
     </View>
@@ -360,24 +359,25 @@ export default function ProviderInboxScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#E4ECF4',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: '#F8F9FA',
+    paddingHorizontal: 24,
+    paddingTop: 20,
+    paddingBottom: 24,
+    backgroundColor: '#2B3642',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
     flex: 1,
   },
   countBadge: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    backgroundColor: '#3A4755',
+    borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 4,
     minWidth: 32,
@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   countText: {
-    color: '#666',
+    color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '600',
   },
@@ -444,9 +444,10 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   listContent: {
-    paddingVertical: 8,
+    paddingTop: 8,
+    paddingBottom: 120,
     paddingHorizontal: 16,
-    gap: 8,
+    gap: 12,
   },
   jobItem: {
     flexDirection: 'row',
@@ -462,13 +463,13 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   jobItemUnread: {
-    backgroundColor: '#FFF8F8',
+    backgroundColor: '#F7FAFD',
   },
   avatar: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: '#F3F6FA',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -498,7 +499,7 @@ const styles = StyleSheet.create({
   },
   serviceName: {
     fontSize: 13,
-    color: '#C13E1F',
+    color: '#5F6368',
     marginBottom: 4,
   },
   lastMessage: {
@@ -517,7 +518,7 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: 1,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: '#F3F6FA',
     marginLeft: 78,
   },
   noMessageText: {

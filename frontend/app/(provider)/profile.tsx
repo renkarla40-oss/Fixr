@@ -114,9 +114,14 @@ export default function ProviderProfileScreen() {
       Alert.alert('Too Long', 'Availability note must be 60 characters or less.');
       return;
     }
-    setAvailabilityNote(tempNote);
-    setShowNoteModal(false);
-    await saveAvailability(isAcceptingJobs, tempNote);
+
+    try {
+      await saveAvailability(isAcceptingJobs, tempNote);
+      setAvailabilityNote(tempNote);
+      setShowNoteModal(false);
+    } catch (error) {
+      // saveAvailability already shows alert
+    }
   };
 
   const handleLogout = () => {
@@ -233,7 +238,7 @@ export default function ProviderProfileScreen() {
                   </View>
                 </View>
                 {loadingProfile || savingAvailability ? (
-                  <ActivityIndicator size="small" color="#C13E1F" />
+                  <ActivityIndicator size="small" color="#2B3642" />
                 ) : (
                   <Switch
                     value={isAcceptingJobs}
@@ -285,13 +290,13 @@ export default function ProviderProfileScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuItemLeft}>
-                <Ionicons name="swap-horizontal-outline" size={24} color="#C13E1F" />
+                <Ionicons name="swap-horizontal-outline" size={24} color="#2B3642" />
                 <Text style={[styles.menuItemText, styles.switchText]}>
                   Switch to Customer
                 </Text>
               </View>
               {switching ? (
-                <ActivityIndicator size="small" color="#C13E1F" />
+                <ActivityIndicator size="small" color="#2B3642" />
               ) : (
                 <Ionicons name="chevron-forward" size={24} color="#999" />
               )}
@@ -307,10 +312,10 @@ export default function ProviderProfileScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuItemLeft}>
-                <Ionicons name="mail-outline" size={24} color="#C13E1F" />
+                <Ionicons name="mail-outline" size={24} color="#2B3642" />
                 <Text style={[styles.menuItemText, styles.betaText]}>Contact Fixr (Beta)</Text>
               </View>
-              <Ionicons name="open-outline" size={20} color="#C13E1F" />
+              <Ionicons name="open-outline" size={20} color="#2B3642" />
             </TouchableOpacity>
             
             <TouchableOpacity 
@@ -372,7 +377,7 @@ export default function ProviderProfileScreen() {
               onPress={handleLogout}
               activeOpacity={0.7}
             >
-              <Ionicons name="log-out-outline" size={24} color="#C13E1F" />
+              <Ionicons name="log-out-outline" size={24} color="#FFFFFF" />
               <Text style={styles.logoutText}>Logout</Text>
             </TouchableOpacity>
           </View>
@@ -439,29 +444,31 @@ export default function ProviderProfileScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#E4ECF4',
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#E4ECF4',
   },
   header: {
     paddingHorizontal: 24,
+    backgroundColor: '#2B3642',
     paddingTop: 16,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: '#2B3642',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
   },
   content: {
     flex: 1,
   },
   contentContainer: {
-    paddingBottom: 20,
+    paddingTop: 8,
+    paddingBottom: 120,
   },
   profileSection: {
     alignItems: 'center',
@@ -504,13 +511,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#E8F5E9',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
     gap: 4,
   },
   roleText: {
-    fontSize: 13,
+    fontSize: 11,
     color: '#4CAF50',
     fontWeight: '600',
   },
@@ -525,13 +532,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#E8F5E9',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
     gap: 4,
   },
   verifiedText: {
-    fontSize: 13,
+    fontSize: 11,
     color: '#4CAF50',
     fontWeight: '600',
   },
@@ -547,7 +554,7 @@ const styles = StyleSheet.create({
   },
   // Availability styles (Phase 3A)
   availabilityCard: {
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#E0E0E0',
@@ -624,11 +631,11 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
   },
   switchText: {
-    color: '#C13E1F',
+    color: '#1A1A1A',
     fontWeight: '600',
   },
   betaText: {
-    color: '#C13E1F',
+    color: '#1A1A1A',
     fontWeight: '600',
   },
   logoutButton: {
@@ -637,16 +644,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 12,
     paddingVertical: 16,
-    backgroundColor: '#FFF5F5',
+    backgroundColor: '#C13E1F',
     borderRadius: 12,
     marginTop: 8,
-    borderWidth: 1,
-    borderColor: '#FFCDD2',
+    borderWidth: 0,
   },
   logoutText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#C13E1F',
+    color: '#FFFFFF',
   },
   versionSection: {
     alignItems: 'center',

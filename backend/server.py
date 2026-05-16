@@ -251,7 +251,8 @@ class ProviderSetup(BaseModel):
 
 # Provider Availability Update Model (Phase 3A)
 class ProviderAvailabilityUpdate(BaseModel):
-    availabilityStatus: str  # "available" | "away"
+    isAcceptingJobs: bool
+    availabilityNote: Optional[str] = None
 
 # Provider Photo Upload Model (Phase 4)
 class PhotoUploadRequest(BaseModel):
@@ -1397,32 +1398,31 @@ async def update_provider_availability(
     availability_data: ProviderAvailabilityUpdate,
     current_user: User = Depends(get_current_user)
 ):
-    """Update provider's availability status (available/away)"""
-    # Find provider profile
+    """Update provider availability settings."""
+
     provider = await db.providers.find_one({"userId": current_user.id})
     if not provider:
         raise HTTPException(status_code=404, detail="Provider profile not found")
-    
-    # Validate status value
-    if availability_data.availabilityStatus not in ["available", "away"]:
-        raise HTTPException(status_code=400, detail="Invalid availability status. Use 'available' or 'away'")
-    
-    # Update availability status
+
+    availability_status = "available" if availability_data.isAcceptingJobs else "away"
+
     await db.providers.update_one(
         {"userId": current_user.id},
         {"$set": {
-            "availabilityStatus": availability_data.availabilityStatus,
-            "isAcceptingJobs": availability_data.availabilityStatus == "available",
+            "isAcceptingJobs": availability_data.isAcceptingJobs,
+            "availabilityStatus": availability_status,
+            "availabilityNote": availability_data.availabilityNote,
             "updatedAt": datetime.utcnow()
         }}
     )
-    
-    # Return updated provider
+
     updated_provider = await db.providers.find_one({"userId": current_user.id})
     updated_provider["_id"] = str(updated_provider["_id"])
-    # Ensure defaults for optional fields
-    updated_provider.setdefault("availabilityStatus", "available")
+
+    updated_provider.setdefault("availabilityStatus", availability_status)
     updated_provider.setdefault("availabilityNote", None)
+    updated_provider.setdefault("phone", current_user.phone or "")
+
     return Provider(**updated_provider)
 
 # Phase 4: Provider Photo Upload Endpoint

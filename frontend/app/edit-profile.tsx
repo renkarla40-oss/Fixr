@@ -4,11 +4,11 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
   TextInput,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  StatusBar,
   Alert,
   ActivityIndicator,
   Image,
@@ -225,7 +225,9 @@ export default function EditProfileScreen() {
   const photoUrl = getPhotoUrl();
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <>
+      <StatusBar barStyle="dark-content" backgroundColor="#E4ECF4" />
+      <View style={[styles.safeArea, { paddingTop: insets.top }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
@@ -236,7 +238,7 @@ export default function EditProfileScreen() {
             style={styles.backButton}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Ionicons name="arrow-back" size={28} color="#1A1A1A" />
+            <Ionicons name="arrow-back" size={28} color="#FFFFFF" />
           </TouchableOpacity>
           <Text style={styles.title}>Edit Profile</Text>
           <TouchableOpacity
@@ -271,7 +273,7 @@ export default function EditProfileScreen() {
                   <Ionicons name="person" size={48} color="#666" />
                 )}
                 <View style={styles.cameraIconContainer}>
-                  <Ionicons name="camera" size={16} color="#FFFFFF" />
+                  <Ionicons name="camera" size={16} color="#E4ECF4" />
                 </View>
               </View>
             </TouchableOpacity>
@@ -330,21 +332,22 @@ export default function EditProfileScreen() {
             activeOpacity={0.8}
           >
             {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color="#E4ECF4" />
             ) : (
               <Text style={styles.saveButtonText}>Save Changes</Text>
             )}
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+      </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#E4ECF4',
   },
   container: {
     flex: 1,
@@ -353,10 +356,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    paddingHorizontal: 20,
+    paddingTop: 14,
+    paddingBottom: 18,
+    backgroundColor: '#2B3642',
+    borderBottomWidth: 0,
   },
   backButton: {
     width: 44,
@@ -370,13 +374,13 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     fontSize: 16,
-    color: '#C13E1F',
+    color: '#FFFFFF',
     fontWeight: '600',
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
   },
   content: {
     flex: 1,
@@ -392,7 +396,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
@@ -413,7 +417,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#FFFFFF',
+    borderColor: '#E4ECF4',
   },
   changePhotoButton: {
     marginTop: 12,
@@ -422,7 +426,7 @@ const styles = StyleSheet.create({
   },
   changePhotoText: {
     fontSize: 15,
-    color: '#C13E1F',
+    color: '#2B3642',
     fontWeight: '600',
   },
   form: {
@@ -437,17 +441,17 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
   },
   input: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
     color: '#1A1A1A',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#D7DEE7',
   },
   disabledInput: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -455,7 +459,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#D7DEE7',
   },
   disabledText: {
     fontSize: 16,
@@ -468,13 +472,14 @@ const styles = StyleSheet.create({
   },
   footer: {
     padding: 24,
+    backgroundColor: '#E4ECF4',
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+    borderTopColor: '#D7DEE7',
   },
   saveButton: {
     backgroundColor: '#C13E1F',
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 14,
     alignItems: 'center',
   },
   saveButtonDisabled: {

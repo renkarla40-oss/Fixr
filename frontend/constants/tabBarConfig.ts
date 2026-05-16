@@ -16,7 +16,7 @@ export const TAB_COLORS = {
 };
 
 // Calculate tab bar height based on safe area inset
-export const getTabBarHeight = (bottomInset: number) => 50 + bottomInset;
+export const getTabBarHeight = (bottomInset: number) => 60 + bottomInset;
 
 // Shared screen options for tab bar styling
 export const getTabBarScreenOptions = (bottomInset: number) => ({
@@ -28,7 +28,7 @@ export const getTabBarScreenOptions = (bottomInset: number) => ({
     borderTopColor: TAB_COLORS.border,
     height: getTabBarHeight(bottomInset),
     paddingBottom: bottomInset,
-    paddingTop: 4,
+    paddingTop: 6,
     elevation: 0,
     shadowColor: 'transparent',
     shadowOffset: { width: 0, height: 0 },

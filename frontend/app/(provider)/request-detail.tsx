@@ -1749,7 +1749,7 @@ export default function ProviderRequestDetailScreen() {
               <Text style={styles.chatClosedText}>Chat closed — job completed.</Text>
             </View>
           ) : (
-            <View style={{ paddingBottom: insets.bottom + 12 }}>
+            <View style={{ paddingBottom: insets.bottom + 12, backgroundColor: '#E4ECF4' }}>
               {/* Send Quote Button - only for accepted status before payment */}
               {(request.status === 'accepted' || request.status === 'awaiting_payment') && (!currentQuote || currentQuote.status === 'VOID') && (
                 <TouchableOpacity
@@ -2182,8 +2182,9 @@ const styles = StyleSheet.create({
   },
   tabBar: {
     flexDirection: 'row',
+    backgroundColor: '#E4ECF4',
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: '#D7E2EC',
   },
   tab: {
     flex: 1,
@@ -2331,7 +2332,7 @@ const styles = StyleSheet.create({
   },
   infoItem: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#EAF1F8',
     borderRadius: 8,
     padding: 12,
     alignItems: 'center',
@@ -2618,9 +2619,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 12,
     gap: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FCFDFE',
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+    borderTopColor: '#D7E2EC',
     // Shadow for elevation
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
@@ -2633,7 +2634,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FCFDFE',
     borderWidth: 2,
     borderColor: '#C13E1F',
     paddingVertical: 16,
@@ -2720,7 +2721,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   completionOtpInput: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FCFDFE',
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -2787,7 +2788,7 @@ const styles = StyleSheet.create({
     color: '#7B1FA2',
   },
   jobCompletedDetails: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FCFDFE',
     borderRadius: 8,
     padding: 12,
     marginBottom: 12,
@@ -2836,7 +2837,7 @@ const styles = StyleSheet.create({
     color: '#33691E',
   },
   payoutDetails: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FCFDFE',
     borderRadius: 8,
     padding: 12,
   },
@@ -2907,7 +2908,7 @@ const styles = StyleSheet.create({
     color: '#1565C0',
   },
   jobStartedDetails: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FCFDFE',
     borderRadius: 8,
     padding: 12,
   },
@@ -2931,6 +2932,7 @@ const styles = StyleSheet.create({
   // Chat styles
   chatContainer: {
     flex: 1,
+    backgroundColor: '#E4ECF4',
   },
   emptyChatInner: {
     flex: 1,
@@ -2951,10 +2953,14 @@ const styles = StyleSheet.create({
   },
   messagesContainer: {
     flex: 1,
+    backgroundColor: '#E4ECF4',
   },
   messagesContent: {
-    padding: 16,
+    flexGrow: 1,
+    paddingTop: 10,
+    paddingHorizontal: 16,
     paddingBottom: 8,
+    backgroundColor: '#E4ECF4',
   },
   messagesContentEmpty: {
     flexGrow: 1,
@@ -2973,7 +2979,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 4,
   },
   messageBubbleTheirs: {
-    backgroundColor: '#F0F0F0',
+    backgroundColor: '#EEF3F8',
     alignSelf: 'flex-start',
     borderBottomLeftRadius: 4,
   },
@@ -3044,8 +3050,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
-    backgroundColor: '#F5F5F5',
+    borderTopColor: '#D7E2EC',
+    backgroundColor: '#EAF1F8',
     gap: 8,
   },
   chatClosedText: {
@@ -3058,14 +3064,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
-    backgroundColor: '#FFFFFF',
+    borderTopColor: '#D7E2EC',    backgroundColor: '#E4ECF4',
     gap: 8,
     alignItems: 'flex-end',
   },
   messageInput: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#EAF1F8',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingTop: 10,
@@ -3232,7 +3237,7 @@ const styles = StyleSheet.create({
     color: '#E65100',
   },
   counterOfferDetails: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FCFDFE',
     borderRadius: 8,
     padding: 12,
     marginBottom: 12,
@@ -3286,7 +3291,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FCFDFE',
     paddingVertical: 12,
     borderRadius: 8,
     borderWidth: 1,
@@ -3317,7 +3322,7 @@ const styles = StyleSheet.create({
   },
   // Revise Modal Styles
   reviseOriginalInfo: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#EAF1F8',
     borderRadius: 8,
     padding: 12,
     marginBottom: 16,
@@ -3343,7 +3348,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+    borderTopColor: '#D7E2EC',
   },
   reviseCounterLabel: {
     fontSize: 12,
@@ -3405,7 +3410,7 @@ const styles = StyleSheet.create({
   },
   paidJobCodeInput: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FCFDFE',
     borderWidth: 1,
     borderColor: '#A5D6A7',
     borderRadius: 8,
@@ -3440,7 +3445,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   quoteModalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FCFDFE',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
@@ -3474,7 +3479,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   quoteFormInput: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#EAF1F8',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -3488,7 +3493,7 @@ const styles = StyleSheet.create({
   quoteAmountRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#EAF1F8',
     borderRadius: 12,
     paddingHorizontal: 16,
   },

@@ -553,10 +553,6 @@ export default function ProviderMyJobsScreen() {
             </Text>
 
             <Text style={styles.heroTitle}>My Jobs</Text>
-
-            <Text style={styles.heroSubtitle}>
-              {jobs.filter(j => j.status === 'in_progress').length} Active Jobs • {jobs.filter(j => j.status === 'pending').length} Awaiting Response
-            </Text>
           </View>
 
           <NotificationBell color="#FFFFFF" size={24} />

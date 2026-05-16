@@ -300,7 +300,7 @@ export default function ProviderChatScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.title} numberOfLines={1}>
@@ -430,14 +430,14 @@ export default function ProviderChatScreen() {
 
         {/* Input bar */}
         {chatClosed ? (
-          <View style={styles.chatClosedBanner}>
+          <View style={[styles.chatClosedBanner, { paddingBottom: insets.bottom + 12 }]}>
             <Ionicons name="lock-closed" size={16} color="#666" />
             <Text style={styles.chatClosedText}>
               Chat is read-only after job completion
             </Text>
           </View>
         ) : (
-          <View style={styles.messageInputContainer}>
+          <View style={[styles.messageInputContainer, { paddingBottom: insets.bottom + 12 }]}>
             <TouchableOpacity
               style={styles.imagePickerButton}
               onPress={showImageOptions}
@@ -508,10 +508,11 @@ export default function ProviderChatScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#E4ECF4',
   },
   header: {
     flexDirection: 'row',
+    backgroundColor: '#2B3642',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
@@ -532,10 +533,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
   },
   chatContainer: {
     flex: 1,
+    backgroundColor: '#E4ECF4',
   },
   centerContent: {
     flex: 1,
@@ -547,6 +549,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   messagesContent: {
+    backgroundColor: '#E4ECF4',
     padding: 12,
     paddingBottom: 8,
     flexGrow: 1,
@@ -584,7 +587,7 @@ const styles = StyleSheet.create({
   },
   messageBubbleTheirs: {
     alignSelf: 'flex-start',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#EEF3F8',
     borderBottomLeftRadius: 4,
   },
   imageBubble: {
@@ -638,7 +641,7 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#E4ECF4',
     gap: 8,
     alignItems: 'flex-end',
   },
@@ -648,12 +651,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 20,
-    backgroundColor: '#FEE2E2',
+    backgroundColor: '#F4D8CF',
     marginBottom: 2,
   },
   messageInput: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#EEF3F8',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingTop: 10,
@@ -680,7 +683,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 12,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#EEF3F8',
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
     gap: 6,
