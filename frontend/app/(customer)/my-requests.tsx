@@ -47,6 +47,25 @@ const COPY = {
 // Polling interval for status updates (20 seconds)
 const POLLING_INTERVAL_MS = 20000;
 
+
+const SERVICE_META: Record<string, { icon: string; bg: string }> = {
+  plumbing: { icon: '🔧', bg: '#E8F0FE' },
+  electrical: { icon: '⚡', bg: '#FFF1E7' },
+  handyman: { icon: '🛠️', bg: '#FBECDD' },
+  carpentry: { icon: '🪚', bg: '#F3E8FF' },
+  cleaning: { icon: '✨', bg: '#E8F7EE' },
+  landscaping: { icon: '🌿', bg: '#E8F7EE' },
+  renovation: { icon: '🏠', bg: '#E8F0FE' },
+  welding: { icon: '🔥', bg: '#FFF1E7' },
+  appliance: { icon: '⚙️', bg: '#E8F0FE' },
+  ac: { icon: '❄️', bg: '#E8F0FE' },
+};
+
+const getServiceMeta = (service?: string) => {
+  const key = String(service || '').toLowerCase().trim();
+  return SERVICE_META[key] || { icon: '🛠️', bg: '#FBECDD' };
+};
+
 interface ServiceRequest {
   _id: string;
   service: string;
@@ -73,7 +92,7 @@ export default function MyRequestsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [initialLoadComplete, setInitialLoadComplete] = useState(!!cachedData);
-  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   
   // Performance timing
   const timingRef = useRef(createTimingTracker('Customer My Requests'));
@@ -330,7 +349,7 @@ export default function MyRequestsScreen() {
             <Text style={styles.title}>My Requests</Text>
           </View>
           <View style={styles.centerContent}>
-            <ActivityIndicator size="large" color="#D8D8D8" />
+            <ActivityIndicator size="large" color="#FFFFFF" />
             <Text style={styles.loadingText}>{COPY.LOADING}</Text>
           </View>
         </View>
@@ -476,7 +495,9 @@ export default function MyRequestsScreen() {
               >
                 <View style={styles.requestHeader}>
                   <View style={styles.categoryContainer}>
-                    <Ionicons name="construct" size={16} color="#666" />
+                    <View style={[styles.serviceIconCircle, { backgroundColor: getServiceMeta(request.service).bg }]}>
+                      <Text style={styles.serviceEmoji}>{getServiceMeta(request.service).icon}</Text>
+                    </View>
                     <Text style={styles.categoryText} numberOfLines={1}>
                       {serviceLabel}{primaryText ? ` • ${primaryText}` : ''}
                     </Text>
@@ -540,9 +561,9 @@ export default function MyRequestsScreen() {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    backgroundColor: '#555555',  // Imperial Blue
+    backgroundColor: '#2B3642',  // Imperial Blue
     paddingTop: 16,
-    paddingBottom: 20,
+    paddingBottom: 14,
     paddingHorizontal: 16,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
@@ -551,7 +572,7 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: '700',
     color: '#FFFFFF',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   pillsRow: {
     flexDirection: 'row',
@@ -559,9 +580,9 @@ const styles = StyleSheet.create({
   },
 
   tabsGrid: {
-    backgroundColor: '#3A4651',
+    backgroundColor: '#2B3642',
     paddingHorizontal: 14,
-    paddingBottom: 16,
+    paddingBottom: 10,
     gap: 8,
   },
   tabsRow: {
@@ -570,12 +591,12 @@ const styles = StyleSheet.create({
   },
   tabButton: {
     flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: '#3A4755',
     borderRadius: 12,
-    paddingVertical: 10,
+    paddingVertical: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 48,
+    minHeight: 42,
   },
   tabButtonActive: {
     backgroundColor: '#C13E1F',
@@ -592,14 +613,14 @@ const styles = StyleSheet.create({
 
   safeArea: {
     flex: 1,
-    backgroundColor: '#3A4651',
+    backgroundColor: '#E4ECF4',
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#E4ECF4',
   },
   header: {
-    backgroundColor: '#3A4651',
+    backgroundColor: '#2B3642',
     paddingHorizontal: 20,
     paddingTop: 18,
     paddingBottom: 12,
@@ -670,7 +691,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   requestCard: {
-    backgroundColor: '#D8D8D8',
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 16,
     shadowColor: '#000',
@@ -692,6 +713,16 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 16,
   },
+  serviceIconCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  serviceEmoji: {
+    fontSize: 15,
+  },
   categoryText: {
     fontSize: 14,
     fontWeight: '600',
@@ -699,17 +730,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   statusBadge: {
-    backgroundColor: '#EDEFF2',
+    backgroundColor: '#EEF3F8',
     paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 999,
-    height: 22,
+    borderRadius: 4,
     justifyContent: 'center',
     alignSelf: 'flex-start',
   },
   statusText: {
     fontSize: 10,
-    fontWeight: '700',
+    fontWeight: '600',
     color: '#000000',
   },
   subCategoryText: {
@@ -728,14 +758,14 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     marginRight: 10,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#EEF3F8',
   },
   providerAvatarFallback: {
     width: 40,
     height: 40,
     borderRadius: 20,
     marginRight: 10,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: '#D7E2EC',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -756,7 +786,7 @@ const styles = StyleSheet.create({
     color: '#666',
     marginLeft: 58,
     marginTop: -8,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   metaRow: {
     flexDirection: 'row',
@@ -794,7 +824,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   locationText: {
     fontSize: 13,
@@ -806,7 +836,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
+    borderTopColor: '#D7E2EC',
   },
   dateContainer: {
     flexDirection: 'row',
