@@ -284,7 +284,7 @@ export default function CustomerInboxScreen() {
         <View style={[styles.statusDot, { backgroundColor: getStatusColor(item.status) }]} />
       </View>
       
-      <Ionicons name="chevron-forward" size={20} color="#CCC" />
+      <Ionicons name="chevron-forward" size={20} color="#999" />
     </TouchableOpacity>
   );
 
@@ -360,21 +360,21 @@ export default function CustomerInboxScreen() {
 
 const styles = StyleSheet.create({
   headerShell: {
-    backgroundColor: '#3A4651',
+    backgroundColor: '#2B3642',
   },
   container: {
     flex: 1,
-    backgroundColor: '#F2F4F7',
+    backgroundColor: '#E4ECF4',
   },
   header: {
     paddingHorizontal: 16,
     paddingVertical: 20,
-    backgroundColor: '#3A4651',
+    backgroundColor: '#2B3642',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#2C3640',
+    color: '#666',
   },
   headerTitle: {
     fontSize: 28,
@@ -389,13 +389,13 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '600',
     color: '#666',
   },
   errorText: {
     marginTop: 16,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '600',
     color: '#666',
     textAlign: 'center',
   },
@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   retryButtonText: {
-    color: '#2C3640',
+    color: '#666',
     fontSize: 14,
     fontWeight: '700',
     fontWeight: '700',
@@ -429,7 +429,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '600',
     color: '#666',
     marginTop: 8,
     textAlign: 'center',
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#D8D8D8',
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -457,7 +457,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     overflow: 'hidden',
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#EEF3F8',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 14,
@@ -484,17 +484,17 @@ const styles = StyleSheet.create({
   },
   serviceName: {
     fontSize: 13,
-    color: '#2C3640',
+    color: '#666',
     marginBottom: 4,
   },
   lastMessage: {
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '600',
     color: '#666',
   },
   noMessages: {
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '600',
     color: '#999',
     fontStyle: 'italic',
   },
