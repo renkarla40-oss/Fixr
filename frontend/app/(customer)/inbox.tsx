@@ -280,9 +280,11 @@ export default function CustomerInboxScreen() {
         )}
       </View>
       
-      <View style={styles.statusIndicator}>
-        <View style={[styles.statusDot, { backgroundColor: getStatusColor(item.status) }]} />
-      </View>
+      {item.unreadCount > 0 && (
+        <View style={styles.statusIndicator}>
+          <View style={styles.statusDot} />
+        </View>
+      )}
       
       <Ionicons name="chevron-forward" size={20} color="#999" />
     </TouchableOpacity>
@@ -360,7 +362,7 @@ export default function CustomerInboxScreen() {
 
 const styles = StyleSheet.create({
   headerShell: {
-    backgroundColor: '#2B3642',
+    backgroundColor: '#E4ECF4',
   },
   container: {
     flex: 1,
@@ -435,7 +437,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   listContent: {
-    paddingVertical: 8,
+    paddingTop: 18,
+    paddingBottom: 8,
     paddingHorizontal: 16,
     gap: 8,
   },
@@ -505,6 +508,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
+    backgroundColor: '#C13E1F',
   },
   separator: {
     height: 0,

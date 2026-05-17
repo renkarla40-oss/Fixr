@@ -298,7 +298,7 @@ export default function CustomerChatScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.title} numberOfLines={1}>
@@ -506,7 +506,7 @@ export default function CustomerChatScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#E4ECF4',
   },
   header: {
     flexDirection: 'row',
@@ -514,8 +514,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
+    backgroundColor: '#2B3642',
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: '#D7E2EC',
   },
   headerCenter: {
     flex: 1,
@@ -530,7 +531,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
   },
   chatContainer: {
     flex: 1,
@@ -543,11 +544,13 @@ const styles = StyleSheet.create({
   },
   messagesContainer: {
     flex: 1,
+    backgroundColor: '#E4ECF4',
   },
   messagesContent: {
     padding: 12,
     paddingBottom: 8,
     flexGrow: 1,
+    backgroundColor: '#E4ECF4',
   },
   emptyChatInner: {
     flex: 1,
@@ -582,7 +585,7 @@ const styles = StyleSheet.create({
   },
   messageBubbleTheirs: {
     alignSelf: 'flex-start',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#EAF1F8',
     borderBottomLeftRadius: 4,
   },
   imageBubble: {
@@ -635,8 +638,8 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 44,
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
-    backgroundColor: '#FFFFFF',
+    borderTopColor: '#D7E2EC',
+    backgroundColor: '#E4ECF4',
     gap: 8,
     alignItems: 'flex-end',
   },
@@ -646,12 +649,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 20,
-    backgroundColor: '#FEE2E2',
+    backgroundColor: '#FBE3DD',
     marginBottom: 2,
   },
   messageInput: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#EAF1F8',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingTop: 10,
@@ -671,16 +674,16 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   sendButtonDisabled: {
-    backgroundColor: '#CCC',
+    backgroundColor: '#CCCCCC',
   },
   chatClosedBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 12,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#EAF1F8',
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+    borderTopColor: '#D7E2EC',
     gap: 6,
   },
   chatClosedText: {
