@@ -1109,7 +1109,7 @@ const isPaid = (): boolean => {
       case 'completed':
         return { bg: '#F3E5F5', text: '#7B1FA2', icon: 'checkmark-done-circle', label: 'Completed' };
       case 'declined':
-        return { bg: '#FFEBEE', text: '#C13E1F', icon: 'close-circle', label: 'Declined' };
+        return { bg: '#FFEBEE', text: '#B14A2B', icon: 'close-circle', label: 'Declined' };
       case 'cancelled':
         return { bg: '#FFF3E0', text: '#E65100', icon: 'close-circle-outline', label: 'Cancelled' };
       default:
@@ -1210,7 +1210,7 @@ const isPaid = (): boolean => {
 <View style={styles.backButton} />
         </View>
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#C13E1F" />
+          <ActivityIndicator size="large" color="#B14A2B" />
           <Text style={styles.loadingText}>Loading request...</Text>
         </View>
       </View>
@@ -1265,7 +1265,7 @@ const isPaid = (): boolean => {
           style={[styles.tab, activeTab === 'details' && styles.tabActive]}
           onPress={() => setActiveTab('details')}
         >
-          <Ionicons name="document-text-outline" size={24} color={activeTab === 'details' ? '#F05A28' : '#D8D8D8'} />
+          <Ionicons name="document-text-outline" size={24} color={activeTab === 'details' ? '#B14A2B' : '#EAF1F8'} />
           <Text style={[styles.tabText, activeTab === 'details' && styles.tabTextActive]}>Details</Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -1273,9 +1273,9 @@ const isPaid = (): boolean => {
           onPress={() => setActiveTab('chat')}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Ionicons name="chatbubbles-outline" size={24} color={activeTab === 'chat' ? '#F05A28' : '#D8D8D8'} />
+            <Ionicons name="chatbubbles-outline" size={24} color={activeTab === 'chat' ? '#B14A2B' : '#EAF1F8'} />
             {hasUnreadMessages && activeTab !== 'chat' && (
-              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#C13E1F', marginLeft: 2 }} />
+              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#B14A2B', marginLeft: 2 }} />
             )}
           </View>
           <Text style={[styles.tabText, activeTab === 'chat' && styles.tabTextActive]}>Messages</Text>
@@ -1337,7 +1337,7 @@ const isPaid = (): boolean => {
           {request.status === 'in_progress' && request.completionOtp && (
             <View style={styles.completionOtpCard}>
               <View style={styles.completionOtpHeader}>
-                <Ionicons name="key" size={24} color="#4CAF50" />
+                <Ionicons name="key" size={24} color="#B14A2B" />
                 <Text style={styles.completionOtpTitle}>Completion OTP</Text>
               </View>
               <Text style={styles.completionOtpValue}>
@@ -1350,7 +1350,7 @@ const isPaid = (): boolean => {
           {/* In Progress Status - Light blue theme */}
           {request.status === 'in_progress' && (
             <View style={styles.inProgressCard}>
-              <Ionicons name="play-circle" size={24} color="#4A90D9" />
+              <Ionicons name="play-circle" size={24} color="#2B3642" />
               <View style={styles.inProgressContent}>
                 <Text style={styles.inProgressTitle}>Job In Progress</Text>
                 <Text style={styles.inProgressText}>The provider is working on your request</Text>
@@ -1384,7 +1384,7 @@ const isPaid = (): boolean => {
           {['completed', 'completed_pending_review', 'completed_reviewed'].includes(request.status) && (
             <View style={styles.customerJobCompletedCard}>
               <View style={styles.customerJobCompletedHeader}>
-                <Ionicons name="checkmark-done-circle" size={26} color="#4CAF50" />
+                <Ionicons name="checkmark-done-circle" size={26} color="#B14A2B" />
                 <Text style={styles.customerJobCompletedTitle}>Job Completed</Text>
               </View>
               <View style={styles.customerJobCompletedDetails}>
@@ -1484,7 +1484,7 @@ const isPaid = (): boolean => {
   </View>
 </View>
             <View style={styles.infoItemRow}>
-  <Ionicons name="time" size={18} color="#C13E1F" />
+  <Ionicons name="time" size={18} color="#B14A2B" />
   <View>
     <Text style={styles.infoLabel}>Requested</Text>
     <Text style={styles.infoValue}>{formatDate(request.createdAt)}</Text>
@@ -1513,7 +1513,7 @@ const isPaid = (): boolean => {
                 // Show submitted review
                 <View style={styles.reviewSubmittedCard}>
                   <View style={styles.reviewSubmittedHeader}>
-                    <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
+                    <Ionicons name="checkmark-circle" size={24} color="#B14A2B" />
                     <Text style={styles.reviewSubmittedTitle}>Review Submitted</Text>
                   </View>
                   <View style={styles.reviewStarsDisplay}>
@@ -1552,7 +1552,7 @@ const isPaid = (): boolean => {
         >
           {loadingMessages ? (
             <View style={styles.centerContent}>
-              <ActivityIndicator size="large" color="#C13E1F" />
+              <ActivityIndicator size="large" color="#B14A2B" />
             </View>
           ) : (
             <ScrollView
@@ -1567,9 +1567,9 @@ const isPaid = (): boolean => {
             >
               <View
                 style={{
-                  backgroundColor: '#D8D8D8',
+                  backgroundColor: '#FCFDFE',
                   borderWidth: 1,
-                  borderColor: '#D8D8D8',
+                  borderColor: '#EAF1F8',
                   borderRadius: 12,
                   paddingHorizontal: 14,
                   paddingVertical: 10,
@@ -1578,7 +1578,7 @@ const isPaid = (): boolean => {
               >
                 <Text
                   style={{
-                    color: '#C13E1F',
+                    color: '#B14A2B',
                     fontSize: 14,
                     fontWeight: '600',
                     textAlign: 'center',
@@ -1600,7 +1600,7 @@ const isPaid = (): boolean => {
                   {currentQuote && currentQuote.status === 'ACCEPTED' && isPaid() && (
                     <View style={[styles.quoteCard, styles.quoteCardPaid, styles.scrollableQuoteCard]}>
                       <View style={styles.quoteCardHeader}>
-                        <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
+                        <Ionicons name="checkmark-circle" size={24} color="#B14A2B" />
                         <Text style={styles.quoteCardTitle}>Payment Confirmed</Text>
                       </View>
                       <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
@@ -1666,7 +1666,7 @@ const isPaid = (): boolean => {
               {currentQuote && currentQuote.status === 'SENT' && (
                 <View style={styles.quoteCard}>
                   <View style={styles.quoteCardHeader}>
-                    <Ionicons name="document-text" size={24} color="#4CAF50" />
+                    <Ionicons name="document-text" size={24} color="#B14A2B" />
                     <Text style={styles.quoteCardTitle}>Quote from Provider</Text>
                     <View style={styles.quoteStatusBadge}>
                       <Text style={styles.quoteStatusText}>
@@ -1784,7 +1784,7 @@ const isPaid = (): boolean => {
               {currentQuote && currentQuote.status === 'REJECTED' && (
                 <View style={[styles.quoteCard, styles.quoteCardRejected]}>
                   <View style={styles.quoteCardHeader}>
-                    <Ionicons name="close-circle" size={24} color="#C13E1F" />
+                    <Ionicons name="close-circle" size={24} color="#B14A2B" />
                     <Text style={styles.quoteCardTitle}>Quote Rejected</Text>
                   </View>
                   <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
@@ -1822,7 +1822,7 @@ const isPaid = (): boolean => {
               {currentQuote && currentQuote.status === 'ACCEPTED' && !isPaid() && (
                 <View style={[styles.quoteCard, styles.quoteCardAccepted]}>
                   <View style={styles.quoteCardHeader}>
-                    <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
+                    <Ionicons name="checkmark-circle" size={24} color="#B14A2B" />
                     <Text style={styles.quoteCardTitle}>Quote Accepted</Text>
                   </View>
                   <Text style={styles.quoteCardServiceTitle}>{currentQuote.title}</Text>
@@ -1881,18 +1881,18 @@ const isPaid = (): boolean => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F2F4F7',
+    backgroundColor: '#E4ECF4',
   },
   headerShell: {
-    backgroundColor: '#3A4651',
+    backgroundColor: '#E4ECF4',
   },
   header: {
     flexDirection: 'row',
-    backgroundColor: '#3A4651',
+    backgroundColor: '#2B3642',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 20,
+    paddingVertical: 10,
     borderBottomWidth: 0,
   },
   headerCenter: {
@@ -1913,15 +1913,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 999,
-    height: 22,
-    marginTop: 18,
+    paddingVertical: 1,
+    borderRadius: 10,
+    marginTop: 7,
     gap: 4,
   },
   statusBadgeText: {
     fontSize: 10,
-    fontWeight: '700',
+    fontWeight: '600',
   },
   centerContent: {
     flex: 1,
@@ -1937,7 +1936,7 @@ const styles = StyleSheet.create({
   errorTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#1A1A1A',
     marginTop: 16,
     marginBottom: 8,
   },
@@ -1949,7 +1948,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   retryButton: {
-    backgroundColor: '#C13E1F',
+    backgroundColor: '#B14A2B',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
@@ -1961,7 +1960,7 @@ const styles = StyleSheet.create({
   },
   tabBar: {
     flexDirection: 'row',
-    backgroundColor: '#3A4651',
+    backgroundColor: '#2B3642',
     borderBottomWidth: 1,
     borderBottomColor: '#2C3640',
   },
@@ -1975,7 +1974,7 @@ const styles = StyleSheet.create({
   },
   tabActive: {
     borderBottomWidth: 2,
-    borderBottomColor: '#F05A28',
+    borderBottomColor: '#B14A2B',
   },
   tabText: {
     fontSize: 18,
@@ -1996,17 +1995,17 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#C13E1F',
+    backgroundColor: '#B14A2B',
     borderWidth: 2,
     borderColor: '#FFFFFF',
   },
   content: {
     flex: 1,
-    backgroundColor: '#F2F4F7',
+    backgroundColor: '#E4ECF4',
   },
   contentContainer: {
     padding: 16,
-    backgroundColor: '#F2F4F7',
+    backgroundColor: '#E4ECF4',
   },
   // DECLINED BANNER - Red theme
   declinedBanner: {
@@ -2041,7 +2040,7 @@ const styles = StyleSheet.create({
   },
   // WAITING FOR QUOTE CARD - Orange theme
   waitingForQuoteCard: {
-    backgroundColor: '#FFF8E1',
+    backgroundColor: '#F3F7FB',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -2063,7 +2062,7 @@ const styles = StyleSheet.create({
   },
   // JOB CODE CARD - Compact, subtle light blue
   jobCodeCard: {
-    backgroundColor: '#EEF6FF',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -2132,7 +2131,7 @@ const styles = StyleSheet.create({
   },
   // In Progress Card - Light blue theme
   inProgressCard: {
-    backgroundColor: '#EEF6FF',
+    backgroundColor: '#EAF1F8',
     borderRadius: 12,
     padding: 14,
     marginBottom: 12,
@@ -2231,12 +2230,12 @@ const styles = StyleSheet.create({
   },
   // Summary Card
   summaryCard: {
-    backgroundColor: '#D8D8D8',
+    backgroundColor: '#FCFDFE',
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#EEEEEE',
+    borderColor: '#D7E2EC',
   },
   summaryRow: {
     flexDirection: 'row',
@@ -2267,7 +2266,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#D8D8D8',
+    backgroundColor: '#EAF1F8',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -2275,7 +2274,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#D8D8D8',
+    backgroundColor: '#EAF1F8',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -2319,22 +2318,22 @@ summaryValue: {
   },
   summaryDivider: {
     height: 1,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#D7E2EC',
     marginVertical: 12,
   },
   subCategoryText: {
     fontSize: 13,
-    color: '#C13E1F',
+    color: '#B14A2B',
     marginTop: 2,
   },
   // Description Card
   descriptionCard: {
-    backgroundColor: '#D8D8D8',
+    backgroundColor: '#FCFDFE',
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#D7E2EC',
   },
   descriptionLabel: {
     fontSize: 11,
@@ -2359,12 +2358,14 @@ summaryValue: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#3A4651',
+    backgroundColor: '#FCFDFE',
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 14,
     minHeight: 86,
     gap: 10,
+    borderWidth: 1,
+    borderColor: '#D7E2EC',
   },
   inlineIcon: {
     width: 18,
@@ -2373,7 +2374,7 @@ summaryValue: {
   },
   infoItem: {
     flex: 1,
-    backgroundColor: '#D8D8D8',
+    backgroundColor: '#EAF1F8',
     borderRadius: 8,
     padding: 12,
     alignItems: 'center',
@@ -2386,13 +2387,13 @@ summaryValue: {
   },
   infoLabel: {
     fontSize: 13,
-    color: '#D8D8D8',
+    color: '#6B7280',
     fontWeight: '600',
     marginBottom: 4,
   },
   infoValue: {
     fontSize: 15,
-    color: '#FFFFFF',
+    color: '#1A1A1A',
     fontWeight: '700',
   },
   // Chat styles
@@ -2435,7 +2436,7 @@ summaryValue: {
     marginBottom: 8,
   },
   messageBubbleMine: {
-    backgroundColor: '#C13E1F',
+    backgroundColor: '#B14A2B',
     alignSelf: 'flex-end',
     borderBottomRightRadius: 4,
   },
@@ -2491,7 +2492,7 @@ summaryValue: {
     paddingHorizontal: 24,
   },
   systemMessageBubble: {
-    backgroundColor: '#D8D8D8',
+    backgroundColor: '#EAF1F8',
     borderRadius: 12,
     paddingVertical: 8,
     paddingHorizontal: 14,
@@ -2499,7 +2500,7 @@ summaryValue: {
   },
   systemMessageText: {
     fontSize: 12,
-    color: '#3A4651',
+    color: '#2B3642',
     textAlign: 'center',
     fontWeight: '500',
   },
@@ -2510,7 +2511,7 @@ summaryValue: {
     paddingHorizontal: 16,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+    borderTopColor: '#D7E2EC',
     backgroundColor: '#F5F5F5',
     gap: 8,
   },
@@ -2524,7 +2525,7 @@ summaryValue: {
     paddingHorizontal: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+    borderTopColor: '#D7E2EC',
     backgroundColor: '#FFFFFF',
     gap: 8,
     alignItems: 'flex-end',
@@ -2545,7 +2546,7 @@ summaryValue: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#C13E1F',
+    backgroundColor: '#B14A2B',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -2586,7 +2587,7 @@ summaryValue: {
   cancelButtonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#C13E1F',
+    color: '#B14A2B',
   },
   // Image message styles
   imagePickerButton: {
@@ -2605,7 +2606,7 @@ summaryValue: {
     maxHeight: 220,
     borderRadius: 14,
     overflow: 'hidden',
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#D7E2EC',
   },
   chatImage: {
     width: '100%',
@@ -2728,7 +2729,7 @@ summaryValue: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#B14A2B',
     paddingVertical: 11,
     borderRadius: 8,
     gap: 6,
@@ -2814,7 +2815,7 @@ summaryValue: {
     flex: 1,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#D7E2EC',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
@@ -2825,7 +2826,7 @@ summaryValue: {
   counterNoteInput: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#D7E2EC',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
@@ -2873,8 +2874,8 @@ summaryValue: {
     backgroundColor: '#FFF5F5',
   },
   quoteCardCountered: {
-    borderColor: '#D8D8D8',
-    backgroundColor: '#FFF8E1',
+    borderColor: '#EAF1F8',
+    backgroundColor: '#F3F7FB',
   },
   quoteCardAccepted: {
     borderColor: '#C8E6C9',
@@ -2972,7 +2973,7 @@ summaryValue: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#B14A2B',
     paddingVertical: 16,
     borderRadius: 12,
     gap: 8,
@@ -2987,7 +2988,7 @@ summaryValue: {
     borderRadius: 12,
     padding: 20,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#D7E2EC',
   },
   reviewFormTitle: {
     fontSize: 18,
@@ -3008,7 +3009,7 @@ summaryValue: {
   reviewCommentInput: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#D7E2EC',
     borderRadius: 8,
     paddingHorizontal: 14,
     paddingVertical: 12,
@@ -3037,7 +3038,7 @@ summaryValue: {
   },
   reviewSubmitButton: {
     flex: 2,
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#B14A2B',
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: 'center',
