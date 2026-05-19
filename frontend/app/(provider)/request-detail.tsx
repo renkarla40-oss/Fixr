@@ -154,9 +154,9 @@ export default function ProviderRequestDetailScreen() {
   const cacheKey = CACHE_KEYS.PROVIDER_JOB_DETAIL(requestId || '');
   const cachedData = requestId ? getCachedData<ServiceRequest>(cacheKey) : null;
 
-  const [request, setRequest] = useState<ServiceRequest | null>(null);
+  const [request, setRequest] = useState<ServiceRequest | null>(cachedData);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(true); // Always fetch fresh detail so customer photo is current
+  const [loading, setLoading] = useState(!cachedData); // Only show loading if no cache
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>(openChat ? 'chat' : 'details');
@@ -223,9 +223,9 @@ export default function ProviderRequestDetailScreen() {
     if (requestId && requestId !== lastRequestIdRef.current) {
       // Reset state for new job
       lastRequestIdRef.current = requestId;
-      setRequest(null);
+      // Preserve cached request data for instant navigation
       setMessages([]);
-      setLoading(true);
+      setLoading(!cachedData);
       setLoadingMessages(false);
       setError(null);
       setCurrentQuote(null);
@@ -287,8 +287,10 @@ export default function ProviderRequestDetailScreen() {
   // Tab-based logic with FOCUS-SCOPED POLLING for real-time updates
   useEffect(() => {
     if (activeTab === 'chat' && request) {
-      // Set loading immediately to prevent "No messages" flash
-      setLoadingMessages(true);
+      // Only show message spinner if no messages are already rendered
+      if (messages.length === 0) {
+        setLoadingMessages(true);
+      }
       // Clear red dot immediately when opening chat
       setHasUnreadMessages(false);
       fetchMessages();

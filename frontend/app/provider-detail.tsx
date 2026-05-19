@@ -57,7 +57,7 @@ export default function ProviderDetailScreen() {
   const fromDirectory = params.fromDirectory === 'true';
 
   const [provider, setProvider] = useState<Provider | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [reporting, setReporting] = useState(false);
   const [reviews, setReviews] = useState<PublicReview[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(false);
@@ -105,7 +105,9 @@ export default function ProviderDetailScreen() {
 
   const fetchProvider = async () => {
     try {
-      setLoading(true);
+      if (!provider) {
+        setLoading(true);
+      }
       const response = await axios.get(
         `${BACKEND_URL}/api/providers/${providerId}`,
         {

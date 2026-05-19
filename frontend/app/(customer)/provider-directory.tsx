@@ -59,7 +59,7 @@ export default function ProviderDirectoryScreen() {
   const insets = useSafeAreaInsets();
 
   const [providers, setProviders] = useState<Provider[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
@@ -101,7 +101,9 @@ export default function ProviderDirectoryScreen() {
   // Fetch all providers
   const fetchProviders = useCallback(async () => {
     try {
-      setLoading(true);
+      if (providers.length === 0) {
+        setLoading(true);
+      }
       setFetchError(null);
 
       const response = await axios.get(`${BACKEND_URL}/api/providers`, {
@@ -122,7 +124,9 @@ export default function ProviderDirectoryScreen() {
         setFetchError('Unable to load providers. Please try again.');
       }
 
-      setProviders([]);
+      if (providers.length === 0) {
+        setProviders([]);
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);

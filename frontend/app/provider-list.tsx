@@ -88,7 +88,7 @@ export default function ProviderListScreen() {
   const isOtherCategory = categoryId === 'other';
 
   const [providers, setProviders] = useState<Provider[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [includeTravelAnywhere, setIncludeTravelAnywhere] = useState(false); // Default OFF
   const [showNoProvidersModal, setShowNoProvidersModal] = useState(false);
   const [initialSearchComplete, setInitialSearchComplete] = useState(false);
@@ -152,7 +152,11 @@ export default function ProviderListScreen() {
 
   const fetchProviders = async (includeTravel: boolean) => {
     try {
-      setLoading(true);
+      // Only block UI if no providers already rendered
+      if (providers.length === 0) {
+        setLoading(true);
+      }
+
       setFetchError(null); // Clear any previous errors
       
       const response = await axios.get(`${BACKEND_URL}/api/providers`, {

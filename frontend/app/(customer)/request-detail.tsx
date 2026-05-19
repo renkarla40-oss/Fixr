@@ -211,9 +211,10 @@ export default function RequestDetailScreen() {
     if (requestId && requestId !== lastRequestIdRef.current) {
       // Reset state for new job
       lastRequestIdRef.current = requestId;
-      setRequest(null);
+      // Preserve previous data for instant navigation UX
+      // Only clear messages when switching jobs
       setMessages([]);
-      setLoading(true);
+      setLoading(!cachedData);
       setLoadingMessages(false);
       setError(null);
       setCurrentQuote(null);
@@ -320,8 +321,10 @@ export default function RequestDetailScreen() {
   // Tab-based logic with FOCUS-SCOPED POLLING for real-time updates
   useEffect(() => {
     if (activeTab === 'chat' && request) {
-      // Set loading immediately to prevent "No messages" flash
-      setLoadingMessages(true);
+      // Only show message spinner if no messages are already rendered
+      if (messages.length === 0) {
+        setLoadingMessages(true);
+      }
       // Mark messages as read when opening chat tab
       setHasUnreadMessages(false);
       fetchMessages();
