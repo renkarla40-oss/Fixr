@@ -106,7 +106,7 @@ export default function ProfileScreen() {
             <Text style={styles.email}>{user?.email}</Text>
             <Text style={styles.phone}>{user?.phone}</Text>
             <View style={styles.roleBadge}>
-              <Ionicons name="person" size={14} color="#FFFFFF" />
+              <Ionicons name="person" size={14} color="#1A1A1A" />
               <Text style={styles.roleText}>Customer</Text>
             </View>
           </View>
@@ -195,7 +195,7 @@ export default function ProfileScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuItemLeft}>
-                <Ionicons name="document-outline" size={24} color="#FFFFFF" />
+                <Ionicons name="document-outline" size={24} color="#1A1A1A" />
                 <Text style={styles.menuItemText}>Terms of Service</Text>
               </View>
               <Ionicons name="chevron-forward" size={24} color="#999" />
@@ -207,7 +207,7 @@ export default function ProfileScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuItemLeft}>
-                <Ionicons name="shield-checkmark-outline" size={24} color="#FFFFFF" />
+                <Ionicons name="shield-checkmark-outline" size={24} color="#1A1A1A" />
                 <Text style={styles.menuItemText}>Privacy Policy</Text>
               </View>
               <Ionicons name="chevron-forward" size={24} color="#999" />
