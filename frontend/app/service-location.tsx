@@ -422,7 +422,7 @@ export default function ServiceLocationScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#3A4651',
+    backgroundColor: '#2B3642',
   },
   container: {
     flex: 1,
@@ -434,7 +434,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#3A4651',
+    backgroundColor: '#2B3642',
   },
   backButton: {
     width: 44,

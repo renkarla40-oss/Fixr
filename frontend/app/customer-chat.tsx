@@ -67,7 +67,9 @@ export default function CustomerChatScreen() {
     if (!requestId) return;
 
     if (showLoading && messages.length === 0) {
-      setLoadingMessages(true);
+      if (messages.length === 0) {
+        setLoadingMessages(true);
+      }
     }
     try {
       const response = await axios.get(

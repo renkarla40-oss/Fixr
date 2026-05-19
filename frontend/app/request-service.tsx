@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 12,
-    backgroundColor: '#3A4651',
+    backgroundColor: '#2B3642',
   },
   backButton: {
     width: 44,
@@ -545,7 +545,7 @@ const styles = StyleSheet.create({
   betaNotice: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: '#3A4651',
+    backgroundColor: '#2B3642',
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,

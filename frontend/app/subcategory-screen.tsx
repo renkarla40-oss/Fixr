@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 12,
-    backgroundColor: '#3A4651',
+    backgroundColor: '#2B3642',
   },
   backButton: {
     width: 44,
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   },
   optionIndicatorSelected: {
     borderColor: '#C13E1F',
-    backgroundColor: '#3A4651',
+    backgroundColor: '#2B3642',
   },
   noResultsContainer: {
     alignItems: 'center',

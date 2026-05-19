@@ -42,7 +42,7 @@ export default function ProviderProfileScreen() {
   const { user, token, logout, switchRole } = useAuth();
   const router = useRouter();
   const [switching, setSwitching] = useState(false);
-  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [loadingProfile, setLoadingProfile] = useState(false);
   const [savingAvailability, setSavingAvailability] = useState(false);
   
   // Availability state
@@ -63,7 +63,8 @@ export default function ProviderProfileScreen() {
 
   const fetchProviderProfile = async () => {
     try {
-      setLoadingProfile(true);
+      // preserve existing rendered profile while refreshing
+
       const response = await axios.get(`${BACKEND_URL}/api/providers/me/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -181,10 +182,7 @@ export default function ProviderProfileScreen() {
                       let url = providerProfile.profilePhotoUrl.startsWith('/') 
                         ? `${BACKEND_URL}${providerProfile.profilePhotoUrl}` 
                         : providerProfile.profilePhotoUrl;
-                      // Add cache-busting timestamp
-                      if (!url.includes('?')) {
-                        url += `?v=${Date.now()}`;
-                      }
+
                       return url;
                     })()
                   }}
@@ -444,11 +442,11 @@ export default function ProviderProfileScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#E4ECF4',
+    backgroundColor: '#F2F4F7',
   },
   container: {
     flex: 1,
-    backgroundColor: '#E4ECF4',
+    backgroundColor: '#F2F4F7',
   },
   header: {
     paddingHorizontal: 24,
@@ -465,6 +463,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    backgroundColor: '#F2F4F7',
   },
   contentContainer: {
     paddingTop: 8,

@@ -871,7 +871,7 @@ const styles = StyleSheet.create({
   serviceCard: {
     width: (SCREEN_WIDTH - 52) / 2,
     height: 96,
-    backgroundColor: '#3A4651',
+    backgroundColor: '#2B3642',
     borderRadius: 14,
     paddingVertical: 12,
     paddingHorizontal: 10,

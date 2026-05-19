@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: H_PAD,
     paddingBottom: 14,
-    backgroundColor: '#3A4651',
+    backgroundColor: '#2B3642',
   },
   backBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   headerCenter: { flex: 1, alignItems: 'center' },

@@ -13,6 +13,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
@@ -28,6 +29,7 @@ const feedbackTypes = [
 
 export default function FeedbackScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { token } = useAuth();
   const [selectedType, setSelectedType] = useState('');
   const [message, setMessage] = useState('');
@@ -78,15 +80,17 @@ export default function FeedbackScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
       >
-        <View style={styles.header}>
+        <View style={[styles.headerShell, { paddingTop: insets.top }]}>
+          <View style={styles.header}>
           <TouchableOpacity
             onPress={() => router.back()}
             style={styles.backButton}
           >
-            <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
           <Text style={styles.title}>Feedback</Text>
           <View style={styles.backButton} />
+          </View>
         </View>
 
         <ScrollView
@@ -172,19 +176,22 @@ export default function FeedbackScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#E4ECF4',
   },
   container: {
     flex: 1,
+    backgroundColor: '#E4ECF4',
+  },
+  headerShell: {
+    backgroundColor: '#E4ECF4',
   },
   header: {
+    height: 78,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    backgroundColor: '#2B3642',
   },
   backButton: {
     width: 44,
@@ -193,16 +200,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#FFFFFF',
   },
   content: {
     flex: 1,
+    backgroundColor: '#E4ECF4',
   },
   contentContainer: {
     padding: 24,
-    paddingBottom: 100,  // Extra padding to prevent CTA from being blocked by nav bar
+    paddingBottom: 100,
+    backgroundColor: '#E4ECF4',  // Extra padding to prevent CTA from being blocked by nav bar
   },
   infoSection: {
     alignItems: 'center',
@@ -245,7 +254,7 @@ const styles = StyleSheet.create({
     width: '47%',
     paddingVertical: 16,
     paddingHorizontal: 12,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     alignItems: 'center',
     gap: 8,
@@ -272,7 +281,7 @@ const styles = StyleSheet.create({
     right: 8,
   },
   textArea: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,

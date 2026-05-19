@@ -509,11 +509,11 @@ export default function ProviderDirectoryScreen() {
 const styles = StyleSheet.create({
   safeArea: {
   flex: 1,
-  backgroundColor: '#3A4651',
+  backgroundColor: '#F2F4F7',
 },
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F2F4F7',
   },
   header: {
   flexDirection: 'row',
@@ -521,7 +521,7 @@ const styles = StyleSheet.create({
   justifyContent: 'space-between',
   paddingHorizontal: 16,
   paddingVertical: 20,
-  backgroundColor: '#3A4651',
+  backgroundColor: '#2B3642',
 },
   backButton: {
     width: 44,

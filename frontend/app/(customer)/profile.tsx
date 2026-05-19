@@ -80,9 +80,9 @@ export default function ProfileScreen() {
   };
 
   return (
-    <View style={styles.safeArea}>
+    <View style={[styles.safeArea, { paddingTop: insets.top }]}>
       <View style={styles.container}>
-        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+        <View style={styles.header}>
           <Text style={styles.title}>Profile</Text>
         </View>
 
@@ -106,7 +106,7 @@ export default function ProfileScreen() {
             <Text style={styles.email}>{user?.email}</Text>
             <Text style={styles.phone}>{user?.phone}</Text>
             <View style={styles.roleBadge}>
-              <Ionicons name="person" size={14} color="#3A4651" />
+              <Ionicons name="person" size={14} color="#FFFFFF" />
               <Text style={styles.roleText}>Customer</Text>
             </View>
           </View>
@@ -195,7 +195,7 @@ export default function ProfileScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuItemLeft}>
-                <Ionicons name="document-outline" size={24} color="#3A4651" />
+                <Ionicons name="document-outline" size={24} color="#FFFFFF" />
                 <Text style={styles.menuItemText}>Terms of Service</Text>
               </View>
               <Ionicons name="chevron-forward" size={24} color="#999" />
@@ -207,7 +207,7 @@ export default function ProfileScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuItemLeft}>
-                <Ionicons name="shield-checkmark-outline" size={24} color="#3A4651" />
+                <Ionicons name="shield-checkmark-outline" size={24} color="#FFFFFF" />
                 <Text style={styles.menuItemText}>Privacy Policy</Text>
               </View>
               <Ionicons name="chevron-forward" size={24} color="#999" />
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
   roleBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#D8D8D8',
+    backgroundColor: '#C13E1F',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
   },
   roleText: {
     fontSize: 13,
-    color: '#3A4651',
+    color: '#FFFFFF',
     fontWeight: '600',
   },
   section: {
