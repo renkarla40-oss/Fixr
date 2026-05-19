@@ -236,17 +236,18 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F2F4F7',
+    backgroundColor: '#E4ECF4',
   },
   container: {
     flex: 1,
+    backgroundColor: '#E4ECF4',
     
   },
   header: {
     paddingHorizontal: 24,
     paddingTop: 16,
     paddingBottom: 20,
-    backgroundColor: '#3A4651',
+    backgroundColor: '#2B3642',
   },
   title: {
     fontSize: 28,
@@ -255,10 +256,12 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    backgroundColor: '#E4ECF4',
     
   },
   contentContainer: {
     paddingBottom: 20,
+    backgroundColor: '#E4ECF4',
     
   },
   profileSection: {

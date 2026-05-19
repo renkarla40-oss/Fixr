@@ -323,7 +323,9 @@ export default function RequestDetailScreen() {
     if (activeTab === 'chat' && request) {
       // Only show message spinner if no messages are already rendered
       if (messages.length === 0) {
+        if (messages.length === 0) {
         setLoadingMessages(true);
+      }
       }
       // Mark messages as read when opening chat tab
       setHasUnreadMessages(false);
@@ -513,7 +515,9 @@ const isPaid = (): boolean => {
     
     // Only show loading on first fetch, not on subsequent polls
     if (showLoading && messages.length === 0) {
-      setLoadingMessages(true);
+      if (messages.length === 0) {
+        setLoadingMessages(true);
+      }
     }
     try {
       const url = `${BACKEND_URL}/api/service-requests/${request._id}/messages`;
@@ -1125,9 +1129,9 @@ const isPaid = (): boolean => {
   // Blocked: awaiting_payment (quote sent), in_progress, completed, etc.
   const canCancel = request && ['pending', 'accepted'].includes(request.status);
 
-  // Check if customer can change provider (pending + provider assigned but not accepted)
+  // Customer can change provider before payment/job start
   const canChangeProvider = request && 
-    request.status === 'pending' && 
+    ['pending', 'accepted'].includes(request.status) && 
     request.providerId !== null && 
     request.providerId !== undefined;
 

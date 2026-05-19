@@ -117,7 +117,8 @@ export default function FavoritesScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.safeArea}>
+      <View style={styles.container}>
       <View style={[styles.headerShell, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Favourite Providers</Text>
@@ -153,6 +154,7 @@ export default function FavoritesScreen() {
           }
         />
       )}
+      </View>
     </View>
   );
 }
@@ -160,14 +162,19 @@ export default function FavoritesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F4F7',
+    backgroundColor: '#E4ECF4',
+  },
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#E4ECF4',
   },
   headerShell: {
-    backgroundColor: '#3A4651',
+    backgroundColor: '#E4ECF4',
   },
   header: {
     paddingHorizontal: 16,
     paddingVertical: 18,
+    backgroundColor: '#2B3642',
   },
   title: {
     fontSize: 24,
@@ -212,7 +219,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   providerCard: {
-    backgroundColor: '#D8D8D8',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,

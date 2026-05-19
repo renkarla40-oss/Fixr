@@ -66,9 +66,8 @@ export default function ProviderChatScreen() {
   const fetchMessages = useCallback(async (showLoading = true) => {
     if (!requestId) return;
 
-    if (showLoading && messages.length === 0) {
-      setLoadingMessages(true);
-    }
+    // Do not block chat UI with spinner; render empty chat immediately
+    // and refresh messages in the background.
     try {
       const response = await axios.get(
         `${BACKEND_URL}/api/service-requests/${requestId}/messages`,
@@ -76,20 +75,14 @@ export default function ProviderChatScreen() {
       );
       const allMessages: any[] = response.data.messages || [];
 
-      // Keep ONLY human-to-human messages: type text or image, senderRole customer or provider
+      // Hide ONLY system messages. Keep all human chat intact.
       const chatMessages: Message[] = allMessages.filter((m) => {
-        const isHuman =
-          m.senderRole === 'customer' || m.senderRole === 'provider';
-        const isChatType =
-          !m.type ||
-          m.type === 'text' ||
-          m.type === 'image' ||
-          !!m.imageUrl;
         const isSystem =
           m.type === 'system' ||
           m.senderRole === 'system' ||
           m.senderName === 'Fixr';
-        return isHuman && isChatType && !isSystem;
+
+        return !isSystem;
       });
 
       setMessages((prev) => {
