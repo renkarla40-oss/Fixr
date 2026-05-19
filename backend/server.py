@@ -300,6 +300,7 @@ class ServiceRequestResponse(BaseModel):
     status: str = "pending"  # pending, accepted, declined, in_progress, completed, cancelled
     customerName: str
     customerPhone: Optional[str] = None  # Made optional for legacy records
+    customerPhotoUrl: Optional[str] = None  # Customer profile photo for provider cards
     providerName: Optional[str] = None  # Can be None for general requests
     providerPhoto: Optional[str] = None  # Provider profile photo for list cards
     isGeneralRequest: bool = False  # Flag for "Other Services" requests
@@ -2660,9 +2661,21 @@ async def get_job_messages(
     
     # Get messages
     messages = await db.job_messages.find({"requestId": request_id}).sort("createdAt", 1).to_list(100)
+
+    provider_user_id = None
+    if request.get("providerId"):
+        provider_doc = await db.providers.find_one({"_id": ObjectId(request.get("providerId"))})
+        if provider_doc:
+            provider_user_id = provider_doc.get("userId")
+
     for msg in messages:
         msg["_id"] = str(msg["_id"])
-    
+
+        if msg.get("senderId") == request.get("customerId"):
+            msg["senderRole"] = "customer"
+        elif provider_user_id and msg.get("senderId") == provider_user_id:
+            msg["senderRole"] = "provider"
+
     return {"messages": messages}
 
 # Chat Image Upload Endpoint
@@ -4781,7 +4794,14 @@ async def get_service_requests(current_user: User = Depends(get_current_user)):
                     or provider.get("photo")
                 )
 
+        # Attach customer profile photo for provider inbox/cards
+        if request.get("customerId"):
+            customer_user = await db.users.find_one({"_id": ObjectId(request["customerId"])})
+            if customer_user:
+                request["customerPhotoUrl"] = customer_user.get("profilePhotoUrl")
+
         request["providerPhoto"] = request.get("providerPhoto")
+        request["customerPhotoUrl"] = request.get("customerPhotoUrl")
 
     result = []
     for req in requests:

@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
+  Image,
   RefreshControl,
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
@@ -53,6 +54,7 @@ interface JobWithMessages {
   service: string;
   serviceSubcategory?: string;
   customerName: string;
+  customerPhotoUrl?: string;
   status: string;
   jobTown?: string;
   lastMessage?: Message;
@@ -158,14 +160,15 @@ export default function ProviderInboxScreen() {
             service: job.service || 'Unknown Service',
             serviceSubcategory: job.serviceSubcategory || job.subCategory,
             customerName: job.customerName || 'Customer',
+            customerPhotoUrl: job.customerPhotoUrl || job.customerPhoto || job.customerProfilePhoto || job.profilePhotoUrl,
             status: job.status,
             jobTown: job.jobTown || job.location,
-            lastMessage: job.lastMessagePreview ? {
+            lastMessage: job.last_message_at ? {
               _id: 'preview',
               senderId: '',
               senderName: '',
               senderRole: 'system',
-              text: job.lastMessagePreview,
+              text: job.lastMessagePreview || 'Tap to view messages',
               createdAt: job.last_message_at,
             } : undefined,
             hasUnread,
@@ -243,7 +246,18 @@ export default function ProviderInboxScreen() {
     >
       {/* Avatar */}
       <View style={styles.avatar}>
-        <Ionicons name="person" size={24} color="#666" />
+        {item.customerPhotoUrl ? (
+          <Image
+            source={{
+              uri: item.customerPhotoUrl.startsWith('/')
+                ? `${BACKEND_URL}${item.customerPhotoUrl}`
+                : item.customerPhotoUrl
+            }}
+            style={styles.avatarImage}
+          />
+        ) : (
+          <Ionicons name="person" size={24} color="#666" />
+        )}
       </View>
       
       {/* Content */}
@@ -265,17 +279,23 @@ export default function ProviderInboxScreen() {
         
         {/* Last Message Preview */}
         {item.lastMessage ? (
-          <Text style={[styles.lastMessage, item.hasUnread && styles.textBold]} numberOfLines={1}>
+          <Text
+            style={[
+              styles.lastMessage,
+              item.hasUnread && item.lastMessage.text !== 'Tap to view messages' && styles.textBold
+            ]}
+            numberOfLines={1}
+          >
             {item.lastMessage.senderRole === 'provider' ? 'You: ' : ''}
             {item.lastMessage.text}
           </Text>
         ) : (
-          <Text style={styles.noMessageText}>No messages yet</Text>
+          <Text style={styles.noMessageText}>Tap to view messages</Text>
         )}
       </View>
       
       {/* Unread Badge */}
-      {item.hasUnread && (
+      {item.hasUnread && item.lastMessage?.text !== 'Tap to view messages' && (
         <View style={styles.unreadBadge}>
           <View style={styles.unreadDot} />
         </View>
@@ -463,7 +483,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   jobItemUnread: {
-    backgroundColor: '#F7FAFD',
+    backgroundColor: '#FFFFFF',
   },
   avatar: {
     width: 50,
@@ -473,6 +493,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
   },
   jobContent: {
     flex: 1,
@@ -504,7 +530,9 @@ const styles = StyleSheet.create({
   },
   lastMessage: {
     fontSize: 14,
-    color: '#666',
+    color: '#8A8F98',
+    fontStyle: 'italic',
+    fontWeight: '700',
   },
   unreadBadge: {
     marginRight: 8,

@@ -1478,16 +1478,16 @@ const isPaid = (): boolean => {
           <View style={styles.infoRow}>
             <View style={styles.infoItemRow}>
   <Image source={require("../../assets/icons/calendar.png")} style={styles.inlineIcon} />
-  <View>
+  <View style={styles.infoTextWrap}>
     <Text style={styles.infoLabel}>Preferred</Text>
-    <Text style={styles.infoValue}>{formatDateTime(request.preferredDateTime)}</Text>
+    <Text style={styles.infoValue} numberOfLines={1}>{formatDateTime(request.preferredDateTime)}</Text>
   </View>
 </View>
             <View style={styles.infoItemRow}>
   <Ionicons name="time" size={18} color="#B14A2B" />
-  <View>
+  <View style={styles.infoTextWrap}>
     <Text style={styles.infoLabel}>Requested</Text>
-    <Text style={styles.infoValue}>{formatDate(request.createdAt)}</Text>
+    <Text style={styles.infoValue} numberOfLines={1}>{formatDate(request.createdAt)}</Text>
   </View>
 </View>
           </View>
@@ -2303,11 +2303,11 @@ summaryContent: {
     flex: 1,
   },
   summaryLabel: {
-    fontSize: 12,
-    color: '#777',
-    fontWeight: '700',
+    fontSize: 11,
+    color: '#999',
+    fontWeight: '600',
     textTransform: 'uppercase',
-    letterSpacing: 0.6,
+    letterSpacing: 0.5,
   },
   
 summaryValue: {
@@ -2350,20 +2350,18 @@ summaryValue: {
   },
   // Info Row
   infoRow: {
-    flexDirection: 'row',
     gap: 12,
     marginBottom: 16,
   },
   infoItemRow: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FCFDFE',
     borderRadius: 12,
-    paddingHorizontal: 14,
+    paddingHorizontal: 18,
     paddingVertical: 14,
-    minHeight: 86,
-    gap: 10,
+    minHeight: 64,
+    gap: 14,
     borderWidth: 1,
     borderColor: '#D7E2EC',
   },
@@ -2371,6 +2369,11 @@ summaryValue: {
     width: 18,
     height: 18,
     resizeMode: 'contain',
+    flexShrink: 0,
+  },
+  infoTextWrap: {
+    flex: 1,
+    minWidth: 0,
   },
   infoItem: {
     flex: 1,
@@ -2386,15 +2389,17 @@ summaryValue: {
     marginBottom: 6,
   },
   infoLabel: {
-    fontSize: 13,
-    color: '#6B7280',
+    fontSize: 11,
+    color: '#999',
     fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
     marginBottom: 4,
   },
   infoValue: {
     fontSize: 15,
     color: '#1A1A1A',
-    fontWeight: '700',
+    fontWeight: '600',
   },
   // Chat styles
   chatContainer: {
@@ -2436,14 +2441,16 @@ summaryValue: {
     marginBottom: 8,
   },
   messageBubbleMine: {
-    backgroundColor: '#B14A2B',
+    backgroundColor: '#C13E1F',
     alignSelf: 'flex-end',
     borderBottomRightRadius: 4,
   },
   messageBubbleTheirs: {
-    backgroundColor: '#F0F0F0',
+    backgroundColor: '#FFFFFF',
     alignSelf: 'flex-start',
     borderBottomLeftRadius: 4,
+    borderWidth: 1,
+    borderColor: '#C9D6E2',
   },
   messageSender: {
     fontSize: 12,

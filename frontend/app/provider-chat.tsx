@@ -135,7 +135,7 @@ export default function ProviderChatScreen() {
   // ─── Focus effect: initial fetch + polling ───────────────────────────────────
   useFocusEffect(
     useCallback(() => {
-      fetchMessages(true);
+      fetchMessages(messages.length === 0);
       markMessagesAsRead();
 
       // Poll every 3 seconds while screen is focused
@@ -185,7 +185,6 @@ export default function ProviderChatScreen() {
         { type: 'text', text: messageText },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      await fetchMessages(false);
     } catch (err: any) {
       setMessages((prev) => prev.filter((m) => m._id !== optimisticMessage._id));
       setNewMessage(messageText);
@@ -271,7 +270,6 @@ export default function ProviderChatScreen() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      await fetchMessages(false);
       setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
     } catch {
       Alert.alert('Error', 'Failed to upload image. Please try again.');
@@ -587,8 +585,10 @@ const styles = StyleSheet.create({
   },
   messageBubbleTheirs: {
     alignSelf: 'flex-start',
-    backgroundColor: '#EEF3F8',
+    backgroundColor: '#FFFFFF',
     borderBottomLeftRadius: 4,
+    borderWidth: 1,
+    borderColor: '#C9D6E2',
   },
   imageBubble: {
     padding: 4,

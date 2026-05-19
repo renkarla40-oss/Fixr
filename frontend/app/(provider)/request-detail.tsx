@@ -2979,9 +2979,11 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 4,
   },
   messageBubbleTheirs: {
-    backgroundColor: '#EEF3F8',
+    backgroundColor: '#FFFFFF',
     alignSelf: 'flex-start',
     borderBottomLeftRadius: 4,
+    borderWidth: 1,
+    borderColor: '#C9D6E2',
   },
   messageSender: {
     fontSize: 12,

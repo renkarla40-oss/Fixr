@@ -276,11 +276,11 @@ export default function CustomerInboxScreen() {
             {item.lastMessage.text}
           </Text>
         ) : (
-          <Text style={styles.noMessages}>No messages yet</Text>
+          <Text style={styles.noMessages}>Tap to view messages</Text>
         )}
       </View>
       
-      {item.unreadCount > 0 && (
+      {item.unreadCount > 0 && item.lastMessage?.text !== 'Tap to view messages' && (
         <View style={styles.statusIndicator}>
           <View style={styles.statusDot} />
         </View>
@@ -492,8 +492,9 @@ const styles = StyleSheet.create({
   },
   lastMessage: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#666',
+    color: '#8A8F98',
+    fontStyle: 'italic',
+    fontWeight: '700',
   },
   noMessages: {
     fontSize: 14,
