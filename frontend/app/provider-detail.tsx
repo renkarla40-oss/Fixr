@@ -218,28 +218,6 @@ export default function ProviderDetailScreen() {
     }
   };
 
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <TouchableOpacity
-              onPress={() => router.back()}
-              style={styles.backButton}
-            >
-              <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-            </TouchableOpacity>
-            <Text style={styles.title}>Provider Details</Text>
-            <View style={styles.backButton} />
-          </View>
-          <View style={styles.centerContent}>
-            <ActivityIndicator size="large" color="#C13E1F" />
-          </View>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
   if (!provider) {
     return (
       <SafeAreaView style={styles.safeArea}>

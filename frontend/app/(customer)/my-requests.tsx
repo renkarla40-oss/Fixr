@@ -339,24 +339,6 @@ export default function MyRequestsScreen() {
 
   
 
-  // CRITICAL: Only show loading spinner on initial load (no data yet)
-  // This prevents "empty flash" during rapid tab switching
-  if (loading && !initialLoadComplete && requests.length === 0) {
-    return (
-      <View style={[styles.safeArea, { paddingTop: insets.top }]}>
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.title}>My Requests</Text>
-          </View>
-          <View style={styles.centerContent}>
-            <ActivityIndicator size="large" color="#FFFFFF" />
-            <Text style={styles.loadingText}>{COPY.LOADING}</Text>
-          </View>
-        </View>
-      </View>
-    );
-  }
-
   // Error state with retry button (only if no data)
   if (error && requests.length === 0) {
     return (
