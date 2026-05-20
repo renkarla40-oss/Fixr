@@ -171,6 +171,12 @@ const inspirationContent = [
 ];
 
 export default function CustomerHomeScreen() {
+  React.useEffect(() => {
+    StatusBar.setBarStyle('light-content');
+    if (Platform.OS === 'android') {
+      StatusBar.setBackgroundColor('#2B3642');
+    }
+  }, []);
   const router = useRouter();
   const { shouldShowBetaNotice, markBetaNoticeSeen } = useAuth();
   const insets = useSafeAreaInsets();
@@ -278,8 +284,7 @@ export default function CustomerHomeScreen() {
       >
         <View style={styles.gradientHeaderZone}>
           <LinearGradient
-            colors={['#555555', '#777777', '#999999', '#BBBBBB']}
-            locations={[0, 0.35, 0.7, 1]}
+            colors={['#2B3642', '#2B3642']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.premiumGradient}
@@ -289,7 +294,7 @@ export default function CustomerHomeScreen() {
           <View
             style={[
               styles.heroSection,
-              { paddingTop: Math.max(insets.top, 10) + 2 },
+              { paddingTop: Math.max(insets.top, 10) },
             ]}
           >
             <View style={styles.heroHeader}>
@@ -330,6 +335,7 @@ export default function CustomerHomeScreen() {
               )}
             </View>
           </View>
+        </View>
 
         <View style={styles.carouselSection}>
           <Text style={styles.carouselTitle}>Featured Services</Text>
@@ -493,7 +499,7 @@ Services</Text>
             )}
           </View>
 
-          <View style={[styles.section, { marginBottom: 16 }]}>
+        <View style={[styles.section, { marginBottom: 16 }]}>
             <View style={styles.ctaCard}>
               <View style={styles.ctaContent}>
                 <View style={styles.ctaIconContainer}>
@@ -523,7 +529,6 @@ Services</Text>
               </TouchableOpacity>
             </View>
           </View>
-        </View>
 
         <View style={[styles.section, styles.popularProjectsSection]}>
           <View style={styles.sectionHeader}>
@@ -655,7 +660,7 @@ style={styles.inspirationTitle}>{item.title}</Text>
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#D0D0D0',
+    backgroundColor: '#E4ECF4',
   },
   scrollView: {
     flex: 1,
@@ -665,9 +670,12 @@ const styles = StyleSheet.create({
   },
 
   gradientHeaderZone: {
-    backgroundColor: '#F2F2FF',
+    backgroundColor: '#2B3642',
     position: 'relative',
     overflow: 'hidden',
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
+    marginBottom: 14,
   },
   premiumGradient: {
     position: 'absolute',
@@ -680,8 +688,8 @@ const styles = StyleSheet.create({
   heroSection: {
     backgroundColor: 'transparent',
     paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 16,
+    paddingTop: 0,
+    paddingBottom: 8,
   },
   heroHeader: {
     flexDirection: 'row',
@@ -695,17 +703,19 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#D8D8D8',
-    lineHeight: 36,
-    marginBottom: 20,
+    color: '#FFFFFF',
+    lineHeight: 32,
+    marginBottom: 10,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#D8D8D8',
+    backgroundColor: '#FFFFFF',
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 4,
+    marginHorizontal: 10,
+    marginBottom: 6,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
@@ -871,7 +881,7 @@ const styles = StyleSheet.create({
   serviceCard: {
     width: (SCREEN_WIDTH - 52) / 2,
     height: 96,
-    backgroundColor: '#2B3642',
+    backgroundColor: '#3A4758',
     borderRadius: 14,
     paddingVertical: 12,
     paddingHorizontal: 10,
@@ -887,7 +897,7 @@ const styles = StyleSheet.create({
   servicesStackedList: { gap: 10, paddingHorizontal: 20 },
   serviceStackedCard: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#D8D8D8', borderRadius: 14,
+    backgroundColor: '#FFFFFF', borderRadius: 14,
     paddingVertical: 14, paddingHorizontal: 16,
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06, shadowRadius: 6, elevation: 2,
@@ -963,7 +973,7 @@ const styles = StyleSheet.create({
   browseProvidersCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#D8D8D8',
+    backgroundColor: '#FFFFFF',
     marginHorizontal: 20,
     marginTop: 8,
     marginBottom: 16,
@@ -1040,7 +1050,7 @@ const styles = StyleSheet.create({
 
   ctaCard: {
     marginHorizontal: 20,
-    backgroundColor: '#D8D8D8',
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 20,
     shadowColor: '#000',
@@ -1101,7 +1111,7 @@ const styles = StyleSheet.create({
   },
   pricingCard: {
     flex: 1,
-    backgroundColor: '#D8D8D8',
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 16,
     shadowColor: '#000',
