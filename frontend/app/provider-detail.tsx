@@ -227,7 +227,7 @@ export default function ProviderDetailScreen() {
               onPress={() => router.back()}
               style={styles.backButton}
             >
-              <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+              <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
             </TouchableOpacity>
             <Text style={styles.title}>Provider Details</Text>
             <View style={styles.backButton} />
@@ -249,7 +249,7 @@ export default function ProviderDetailScreen() {
               onPress={() => router.back()}
               style={styles.backButton}
             >
-              <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+              <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
             </TouchableOpacity>
             <Text style={styles.title}>Provider Details</Text>
             <View style={styles.backButton} />
@@ -270,7 +270,7 @@ export default function ProviderDetailScreen() {
             onPress={() => router.back()}
             style={styles.backButton}
           >
-            <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
           <Text style={styles.title}>Provider Details</Text>
           <TouchableOpacity
@@ -455,7 +455,7 @@ export default function ProviderDetailScreen() {
           </TouchableOpacity>
         </ScrollView>
 
-        <View style={[styles.footer, { paddingBottom: Math.max(24, insets.bottom + 80) }]}>
+        <View style={[styles.footer, { paddingBottom: Math.max(8, insets.bottom + 8) }]}>
           {/* Directory browsing mode - show "Create Request" CTA */}
           {isBrowsingOnly ? (
             <>
@@ -527,20 +527,20 @@ export default function ProviderDetailScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#E4ECF4',
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#E4ECF4',
   },
   header: {
+    height: 104,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    paddingHorizontal: 20,
+    paddingTop: 18,
+    backgroundColor: '#273444',
   },
   backButton: {
     width: 44,
@@ -551,7 +551,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
   },
   centerContent: {
     flex: 1,
@@ -560,14 +560,14 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
-    color: '#999',
+    color: '#FFFFFF',
   },
   content: {
     flex: 1,
   },
   contentContainer: {
     padding: 24,
-    paddingBottom: 100,
+    paddingBottom: 32,
   },
   profileSection: {
     alignItems: 'center',
@@ -710,11 +710,12 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   footer: {
-    padding: 24,
-    paddingBottom: 40,
-    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 6,
+    backgroundColor: '#E4ECF4',
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+    borderTopColor: '#D6DEE8',
   },
   requestButton: {
     backgroundColor: '#C13E1F',
@@ -810,11 +811,13 @@ const styles = StyleSheet.create({
   directoryNotice: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E3F2FD',
+    backgroundColor: '#D8ECFA',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 12,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#B7D8F0',
     gap: 10,
   },
   directoryNoticeText: {
@@ -826,11 +829,11 @@ const styles = StyleSheet.create({
   createRequestButton: {
     flexDirection: 'row',
     backgroundColor: '#C13E1F',
-    paddingVertical: 16,
+    paddingVertical: 10,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 56,
+    minHeight: 44,
     gap: 8,
   },
   createRequestButtonText: {
