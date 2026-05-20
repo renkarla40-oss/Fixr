@@ -292,22 +292,6 @@ export default function CustomerInboxScreen() {
 
   // CRITICAL: Only show loading spinner on initial load (no data yet)
   // This prevents "empty flash" during rapid tab switching
-  if (loading && !initialLoadComplete && conversations.length === 0) {
-    return (
-      <View style={styles.container}>
-        <View style={[styles.headerShell, { paddingTop: insets.top }]}>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Inbox</Text>
-          </View>
-        </View>
-        <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#F05A28" />
-          <Text style={styles.loadingText}>{COPY.LOADING}</Text>
-        </View>
-      </View>
-    );
-  }
-
   // Error state with retry button (only if no data)
   if (error && conversations.length === 0) {
     return (
