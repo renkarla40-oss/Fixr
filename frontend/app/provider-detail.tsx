@@ -7,6 +7,8 @@ import {
   ScrollView,
   SafeAreaView,
   ActivityIndicator,
+  StatusBar,
+  Platform,
   Alert,
   Image,
 } from 'react-native';
@@ -40,6 +42,13 @@ interface PublicReview {
 }
 
 export default function ProviderDetailScreen() {
+  useEffect(() => {
+    StatusBar.setBarStyle('dark-content');
+    if (Platform.OS === 'android') {
+      StatusBar.setBackgroundColor('#E4ECF4');
+    }
+  }, []);
+
   const router = useRouter();
   const params = useLocalSearchParams();
   const { token } = useAuth();
@@ -220,7 +229,8 @@ export default function ProviderDetailScreen() {
 
   if (!provider) {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <View style={styles.safeArea}>
+        <View style={{ height: insets.top, backgroundColor: '#E4ECF4' }} />
         <View style={styles.container}>
           <View style={styles.header}>
             <TouchableOpacity
@@ -236,12 +246,13 @@ export default function ProviderDetailScreen() {
             <Text style={styles.errorText}>Provider not found</Text>
           </View>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
+      <View style={{ height: insets.top, backgroundColor: '#E4ECF4' }} />
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity
@@ -498,7 +509,7 @@ export default function ProviderDetailScreen() {
           )}
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -518,7 +529,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingTop: 18,
-    backgroundColor: '#273444',
+    backgroundColor: '#2B3642',
   },
   backButton: {
     width: 44,
@@ -551,13 +562,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 24,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: '#D6DEE8',
   },
   avatarLarge: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -588,7 +599,7 @@ const styles = StyleSheet.create({
   awayBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
@@ -651,9 +662,17 @@ const styles = StyleSheet.create({
     color: '#4A7DC4',
   },
   section: {
-    paddingVertical: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: '#D6DEE8',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -688,10 +707,9 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   footer: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 6,
-    backgroundColor: '#E4ECF4',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 24,
+    paddingTop: 12,
     borderTopWidth: 1,
     borderTopColor: '#D6DEE8',
   },
@@ -765,7 +783,7 @@ const styles = StyleSheet.create({
   awayNotice: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 12,
@@ -790,16 +808,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#D8ECFA',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
     borderRadius: 12,
-    marginBottom: 12,
+    marginBottom: 10,
     borderWidth: 1,
     borderColor: '#B7D8F0',
-    gap: 10,
+    gap: 8,
   },
   directoryNoticeText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#1565C0',
     flex: 1,
     lineHeight: 20,

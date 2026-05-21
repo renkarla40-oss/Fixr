@@ -8,6 +8,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  StatusBar,
   Modal,
   FlatList,
   ActivityIndicator,
@@ -44,6 +45,13 @@ interface Town {
 }
 
 export default function ServiceLocationScreen() {
+  useEffect(() => {
+    StatusBar.setBarStyle('dark-content');
+    if (Platform.OS === 'android') {
+      StatusBar.setBackgroundColor('#E4ECF4');
+    }
+  }, []);
+
   const router = useRouter();
   const params = useLocalSearchParams();
   const { token } = useAuth();
@@ -131,7 +139,8 @@ export default function ServiceLocationScreen() {
   };
 
   return (
-    <View style={[styles.safeArea, { paddingTop: insets.top }]}>
+    <View style={styles.safeArea}>
+      <View style={{ height: insets.top, backgroundColor: '#E4ECF4' }} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
@@ -422,18 +431,19 @@ export default function ServiceLocationScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#2B3642',
+    backgroundColor: '#E4ECF4',
   },
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F2',
+    backgroundColor: '#E4ECF4',
   },
   header: {
+    height: 104,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 20,
+    paddingTop: 18,
     backgroundColor: '#2B3642',
   },
   backButton: {
@@ -510,7 +520,6 @@ const styles = StyleSheet.create({
   },
   unitButtonActive: {
     backgroundColor: '#C13E1F',
-    backgroundColor: '#C13E1F',
   },
   unitButtonText: {
     fontSize: 13,
@@ -532,10 +541,10 @@ const styles = StyleSheet.create({
   pickerButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1.5,
-    borderColor: '#E0E0E0',
+    borderColor: '#D6DEE8',
     padding: 16,
     gap: 12,
   },
@@ -548,11 +557,11 @@ const styles = StyleSheet.create({
     color: '#999',
   },
   footer: {
-    padding: 24,
-    paddingBottom: 32,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 24,
+    paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
-    backgroundColor: '#F2F2F2',
+    borderTopColor: '#D6DEE8',
   },
   continueButton: {
     flexDirection: 'row',
@@ -582,14 +591,14 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#F2F2F2',
+    backgroundColor: '#E4ECF4',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '80%',
     paddingBottom: 32,
   },
   modalContentSmall: {
-    backgroundColor: '#F2F2F2',
+    backgroundColor: '#E4ECF4',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingBottom: 32,
@@ -600,7 +609,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: '#D6DEE8',
   },
   modalTitle: {
     fontSize: 20,
@@ -610,7 +619,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     margin: 16,
     paddingHorizontal: 12,

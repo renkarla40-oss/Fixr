@@ -265,7 +265,8 @@ export default function ProviderListScreen() {
   // Browse flow: no requestId guard — providers load from category + location
 
   return (
-    <View style={[styles.safeArea, { paddingTop: insets.top }]}>
+    <View style={styles.safeArea}>
+      <View style={{ height: insets.top, backgroundColor: '#E4ECF4' }} />
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity
@@ -782,11 +783,11 @@ export default function ProviderListScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#2B3642',
+    backgroundColor: '#E4ECF4',
   },
   container: {
     flex: 1,
-    backgroundColor: '#F2F4F7',
+    backgroundColor: '#E4ECF4',
   },
   header: {
     flexDirection: 'row',
@@ -810,9 +811,9 @@ const styles = StyleSheet.create({
   filterBar: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#E4ECF4',
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: '#D6DEE8',
   },
   locationInfo: {
     flexDirection: 'row',
@@ -968,7 +969,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -1046,7 +1047,7 @@ const styles = StyleSheet.create({
   awayBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
@@ -1067,7 +1068,7 @@ const styles = StyleSheet.create({
   awayHelperContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
@@ -1083,7 +1084,7 @@ const styles = StyleSheet.create({
   // Disabled styles for away providers
   providerCardDisabled: {
     opacity: 0.7,
-    borderColor: '#E0E0E0',
+    borderColor: '#D6DEE8',
     backgroundColor: '#FAFAFA',
   },
   disabledContent: {
@@ -1096,7 +1097,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   badgeDisabled: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
   },
   acceptingBadge: {
     flexDirection: 'row',
@@ -1318,7 +1319,7 @@ const styles = StyleSheet.create({
   modalSecondaryButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
     paddingVertical: 14,
     borderRadius: 12,
   },

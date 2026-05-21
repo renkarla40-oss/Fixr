@@ -8,6 +8,7 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  StatusBar,
   ScrollView,
   Alert,
   ActivityIndicator,
@@ -25,6 +26,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 export default function RequestServiceScreen() {
+  useEffect(() => {
+    StatusBar.setBarStyle('dark-content');
+    if (Platform.OS === 'android') {
+      StatusBar.setBackgroundColor('#E4ECF4');
+    }
+  }, []);
+
   const router = useRouter();
   const params = useLocalSearchParams();
   const { token } = useAuth();
@@ -212,13 +220,14 @@ export default function RequestServiceScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
+      <View style={{ height: insets.top, backgroundColor: '#E4ECF4' }} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
-        <View style={[styles.header, { paddingTop: Math.max(insets.top, 12) + 4 }]}>
+        <View style={styles.header}>
           <TouchableOpacity
             onPress={() => router.back()}
             style={styles.backButton}
@@ -416,25 +425,26 @@ export default function RequestServiceScreen() {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F2F4F7',
+    backgroundColor: '#E4ECF4',
   },
   container: {
     flex: 1,
-    backgroundColor: '#F2F4F7',
+    backgroundColor: '#E4ECF4',
   },
   header: {
+    height: 104,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingBottom: 12,
+    paddingHorizontal: 20,
+    paddingTop: 18,
     backgroundColor: '#2B3642',
   },
   backButton: {
@@ -470,10 +480,10 @@ const styles = StyleSheet.create({
     color: '#C13E1F',
   },
   readOnlyInput: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#D6DEE8',
     paddingHorizontal: 16,
     paddingVertical: 16,
   },
@@ -481,10 +491,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#D6DEE8',
     paddingHorizontal: 16,
     paddingVertical: 16,
   },
@@ -496,7 +506,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#D6DEE8',
     paddingHorizontal: 16,
     paddingVertical: 16,
     fontSize: 16,
@@ -512,7 +522,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#D6DEE8',
     paddingHorizontal: 16,
     paddingVertical: 16,
     minHeight: 56,
@@ -563,7 +573,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+    borderTopColor: '#D6DEE8',
   },
   submitNote: {
     fontSize: 13,

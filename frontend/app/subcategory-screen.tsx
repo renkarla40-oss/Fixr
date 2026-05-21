@@ -63,7 +63,8 @@ export default function SubcategoryScreen() {
   if (!category) {
     return (
       <View style={styles.safeArea}>
-        <View style={[styles.header, { paddingTop: Math.max(insets.top, 12) + 8 }]}>
+        <View style={{ height: insets.top, backgroundColor: '#E4ECF4' }} />
+        <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
@@ -83,7 +84,8 @@ export default function SubcategoryScreen() {
 
   return (
     <View style={styles.safeArea}>
-      <View style={[styles.header, { paddingTop: Math.max(insets.top, 12) + 8 }]}>
+      <View style={{ height: insets.top, backgroundColor: '#E4ECF4' }} />
+      <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
@@ -172,14 +174,15 @@ export default function SubcategoryScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#E4ECF4',
   },
   header: {
+    height: 104,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingBottom: 12,
+    paddingHorizontal: 20,
+    paddingTop: 18,
     backgroundColor: '#2B3642',
   },
   backButton: {
@@ -257,7 +260,7 @@ const styles = StyleSheet.create({
   },
   optionCardSelected: {
     borderColor: '#555555',
-    backgroundColor: '#F2F2F2',
+    backgroundColor: '#E4ECF4',
   },
   optionText: {
     flex: 1,
@@ -302,7 +305,7 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: Platform.OS === 'ios' ? 32 : 24,
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+    borderTopColor: '#D6DEE8',
     backgroundColor: '#FFFFFF',
   },
   continueButton: {
@@ -316,7 +319,7 @@ const styles = StyleSheet.create({
     minHeight: 56,
   },
   continueButtonDisabled: {
-    backgroundColor: '#F2F2F2',
+    backgroundColor: '#E4ECF4',
     opacity: 1,
   },
   continueButtonText: {
