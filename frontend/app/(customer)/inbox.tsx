@@ -321,8 +321,20 @@ export default function CustomerInboxScreen() {
         </View>
       </View>
       
-      {/* Empty state - ONLY show when initial load is complete AND truly empty */}
-      {initialLoadComplete && conversations.length === 0 ? (
+      {/* Lightweight placeholder while first inbox fetch completes */}
+      {!initialLoadComplete && conversations.length === 0 ? (
+        <View style={styles.listContent}>
+          {[1, 2, 3].map((item) => (
+            <View key={item} style={styles.skeletonConversationItem}>
+              <View style={styles.skeletonAvatar} />
+              <View style={styles.skeletonTextBlock}>
+                <View style={styles.skeletonLineWide} />
+                <View style={styles.skeletonLineShort} />
+              </View>
+            </View>
+          ))}
+        </View>
+      ) : initialLoadComplete && conversations.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Ionicons name="chatbubbles-outline" size={64} color="#CCC" />
           <Text style={styles.emptyTitle}>{COPY.EMPTY_TITLE}</Text>
@@ -426,6 +438,40 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     gap: 8,
   },
+  skeletonConversationItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    minHeight: 76,
+    opacity: 0.75,
+  },
+  skeletonAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#EEF3F8',
+    marginRight: 12,
+  },
+  skeletonTextBlock: {
+    flex: 1,
+    gap: 8,
+  },
+  skeletonLineWide: {
+    height: 12,
+    width: '72%',
+    borderRadius: 8,
+    backgroundColor: '#EEF3F8',
+  },
+  skeletonLineShort: {
+    height: 10,
+    width: '45%',
+    borderRadius: 8,
+    backgroundColor: '#EEF3F8',
+  },
+
   conversationItem: {
     flexDirection: 'row',
     alignItems: 'center',

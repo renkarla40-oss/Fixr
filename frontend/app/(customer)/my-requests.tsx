@@ -447,6 +447,19 @@ export default function MyRequestsScreen() {
             />
           }
         >
+
+          {!initialLoadComplete && requests.length === 0 ? (
+            <>
+              {[1, 2, 3].map((item) => (
+                <View key={item} style={styles.skeletonRequestCard}>
+                  <View style={styles.skeletonLineWide} />
+                  <View style={styles.skeletonLineMedium} />
+                  <View style={styles.skeletonLineShort} />
+                </View>
+              ))}
+            </>
+          ) : null}
+
           {displayedRequests.map((request) => {
             const effectiveStatus = getEffectiveStatus(request);
             const statusColors = getStatusColor(effectiveStatus);
@@ -672,6 +685,35 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 16,
   },
+  skeletonRequestCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    minHeight: 104,
+    opacity: 0.75,
+  },
+  skeletonLineWide: {
+    height: 14,
+    width: '75%',
+    borderRadius: 8,
+    backgroundColor: '#EEF3F8',
+    marginBottom: 14,
+  },
+  skeletonLineMedium: {
+    height: 12,
+    width: '55%',
+    borderRadius: 8,
+    backgroundColor: '#EEF3F8',
+    marginBottom: 12,
+  },
+  skeletonLineShort: {
+    height: 10,
+    width: '38%',
+    borderRadius: 8,
+    backgroundColor: '#EEF3F8',
+  },
+
   requestCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,

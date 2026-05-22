@@ -119,7 +119,8 @@ export default function FavoritesScreen() {
   return (
     <View style={styles.safeArea}>
       <View style={styles.container}>
-      <View style={[styles.headerShell, { paddingTop: insets.top }]}>
+      <View style={styles.headerShell}>
+        <View style={{ height: insets.top, backgroundColor: '#E4ECF4' }} />
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Favourite Providers</Text>
         </View>
@@ -172,8 +173,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#E4ECF4',
   },
   header: {
-    paddingHorizontal: 16,
-    paddingVertical: 18,
+    height: 104,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
     backgroundColor: '#2B3642',
   },
   title: {

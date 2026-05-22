@@ -294,7 +294,8 @@ export default function CustomerChatScreen() {
 
   // ─── Render ──────────────────────────────────────────────────────────────────
   return (
-    <View style={[styles.safeArea, { paddingTop: insets.top }]}>
+    <View style={styles.safeArea}>
+      <View style={{ height: insets.top, backgroundColor: '#E4ECF4' }} />
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -509,11 +510,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#E4ECF4',
   },
   header: {
+    height: 104,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 20,
+    paddingTop: 18,
     backgroundColor: '#2B3642',
     borderBottomWidth: 1,
     borderBottomColor: '#D7E2EC',
@@ -529,8 +531,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: 20,
+    fontWeight: '700',
     color: '#FFFFFF',
   },
   chatContainer: {
